@@ -1,0 +1,212 @@
+{
+	"$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+	"name": "DECORATE",
+	"patterns": [
+		{
+			"include": "#comments"
+		},
+		{
+			"include": "#actor-declaration"
+		},
+		{
+			"include": "#states-block"
+		},
+		{
+			"include": "#actor-properties"
+		},
+
+		{
+			"include": "#keywords"
+		},
+		{
+			"include": "#properties"
+		},
+		{
+			"include": "#flags"
+		},
+		{
+			"include": "#action-functions"
+		},
+
+		{
+			"include": "#strings"
+		},
+		{
+			"include": "#numbers"
+		},
+		{
+			"include": "#constants"
+		}
+	],
+	"repository": {
+		"comments": {
+			"patterns": [
+				{
+					"name": "comment.line.double-slash.decorate",
+					"match": "//.*$"
+				},
+				{
+					"name": "comment.block.decorate",
+					"begin": "/\\*",
+					"end": "\\*/"
+				}
+			]
+		},
+		"actor-declaration": {
+			"patterns": [
+				{
+					"name": "meta.actor.decorate",
+					"match": "(?i)\\b(ACTOR)\\b(?:\\s+([a-zA-Z_][a-zA-Z0-9_]*))?(?:\\s*:\\s*([a-zA-Z_][a-zA-Z0-9_]*))?",
+					"captures": {
+						"1": {"name": "keyword.declaration.decorate"},
+						"2": {"name": "entity.name.class.decorate"},
+						"3": {"name": "entity.name.class.inherited.decorate"}
+					}
+				},
+				{
+					"match": "(?i)\\b(replaces)\\b",
+					"name": "keyword.other.decorate"
+				}
+			]
+		},
+		"states-block": {
+			"patterns": [
+				{
+					"name": "keyword.declaration.decorate",
+					"match": "(?i)\\b(States)\\b"
+				},
+				{
+					"match": "^\\s*([a-zA-Z_][a-zA-Z0-9_]*)\\s*:",
+					"captures": {
+						"1": {"name": "entity.name.label.decorate"}
+					}
+				},
+				{
+					"match": "([A-Za-z0-9]+)\\s+([A-Za-z0-9]+)\\s+([0-9]+)",
+					"captures": {
+						"1": {"name": "string.sprite.decorate"},
+						"2": {"name": "constant.character.sprite-frame.decorate"},
+						"3": {"name": "constant.numeric.decorate"}
+					}
+				},
+				{
+					"match": "(?i)\\b(Loop|Stop|Wait)\\b",
+					"name": "keyword.control.decorate"
+				},
+				{
+					"match": "(?i)\\b(Goto)\\b\\s+([a-zA-Z_][a-zA-Z0-9_]*)(?:\\s*([+\\-])\\s*([0-9]+))?",
+					"captures": {
+						"1": {"name": "keyword.control.decorate"},
+						"2": {"name": "entity.name.label.decorate"},
+						"3": {"name": "keyword.operator.decorate"},
+						"4": {"name": "constant.numeric.decorate"}
+					}
+				}
+			]
+		},
+		"actor-properties": {
+			"patterns": [
+				{
+					"match": "\\b(var|const)\\s+(int|float)\\s+([a-zA-Z_][a-zA-Z0-9_]*)",
+					"captures": {
+						"1": {"name": "storage.modifier.decorate"},
+						"2": {"name": "storage.type.decorate"},
+						"3": {"name": "variable.other.decorate"}
+					}
+				},
+				{
+					"name": "variable.other.decorate",
+					"match": "(?i)\\b(x|y|z|angle|ceilingz|floorz|pitch|velx|momx|vely|momy|velz|momz|accuracy|alpha|args|damage|health|height|mass|meleerange|radius|reactiontime|scaleX|scaleY|score|speed|special|stamina|tid|tidtohate|waterlevel)\\b"
+				},
+				{
+					"match": "\\b([a-zA-Z_][a-zA-Z0-9_]*)\\s+(\"[^\"]*\"|[a-zA-Z_][a-zA-Z_]*)(?=\\s|$)",
+					"captures": {
+						"1": {"name": "storage.type.decorate"},
+						"2": {"name": "variable.other.decorate"}
+					}
+				},
+				{
+					"match": "\\b([a-zA-Z_][a-zA-Z0-9_]*)\\s+(\\([0-9]+\\)|[0-9.]+)(?=\\s|$)",
+					"captures": {
+						"1": {"name": "storage.type.decorate"},
+						"2": {"name": "constant.numeric.decorate"}
+					}
+				}
+			]
+		},
+
+		"keywords": {
+			"patterns": [
+				{
+					"match": "(?i)\\b(true|false)\\b",
+					"name": "constant.language.decorate"
+				}
+			]
+		},
+		"properties": {
+			"patterns": [
+				{
+					"match": "[A-Za-z.]+(?=\\s)",
+					"name": "variable.other.property.decorate"
+				}
+			]
+		},
+		"flags": {
+			"patterns": [
+				{
+					"match": "[+\\-][A-Za-z.]+",
+					"name": "variable.other.flag.decorate"
+				}
+			]
+		},
+		"action-functions": {
+			"patterns": [
+				{
+					"match": "\\bA_[a-zA-Z0-9_]*\\b",
+					"name": "entity.name.function.decorate"
+				},
+				{
+					"match": "(?i)\\b(abs|cos|sin|sqrt|random|random2|frandom|ACS_ExecuteWithResult|ACS_NamedExecuteWithResult|CallACS)\b(?=\\s*\\()",
+					"name": "entity.name.function.decorate"
+				},
+				{
+					"match": "\\w+(?=\\s*\\()",
+					"name": "entity.name.function.decorate"
+				}
+
+			]
+		},
+		"strings": {
+			"patterns": [
+				{
+					"name": "string.quoted.double.decorate",
+					"begin": "\"",
+					"end": "\"",
+					"patterns": [
+						{
+							"name": "constant.character.escape.decorate",
+							"match": "\\\\."
+						}
+					]
+				}
+			]
+		},
+		"numbers": {
+			"patterns": [
+				{
+					"match": "-?\\b([0-9]+\\.[0-9]*|\\.[0-9]+)([eE][+-]?[0-9]+)?\\b",
+					"name": "constant.numeric.float.decorate"
+				},
+				{
+					"match": "-?\\b[0-9]+\\b",
+					"name": "constant.numeric.integer.decorate"
+				},
+				{
+					"match": "\\b0x[0-9a-fA-F]+\\b",
+					"name": "constant.numeric.hex.decorate"
+				}
+			]
+		}
+	},
+	"scopeName": "source.decorate"
+}

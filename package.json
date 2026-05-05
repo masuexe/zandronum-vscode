@@ -1,0 +1,83 @@
+{
+  "name": "zandronum-vscode",
+  "displayName": "zandronum-vscode",
+  "description": "",
+  "version": "0.0.1",
+  "engines": {
+    "vscode": "^1.116.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [],
+  "main": "./out/extension.js",
+  "contributes": {
+    "languages": [
+      {
+        "id": "decorate",
+        "aliases": [
+          "DECORATE",
+          "decorate"
+        ],
+        "extensions": [
+          ".dec",
+          ".decorate"
+        ],
+        "configuration": "./language-configuration.json"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "decorate",
+        "scopeName": "source.decorate",
+        "path": "./syntaxes/decorate.tmLanguage.json"
+      }
+    ],
+    "snippets": [
+      {
+        "language": "decorate",
+        "path": "./snippets/decorate.snippets.json"
+      }
+    ],
+    "commands": [
+      {
+        "command": "decorate.buildPK3",
+        "title": "Build PK3"
+      },
+      {
+        "command": "decorate.enterComplete",
+        "title": "Complete Sprite Frame"
+      }
+    ],
+    "keybindings": [
+      {
+        "command": "decorate.enterComplete",
+        "key": "Enter",
+        "when": "editorLangId == decorate"
+      }
+    ]
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "pretest": "npm run compile && npm run lint",
+    "lint": "eslint src",
+    "test": "vscode-test"
+  },
+  "devDependencies": {
+    "@types/archiver": "^7.0.0",
+    "@types/jest": "^30.0.0",
+    "@types/mocha": "^10.0.10",
+    "@types/node": "^22.19.17",
+    "@types/vscode": "^1.116.0",
+    "@vscode/test-cli": "^0.0.12",
+    "@vscode/test-electron": "^2.5.2",
+    "eslint": "^9.39.3",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.56.1"
+  },
+  "dependencies": {
+    "archiver": "^7.0.1"
+  }
+}

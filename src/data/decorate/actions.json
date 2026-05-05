@@ -1,0 +1,61 @@
+{
+  "A_Chase": {
+    "params": [
+      { "name": "melee", "type": "str", "optional": true },
+      { "name": "missile", "type": "str", "optional": true },
+      { "name": "flags", "type": "int", "optional": true }
+    ],
+    "signature": "A_Chase [(str melee[, str missile[, int flags]])])",
+    "desc": "Moves actor toward target"
+  },
+  "A_FireBullets": {
+    "params": [
+      { "name": "spread_xy", "type": "float" },
+      { "name": "spread_z", "type": "float" },
+      { "name": "numbullets", "type": "int" },
+      { "name": "damageperbullet", "type": "int" },
+      { "name": "pufftype", "type": "str", "optional": true },
+      { "name": "flags", "type": "int", "optional": true },
+      { "name": "range", "type": "float", "optional": true }
+    ],
+    "signature": "A_FireBullets (float spread_xy, float spread_z, int numbullets, int damageperbullet [, str pufftype [,int flags [, float range]]])",
+    "desc": "Fires multiple bullets"
+  },
+  "A_FireCustomMissile": {
+    "params": [
+      { "name": "missiletype", "type": "str" },
+      { "name": "angle", "type": "float", "optional": true },
+      { "name": "useammo", "type": "bool", "optional": true },
+      { "name": "spawnofs_horz", "type": "int", "optional": true },
+      { "name": "spawnheight", "type": "int", "optional": true },
+      { "name": "aim", "type": "bool", "optional": true },
+      { "name": "pitch", "type": "float", "optional": true }
+    ],
+    "signature": "A_FireCustomMissile (str missiletype, float angle, bool useammo, int spawnofs_horz, int spawnheight, bool aim, float pitch)",
+    "desc": "Fires a projectile from a Weapon or a CustomInventory"
+  },
+  "A_Log": {
+    "params": [
+      { "name": "text", "type": "str", "optional": true }
+    ],
+    "signature": "A_Log (str text)",
+    "desc": "Logs a string to the console and displays it on the screen"
+  },
+  "A_LogInt": {
+    "params": [
+      { "name": "number", "type": "int" }
+    ],
+    "signature": "A_LogInt (int number)",
+    "desc": "Logs a number to the console and displays it on the screen"
+  },
+  "ThrustThingZ": {
+    "params": [
+      { "name": "tid", "type": "int" },
+      { "name": "force", "type": "int" },
+      { "name": "up/down", "type": "bool" },
+      { "name": "set/add", "type": "bool" }
+    ],
+    "signature": "ThrustThingZ (int tid, int force, bool up/down, bool set/add)",
+    "desc": "Thrusts the thing vertically"
+  }
+}

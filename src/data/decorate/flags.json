@@ -1,0 +1,14 @@
+{
+  "SOLID": {
+    "desc": "Object should be solid (blocking)"
+  },
+  "SHOOTABLE": {
+    "desc": "Object can be damaged"
+  },
+  "FLOAT": {
+    "desc": "Actor can change height at will"
+  },
+  "NOGRAVITY": {
+    "desc": "Actor is not subject to gravity"
+  }
+}

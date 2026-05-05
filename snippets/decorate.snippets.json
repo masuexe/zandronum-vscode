@@ -1,0 +1,16 @@
+{
+  "Actor Template": {
+    "prefix": "actor",
+    "body": [
+      "actor ${1:}",
+      "{",
+      "    States",
+      "    {",
+      "    ${2:Spawn}:",
+      "        TNT1 A 0",
+      "        stop",
+      "    }",
+      "}"
+    ]
+  }
+}

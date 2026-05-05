@@ -1,0 +1,125 @@
+{
+  "abs": {
+    "desc": "Returns the absolute value"
+  },
+  "cos": {
+    "desc": "Returns cosine of angle"
+  },
+  "sin": {
+    "desc": "Returns sine of angle"
+  },
+  "sqrt": {
+    "desc": "Returns the square root"
+  },
+  "random": {
+    "desc": "Returns a random integer value between `min` and `max`"
+  },
+  "random2": {
+    "desc": "Returns a random integer value between `-mask` and `+mask`"
+  },
+  "frandom": {
+    "desc": "Returns a random floating point value between `min` and `max`"
+  },
+  "ACS_ExecuteWithResult": {
+    "desc": "Runs a script and uses its return value"
+  },
+  "ACS_NamedExecuteWithResult": {
+    "desc": "Runs a named script and uses its return value"
+  },
+  "CallACS": {
+    "desc": "Runs a named script and uses its return value"
+  },
+  "x": {
+    "desc": "The actor's X position"
+  },
+  "y": {
+    "desc": "The actor's Y position"
+  },
+  "z": {
+    "desc": "The actor's Z position"
+  },
+  "angle": {
+    "desc": "Actor's angle, in degrees"
+  },
+  "ceilingz": {
+    "desc": "Z height of the ceiling above the calling actor"
+  },
+  "floorz": {
+    "desc": "Z height of the floor underneath the calling actor"
+  },
+  "pitch": {
+    "desc": "The actor's pitch in degrees"
+  },
+  "velx": {
+    "desc": "Actor's velocity along the absolute X axis"
+  },
+  "momx": {
+    "desc": "Actor's velocity along the absolute X axis"
+  },
+  "vely": {
+    "desc": "Actor's velocity along the absolute Y axis"
+  },
+  "momy": {
+    "desc": "Actor's velocity along the absolute Y axis"
+  },
+  "velz": {
+    "desc": "Actor's velocity along the absolute Z axis"
+  },
+  "momz": {
+    "desc": "Actor's velocity along the absolute Z axis"
+  },
+  "accuracy": {
+    "desc": "The accuracy of the Actor"
+  },
+  "alpha": {
+    "desc": "The Alpha value of the Actor"
+  },
+  "args": {
+    "desc": "Arguments passed to the thing special"
+  },
+  "damage": {
+    "desc": "The actor's Damage"
+  },
+  "health": {
+    "desc": "How much health the Actor has left"
+  },
+  "height": {
+    "desc": "The actor's Height"
+  },
+  "mass": {
+    "desc": "The actor's Mass"
+  },
+  "meleerange": {
+    "desc": "The actor's MeleeRange"
+  },
+  "radius": {
+    "desc": "The actor's Radius"
+  },
+  "reaciontime": {
+    "desc": "The actor's ReactionTime"
+  },
+  "scaleX": {
+    "desc": "The actor's horizontal scale"
+  },
+  "scaleY": {
+    "desc": "The actor's vertical scale"
+  },
+  "score": {
+    "desc": "The actor's score"
+  },
+  "special": {
+    "desc": "ID of the special currently assigned to this actor"
+  },
+  "stamina": {
+    "desc": "The stamina of the Actor"
+  },
+  "tid": {
+    "desc": "The actor's TID"
+  },
+  "tidtohate": {
+    "desc": "TID of the current assigned target"
+  },
+  "waterlevel": {
+    "desc": "How \"submerged\" the actor is in a `Transfer_Heights` or 3D floor water pool"
+  }
+}

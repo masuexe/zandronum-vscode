@@ -1,12 +1,23 @@
 {
   "A_Chase": {
     "params": [
-      { "name": "melee", "type": "str", "optional": true },
-      { "name": "missile", "type": "str", "optional": true },
-      { "name": "flags", "type": "int", "optional": true }
+      { "name": "melee", "type": "string", "optional": true },
+      { "name": "missile", "type": "string", "optional": true },
+      {
+        "name": "flags",
+        "type": "int",
+        "optional": true,
+        "mode": "bitmask",
+        "enum": [
+          { "name": "CHF_FASTCHASE", "value": 1, "desc": "Faster chase" },
+          { "name": "CHF_NOPLAYACTIVE", "value": 2, "desc": "No active sound" },
+          { "name": "CHF_NIGHTMAREFAST", "value": 4, "desc": "Nightmare speed" },
+          { "name": "CHF_RESURRECT", "value": 8, "desc": "Can resurrect" },
+          { "name": "CHF_DONTMOVE", "value": 16, "desc": "Don't move" }
+        ]
+      }
     ],
-    "signature": "A_Chase [(str melee[, str missile[, int flags]])])",
-    "desc": "Moves actor toward target"
+    "desc": "This is the standard monster walking function which has to be used in the walking frames of a monster. Typically, it is used in an actor's \"See\" state or a custom equivalent."
   },
   "A_FireBullets": {
     "params": [
@@ -14,16 +25,28 @@
       { "name": "spread_z", "type": "float" },
       { "name": "numbullets", "type": "int" },
       { "name": "damageperbullet", "type": "int" },
-      { "name": "pufftype", "type": "str", "optional": true },
-      { "name": "flags", "type": "int", "optional": true },
+      { "name": "pufftype", "type": "string", "optional": true },
+      {
+        "name": "flags",
+        "type": "int",
+        "optional": true,
+        "mode": "bitmask",
+        "enum": [
+          { "name": "FBF_USEAMMO", "value": 1, "desc": "The attack uses ammo (Set by default)" },
+          { "name": "FBF_NORANDOM", "value": 2, "desc": "No active sound" },
+          { "name": "FBF_EXPLICITANGLE", "value": 4, "desc": "Nightmare speed" },
+          { "name": "FBF_NOPITCH", "value": 8, "desc": "Can resurrect" },
+          { "name": "FBF_NOFLASH", "value": 16, "desc": "Don't move" },
+          { "name": "FBF_NORANDOMPUFFZ", "value": 32, "desc": "Don't move" }
+        ]
+      },
       { "name": "range", "type": "float", "optional": true }
     ],
-    "signature": "A_FireBullets (float spread_xy, float spread_z, int numbullets, int damageperbullet [, str pufftype [,int flags [, float range]]])",
     "desc": "Fires multiple bullets"
   },
   "A_FireCustomMissile": {
     "params": [
-      { "name": "missiletype", "type": "str" },
+      { "name": "missiletype", "type": "string" },
       { "name": "angle", "type": "float", "optional": true },
       { "name": "useammo", "type": "bool", "optional": true },
       { "name": "spawnofs_horz", "type": "int", "optional": true },
@@ -31,31 +54,69 @@
       { "name": "aim", "type": "bool", "optional": true },
       { "name": "pitch", "type": "float", "optional": true }
     ],
-    "signature": "A_FireCustomMissile (str missiletype, float angle, bool useammo, int spawnofs_horz, int spawnheight, bool aim, float pitch)",
     "desc": "Fires a projectile from a Weapon or a CustomInventory"
   },
   "A_Log": {
     "params": [
-      { "name": "text", "type": "str", "optional": true }
+      { "name": "text", "type": "string", "optional": true }
     ],
-    "signature": "A_Log (str text)",
     "desc": "Logs a string to the console and displays it on the screen"
   },
   "A_LogInt": {
     "params": [
       { "name": "number", "type": "int" }
     ],
-    "signature": "A_LogInt (int number)",
     "desc": "Logs a number to the console and displays it on the screen"
+  },
+  "A_SpawnItemEx": {
+    "params": [
+      { "name": "type", "type": "string" },
+      { "name": "xofs", "type": "float", "optional": true },
+      { "name": "yofs", "type": "float", "optional": true },
+      { "name": "zofs", "type": "float", "optional": true },
+      { "name": "xvel", "type": "float", "optional": true },
+      { "name": "yvel", "type": "float", "optional": true },
+      { "name": "zvel", "type": "float", "optional": true },
+      { "name": "angle", "type": "float", "optional": true },
+      {
+        "name": "flags",
+        "type": "int",
+        "optional": true,
+        "mode": "bitmask",
+        "enum": [
+          { "name": "SXF_TRANSFERTRANSLATION", "value": 1, "desc": "The attack uses ammo (Set by default)" },
+          { "name": "SXF_ABSOLUTEPOSITION", "value": 2, "desc": "No active sound" },
+          { "name": "SXF_ABSOLUTEANGLE", "value": 4, "desc": "Nightmare speed" },
+          { "name": "SXF_ABSOLUTEMOMENTUM", "value": 8, "desc": "Can resurrect" },
+          { "name": "SXF_ABSOLUTEVELOCITY", "value": 8, "desc": "Can resurrect" },
+          { "name": "SXF_SETMASTER", "value": 16, "desc": "Don't move" },
+          { "name": "SXF_NOCHECKPOSITION", "value": 32, "desc": "Don't move" },
+          { "name": "SXF_TELEFRAG", "value": 64, "desc": "Don't move" },
+          { "name": "SXF_CLIENTSIDE", "value": 128, "desc": "Don't move" },
+          { "name": "SXF_TRANSFERAMBUSHFLAG", "value": 256, "desc": "Don't move" },
+          { "name": "SXF_TRANSFERPITCH", "value": 512, "desc": "Don't move" },
+          { "name": "SXF_TRANSFERPOINTERS", "value": 1024, "desc": "Don't move" },
+          { "name": "SXF_USEBLOODCOLOR", "value": 2048, "desc": "Don't move" },
+          { "name": "SXF_CLEARCALLERTID", "value": 4096, "desc": "Don't move" },
+          { "name": "SXF_MULTIPLYSPEED", "value": 8192, "desc": "Don't move" },
+          { "name": "SXF_TRANSFERSCALE", "value": 16384, "desc": "Don't move" },
+          { "name": "SXF_TRANSFERSPECIAL", "value": 32768, "desc": "Don't move" },
+          { "name": "SXF_CLEARCALLERSPECIAL", "value": 65536, "desc": "Don't move" },
+          { "name": "SXF_TRANSFERSTENCILCOL", "value": 131072, "desc": "Don't move" }
+        ]
+      },
+      { "name": "failchance", "type": "int", "optional": true },
+      { "name": "tid", "type": "int", "optional": true }
+    ],
+    "desc": "Spawns an actor at the specified offset away from the calling actor, facing the given angle, and with the indicated velocity."
   },
   "ThrustThingZ": {
     "params": [
       { "name": "tid", "type": "int" },
       { "name": "force", "type": "int" },
-      { "name": "up/down", "type": "bool" },
-      { "name": "set/add", "type": "bool" }
+      { "name": "up_down", "type": "bool" },
+      { "name": "set_add", "type": "bool" }
     ],
-    "signature": "ThrustThingZ (int tid, int force, bool up/down, bool set/add)",
     "desc": "Thrusts the thing vertically"
   }
 }

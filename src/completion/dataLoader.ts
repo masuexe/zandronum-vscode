@@ -2,8 +2,18 @@ import * as path from 'path';
 import * as fs from 'fs';
 import * as vscode from 'vscode';
 
+export interface ParamData {
+    name: string;
+    type: string;
+    optional?: boolean;
+    default?: string;
+    mode?: 'bitmask' | 'enum';
+    enum?: Array<{ name: string; value: number }>;
+    variadic?: boolean;
+}
+
 export interface ActionData {
-    params?: Array<{ name: string; type: string; optional?: boolean }> | string[];
+    params?: ParamData[] | string[];
     signature?: string;
     desc?: string;
 }
@@ -26,7 +36,7 @@ let cache: Record<string, any> = {};
 
 function loadDataJson<T>(context: vscode.ExtensionContext, filename: string): Record<string, T> {
     if (!cache[filename]) {
-        const file = path.join(context.extensionPath, 'src/data/decorate', filename);
+        const file = path.join(context.extensionPath, 'data/decorate', filename);
         cache[filename] = JSON.parse(fs.readFileSync(file, 'utf-8'));
     }
     return cache[filename];

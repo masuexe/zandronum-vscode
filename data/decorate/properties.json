@@ -1,0 +1,110 @@
+{
+  "Scale": {
+    "type": "int",
+    "desc": "Scale property"
+  },
+  "Health": {
+    "type": "int",
+    "desc": "Health points"
+  },
+  "GibHealth": {
+    "type": "int",
+    "desc": "Health below which this actor enters the extreme death sequence"
+  },
+  "WoundHealth": {
+    "type": "int",
+    "desc": "Health below which the actor enters the Wound state"
+  },
+  "Reactiontime": {
+    "type": "int",
+    "desc": "Reactiontime property"
+  },
+  "Radius": {
+    "type": "int",
+    "desc": "Radius property"
+  },
+  "Height": {
+    "type": "int",
+    "desc": "Height property"
+  },
+  "Mass": {
+    "type": "int",
+    "desc": "Mass property"
+  },
+  "RenderStyle": {
+    "type": "string",
+    "desc": "RenderStyle property"
+  },
+  "Alpha": {
+    "type": "int",
+    "desc": "Alpha property"
+  },
+  "MinMissileChance": {
+    "type": "int",
+    "desc": "MinMissileChance property"
+  },
+  "MeleeRange": {
+    "type": "int",
+    "desc": "MeleeRange property"
+  },
+  "MaxDropoffHeight": {
+    "type": "int",
+    "desc": "MaxDropoffHeight property"
+  },
+  "MaxStepHeight": {
+    "type": "int",
+    "desc": "MaxStepHeight property"
+  },
+  "BounceFactor": {
+    "type": "float",
+    "desc": "BounceFactor property"
+  },
+  "WallBounceFactor": {
+    "type": "float",
+    "desc": "WallBounceFactor property"
+  },
+  "BounceCount": {
+    "type": "int",
+    "desc": "BounceCount property"
+  },
+  "FloatSpeed": {
+    "type": "int",
+    "desc": "FloatSpeed property"
+  },
+  "FloatBobPhase": {
+    "type": "int",
+    "desc": "FloatBobPhase property"
+  },
+  "Gravity": {
+    "type": "int",
+    "desc": "Gravity property"
+  },
+  "DamageFactor": {
+    "type": "float",
+    "desc": "DamageFactor property"
+  },
+  "PushFactor": {
+    "type": "float",
+    "desc": "PushFactor property"
+  },
+  "WeaveIndexXY": {
+    "type": "int",
+    "desc": "WeaveIndexXY property"
+  },
+  "WeaveIndexZ": {
+    "type": "int",
+    "desc": "WeaveIndexZ property"
+  },
+  "DesignatedTeam": {
+    "type": "int",
+    "desc": "DesignatedTeam property"
+  },
+  "PainType": {
+    "type": "string",
+    "desc": "PainType property"
+  },
+  "DeathType": {
+    "type": "string",
+    "desc": "DeathType property"
+  }
+}

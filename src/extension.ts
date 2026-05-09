@@ -3,7 +3,7 @@ import { getActions, getProperties, getFlags, getExpressions } from './completio
 import { registerCompletionProvider } from './completion/completionProvider';
 import { registerSignatureHelp } from './completion/signatureProvider';
 import { registerEnterCompleteCommand } from './completion/commands';
-import { buildPK3 } from './build';
+import { buildPK3 } from './tools/build';
 
 
 export function activate(context: vscode.ExtensionContext) {

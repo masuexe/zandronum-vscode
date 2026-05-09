@@ -1,0 +1,9 @@
+{
+  "Monster": {
+    "description": "Makes the actor behave like a monster."
+  },
+
+  "Projectile": {
+    "description": "Makes the actor behave like a projectile."
+  }
+}

@@ -1,0 +1,125 @@
+{
+  "abs": {
+    "desc": "Returns the absolute value"
+  },
+  "cos": {
+    "desc": "Returns cosine of angle"
+  },
+  "sin": {
+    "desc": "Returns sine of angle"
+  },
+  "sqrt": {
+    "desc": "Returns the square root"
+  },
+  "random": {
+    "desc": "Returns a random integer value between `min` and `max`"
+  },
+  "random2": {
+    "desc": "Returns a random integer value between `-mask` and `+mask`"
+  },
+  "frandom": {
+    "desc": "Returns a random floating point value between `min` and `max`"
+  },
+  "ACS_ExecuteWithResult": {
+    "desc": "Runs a script and uses its return value"
+  },
+  "ACS_NamedExecuteWithResult": {
+    "desc": "Runs a named script and uses its return value"
+  },
+  "CallACS": {
+    "desc": "Runs a named script and uses its return value"
+  },
+  "alpha": {
+    "desc": "Built-in variable: alpha"
+  },
+  "angle": {
+    "desc": "Built-in variable: angle"
+  },
+  "args": {
+    "desc": "Built-in variable: args"
+  },
+  "ceilingz": {
+    "desc": "Built-in variable: ceilingz"
+  },
+  "floorz": {
+    "desc": "Built-in variable: floorz"
+  },
+  "health": {
+    "desc": "Built-in variable: health"
+  },
+  "mass": {
+    "desc": "Built-in variable: mass"
+  },
+  "pitch": {
+    "desc": "Built-in variable: pitch"
+  },
+  "special": {
+    "desc": "Built-in variable: special"
+  },
+  "tid": {
+    "desc": "Built-in variable: tid"
+  },
+  "TIDtoHate": {
+    "desc": "Built-in variable: TIDtoHate"
+  },
+  "waterlevel": {
+    "desc": "Built-in variable: waterlevel"
+  },
+  "damage": {
+    "desc": "Built-in variable: damage"
+  },
+  "x": {
+    "desc": "Built-in variable: x"
+  },
+  "y": {
+    "desc": "Built-in variable: y"
+  },
+  "z": {
+    "desc": "Built-in variable: z"
+  },
+  "velx": {
+    "desc": "Built-in variable: velx"
+  },
+  "vely": {
+    "desc": "Built-in variable: vely"
+  },
+  "velz": {
+    "desc": "Built-in variable: velz"
+  },
+  "momx": {
+    "desc": "Built-in variable: momx"
+  },
+  "momy": {
+    "desc": "Built-in variable: momy"
+  },
+  "momz": {
+    "desc": "Built-in variable: momz"
+  },
+  "scaleX": {
+    "desc": "Built-in variable: scaleX"
+  },
+  "scaleY": {
+    "desc": "Built-in variable: scaleY"
+  },
+  "score": {
+    "desc": "Built-in variable: score"
+  },
+  "accuracy": {
+    "desc": "Built-in variable: accuracy"
+  },
+  "stamina": {
+    "desc": "Built-in variable: stamina"
+  },
+  "height": {
+    "desc": "Built-in variable: height"
+  },
+  "radius": {
+    "desc": "Built-in variable: radius"
+  },
+  "reactiontime": {
+    "desc": "Built-in variable: reactiontime"
+  },
+  "meleerange": {
+    "desc": "Built-in variable: meleerange"
+  }
+}

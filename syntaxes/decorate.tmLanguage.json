@@ -14,9 +14,11 @@
 		{
 			"include": "#actor-properties"
 		},
-
 		{
 			"include": "#keywords"
+		},
+		{
+			"include": "#constants"
 		},
 		{
 			"include": "#properties"
@@ -27,15 +29,11 @@
 		{
 			"include": "#action-functions"
 		},
-
 		{
 			"include": "#strings"
 		},
 		{
 			"include": "#numbers"
-		},
-		{
-			"include": "#constants"
 		}
 	],
 	"repository": {
@@ -140,6 +138,14 @@
 				{
 					"match": "(?i)\\b(true|false)\\b",
 					"name": "constant.language.decorate"
+				}
+			]
+		},
+		"constants": {
+			"patterns": [
+				{
+					"match": "\\b[A-Z][A-Z0-9]*_[A-Z0-9_]+\\b",
+					"name": "constant.other.enum.decorate"
 				}
 			]
 		},

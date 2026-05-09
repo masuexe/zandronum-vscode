@@ -1,0 +1,5776 @@
+{
+  "A_Turn": {
+    "params": [
+      {
+        "name": "angle",
+        "type": "float",
+        "optional": true,
+        "default": "0"
+      }
+    ],
+    "desc": "Action function: A_Turn"
+  },
+  "A_LineEffect": {
+    "params": [
+      {
+        "name": "boomspecial",
+        "type": "int",
+        "optional": true,
+        "default": "0"
+      },
+      {
+        "name": "tag",
+        "type": "int",
+        "optional": true,
+        "default": "0"
+      }
+    ],
+    "desc": "Action function: A_LineEffect"
+  },
+  "A_MonsterRail": {
+    "params": [],
+    "desc": "Action function: A_MonsterRail"
+  },
+  "A_BFGSpray": {
+    "params": [
+      {
+        "name": "spraytype",
+        "type": "string",
+        "optional": true,
+        "default": "\"BFGExtra\""
+      },
+      {
+        "name": "numrays",
+        "type": "int",
+        "optional": true,
+        "default": "40"
+      },
+      {
+        "name": "damagecount",
+        "type": "int",
+        "optional": true,
+        "default": "15"
+      }
+    ],
+    "desc": "Action function: A_BFGSpray"
+  },
+  "A_Pain": {
+    "params": [],
+    "desc": "Action function: A_Pain"
+  },
+  "A_NoBlocking": {
+    "params": [],
+    "desc": "Action function: A_NoBlocking"
+  },
+  "A_XScream": {
+    "params": [],
+    "desc": "Action function: A_XScream"
+  },
+  "A_Look": {
+    "params": [],
+    "desc": "Action function: A_Look"
+  },
+  "A_Chase": {
+    "params": [
+      {
+        "name": "melee",
+        "type": "string",
+        "optional": true,
+        "default": "\"*\""
+      },
+      {
+        "name": "missile",
+        "type": "string",
+        "optional": true,
+        "default": "\"none\""
+      },
+      {
+        "name": "flags",
+        "type": "int",
+        "optional": true,
+        "default": "0",
+        "mode": "bitmask",
+        "enum": [
+          {
+            "name": "CHF_FASTCHASE",
+            "value": 1
+          },
+          {
+            "name": "CHF_NOPLAYACTIVE",
+            "value": 2
+          },
+          {
+            "name": "CHF_NIGHTMAREFAST",
+            "value": 4
+          },
+          {
+            "name": "CHF_RESURRECT",
+            "value": 8
+          },
+          {
+            "name": "CHF_DONTMOVE",
+            "value": 16
+          }
+        ]
+      }
+    ],
+    "desc": "This is the standard monster walking function which has to be used in the walking frames of a monster. Typically, it is used in an actor's \"See\" state or a custom equivalent."
+  },
+  "A_FaceTarget": {
+    "params": [
+      {
+        "name": "max_turn",
+        "type": "float",
+        "optional": true,
+        "default": "0"
+      },
+      {
+        "name": "max_pitch",
+        "type": "float",
+        "optional": true,
+        "default": "270"
+      }
+    ],
+    "desc": "Action function: A_FaceTarget"
+  },
+  "A_FaceTracer": {
+    "params": [
+      {
+        "name": "max_turn",
+        "type": "float",
+        "optional": true,
+        "default": "0"
+      },
+      {
+        "name": "max_pitch",
+        "type": "float",
+        "optional": true,
+        "default": "270"
+      }
+    ],
+    "desc": "Action function: A_FaceTracer"
+  },
+  "A_FaceMaster": {
+    "params": [
+      {
+        "name": "max_turn",
+        "type": "float",
+        "optional": true,
+        "default": "0"
+      },
+      {
+        "name": "max_pitch",
+        "type": "float",
+        "optional": true,
+        "default": "270"
+      }
+    ],
+    "desc": "Action function: A_FaceMaster"
+  },
+  "A_PosAttack": {
+    "params": [],
+    "desc": "Action function: A_PosAttack"
+  },
+  "A_Scream": {
+    "params": [],
+    "desc": "Action function: A_Scream"
+  },
+  "A_SPosAttack": {
+    "params": [],
+    "desc": "Action function: A_SPosAttack"
+  },
+  "A_SPosAttackUseAtkSound": {
+    "params": [],
+    "desc": "Action function: A_SPosAttackUseAtkSound"
+  },
+  "A_VileChase": {
+    "params": [],
+    "desc": "Action function: A_VileChase"
+  },
+  "A_VileStart": {
+    "params": [],
+    "desc": "Action function: A_VileStart"
+  },
+  "A_VileTarget": {
+    "params": [
+      {
+        "name": "fire",
+        "type": "string",
+        "optional": true,
+        "default": "\"ArchvileFire\""
+      }
+    ],
+    "desc": "Action function: A_VileTarget"
+  },
+  "A_VileAttack": {
+    "params": [
+      {
+        "name": "snd",
+        "type": "string",
+        "optional": true,
+        "default": "\"vile/stop\""
+      },
+      {
+        "name": "initialdmg",
+        "type": "int",
+        "optional": true,
+        "default": "20"
+      },
+      {
+        "name": "blastdmg",
+        "type": "int",
+        "optional": true,
+        "default": "70"
+      },
+      {
+        "name": "blastradius",
+        "type": "int",
+        "optional": true,
+        "default": "70"
+      },
+      {
+        "name": "thrustfac",
+        "type": "float",
+        "optional": true,
+        "default": "1.0"
+      },
+      {
+        "name": "damagetype",
+        "type": "string",
+        "optional": true,
+        "default": "\"Fire\""
+      },
+      {
+        "name": "flags",
+        "type": "int",
+        "optional": true,
+        "default": "0",
+        "mode": "bitmask",
+        "enum": [
+          {
+            "name": "VAF_DMGTYPEAPPLYTODIRECT",
+            "value": 1
+          }
+        ]
+      }
+    ],
+    "desc": "Action function: A_VileAttack"
+  },
+  "A_StartFire": {
+    "params": [],
+    "desc": "Action function: A_StartFire"
+  },
+  "A_Fire": {
+    "params": [
+      {
+        "name": "spawnheight",
+        "type": "float",
+        "optional": true,
+        "default": "0"
+      }
+    ],
+    "desc": "Action function: A_Fire"
+  },
+  "A_FireCrackle": {
+    "params": [],
+    "desc": "Action function: A_FireCrackle"
+  },
+  "A_Tracer": {
+    "params": [],
+    "desc": "Action function: A_Tracer"
+  },
+  "A_SkelWhoosh": {
+    "params": [],
+    "desc": "Action function: A_SkelWhoosh"
+  },
+  "A_SkelFist": {
+    "params": [],
+    "desc": "Action function: A_SkelFist"
+  },
+  "A_SkelMissile": {
+    "params": [],
+    "desc": "Action function: A_SkelMissile"
+  },
+  "A_FatRaise": {
+    "params": [],
+    "desc": "Action function: A_FatRaise"
+  },
+  "A_FatAttack1": {
+    "params": [
+      {
+        "name": "spawntype",
+        "type": "string",
+        "optional": true,
+        "default": "\"FatShot\""
+      }
+    ],
+    "desc": "Action function: A_FatAttack1"
+  },
+  "A_FatAttack2": {
+    "params": [
+      {
+        "name": "spawntype",
+        "type": "string",
+        "optional": true,
+        "default": "\"FatShot\""
+      }
+    ],
+    "desc": "Action function: A_FatAttack2"
+  },
+  "A_FatAttack3": {
+    "params": [
+      {
+        "name": "spawntype",
+        "type": "string",
+        "optional": true,
+        "default": "\"FatShot\""
+      }
+    ],
+    "desc": "Action function: A_FatAttack3"
+  },
+  "A_BossDeath": {
+    "params": [],
+    "desc": "Action function: A_BossDeath"
+  },
+  "A_CPosAttack": {
+    "params": [],
+    "desc": "Action function: A_CPosAttack"
+  },
+  "A_CPosRefire": {
+    "params": [],
+    "desc": "Action function: A_CPosRefire"
+  },
+  "A_TroopAttack": {
+    "params": [],
+    "desc": "Action function: A_TroopAttack"
+  },
+  "A_SargAttack": {
+    "params": [],
+    "desc": "Action function: A_SargAttack"
+  },
+  "A_HeadAttack": {
+    "params": [],
+    "desc": "Action function: A_HeadAttack"
+  },
+  "A_BruisAttack": {
+    "params": [],
+    "desc": "Action function: A_BruisAttack"
+  },
+  "A_SkullAttack": {
+    "params": [
+      {
+        "name": "speed",
+        "type": "float",
+        "optional": true,
+        "default": "20"
+      }
+    ],
+    "desc": "Action function: A_SkullAttack"
+  },
+  "A_BetaSkullAttack": {
+    "params": [],
+    "desc": "Action function: A_BetaSkullAttack"
+  },
+  "A_Metal": {
+    "params": [],
+    "desc": "Action function: A_Metal"
+  },
+  "A_SpidRefire": {
+    "params": [],
+    "desc": "Action function: A_SpidRefire"
+  },
+  "A_BabyMetal": {
+    "params": [],
+    "desc": "Action function: A_BabyMetal"
+  },
+  "A_BspiAttack": {
+    "params": [],
+    "desc": "Action function: A_BspiAttack"
+  },
+  "A_Hoof": {
+    "params": [],
+    "desc": "Action function: A_Hoof"
+  },
+  "A_CyberAttack": {
+    "params": [],
+    "desc": "Action function: A_CyberAttack"
+  },
+  "A_PainAttack": {
+    "params": [
+      {
+        "name": "spawntype",
+        "type": "string",
+        "optional": true,
+        "default": "\"LostSoul\""
+      },
+      {
+        "name": "angle",
+        "type": "float",
+        "optional": true,
+        "default": "0"
+      },
+      {
+        "name": "flags",
+        "type": "int",
+        "optional": true,
+        "default": "0",
+        "mode": "bitmask",
+        "enum": [
+          {
+            "name": "PAF_NOSKULLATTACK",
+            "value": 1
+          },
+          {
+            "name": "PAF_AIMFACING",
+            "value": 2
+          },
+          {
+            "name": "PAF_NOTARGET",
+            "value": 4
+          }
+        ]
+      },
+      {
+        "name": "limit",
+        "type": "int",
+        "optional": true,
+        "default": "-1"
+      }
+    ],
+    "desc": "Action function: A_PainAttack"
+  },
+  "A_DualPainAttack": {
+    "params": [
+      {
+        "name": "spawntype",
+        "type": "string",
+        "optional": true,
+        "default": "\"LostSoul\""
+      }
+    ],
+    "desc": "Action function: A_DualPainAttack"
+  },
+  "A_PainDie": {
+    "params": [
+      {
+        "name": "spawntype",
+        "type": "string",
+        "optional": true,
+        "default": "\"LostSoul\""
+      }
+    ],
+    "desc": "Action function: A_PainDie"
+  },
+  "A_KeenDie": {
+    "params": [
+      {
+        "name": "doortag",
+        "type": "int",
+        "optional": true,
+        "default": "666"
+      }
+    ],
+    "desc": "Action function: A_KeenDie"
+  },
+  "A_BrainPain": {
+    "params": [],
+    "desc": "Action function: A_BrainPain"
+  },
+  "A_BrainScream": {
+    "params": [],
+    "desc": "Action function: A_BrainScream"
+  },
+  "A_BrainDie": {
+    "params": [],
+    "desc": "Action function: A_BrainDie"
+  },
+  "A_BrainAwake": {
+    "params": [],
+    "desc": "Action function: A_BrainAwake"
+  },
+  "A_BrainSpit": {
+    "params": [
+      {
+        "name": "spawntype",
+        "type": "string",
+        "optional": true,
+        "default": "\"none\""
+      }
+    ],
+    "desc": "Action function: A_BrainSpit"
+  },
+  "A_SpawnSound": {
+    "params": [],
+    "desc": "Action function: A_SpawnSound"
+  },
+  "A_SpawnFly": {
+    "params": [
+      {
+        "name": "spawntype",
+        "type": "string",
+        "optional": true,
+        "default": "\"none\""
+      }
+    ],
+    "desc": "Action function: A_SpawnFly"
+  },
+  "A_BrainExplode": {
+    "params": [],
+    "desc": "Action function: A_BrainExplode"
+  },
+  "A_Die": {
+    "params": [
+      {
+        "name": "damagetype",
+        "type": "string",
+        "optional": true,
+        "default": "\"none\""
+      }
+    ],
+    "desc": "Action function: A_Die"
+  },
+  "A_Detonate": {
+    "params": [],
+    "desc": "Action function: A_Detonate"
+  },
+  "A_Mushroom": {
+    "params": [
+      {
+        "name": "spawntype",
+        "type": "string",
+        "optional": true,
+        "default": "\"FatShot\""
+      },
+      {
+        "name": "numspawns",
+        "type": "int",
+        "optional": true,
+        "default": "0"
+      },
+      {
+        "name": "flags",
+        "type": "int",
+        "optional": true,
+        "default": "0",
+        "mode": "bitmask",
+        "enum": [
+          {
+            "name": "MSF_Standard",
+            "value": 0
+          },
+          {
+            "name": "MSF_Classic",
+            "value": 1
+          },
+          {
+            "name": "MSF_DontHurt",
+            "value": 2
+          }
+        ]
+      },
+      {
+        "name": "vrange",
+        "type": "float",
+        "optional": true,
+        "default": "4.0"
+      },
+      {
+        "name": "hrange",
+        "type": "float",
+        "optional": true,
+        "default": "0.5"
+      }
+    ],
+    "desc": "Action function: A_Mushroom"
+  },
+  "A_CallSpecial": {
+    "params": [
+      {
+        "name": "special",
+        "type": "int",
+        "optional": false
+      },
+      {
+        "name": "arg1",
+        "type": "int",
+        "optional": true,
+        "default": "0"
+      },
+      {
+        "name": "arg2",
+        "type": "int",
+        "optional": true,
+        "default": "0"
+      },
+      {
+        "name": "arg3",
+        "type": "int",
+        "optional": true,
+        "default": "0"
+      },
+      {
+        "name": "arg4",
+        "type": "int",
+        "optional": true,
+        "default": "0"
+      },
+      {
+        "name": "arg5",
+        "type": "int",
+        "optional": true,
+        "default": "0"
+      }
+    ],
+    "desc": "Action function: A_CallSpecial"
+  },
+  "A_SetFloorClip": {
+    "params": [],
+    "desc": "Action function: A_SetFloorClip"
+  },
+  "A_UnSetFloorClip": {
+    "params": [],
+    "desc": "Action function: A_UnSetFloorClip"
+  },
+  "A_HideThing": {
+    "params": [],
+    "desc": "Action function: A_HideThing"
+  },
+  "A_UnHideThing": {
+    "params": [],
+    "desc": "Action function: A_UnHideThing"
+  },
+  "A_SetInvulnerable": {
+    "params": [],
+    "desc": "Action function: A_SetInvulnerable"
+  },
+  "A_UnSetInvulnerable": {
+    "params": [],
+    "desc": "Action function: A_UnSetInvulnerable"
+  },
+  "A_SetReflective": {
+    "params": [],
+    "desc": "Action function: A_SetReflective"
+  },
+  "A_UnSetReflective": {
+    "params": [],
+    "desc": "Action function: A_UnSetReflective"
+  },
+  "A_SetReflectiveInvulnerable": {
+    "params": [],
+    "desc": "Action function: A_SetReflectiveInvulnerable"
+  },
+  "A_UnSetReflectiveInvulnerable": {
+    "params": [],
+    "desc": "Action function: A_UnSetReflectiveInvulnerable"
+  },
+  "A_SetShootable": {
+    "params": [],
+    "desc": "Action function: A_SetShootable"
+  },
+  "A_UnSetShootable": {
+    "params": [],
+    "desc": "Action function: A_UnSetShootable"
+  },
+  "A_NoGravity": {
+    "params": [],
+    "desc": "Action function: A_NoGravity"
+  },
+  "A_Gravity": {
+    "params": [],
+    "desc": "Action function: A_Gravity"
+  },
+  "A_LowGravity": {
+    "params": [],
+    "desc": "Action function: A_LowGravity"
+  },
+  "A_SetGravity": {
+    "params": [
+      {
+        "name": "gravity",
+        "type": "float",
+        "optional": false
+      }
+    ],
+    "desc": "Action function: A_SetGravity"
+  },
+  "A_Fall": {
+    "params": [],
+    "desc": "Action function: A_Fall"
+  },
+  "A_SetSolid": {
+    "params": [],
+    "desc": "Action function: A_SetSolid"
+  },
+  "A_UnsetSolid": {
+    "params": [],
+    "desc": "Action function: A_UnsetSolid"
+  },
+  "A_SetFloat": {
+    "params": [],
+    "desc": "Action function: A_SetFloat"
+  },
+  "A_UnsetFloat": {
+    "params": [],
+    "desc": "Action function: A_UnsetFloat"
+  },
+  "A_M_Saw": {
+    "params": [
+      {
+        "name": "fullsound",
+        "type": "string",
+        "optional": true,
+        "default": "\"weapons/sawfull\""
+      },
+      {
+        "name": "hitsound",
+        "type": "string",
+        "optional": true,
+        "default": "\"weapons/sawhit\""
+      },
+      {
+        "name": "damage",
+        "type": "int",
+        "optional": true,
+        "default": "2"
+      },
+      {
+        "name": "pufftype",
+        "type": "string",
+        "optional": true,
+        "default": "\"BulletPuff\""
+      }
+    ],
+    "desc": "Action function: A_M_Saw"
+  },
+  "A_ScreamAndUnblock": {
+    "params": [],
+    "desc": "Action function: A_ScreamAndUnblock"
+  },
+  "A_ActiveAndUnblock": {
+    "params": [],
+    "desc": "Action function: A_ActiveAndUnblock"
+  },
+  "A_ActiveSound": {
+    "params": [],
+    "desc": "Action function: A_ActiveSound"
+  },
+  "A_FastChase": {
+    "params": [],
+    "desc": "Action function: A_FastChase"
+  },
+  "A_FreezeDeath": {
+    "params": [],
+    "desc": "Action function: A_FreezeDeath"
+  },
+  "A_FreezeDeathChunks": {
+    "params": [],
+    "desc": "Action function: A_FreezeDeathChunks"
+  },
+  "A_GenericFreezeDeath": {
+    "params": [],
+    "desc": "Action function: A_GenericFreezeDeath"
+  },
+  "A_IceGuyDie": {
+    "params": [],
+    "desc": "Action function: A_IceGuyDie"
+  },
+  "A_CentaurDefend": {
+    "params": [],
+    "desc": "Action function: A_CentaurDefend"
+  },
+  "A_BishopMissileWeave": {
+    "params": [],
+    "desc": "Action function: A_BishopMissileWeave"
+  },
+  "A_CStaffMissileSlither": {
+    "params": [],
+    "desc": "Action function: A_CStaffMissileSlither"
+  },
+  "A_PlayerScream": {
+    "params": [],
+    "desc": "Action function: A_PlayerScream"
+  },
+  "A_SkullPop": {
+    "params": [
+      {
+        "name": "skulltype",
+        "type": "string",
+        "optional": true,
+        "default": "\"BloodySkull\""
+      }
+    ],
+    "desc": "Action function: A_SkullPop"
+  },
+  "A_CheckPlayerDone": {
+    "params": [],
+    "desc": "Action function: A_CheckPlayerDone"
+  },
+  "A_Wander": {
+    "params": [],
+    "desc": "Action function: A_Wander"
+  },
+  "A_Look2": {
+    "params": [],
+    "desc": "Action function: A_Look2"
+  },
+  "A_TossGib": {
+    "params": [],
+    "desc": "Action function: A_TossGib"
+  },
+  "A_SentinelBob": {
+    "params": [],
+    "desc": "Action function: A_SentinelBob"
+  },
+  "A_SentinelRefire": {
+    "params": [],
+    "desc": "Action function: A_SentinelRefire"
+  },
+  "A_Tracer2": {
+    "params": [],
+    "desc": "Action function: A_Tracer2"
+  },
+  "A_SetShadow": {
+    "params": [],
+    "desc": "Action function: A_SetShadow"
+  },
+  "A_ClearShadow": {
+    "params": [],
+    "desc": "Action function: A_ClearShadow"
+  },
+  "A_GetHurt": {
+    "params": [],
+    "desc": "Action function: A_GetHurt"
+  },
+  "A_TurretLook": {
+    "params": [],
+    "desc": "Action function: A_TurretLook"
+  },
+  "A_KlaxonBlare": {
+    "params": [],
+    "desc": "Action function: A_KlaxonBlare"
+  },
+  "A_Countdown": {
+    "params": [],
+    "desc": "Action function: A_Countdown"
+  },
+  "A_AlertMonsters": {
+    "params": [
+      {
+        "name": "maxdist",
+        "type": "float",
+        "optional": true,
+        "default": "0"
+      },
+      {
+        "name": "flags",
+        "type": "int",
+        "optional": true,
+        "default": "0",
+        "mode": "bitmask",
+        "enum": [
+          {
+            "name": "AMF_TARGETEMITTER",
+            "value": 1
+          },
+          {
+            "name": "AMF_TARGETNONPLAYER",
+            "value": 2
+          },
+          {
+            "name": "AMF_EMITFROMTARGET",
+            "value": 4
+          }
+        ]
+      }
+    ],
+    "desc": "Action function: A_AlertMonsters"
+  },
+  "A_ClearSoundTarget": {
+    "params": [],
+    "desc": "Action function: A_ClearSoundTarget"
+  },
+  "A_FireAssaultGun": {
+    "params": [],
+    "desc": "Action function: A_FireAssaultGun"
+  },
+  "A_CheckTerrain": {
+    "params": [],
+    "desc": "Action function: A_CheckTerrain"
+  },
+  "A_FaceConsolePlayer": {
+    "params": [
+      {
+        "name": "MaxTurnAngle",
+        "type": "float",
+        "optional": true,
+        "default": "0"
+      }
+    ],
+    "desc": "Action function: A_FaceConsolePlayer"
+  },
+  "A_ClientsideACSExecute": {
+    "params": [
+      {
+        "name": "script",
+        "type": "string",
+        "optional": false
+      },
+      {
+        "name": "arg1",
+        "type": "int",
+        "optional": true,
+        "default": "0"
+      },
+      {
+        "name": "arg2",
+        "type": "int",
+        "optional": true,
+        "default": "0"
+      },
+      {
+        "name": "arg3",
+        "type": "int",
+        "optional": true,
+        "default": "0"
+      },
+      {
+        "name": "arg4",
+        "type": "int",
+        "optional": true,
+        "default": "0"
+      }
+    ],
+    "desc": "Action function: A_ClientsideACSExecute"
+  },
+  "A_GivePlayerMedal": {
+    "params": [
+      {
+        "name": "medal",
+        "type": "string",
+        "optional": false
+      },
+      {
+        "name": "silent",
+        "type": "bool",
+        "optional": false
+      },
+      {
+        "name": "giveto",
+        "type": "int",
+        "optional": true,
+        "default": "AAPTR_DEFAULT",
+        "mode": "bitmask",
+        "enum": [
+          {
+            "name": "AAPTR_DEFAULT",
+            "value": 0
+          },
+          {
+            "name": "AAPTR_NULL",
+            "value": 1
+          },
+          {
+            "name": "AAPTR_TARGET",
+            "value": 2
+          },
+          {
+            "name": "AAPTR_MASTER",
+            "value": 4
+          },
+          {
+            "name": "AAPTR_TRACER",
+            "value": 8
+          },
+          {
+            "name": "AAPTR_PLAYER_GETTARGET",
+            "value": 16
+          },
+          {
+            "name": "AAPTR_PLAYER_GETCONVERSATION",
+            "value": 32
+          },
+          {
+            "name": "AAPTR_PLAYER1",
+            "value": 64
+          },
+          {
+            "name": "AAPTR_PLAYER2",
+            "value": 128
+          },
+          {
+            "name": "AAPTR_PLAYER3",
+            "value": 256
+          },
+          {
+            "name": "AAPTR_PLAYER4",
+            "value": 512
+          },
+          {
+            "name": "AAPTR_PLAYER5",
+            "value": 1024
+          },
+          {
+            "name": "AAPTR_PLAYER6",
+            "value": 2048
+          },
+          {
+            "name": "AAPTR_PLAYER7",
+            "value": 4096
+          },
+          {
+            "name": "AAPTR_PLAYER8",
+            "value": 8192
+          },
+          {
+            "name": "AAPTR_FRIENDPLAYER",
+            "value": 16384
+          },
+          {
+            "name": "AAPTR_PLAYER_GETFLOATYICON",
+            "value": 67108864
+          },
+          {
+            "name": "AAPTR_PLAYER_GETCAMERA",
+            "value": 134217728
+          }
+        ]
+      }
+    ],
+    "desc": "Action function: A_GivePlayerMedal"
+  },
+  "A_MissileAttack": {
+    "params": [],
+    "desc": "Action function: A_MissileAttack"
+  },
+  "A_MeleeAttack": {
+    "params": [],
+    "desc": "Action function: A_MeleeAttack"
+  },
+  "A_ComboAttack": {
+    "params": [],
+    "desc": "Action function: A_ComboAttack"
+  },
+  "A_BulletAttack": {
+    "params": [],
+    "desc": "Action function: A_BulletAttack"
+  },
+  "A_WolfAttack": {
+    "params": [
+      {
+        "name": "flags",
+        "type": "int",
+        "optional": true,
+        "default": "0",
+        "mode": "bitmask",
+        "enum": [
+          {
+            "name": "WAF_NORANDOM",
+            "value": 1
+          },
+          {
+            "name": "WAF_USEPUFF",
+            "value": 2
+          }
+        ]
+      },
+      {
+        "name": "whattoplay",
+        "type": "string",
+        "optional": true,
+        "default": "\"weapons/pistol\""
+      },
+      {
+        "name": "snipe",
+        "type": "float",
+        "optional": true,
+        "default": "1.0"
+      },
+      {
+        "name": "maxdamage",
+        "type": "int",
+        "optional": true,
+        "default": "64"
+      },
+      {
+        "name": "blocksize",
+        "type": "int",
+        "optional": true,
+        "default": "128"
+      },
+      {
+        "name": "pointblank",
+        "type": "int",
+        "optional": true,
+        "default": "2"
+      },
+      {
+        "name": "longrange",
+        "type": "int",
+        "optional": true,
+        "default": "4"
+      },
+      {
+        "name": "runspeed",
+        "type": "float",
+        "optional": true,
+        "default": "160.0"
+      },
+      {
+        "name": "pufftype",
+        "type": "string",
+        "optional": true,
+        "default": "\"BulletPuff\""
+      }
+    ],
+    "desc": "Action function: A_WolfAttack"
+  },
+  "A_PlaySound": {
+    "params": [
+      {
+        "name": "whattoplay",
+        "type": "string",
+        "optional": true,
+        "default": "\"weapons/pistol\""
+      },
+      {
+        "name": "slot",
+        "type": "int",
+        "optional": true,
+        "default": "CHAN_BODY",
+        "mode": "enum",
+        "enum": [
+          {
+            "name": "CHAN_AUTO",
+            "value": 0
+          },
+          {
+            "name": "CHAN_WEAPON",
+            "value": 1
+          },
+          {
+            "name": "CHAN_VOICE",
+            "value": 2
+          },
+          {
+            "name": "CHAN_ITEM",
+            "value": 3
+          },
+          {
+            "name": "CHAN_BODY",
+            "value": 4
+          },
+          {
+            "name": "CHAN_5",
+            "value": 5
+          },
+          {
+            "name": "CHAN_6",
+            "value": 6
+          },
+          {
+            "name": "CHAN_7",
+            "value": 7
+          },
+          {
+            "name": "CHAN_LISTENERZ",
+            "value": 8
+          },
+          {
+            "name": "CHAN_MAYBE_LOCAL",
+            "value": 16
+          },
+          {
+            "name": "CHAN_UI",
+            "value": 32
+          },
+          {
+            "name": "CHAN_NOPAUSE",
+            "value": 64
+          }
+        ]
+      },
+      {
+        "name": "volume",
+        "type": "float",
+        "optional": true,
+        "default": "1.0"
+      },
+      {
+        "name": "looping",
+        "type": "bool",
+        "optional": true,
+        "default": "false"
+      },
+      {
+        "name": "attenuation",
+        "type": "float",
+        "optional": true,
+        "default": "ATTN_NORM",
+        "mode": "enum",
+        "enum": [
+          {
+            "name": "ATTN_NONE",
+            "value": 0
+          },
+          {
+            "name": "ATTN_NORM",
+            "value": 1
+          },
+          {
+            "name": "ATTN_IDLE",
+            "value": 1.001
+          },
+          {
+            "name": "ATTN_STATIC",
+            "value": 3
+          }
+        ]
+      }
+    ],
+    "desc": "Action function: A_PlaySound"
+  },
+  "A_PlayWeaponSound": {
+    "params": [
+      {
+        "name": "whattoplay",
+        "type": "string",
+        "optional": false
+      }
+    ],
+    "desc": "Action function: A_PlayWeaponSound"
+  },
+  "A_FLoopActiveSound": {
+    "params": [],
+    "desc": "Action function: A_FLoopActiveSound"
+  },
+  "A_LoopActiveSound": {
+    "params": [],
+    "desc": "Action function: A_LoopActiveSound"
+  },
+  "A_StopSound": {
+    "params": [
+      {
+        "name": "slot",
+        "type": "int",
+        "optional": true,
+        "default": "CHAN_VOICE",
+        "mode": "enum",
+        "enum": [
+          {
+            "name": "CHAN_AUTO",
+            "value": 0
+          },
+          {
+            "name": "CHAN_WEAPON",
+            "value": 1
+          },
+          {
+            "name": "CHAN_VOICE",
+            "value": 2
+          },
+          {
+            "name": "CHAN_ITEM",
+            "value": 3
+          },
+          {
+            "name": "CHAN_BODY",
+            "value": 4
+          },
+          {
+            "name": "CHAN_5",
+            "value": 5
+          },
+          {
+            "name": "CHAN_6",
+            "value": 6
+          },
+          {
+            "name": "CHAN_7",
+            "value": 7
+          },
+          {
+            "name": "CHAN_LISTENERZ",
+            "value": 8
+          },
+          {
+            "name": "CHAN_MAYBE_LOCAL",
+            "value": 16
+          },
+          {
+            "name": "CHAN_UI",
+            "value": 32
+          },
+          {
+            "name": "CHAN_NOPAUSE",
+            "value": 64
+          }
+        ]
+      }
+    ],
+    "desc": "Action function: A_StopSound"
+  },
+  "A_PlaySoundEx": {
+    "params": [
+      {
+        "name": "whattoplay",
+        "type": "string",
+        "optional": false
+      },
+      {
+        "name": "slot",
+        "type": "string",
+        "optional": false
+      },
+      {
+        "name": "looping",
+        "type": "bool",
+        "optional": true,
+        "default": "false"
+      },
+      {
+        "name": "attenuation",
+        "type": "int",
+        "optional": true,
+        "default": "0"
+      }
+    ],
+    "desc": "Action function: A_PlaySoundEx"
+  },
+  "A_StopSoundEx": {
+    "params": [
+      {
+        "name": "slot",
+        "type": "string",
+        "optional": false
+      }
+    ],
+    "desc": "Action function: A_StopSoundEx"
+  },
+  "A_SeekerMissile": {
+    "params": [
+      {
+        "name": "threshold",
+        "type": "int",
+        "optional": false
+      },
+      {
+        "name": "turnmax",
+        "type": "int",
+        "optional": false
+      },
+      {
+        "name": "flags",
+        "type": "int",
+        "optional": true,
+        "default": "0",
+        "mode": "bitmask",
+        "enum": [
+          {
+            "name": "SMF_LOOK",
+            "value": 1
+          },
+          {
+            "name": "SMF_PRECISE",
+            "value": 2
+          },
+          {
+            "name": "SMF_CURSPEED",
+            "value": 4
+          }
+        ]
+      },
+      {
+        "name": "chance",
+        "type": "int",
+        "optional": true,
+        "default": "50"
+      },
+      {
+        "name": "distance",
+        "type": "int",
+        "optional": true,
+        "default": "10"
+      }
+    ],
+    "desc": "Action function: A_SeekerMissile"
+  },
+  "A_Jump": {
+    "params": [
+      {
+        "name": "chance",
+        "type": "int",
+        "optional": true,
+        "default": "256"
+      },
+      {
+        "name": "label",
+        "type": "string",
+        "optional": false
+      },
+      {
+        "name": "...",
+        "type": "state",
+        "optional": true,
+        "variadic": true
+      }
+    ],
+    "desc": "Action function: A_Jump"
+  },
+  "A_CustomMissile": {
+    "params": [
+      {
+        "name": "missiletype",
+        "type": "string",
+        "optional": false
+      },
+      {
+        "name": "spawnheight",
+        "type": "float",
+        "optional": true,
+        "default": "32"
+      },
+      {
+        "name": "spawnofs_xy",
+        "type": "int",
+        "optional": true,
+        "default": "0"
+      },
+      {
+        "name": "angle",
+        "type": "float",
+        "optional": true,
+        "default": "0"
+      },
+      {
+        "name": "flags",
+        "type": "int",
+        "optional": true,
+        "default": "0",
+        "mode": "bitmask",
+        "enum": [
+          {
+            "name": "CMF_AIMOFFSET",
+            "value": 1
+          },
+          {
+            "name": "CMF_AIMDIRECTION",
+            "value": 2
+          },
+          {
+            "name": "CMF_TRACKOWNER",
+            "value": 4
+          },
+          {
+            "name": "CMF_CHECKTARGETDEAD",
+            "value": 8
+          },
+          {
+            "name": "CMF_ABSOLUTEPITCH",
+            "value": 16
+          },
+          {
+            "name": "CMF_OFFSETPITCH",
+            "value": 32
+          },
+          {
+            "name": "CMF_SAVEPITCH",
+            "value": 64
+          },
+          {
+            "name": "CMF_ABSOLUTEANGLE",
+            "value": 128
+          }
+        ]
+      },
+      {
+        "name": "pitch",
+        "type": "float",
+        "optional": true,
+        "default": "0"
+      }
+    ],
+    "desc": "Action function: A_CustomMissile"
+  },
+  "A_CustomBulletAttack": {
+    "params": [
+      {
+        "name": "spread_xy",
+        "type": "float",
+        "optional": false
+      },
+      {
+        "name": "spread_z",
+        "type": "float",
+        "optional": false
+      },
+      {
+        "name": "numbullets",
+        "type": "int",
+        "optional": false
+      },
+      {
+        "name": "damageperbullet",
+        "type": "int",
+        "optional": false
+      },
+      {
+        "name": "pufftype",
+        "type": "string",
+        "optional": true,
+        "default": "\"BulletPuff\""
+      },
+      {
+        "name": "range",
+        "type": "float",
+        "optional": true,
+        "default": "0"
+      },
+      {
+        "name": "flags",
+        "type": "int",
+        "optional": true,
+        "default": "0",
+        "mode": "bitmask",
+        "enum": [
+          {
+            "name": "CBAF_AIMFACING",
+            "value": 1
+          },
+          {
+            "name": "CBAF_NORANDOM",
+            "value": 2
+          },
+          {
+            "name": "CBAF_EXPLICITANGLE",
+            "value": 4
+          },
+          {
+            "name": "CBAF_NOPITCH",
+            "value": 8
+          },
+          {
+            "name": "CBAF_NORANDOMPUFFZ",
+            "value": 16
+          }
+        ]
+      }
+    ],
+    "desc": "Action function: A_CustomBulletAttack"
+  },
+  "A_CustomRailgun": {
+    "params": [
+      {
+        "name": "damage",
+        "type": "int",
+        "optional": false
+      },
+      {
+        "name": "spawnofs_xy",
+        "type": "int",
+        "optional": true,
+        "default": "0"
+      },
+      {
+        "name": "color1",
+        "type": "string",
+        "optional": true,
+        "default": "\"\""
+      },
+      {
+        "name": "color2",
+        "type": "string",
+        "optional": true,
+        "default": "\"\""
+      },
+      {
+        "name": "flags",
+        "type": "int",
+        "optional": true,
+        "default": "0",
+        "mode": "bitmask",
+        "enum": [
+          {
+            "name": "RGF_SILENT",
+            "value": 1
+          },
+          {
+            "name": "RGF_NOPIERCING",
+            "value": 2
+          },
+          {
+            "name": "RGF_EXPLICITANGLE",
+            "value": 4
+          },
+          {
+            "name": "RGF_FULLBRIGHT",
+            "value": 8
+          },
+          {
+            "name": "RGF_CENTERZ",
+            "value": 16
+          }
+        ]
+      },
+      {
+        "name": "aim",
+        "type": "bool",
+        "optional": true,
+        "default": "false"
+      },
+      {
+        "name": "maxdiff",
+        "type": "float",
+        "optional": true,
+        "default": "0"
+      },
+      {
+        "name": "pufftype",
+        "type": "string",
+        "optional": true,
+        "default": "\"BulletPuff\""
+      },
+      {
+        "name": "spread_xy",
+        "type": "float",
+        "optional": true,
+        "default": "0"
+      },
+      {
+        "name": "spread_z",
+        "type": "float",
+        "optional": true,
+        "default": "0"
+      },
+      {
+        "name": "range",
+        "type": "float",
+        "optional": true,
+        "default": "0"
+      },
+      {
+        "name": "duration",
+        "type": "int",
+        "optional": true,
+        "default": "0"
+      },
+      {
+        "name": "sparsity",
+        "type": "float",
+        "optional": true,
+        "default": "1.0"
+      },
+      {
+        "name": "driftspeed",
+        "type": "float",
+        "optional": true,
+        "default": "1.0"
+      },
+      {
+        "name": "spawnclass",
+        "type": "string",
+        "optional": true,
+        "default": "\"none\""
+      },
+      {
+        "name": "spawnofs_z",
+        "type": "float",
+        "optional": true,
+        "default": "0"
+      }
+    ],
+    "desc": "Action function: A_CustomRailgun"
+  },
+  "A_JumpIfHealthLower": {
+    "params": [
+      {
+        "name": "health",
+        "type": "int",
+        "optional": false
+      },
+      {
+        "name": "label",
+        "type": "string",
+        "optional": false
+      }
+    ],
+    "desc": "Action function: A_JumpIfHealthLower"
+  },
+  "A_JumpIfCloser": {
+    "params": [
+      {
+        "name": "distance",
+        "type": "float",
+        "optional": false
+      },
+      {
+        "name": "label",
+        "type": "string",
+        "optional": false
+      }
+    ],
+    "desc": "Action function: A_JumpIfCloser"
+  },
+  "A_JumpIfTracerCloser": {
+    "params": [
+      {
+        "name": "distance",
+        "type": "float",
+        "optional": false
+      },
+      {
+        "name": "label",
+        "type": "string",
+        "optional": false
+      }
+    ],
+    "desc": "Action function: A_JumpIfTracerCloser"
+  },
+  "A_JumpIfMasterCloser": {
+    "params": [
+      {
+        "name": "distance",
+        "type": "float",
+        "optional": false
+      },
+      {
+        "name": "label",
+        "type": "string",
+        "optional": false
+      }
+    ],
+    "desc": "Action function: A_JumpIfMasterCloser"
+  },
+  "A_JumpIfTargetOutsideMeleeRange": {
+    "params": [
+      {
+        "name": "label",
+        "type": "string",
+        "optional": false
+      }
+    ],
+    "desc": "Action function: A_JumpIfTargetOutsideMeleeRange"
+  },
+  "A_JumpIfTargetInsideMeleeRange": {
+    "params": [
+      {
+        "name": "label",
+        "type": "string",
+        "optional": false
+      }
+    ],
+    "desc": "Action function: A_JumpIfTargetInsideMeleeRange"
+  },
+  "A_JumpIfInventory": {
+    "params": [
+      {
+        "name": "itemtype",
+        "type": "string",
+        "optional": false
+      },
+      {
+        "name": "itemamount",
+        "type": "int",
+        "optional": false
+      },
+      {
+        "name": "label",
+        "type": "string",
+        "optional": false
+      },
+      {
+        "name": "owner",
+        "type": "int",
+        "optional": true,
+        "default": "AAPTR_DEFAULT",
+        "mode": "bitmask",
+        "enum": [
+          {
+            "name": "AAPTR_DEFAULT",
+            "value": 0
+          },
+          {
+            "name": "AAPTR_NULL",
+            "value": 1
+          },
+          {
+            "name": "AAPTR_TARGET",
+            "value": 2
+          },
+          {
+            "name": "AAPTR_MASTER",
+            "value": 4
+          },
+          {
+            "name": "AAPTR_TRACER",
+            "value": 8
+          },
+          {
+            "name": "AAPTR_PLAYER_GETTARGET",
+            "value": 16
+          },
+          {
+            "name": "AAPTR_PLAYER_GETCONVERSATION",
+            "value": 32
+          },
+          {
+            "name": "AAPTR_PLAYER1",
+            "value": 64
+          },
+          {
+            "name": "AAPTR_PLAYER2",
+            "value": 128
+          },
+          {
+            "name": "AAPTR_PLAYER3",
+            "value": 256
+          },
+          {
+            "name": "AAPTR_PLAYER4",
+            "value": 512
+          },
+          {
+            "name": "AAPTR_PLAYER5",
+            "value": 1024
+          },
+          {
+            "name": "AAPTR_PLAYER6",
+            "value": 2048
+          },
+          {
+            "name": "AAPTR_PLAYER7",
+            "value": 4096
+          },
+          {
+            "name": "AAPTR_PLAYER8",
+            "value": 8192
+          },
+          {
+            "name": "AAPTR_FRIENDPLAYER",
+            "value": 16384
+          },
+          {
+            "name": "AAPTR_PLAYER_GETFLOATYICON",
+            "value": 67108864
+          },
+          {
+            "name": "AAPTR_PLAYER_GETCAMERA",
+            "value": 134217728
+          }
+        ]
+      }
+    ],
+    "desc": "Action function: A_JumpIfInventory"
+  },
+  "A_JumpIfArmorType": {
+    "params": [
+      {
+        "name": "Type",
+        "type": "string",
+        "optional": false
+      },
+      {
+        "name": "label",
+        "type": "string",
+        "optional": false
+      },
+      {
+        "name": "amount",
+        "type": "int",
+        "optional": true,
+        "default": "1"
+      }
+    ],
+    "desc": "Action function: A_JumpIfArmorType"
+  },
+  "A_GiveInventory": {
+    "params": [
+      {
+        "name": "itemtype",
+        "type": "string",
+        "optional": false
+      },
+      {
+        "name": "amount",
+        "type": "int",
+        "optional": true,
+        "default": "0"
+      },
+      {
+        "name": "giveto",
+        "type": "int",
+        "optional": true,
+        "default": "AAPTR_DEFAULT",
+        "mode": "bitmask",
+        "enum": [
+          {
+            "name": "AAPTR_DEFAULT",
+            "value": 0
+          },
+          {
+            "name": "AAPTR_NULL",
+            "value": 1
+          },
+          {
+            "name": "AAPTR_TARGET",
+            "value": 2
+          },
+          {
+            "name": "AAPTR_MASTER",
+            "value": 4
+          },
+          {
+            "name": "AAPTR_TRACER",
+            "value": 8
+          },
+          {
+            "name": "AAPTR_PLAYER_GETTARGET",
+            "value": 16
+          },
+          {
+            "name": "AAPTR_PLAYER_GETCONVERSATION",
+            "value": 32
+          },
+          {
+            "name": "AAPTR_PLAYER1",
+            "value": 64
+          },
+          {
+            "name": "AAPTR_PLAYER2",
+            "value": 128
+          },
+          {
+            "name": "AAPTR_PLAYER3",
+            "value": 256
+          },
+          {
+            "name": "AAPTR_PLAYER4",
+            "value": 512
+          },
+          {
+            "name": "AAPTR_PLAYER5",
+            "value": 1024
+          },
+          {
+            "name": "AAPTR_PLAYER6",
+            "value": 2048
+          },
+          {
+            "name": "AAPTR_PLAYER7",
+            "value": 4096
+          },
+          {
+            "name": "AAPTR_PLAYER8",
+            "value": 8192
+          },
+          {
+            "name": "AAPTR_FRIENDPLAYER",
+            "value": 16384
+          },
+          {
+            "name": "AAPTR_PLAYER_GETFLOATYICON",
+            "value": 67108864
+          },
+          {
+            "name": "AAPTR_PLAYER_GETCAMERA",
+            "value": 134217728
+          }
+        ]
+      }
+    ],
+    "desc": "Action function: A_GiveInventory"
+  },
+  "A_TakeInventory": {
+    "params": [
+      {
+        "name": "itemtype",
+        "type": "string",
+        "optional": false
+      },
+      {
+        "name": "amount",
+        "type": "int",
+        "optional": true,
+        "default": "0"
+      },
+      {
+        "name": "flags",
+        "type": "int",
+        "optional": true,
+        "default": "0",
+        "mode": "bitmask",
+        "enum": [
+          {
+            "name": "TIF_NOTAKEINFINITE",
+            "value": 1
+          }
+        ]
+      },
+      {
+        "name": "giveto",
+        "type": "int",
+        "optional": true,
+        "default": "AAPTR_DEFAULT",
+        "mode": "bitmask",
+        "enum": [
+          {
+            "name": "AAPTR_DEFAULT",
+            "value": 0
+          },
+          {
+            "name": "AAPTR_NULL",
+            "value": 1
+          },
+          {
+            "name": "AAPTR_TARGET",
+            "value": 2
+          },
+          {
+            "name": "AAPTR_MASTER",
+            "value": 4
+          },
+          {
+            "name": "AAPTR_TRACER",
+            "value": 8
+          },
+          {
+            "name": "AAPTR_PLAYER_GETTARGET",
+            "value": 16
+          },
+          {
+            "name": "AAPTR_PLAYER_GETCONVERSATION",
+            "value": 32
+          },
+          {
+            "name": "AAPTR_PLAYER1",
+            "value": 64
+          },
+          {
+            "name": "AAPTR_PLAYER2",
+            "value": 128
+          },
+          {
+            "name": "AAPTR_PLAYER3",
+            "value": 256
+          },
+          {
+            "name": "AAPTR_PLAYER4",
+            "value": 512
+          },
+          {
+            "name": "AAPTR_PLAYER5",
+            "value": 1024
+          },
+          {
+            "name": "AAPTR_PLAYER6",
+            "value": 2048
+          },
+          {
+            "name": "AAPTR_PLAYER7",
+            "value": 4096
+          },
+          {
+            "name": "AAPTR_PLAYER8",
+            "value": 8192
+          },
+          {
+            "name": "AAPTR_FRIENDPLAYER",
+            "value": 16384
+          },
+          {
+            "name": "AAPTR_PLAYER_GETFLOATYICON",
+            "value": 67108864
+          },
+          {
+            "name": "AAPTR_PLAYER_GETCAMERA",
+            "value": 134217728
+          }
+        ]
+      }
+    ],
+    "desc": "Action function: A_TakeInventory"
+  },
+  "A_SpawnItem": {
+    "params": [
+      {
+        "name": "itemtype",
+        "type": "string",
+        "optional": true,
+        "default": "\"Unknown\""
+      },
+      {
+        "name": "distance",
+        "type": "float",
+        "optional": true,
+        "default": "0"
+      },
+      {
+        "name": "zheight",
+        "type": "float",
+        "optional": true,
+        "default": "0"
+      },
+      {
+        "name": "useammo",
+        "type": "bool",
+        "optional": true,
+        "default": "true"
+      },
+      {
+        "name": "transfer_translation",
+        "type": "bool",
+        "optional": true,
+        "default": "false"
+      }
+    ],
+    "desc": "Action function: A_SpawnItem"
+  },
+  "A_SpawnItemEx": {
+    "params": [
+      {
+        "name": "itemtype",
+        "type": "string",
+        "optional": false
+      },
+      {
+        "name": "xofs",
+        "type": "float",
+        "optional": true,
+        "default": "0"
+      },
+      {
+        "name": "yofs",
+        "type": "float",
+        "optional": true,
+        "default": "0"
+      },
+      {
+        "name": "zofs",
+        "type": "float",
+        "optional": true,
+        "default": "0"
+      },
+      {
+        "name": "xvel",
+        "type": "float",
+        "optional": true,
+        "default": "0"
+      },
+      {
+        "name": "yvel",
+        "type": "float",
+        "optional": true,
+        "default": "0"
+      },
+      {
+        "name": "zvel",
+        "type": "float",
+        "optional": true,
+        "default": "0"
+      },
+      {
+        "name": "angle",
+        "type": "float",
+        "optional": true,
+        "default": "0"
+      },
+      {
+        "name": "flags",
+        "type": "int",
+        "optional": true,
+        "default": "0",
+        "mode": "bitmask",
+        "enum": [
+          {
+            "name": "SXF_TRANSFERTRANSLATION",
+            "value": 1
+          },
+          {
+            "name": "SXF_ABSOLUTEPOSITION",
+            "value": 2
+          },
+          {
+            "name": "SXF_ABSOLUTEANGLE",
+            "value": 4
+          },
+          {
+            "name": "SXF_ABSOLUTEMOMENTUM",
+            "value": 8
+          },
+          {
+            "name": "SXF_ABSOLUTEVELOCITY",
+            "value": 8
+          },
+          {
+            "name": "SXF_SETMASTER",
+            "value": 16
+          },
+          {
+            "name": "SXF_NOCHECKPOSITION",
+            "value": 32
+          },
+          {
+            "name": "SXF_TELEFRAG",
+            "value": 64
+          },
+          {
+            "name": "SXF_CLIENTSIDE",
+            "value": 128
+          },
+          {
+            "name": "SXF_TRANSFERAMBUSHFLAG",
+            "value": 256
+          },
+          {
+            "name": "SXF_TRANSFERPITCH",
+            "value": 512
+          },
+          {
+            "name": "SXF_TRANSFERPOINTERS",
+            "value": 1024
+          },
+          {
+            "name": "SXF_USEBLOODCOLOR",
+            "value": 2048
+          },
+          {
+            "name": "SXF_CLEARCALLERTID",
+            "value": 4096
+          },
+          {
+            "name": "SXF_MULTIPLYSPEED",
+            "value": 8192
+          },
+          {
+            "name": "SXF_TRANSFERSCALE",
+            "value": 16384
+          },
+          {
+            "name": "SXF_TRANSFERSPECIAL",
+            "value": 32768
+          },
+          {
+            "name": "SXF_CLEARCALLERSPECIAL",
+            "value": 65536
+          },
+          {
+            "name": "SXF_TRANSFERSTENCILCOL",
+            "value": 131072
+          }
+        ]
+      },
+      {
+        "name": "failchance",
+        "type": "int",
+        "optional": true,
+        "default": "0"
+      },
+      {
+        "name": "tid",
+        "type": "int",
+        "optional": true,
+        "default": "0"
+      }
+    ],
+    "desc": "Spawns an actor at the specified offset away from the calling actor, facing the given angle, and with the indicated velocity."
+  },
+  "A_Print": {
+    "params": [
+      {
+        "name": "whattoprint",
+        "type": "string",
+        "optional": false
+      },
+      {
+        "name": "time",
+        "type": "float",
+        "optional": true,
+        "default": "0"
+      },
+      {
+        "name": "fontname",
+        "type": "string",
+        "optional": true,
+        "default": "\"\""
+      }
+    ],
+    "desc": "Action function: A_Print"
+  },
+  "A_PrintBold": {
+    "params": [
+      {
+        "name": "whattoprint",
+        "type": "string",
+        "optional": false
+      },
+      {
+        "name": "time",
+        "type": "float",
+        "optional": true,
+        "default": "0"
+      },
+      {
+        "name": "fontname",
+        "type": "string",
+        "optional": true,
+        "default": "\"\""
+      }
+    ],
+    "desc": "Action function: A_PrintBold"
+  },
+  "A_Log": {
+    "params": [
+      {
+        "name": "whattoprint",
+        "type": "string",
+        "optional": false
+      }
+    ],
+    "desc": "Logs a string to the console and displays it on the screen"
+  },
+  "A_LogInt": {
+    "params": [
+      {
+        "name": "whattoprint",
+        "type": "int",
+        "optional": false
+      }
+    ],
+    "desc": "Logs a number to the console and displays it on the screen"
+  },
+  "A_SetTranslucent": {
+    "params": [
+      {
+        "name": "alpha",
+        "type": "float",
+        "optional": false
+      },
+      {
+        "name": "style",
+        "type": "int",
+        "optional": true,
+        "default": "0"
+      }
+    ],
+    "desc": "Action function: A_SetTranslucent"
+  },
+  "A_FadeIn": {
+    "params": [
+      {
+        "name": "reduce",
+        "type": "float",
+        "optional": true,
+        "default": "0.1"
+      }
+    ],
+    "desc": "Action function: A_FadeIn"
+  },
+  "A_FadeOut": {
+    "params": [
+      {
+        "name": "reduce",
+        "type": "float",
+        "optional": true,
+        "default": "0.1"
+      },
+      {
+        "name": "remove",
+        "type": "bool",
+        "optional": true,
+        "default": "true"
+      }
+    ],
+    "desc": "Action function: A_FadeOut"
+  },
+  "A_FadeTo": {
+    "params": [
+      {
+        "name": "target",
+        "type": "float",
+        "optional": false
+      },
+      {
+        "name": "amount",
+        "type": "float",
+        "optional": true,
+        "default": "0.1"
+      },
+      {
+        "name": "remove",
+        "type": "bool",
+        "optional": true,
+        "default": "false"
+      }
+    ],
+    "desc": "Action function: A_FadeTo"
+  },
+  "A_SetScale": {
+    "params": [
+      {
+        "name": "scalex",
+        "type": "float",
+        "optional": false
+      },
+      {
+        "name": "scaley",
+        "type": "float",
+        "optional": true,
+        "default": "0"
+      }
+    ],
+    "desc": "Action function: A_SetScale"
+  },
+  "A_SetMass": {
+    "params": [
+      {
+        "name": "mass",
+        "type": "int",
+        "optional": false
+      }
+    ],
+    "desc": "Action function: A_SetMass"
+  },
+  "A_SpawnDebris": {
+    "params": [
+      {
+        "name": "spawntype",
+        "type": "string",
+        "optional": false
+      },
+      {
+        "name": "transfer_translation",
+        "type": "bool",
+        "optional": true,
+        "default": "false"
+      },
+      {
+        "name": "mult_h",
+        "type": "float",
+        "optional": true,
+        "default": "1"
+      },
+      {
+        "name": "mult_v",
+        "type": "float",
+        "optional": true,
+        "default": "1"
+      }
+    ],
+    "desc": "Action function: A_SpawnDebris"
+  },
+  "A_CheckSight": {
+    "params": [
+      {
+        "name": "label",
+        "type": "string",
+        "optional": false
+      }
+    ],
+    "desc": "Action function: A_CheckSight"
+  },
+  "A_ExtChase": {
+    "params": [
+      {
+        "name": "usemelee",
+        "type": "bool",
+        "optional": false
+      },
+      {
+        "name": "usemissile",
+        "type": "bool",
+        "optional": false
+      },
+      {
+        "name": "playactive",
+        "type": "bool",
+        "optional": true,
+        "default": "true"
+      },
+      {
+        "name": "nightmarefast",
+        "type": "bool",
+        "optional": true,
+        "default": "false"
+      }
+    ],
+    "desc": "Action function: A_ExtChase"
+  },
+  "A_DropInventory": {
+    "params": [
+      {
+        "name": "itemtype",
+        "type": "string",
+        "optional": false
+      }
+    ],
+    "desc": "Action function: A_DropInventory"
+  },
+  "A_SetBlend": {
+    "params": [
+      {
+        "name": "color1",
+        "type": "string",
+        "optional": false
+      },
+      {
+        "name": "alpha",
+        "type": "float",
+        "optional": false
+      },
+      {
+        "name": "tics",
+        "type": "int",
+        "optional": false
+      },
+      {
+        "name": "color2",
+        "type": "string",
+        "optional": true,
+        "default": "\"\""
+      }
+    ],
+    "desc": "Action function: A_SetBlend"
+  },
+  "A_ChangeFlag": {
+    "params": [
+      {
+        "name": "flagname",
+        "type": "string",
+        "optional": false
+      },
+      {
+        "name": "value",
+        "type": "bool",
+        "optional": false
+      }
+    ],
+    "desc": "Action function: A_ChangeFlag"
+  },
+  "A_CheckFlag": {
+    "params": [
+      {
+        "name": "flagname",
+        "type": "string",
+        "optional": false
+      },
+      {
+        "name": "label",
+        "type": "string",
+        "optional": false
+      },
+      {
+        "name": "check_pointer",
+        "type": "int",
+        "optional": true,
+        "default": "AAPTR_DEFAULT",
+        "mode": "bitmask",
+        "enum": [
+          {
+            "name": "AAPTR_DEFAULT",
+            "value": 0
+          },
+          {
+            "name": "AAPTR_NULL",
+            "value": 1
+          },
+          {
+            "name": "AAPTR_TARGET",
+            "value": 2
+          },
+          {
+            "name": "AAPTR_MASTER",
+            "value": 4
+          },
+          {
+            "name": "AAPTR_TRACER",
+            "value": 8
+          },
+          {
+            "name": "AAPTR_PLAYER_GETTARGET",
+            "value": 16
+          },
+          {
+            "name": "AAPTR_PLAYER_GETCONVERSATION",
+            "value": 32
+          },
+          {
+            "name": "AAPTR_PLAYER1",
+            "value": 64
+          },
+          {
+            "name": "AAPTR_PLAYER2",
+            "value": 128
+          },
+          {
+            "name": "AAPTR_PLAYER3",
+            "value": 256
+          },
+          {
+            "name": "AAPTR_PLAYER4",
+            "value": 512
+          },
+          {
+            "name": "AAPTR_PLAYER5",
+            "value": 1024
+          },
+          {
+            "name": "AAPTR_PLAYER6",
+            "value": 2048
+          },
+          {
+            "name": "AAPTR_PLAYER7",
+            "value": 4096
+          },
+          {
+            "name": "AAPTR_PLAYER8",
+            "value": 8192
+          },
+          {
+            "name": "AAPTR_FRIENDPLAYER",
+            "value": 16384
+          },
+          {
+            "name": "AAPTR_PLAYER_GETFLOATYICON",
+            "value": 67108864
+          },
+          {
+            "name": "AAPTR_PLAYER_GETCAMERA",
+            "value": 134217728
+          }
+        ]
+      }
+    ],
+    "desc": "Action function: A_CheckFlag"
+  },
+  "A_JumpIf": {
+    "params": [
+      {
+        "name": "expression",
+        "type": "bool",
+        "optional": false
+      },
+      {
+        "name": "label",
+        "type": "string",
+        "optional": false
+      }
+    ],
+    "desc": "Action function: A_JumpIf"
+  },
+  "A_RemoveMaster": {
+    "params": [],
+    "desc": "Action function: A_RemoveMaster"
+  },
+  "A_RemoveChildren": {
+    "params": [
+      {
+        "name": "removeall",
+        "type": "bool",
+        "optional": true,
+        "default": "false"
+      }
+    ],
+    "desc": "Action function: A_RemoveChildren"
+  },
+  "A_RemoveSiblings": {
+    "params": [
+      {
+        "name": "removeall",
+        "type": "bool",
+        "optional": true,
+        "default": "false"
+      }
+    ],
+    "desc": "Action function: A_RemoveSiblings"
+  },
+  "A_KillMaster": {
+    "params": [
+      {
+        "name": "damagetype",
+        "type": "string",
+        "optional": true,
+        "default": "\"none\""
+      }
+    ],
+    "desc": "Action function: A_KillMaster"
+  },
+  "A_KillChildren": {
+    "params": [
+      {
+        "name": "damagetype",
+        "type": "string",
+        "optional": true,
+        "default": "\"none\""
+      }
+    ],
+    "desc": "Action function: A_KillChildren"
+  },
+  "A_KillSiblings": {
+    "params": [
+      {
+        "name": "damagetype",
+        "type": "string",
+        "optional": true,
+        "default": "\"none\""
+      }
+    ],
+    "desc": "Action function: A_KillSiblings"
+  },
+  "A_RaiseMaster": {
+    "params": [],
+    "desc": "Action function: A_RaiseMaster"
+  },
+  "A_RaiseChildren": {
+    "params": [],
+    "desc": "Action function: A_RaiseChildren"
+  },
+  "A_RaiseSiblings": {
+    "params": [],
+    "desc": "Action function: A_RaiseSiblings"
+  },
+  "A_CheckFloor": {
+    "params": [
+      {
+        "name": "label",
+        "type": "string",
+        "optional": false
+      }
+    ],
+    "desc": "Action function: A_CheckFloor"
+  },
+  "A_CheckCeiling": {
+    "params": [
+      {
+        "name": "label",
+        "type": "string",
+        "optional": false
+      }
+    ],
+    "desc": "Action function: A_CheckCeiling"
+  },
+  "A_PlayerSkinCheck": {
+    "params": [
+      {
+        "name": "label",
+        "type": "string",
+        "optional": false
+      }
+    ],
+    "desc": "Action function: A_PlayerSkinCheck"
+  },
+  "A_BasicAttack": {
+    "params": [
+      {
+        "name": "meleedamage",
+        "type": "int",
+        "optional": false
+      },
+      {
+        "name": "meleesound",
+        "type": "string",
+        "optional": false
+      },
+      {
+        "name": "missiletype",
+        "type": "string",
+        "optional": false
+      },
+      {
+        "name": "missileheight",
+        "type": "float",
+        "optional": false
+      }
+    ],
+    "desc": "Action function: A_BasicAttack"
+  },
+  "A_Teleport": {
+    "params": [
+      {
+        "name": "teleportstate",
+        "type": "string",
+        "optional": true,
+        "default": "\"\""
+      },
+      {
+        "name": "targettype",
+        "type": "string",
+        "optional": true,
+        "default": "\"BossSpot\""
+      },
+      {
+        "name": "fogtype",
+        "type": "string",
+        "optional": true,
+        "default": "\"TeleportFog\""
+      },
+      {
+        "name": "flags",
+        "type": "int",
+        "optional": true,
+        "default": "0",
+        "mode": "bitmask",
+        "enum": [
+          {
+            "name": "TF_TELEFRAG",
+            "value": 1
+          },
+          {
+            "name": "TF_RANDOMDECIDE",
+            "value": 2
+          }
+        ]
+      },
+      {
+        "name": "mindist",
+        "type": "float",
+        "optional": true,
+        "default": "128"
+      },
+      {
+        "name": "maxdist",
+        "type": "float",
+        "optional": true,
+        "default": "0"
+      }
+    ],
+    "desc": "Action function: A_Teleport"
+  },
+  "A_Warp": {
+    "params": [
+      {
+        "name": "ptr_destination",
+        "type": "int",
+        "optional": false,
+        "mode": "bitmask",
+        "enum": [
+          {
+            "name": "AAPTR_DEFAULT",
+            "value": 0
+          },
+          {
+            "name": "AAPTR_NULL",
+            "value": 1
+          },
+          {
+            "name": "AAPTR_TARGET",
+            "value": 2
+          },
+          {
+            "name": "AAPTR_MASTER",
+            "value": 4
+          },
+          {
+            "name": "AAPTR_TRACER",
+            "value": 8
+          },
+          {
+            "name": "AAPTR_PLAYER_GETTARGET",
+            "value": 16
+          },
+          {
+            "name": "AAPTR_PLAYER_GETCONVERSATION",
+            "value": 32
+          },
+          {
+            "name": "AAPTR_PLAYER1",
+            "value": 64
+          },
+          {
+            "name": "AAPTR_PLAYER2",
+            "value": 128
+          },
+          {
+            "name": "AAPTR_PLAYER3",
+            "value": 256
+          },
+          {
+            "name": "AAPTR_PLAYER4",
+            "value": 512
+          },
+          {
+            "name": "AAPTR_PLAYER5",
+            "value": 1024
+          },
+          {
+            "name": "AAPTR_PLAYER6",
+            "value": 2048
+          },
+          {
+            "name": "AAPTR_PLAYER7",
+            "value": 4096
+          },
+          {
+            "name": "AAPTR_PLAYER8",
+            "value": 8192
+          },
+          {
+            "name": "AAPTR_FRIENDPLAYER",
+            "value": 16384
+          },
+          {
+            "name": "AAPTR_PLAYER_GETFLOATYICON",
+            "value": 67108864
+          },
+          {
+            "name": "AAPTR_PLAYER_GETCAMERA",
+            "value": 134217728
+          }
+        ]
+      },
+      {
+        "name": "xofs",
+        "type": "float",
+        "optional": true,
+        "default": "0"
+      },
+      {
+        "name": "yofs",
+        "type": "float",
+        "optional": true,
+        "default": "0"
+      },
+      {
+        "name": "zofs",
+        "type": "float",
+        "optional": true,
+        "default": "0"
+      },
+      {
+        "name": "angle",
+        "type": "float",
+        "optional": true,
+        "default": "0"
+      },
+      {
+        "name": "flags",
+        "type": "int",
+        "optional": true,
+        "default": "0",
+        "mode": "bitmask",
+        "enum": [
+          {
+            "name": "WARPF_ABSOLUTEOFFSET",
+            "value": 1
+          },
+          {
+            "name": "WARPF_ABSOLUTEANGLE",
+            "value": 2
+          },
+          {
+            "name": "WARPF_USECALLERANGLE",
+            "value": 4
+          },
+          {
+            "name": "WARPF_NOCHECKPOSITION",
+            "value": 8
+          },
+          {
+            "name": "WARPF_INTERPOLATE",
+            "value": 16
+          },
+          {
+            "name": "WARPF_WARPINTERPOLATION",
+            "value": 32
+          },
+          {
+            "name": "WARPF_COPYINTERPOLATION",
+            "value": 64
+          },
+          {
+            "name": "WARPF_STOP",
+            "value": 128
+          },
+          {
+            "name": "WARPF_TOFLOOR",
+            "value": 256
+          },
+          {
+            "name": "WARPF_TESTONLY",
+            "value": 512
+          }
+        ]
+      },
+      {
+        "name": "success_state",
+        "type": "string",
+        "optional": true,
+        "default": "\"\""
+      }
+    ],
+    "desc": "Action function: A_Warp"
+  },
+  "A_ThrowGrenade": {
+    "params": [
+      {
+        "name": "itemtype",
+        "type": "string",
+        "optional": false
+      },
+      {
+        "name": "zheight",
+        "type": "float",
+        "optional": true,
+        "default": "0"
+      },
+      {
+        "name": "xyvel",
+        "type": "float",
+        "optional": true,
+        "default": "0"
+      },
+      {
+        "name": "zvel",
+        "type": "float",
+        "optional": true,
+        "default": "0"
+      },
+      {
+        "name": "useammo",
+        "type": "bool",
+        "optional": true,
+        "default": "true"
+      }
+    ],
+    "desc": "Action function: A_ThrowGrenade"
+  },
+  "A_Weave": {
+    "params": [
+      {
+        "name": "xspeed",
+        "type": "int",
+        "optional": false
+      },
+      {
+        "name": "yspeed",
+        "type": "int",
+        "optional": false
+      },
+      {
+        "name": "xdist",
+        "type": "float",
+        "optional": false
+      },
+      {
+        "name": "ydist",
+        "type": "float",
+        "optional": false
+      }
+    ],
+    "desc": "Action function: A_Weave"
+  },
+  "A_Recoil": {
+    "params": [
+      {
+        "name": "xyvel",
+        "type": "float",
+        "optional": false
+      }
+    ],
+    "desc": "Action function: A_Recoil"
+  },
+  "A_JumpIfInTargetInventory": {
+    "params": [
+      {
+        "name": "itemtype",
+        "type": "string",
+        "optional": false
+      },
+      {
+        "name": "amount",
+        "type": "int",
+        "optional": false
+      },
+      {
+        "name": "label",
+        "type": "string",
+        "optional": false
+      },
+      {
+        "name": "forward_ptr",
+        "type": "int",
+        "optional": true,
+        "default": "AAPTR_DEFAULT",
+        "mode": "bitmask",
+        "enum": [
+          {
+            "name": "AAPTR_DEFAULT",
+            "value": 0
+          },
+          {
+            "name": "AAPTR_NULL",
+            "value": 1
+          },
+          {
+            "name": "AAPTR_TARGET",
+            "value": 2
+          },
+          {
+            "name": "AAPTR_MASTER",
+            "value": 4
+          },
+          {
+            "name": "AAPTR_TRACER",
+            "value": 8
+          },
+          {
+            "name": "AAPTR_PLAYER_GETTARGET",
+            "value": 16
+          },
+          {
+            "name": "AAPTR_PLAYER_GETCONVERSATION",
+            "value": 32
+          },
+          {
+            "name": "AAPTR_PLAYER1",
+            "value": 64
+          },
+          {
+            "name": "AAPTR_PLAYER2",
+            "value": 128
+          },
+          {
+            "name": "AAPTR_PLAYER3",
+            "value": 256
+          },
+          {
+            "name": "AAPTR_PLAYER4",
+            "value": 512
+          },
+          {
+            "name": "AAPTR_PLAYER5",
+            "value": 1024
+          },
+          {
+            "name": "AAPTR_PLAYER6",
+            "value": 2048
+          },
+          {
+            "name": "AAPTR_PLAYER7",
+            "value": 4096
+          },
+          {
+            "name": "AAPTR_PLAYER8",
+            "value": 8192
+          },
+          {
+            "name": "AAPTR_FRIENDPLAYER",
+            "value": 16384
+          },
+          {
+            "name": "AAPTR_PLAYER_GETFLOATYICON",
+            "value": 67108864
+          },
+          {
+            "name": "AAPTR_PLAYER_GETCAMERA",
+            "value": 134217728
+          }
+        ]
+      }
+    ],
+    "desc": "Action function: A_JumpIfInTargetInventory"
+  },
+  "A_GiveToTarget": {
+    "params": [
+      {
+        "name": "itemtype",
+        "type": "string",
+        "optional": false
+      },
+      {
+        "name": "amount",
+        "type": "int",
+        "optional": true,
+        "default": "0"
+      },
+      {
+        "name": "forward_ptr",
+        "type": "int",
+        "optional": true,
+        "default": "AAPTR_DEFAULT",
+        "mode": "bitmask",
+        "enum": [
+          {
+            "name": "AAPTR_DEFAULT",
+            "value": 0
+          },
+          {
+            "name": "AAPTR_NULL",
+            "value": 1
+          },
+          {
+            "name": "AAPTR_TARGET",
+            "value": 2
+          },
+          {
+            "name": "AAPTR_MASTER",
+            "value": 4
+          },
+          {
+            "name": "AAPTR_TRACER",
+            "value": 8
+          },
+          {
+            "name": "AAPTR_PLAYER_GETTARGET",
+            "value": 16
+          },
+          {
+            "name": "AAPTR_PLAYER_GETCONVERSATION",
+            "value": 32
+          },
+          {
+            "name": "AAPTR_PLAYER1",
+            "value": 64
+          },
+          {
+            "name": "AAPTR_PLAYER2",
+            "value": 128
+          },
+          {
+            "name": "AAPTR_PLAYER3",
+            "value": 256
+          },
+          {
+            "name": "AAPTR_PLAYER4",
+            "value": 512
+          },
+          {
+            "name": "AAPTR_PLAYER5",
+            "value": 1024
+          },
+          {
+            "name": "AAPTR_PLAYER6",
+            "value": 2048
+          },
+          {
+            "name": "AAPTR_PLAYER7",
+            "value": 4096
+          },
+          {
+            "name": "AAPTR_PLAYER8",
+            "value": 8192
+          },
+          {
+            "name": "AAPTR_FRIENDPLAYER",
+            "value": 16384
+          },
+          {
+            "name": "AAPTR_PLAYER_GETFLOATYICON",
+            "value": 67108864
+          },
+          {
+            "name": "AAPTR_PLAYER_GETCAMERA",
+            "value": 134217728
+          }
+        ]
+      }
+    ],
+    "desc": "Action function: A_GiveToTarget"
+  },
+  "A_TakeFromTarget": {
+    "params": [
+      {
+        "name": "itemtype",
+        "type": "string",
+        "optional": false
+      },
+      {
+        "name": "amount",
+        "type": "int",
+        "optional": true,
+        "default": "0"
+      },
+      {
+        "name": "flags",
+        "type": "int",
+        "optional": true,
+        "default": "0",
+        "mode": "bitmask",
+        "enum": [
+          {
+            "name": "TIF_NOTAKEINFINITE",
+            "value": 1
+          }
+        ]
+      },
+      {
+        "name": "forward_ptr",
+        "type": "int",
+        "optional": true,
+        "default": "AAPTR_DEFAULT",
+        "mode": "bitmask",
+        "enum": [
+          {
+            "name": "AAPTR_DEFAULT",
+            "value": 0
+          },
+          {
+            "name": "AAPTR_NULL",
+            "value": 1
+          },
+          {
+            "name": "AAPTR_TARGET",
+            "value": 2
+          },
+          {
+            "name": "AAPTR_MASTER",
+            "value": 4
+          },
+          {
+            "name": "AAPTR_TRACER",
+            "value": 8
+          },
+          {
+            "name": "AAPTR_PLAYER_GETTARGET",
+            "value": 16
+          },
+          {
+            "name": "AAPTR_PLAYER_GETCONVERSATION",
+            "value": 32
+          },
+          {
+            "name": "AAPTR_PLAYER1",
+            "value": 64
+          },
+          {
+            "name": "AAPTR_PLAYER2",
+            "value": 128
+          },
+          {
+            "name": "AAPTR_PLAYER3",
+            "value": 256
+          },
+          {
+            "name": "AAPTR_PLAYER4",
+            "value": 512
+          },
+          {
+            "name": "AAPTR_PLAYER5",
+            "value": 1024
+          },
+          {
+            "name": "AAPTR_PLAYER6",
+            "value": 2048
+          },
+          {
+            "name": "AAPTR_PLAYER7",
+            "value": 4096
+          },
+          {
+            "name": "AAPTR_PLAYER8",
+            "value": 8192
+          },
+          {
+            "name": "AAPTR_FRIENDPLAYER",
+            "value": 16384
+          },
+          {
+            "name": "AAPTR_PLAYER_GETFLOATYICON",
+            "value": 67108864
+          },
+          {
+            "name": "AAPTR_PLAYER_GETCAMERA",
+            "value": 134217728
+          }
+        ]
+      }
+    ],
+    "desc": "Action function: A_TakeFromTarget"
+  },
+  "A_RadiusGive": {
+    "params": [
+      {
+        "name": "itemtype",
+        "type": "string",
+        "optional": false
+      },
+      {
+        "name": "distance",
+        "type": "int",
+        "optional": false
+      },
+      {
+        "name": "flags",
+        "type": "int",
+        "optional": false,
+        "mode": "bitmask",
+        "enum": [
+          {
+            "name": "RGF_GIVESELF",
+            "value": 1
+          },
+          {
+            "name": "RGF_PLAYERS",
+            "value": 2
+          },
+          {
+            "name": "RGF_MONSTERS",
+            "value": 4
+          },
+          {
+            "name": "RGF_OBJECTS",
+            "value": 8
+          },
+          {
+            "name": "RGF_VOODOO",
+            "value": 16
+          },
+          {
+            "name": "RGF_CORPSES",
+            "value": 32
+          },
+          {
+            "name": "RGF_NOTARGET",
+            "value": 64
+          },
+          {
+            "name": "RGF_NOTRACER",
+            "value": 128
+          },
+          {
+            "name": "RGF_NOMASTER",
+            "value": 256
+          },
+          {
+            "name": "RGF_CUBE",
+            "value": 512
+          },
+          {
+            "name": "RGF_NOSIGHT",
+            "value": 1024
+          },
+          {
+            "name": "RGF_MISSILES",
+            "value": 2048
+          }
+        ]
+      },
+      {
+        "name": "amount",
+        "type": "int",
+        "optional": true,
+        "default": "0"
+      }
+    ],
+    "desc": "Action function: A_RadiusGive"
+  },
+  "A_CountdownArg": {
+    "params": [
+      {
+        "name": "argnum",
+        "type": "int",
+        "optional": false
+      },
+      {
+        "name": "targstate",
+        "type": "string",
+        "optional": true,
+        "default": "\"\""
+      }
+    ],
+    "desc": "Action function: A_CountdownArg"
+  },
+  "A_CustomMeleeAttack": {
+    "params": [
+      {
+        "name": "damage",
+        "type": "int",
+        "optional": true,
+        "default": "0"
+      },
+      {
+        "name": "meleesound",
+        "type": "string",
+        "optional": true,
+        "default": "\"\""
+      },
+      {
+        "name": "misssound",
+        "type": "string",
+        "optional": true,
+        "default": "\"\""
+      },
+      {
+        "name": "damagetype",
+        "type": "string",
+        "optional": true,
+        "default": "\"none\""
+      },
+      {
+        "name": "bleed",
+        "type": "bool",
+        "optional": true,
+        "default": "true"
+      }
+    ],
+    "desc": "Action function: A_CustomMeleeAttack"
+  },
+  "A_CustomComboAttack": {
+    "params": [
+      {
+        "name": "missiletype",
+        "type": "string",
+        "optional": false
+      },
+      {
+        "name": "spawnheight",
+        "type": "float",
+        "optional": false
+      },
+      {
+        "name": "damage",
+        "type": "int",
+        "optional": false
+      },
+      {
+        "name": "meleesound",
+        "type": "string",
+        "optional": true,
+        "default": "\"\""
+      },
+      {
+        "name": "damagetype",
+        "type": "string",
+        "optional": true,
+        "default": "\"none\""
+      },
+      {
+        "name": "bleed",
+        "type": "bool",
+        "optional": true,
+        "default": "true"
+      }
+    ],
+    "desc": "Action function: A_CustomComboAttack"
+  },
+  "A_Burst": {
+    "params": [
+      {
+        "name": "chunktype",
+        "type": "string",
+        "optional": false
+      }
+    ],
+    "desc": "Action function: A_Burst"
+  },
+  "A_Blast": {
+    "params": [
+      {
+        "name": "flags",
+        "type": "int",
+        "optional": true,
+        "default": "0",
+        "mode": "bitmask",
+        "enum": [
+          {
+            "name": "BF_USEAMMO",
+            "value": 1
+          },
+          {
+            "name": "BF_DONTWARN",
+            "value": 2
+          },
+          {
+            "name": "BF_AFFECTBOSSES",
+            "value": 4
+          },
+          {
+            "name": "BF_NOIMPACTDAMAGE",
+            "value": 8
+          }
+        ]
+      },
+      {
+        "name": "strength",
+        "type": "int",
+        "optional": true,
+        "default": "255"
+      },
+      {
+        "name": "radius",
+        "type": "int",
+        "optional": true,
+        "default": "255"
+      },
+      {
+        "name": "speed",
+        "type": "float",
+        "optional": true,
+        "default": "20"
+      },
+      {
+        "name": "blasteffect",
+        "type": "string",
+        "optional": true,
+        "default": "\"BlastEffect\""
+      },
+      {
+        "name": "blastsound",
+        "type": "string",
+        "optional": true,
+        "default": "\"BlastRadius\""
+      }
+    ],
+    "desc": "Action function: A_Blast"
+  },
+  "A_RadiusThrust": {
+    "params": [
+      {
+        "name": "force",
+        "type": "int",
+        "optional": true,
+        "default": "128"
+      },
+      {
+        "name": "distance",
+        "type": "int",
+        "optional": true,
+        "default": "-1"
+      },
+      {
+        "name": "flags",
+        "type": "int",
+        "optional": true,
+        "default": "RTF_AFFECTSOURCE",
+        "mode": "bitmask",
+        "enum": [
+          {
+            "name": "RTF_AFFECTSOURCE",
+            "value": 1
+          },
+          {
+            "name": "RTF_NOIMPACTDAMAGE",
+            "value": 2
+          },
+          {
+            "name": "RTF_NOTMISSILE",
+            "value": 4
+          }
+        ]
+      },
+      {
+        "name": "fullthrustdistance",
+        "type": "int",
+        "optional": true,
+        "default": "0"
+      }
+    ],
+    "desc": "Action function: A_RadiusThrust"
+  },
+  "A_Explode": {
+    "params": [
+      {
+        "name": "damage",
+        "type": "int",
+        "optional": true,
+        "default": "-1"
+      },
+      {
+        "name": "distance",
+        "type": "int",
+        "optional": true,
+        "default": "-1"
+      },
+      {
+        "name": "flags",
+        "type": "int",
+        "optional": true,
+        "default": "XF_HURTSOURCE",
+        "mode": "bitmask",
+        "enum": [
+          {
+            "name": "XF_HURTSOURCE",
+            "value": 1
+          },
+          {
+            "name": "XF_NOTMISSILE",
+            "value": 4
+          }
+        ]
+      },
+      {
+        "name": "alert",
+        "type": "bool",
+        "optional": true,
+        "default": "false"
+      },
+      {
+        "name": "fulldamagedistance",
+        "type": "int",
+        "optional": true,
+        "default": "0"
+      },
+      {
+        "name": "nails",
+        "type": "int",
+        "optional": true,
+        "default": "0"
+      },
+      {
+        "name": "naildamage",
+        "type": "int",
+        "optional": true,
+        "default": "10"
+      },
+      {
+        "name": "pufftype",
+        "type": "string",
+        "optional": true,
+        "default": "\"BulletPuff\""
+      }
+    ],
+    "desc": "Action function: A_Explode"
+  },
+  "A_Stop": {
+    "params": [],
+    "desc": "Action function: A_Stop"
+  },
+  "A_Respawn": {
+    "params": [
+      {
+        "name": "flags",
+        "type": "int",
+        "optional": true,
+        "default": "1",
+        "mode": "bitmask",
+        "enum": [
+          {
+            "name": "RSF_FOG",
+            "value": 1
+          },
+          {
+            "name": "RSF_KEEPTARGET",
+            "value": 2
+          },
+          {
+            "name": "RSF_TELEFRAG",
+            "value": 4
+          }
+        ]
+      }
+    ],
+    "desc": "Action function: A_Respawn"
+  },
+  "A_BarrelDestroy": {
+    "params": [],
+    "desc": "Action function: A_BarrelDestroy"
+  },
+  "A_QueueCorpse": {
+    "params": [],
+    "desc": "Action function: A_QueueCorpse"
+  },
+  "A_DeQueueCorpse": {
+    "params": [],
+    "desc": "Action function: A_DeQueueCorpse"
+  },
+  "A_LookEx": {
+    "params": [
+      {
+        "name": "flags",
+        "type": "int",
+        "optional": true,
+        "default": "0",
+        "mode": "bitmask",
+        "enum": [
+          {
+            "name": "LOF_NOSIGHTCHECK",
+            "value": 1
+          },
+          {
+            "name": "LOF_NOSOUNDCHECK",
+            "value": 2
+          },
+          {
+            "name": "LOF_DONTCHASEGOAL",
+            "value": 4
+          },
+          {
+            "name": "LOF_NOSEESOUND",
+            "value": 8
+          },
+          {
+            "name": "LOF_FULLVOLSEESOUND",
+            "value": 16
+          },
+          {
+            "name": "LOF_NOJUMP",
+            "value": 32
+          }
+        ]
+      },
+      {
+        "name": "minseedist",
+        "type": "float",
+        "optional": true,
+        "default": "0"
+      },
+      {
+        "name": "maxseedist",
+        "type": "float",
+        "optional": true,
+        "default": "0"
+      },
+      {
+        "name": "maxheardist",
+        "type": "float",
+        "optional": true,
+        "default": "0"
+      },
+      {
+        "name": "fov",
+        "type": "float",
+        "optional": true,
+        "default": "0"
+      },
+      {
+        "name": "label",
+        "type": "string",
+        "optional": true,
+        "default": "\"\""
+      }
+    ],
+    "desc": "Action function: A_LookEx"
+  },
+  "A_ClearLastHeard": {
+    "params": [],
+    "desc": "Action function: A_ClearLastHeard"
+  },
+  "A_ClearTarget": {
+    "params": [],
+    "desc": "Action function: A_ClearTarget"
+  },
+  "A_CheckLOF": {
+    "params": [
+      {
+        "name": "jump",
+        "type": "string",
+        "optional": false
+      },
+      {
+        "name": "flags",
+        "type": "int",
+        "optional": true,
+        "default": "0",
+        "mode": "bitmask",
+        "enum": [
+          {
+            "name": "CLOFF_NOAIM_VERT",
+            "value": 1
+          },
+          {
+            "name": "CLOFF_NOAIM_HORZ",
+            "value": 2
+          },
+          {
+            "name": "CLOFF_JUMPENEMY",
+            "value": 4
+          },
+          {
+            "name": "CLOFF_JUMPFRIEND",
+            "value": 8
+          },
+          {
+            "name": "CLOFF_JUMPOBJECT",
+            "value": 16
+          },
+          {
+            "name": "CLOFF_JUMPNONHOSTILE",
+            "value": 32
+          },
+          {
+            "name": "CLOFF_SKIPENEMY",
+            "value": 64
+          },
+          {
+            "name": "CLOFF_SKIPFRIEND",
+            "value": 128
+          },
+          {
+            "name": "CLOFF_SKIPOBJECT",
+            "value": 256
+          },
+          {
+            "name": "CLOFF_SKIPNONHOSTILE",
+            "value": 512
+          },
+          {
+            "name": "CLOFF_MUSTBESHOOTABLE",
+            "value": 1024
+          },
+          {
+            "name": "CLOFF_SKIPTARGET",
+            "value": 2048
+          },
+          {
+            "name": "CLOFF_ALLOWNULL",
+            "value": 4096
+          },
+          {
+            "name": "CLOFF_CHECKPARTIAL",
+            "value": 8192
+          },
+          {
+            "name": "CLOFF_MUSTBEGHOST",
+            "value": 16384
+          },
+          {
+            "name": "CLOFF_IGNOREGHOST",
+            "value": 32768
+          },
+          {
+            "name": "CLOFF_MUSTBESOLID",
+            "value": 65536
+          },
+          {
+            "name": "CLOFF_BEYONDTARGET",
+            "value": 131072
+          },
+          {
+            "name": "CLOFF_FROMBASE",
+            "value": 262144
+          },
+          {
+            "name": "CLOFF_MUL_HEIGHT",
+            "value": 524288
+          },
+          {
+            "name": "CLOFF_MUL_WIDTH",
+            "value": 1048576
+          },
+          {
+            "name": "CLOFF_JUMP_ON_MISS",
+            "value": 2097152
+          },
+          {
+            "name": "CLOFF_AIM_VERT_NOOFFSET",
+            "value": 4194304
+          }
+        ]
+      },
+      {
+        "name": "range",
+        "type": "float",
+        "optional": true,
+        "default": "0"
+      },
+      {
+        "name": "minrange",
+        "type": "float",
+        "optional": true,
+        "default": "0"
+      },
+      {
+        "name": "angle",
+        "type": "float",
+        "optional": true,
+        "default": "0"
+      },
+      {
+        "name": "pitch",
+        "type": "float",
+        "optional": true,
+        "default": "0"
+      },
+      {
+        "name": "offsetheight",
+        "type": "float",
+        "optional": true,
+        "default": "0"
+      },
+      {
+        "name": "offsetwidth",
+        "type": "float",
+        "optional": true,
+        "default": "0"
+      },
+      {
+        "name": "ptr_target",
+        "type": "int",
+        "optional": true,
+        "default": "AAPTR_DEFAULT",
+        "mode": "bitmask",
+        "enum": [
+          {
+            "name": "AAPTR_DEFAULT",
+            "value": 0
+          },
+          {
+            "name": "AAPTR_NULL",
+            "value": 1
+          },
+          {
+            "name": "AAPTR_TARGET",
+            "value": 2
+          },
+          {
+            "name": "AAPTR_MASTER",
+            "value": 4
+          },
+          {
+            "name": "AAPTR_TRACER",
+            "value": 8
+          },
+          {
+            "name": "AAPTR_PLAYER_GETTARGET",
+            "value": 16
+          },
+          {
+            "name": "AAPTR_PLAYER_GETCONVERSATION",
+            "value": 32
+          },
+          {
+            "name": "AAPTR_PLAYER1",
+            "value": 64
+          },
+          {
+            "name": "AAPTR_PLAYER2",
+            "value": 128
+          },
+          {
+            "name": "AAPTR_PLAYER3",
+            "value": 256
+          },
+          {
+            "name": "AAPTR_PLAYER4",
+            "value": 512
+          },
+          {
+            "name": "AAPTR_PLAYER5",
+            "value": 1024
+          },
+          {
+            "name": "AAPTR_PLAYER6",
+            "value": 2048
+          },
+          {
+            "name": "AAPTR_PLAYER7",
+            "value": 4096
+          },
+          {
+            "name": "AAPTR_PLAYER8",
+            "value": 8192
+          },
+          {
+            "name": "AAPTR_FRIENDPLAYER",
+            "value": 16384
+          },
+          {
+            "name": "AAPTR_PLAYER_GETFLOATYICON",
+            "value": 67108864
+          },
+          {
+            "name": "AAPTR_PLAYER_GETCAMERA",
+            "value": 134217728
+          }
+        ]
+      }
+    ],
+    "desc": "Action function: A_CheckLOF"
+  },
+  "A_JumpIfTargetInLOS": {
+    "params": [
+      {
+        "name": "label",
+        "type": "string",
+        "optional": false
+      },
+      {
+        "name": "fov",
+        "type": "float",
+        "optional": true,
+        "default": "0"
+      },
+      {
+        "name": "flags",
+        "type": "int",
+        "optional": true,
+        "default": "0",
+        "mode": "bitmask",
+        "enum": [
+          {
+            "name": "JLOSF_PROJECTILE",
+            "value": 1
+          },
+          {
+            "name": "JLOSF_NOSIGHT",
+            "value": 2
+          },
+          {
+            "name": "JLOSF_CLOSENOFOV",
+            "value": 4
+          },
+          {
+            "name": "JLOSF_CLOSENOSIGHT",
+            "value": 8
+          },
+          {
+            "name": "JLOSF_CLOSENOJUMP",
+            "value": 16
+          },
+          {
+            "name": "JLOSF_DEADNOJUMP",
+            "value": 32
+          },
+          {
+            "name": "JLOSF_CHECKMASTER",
+            "value": 64
+          },
+          {
+            "name": "JLOSF_TARGETLOS",
+            "value": 128
+          },
+          {
+            "name": "JLOSF_FLIPFOV",
+            "value": 256
+          },
+          {
+            "name": "JLOSF_ALLYNOJUMP",
+            "value": 512
+          },
+          {
+            "name": "JLOSF_COMBATANTONLY",
+            "value": 1024
+          },
+          {
+            "name": "JLOSF_NOAUTOAIM",
+            "value": 2048
+          }
+        ]
+      },
+      {
+        "name": "dist_max",
+        "type": "float",
+        "optional": true,
+        "default": "0"
+      },
+      {
+        "name": "dist_close",
+        "type": "float",
+        "optional": true,
+        "default": "0"
+      }
+    ],
+    "desc": "Action function: A_JumpIfTargetInLOS"
+  },
+  "A_JumpIfInTargetLOS": {
+    "params": [
+      {
+        "name": "label",
+        "type": "string",
+        "optional": false
+      },
+      {
+        "name": "fov",
+        "type": "float",
+        "optional": true,
+        "default": "0"
+      },
+      {
+        "name": "flags",
+        "type": "int",
+        "optional": true,
+        "default": "0",
+        "mode": "bitmask",
+        "enum": [
+          {
+            "name": "JLOSF_PROJECTILE",
+            "value": 1
+          },
+          {
+            "name": "JLOSF_NOSIGHT",
+            "value": 2
+          },
+          {
+            "name": "JLOSF_CLOSENOFOV",
+            "value": 4
+          },
+          {
+            "name": "JLOSF_CLOSENOSIGHT",
+            "value": 8
+          },
+          {
+            "name": "JLOSF_CLOSENOJUMP",
+            "value": 16
+          },
+          {
+            "name": "JLOSF_DEADNOJUMP",
+            "value": 32
+          },
+          {
+            "name": "JLOSF_CHECKMASTER",
+            "value": 64
+          },
+          {
+            "name": "JLOSF_TARGETLOS",
+            "value": 128
+          },
+          {
+            "name": "JLOSF_FLIPFOV",
+            "value": 256
+          },
+          {
+            "name": "JLOSF_ALLYNOJUMP",
+            "value": 512
+          },
+          {
+            "name": "JLOSF_COMBATANTONLY",
+            "value": 1024
+          },
+          {
+            "name": "JLOSF_NOAUTOAIM",
+            "value": 2048
+          }
+        ]
+      },
+      {
+        "name": "dist_max",
+        "type": "float",
+        "optional": true,
+        "default": "0"
+      },
+      {
+        "name": "dist_close",
+        "type": "float",
+        "optional": true,
+        "default": "0"
+      }
+    ],
+    "desc": "Action function: A_JumpIfInTargetLOS"
+  },
+  "A_DamageMaster": {
+    "params": [
+      {
+        "name": "amount",
+        "type": "int",
+        "optional": false
+      },
+      {
+        "name": "damagetype",
+        "type": "string",
+        "optional": true,
+        "default": "\"none\""
+      }
+    ],
+    "desc": "Action function: A_DamageMaster"
+  },
+  "A_DamageChildren": {
+    "params": [
+      {
+        "name": "amount",
+        "type": "int",
+        "optional": false
+      },
+      {
+        "name": "damagetype",
+        "type": "string",
+        "optional": true,
+        "default": "\"none\""
+      }
+    ],
+    "desc": "Action function: A_DamageChildren"
+  },
+  "A_DamageSiblings": {
+    "params": [
+      {
+        "name": "amount",
+        "type": "int",
+        "optional": false
+      },
+      {
+        "name": "damagetype",
+        "type": "string",
+        "optional": true,
+        "default": "\"none\""
+      }
+    ],
+    "desc": "Action function: A_DamageSiblings"
+  },
+  "A_SelectWeapon": {
+    "params": [
+      {
+        "name": "whichweapon",
+        "type": "string",
+        "optional": false
+      }
+    ],
+    "desc": "Action function: A_SelectWeapon"
+  },
+  "A_Punch": {
+    "params": [],
+    "desc": "Action function: A_Punch"
+  },
+  "A_Feathers": {
+    "params": [],
+    "desc": "Action function: A_Feathers"
+  },
+  "A_ClassBossHealth": {
+    "params": [],
+    "desc": "Action function: A_ClassBossHealth"
+  },
+  "A_ShootGun": {
+    "params": [],
+    "desc": "Action function: A_ShootGun"
+  },
+  "A_RocketInFlight": {
+    "params": [],
+    "desc": "Action function: A_RocketInFlight"
+  },
+  "A_Bang4Cloud": {
+    "params": [],
+    "desc": "Action function: A_Bang4Cloud"
+  },
+  "A_DropFire": {
+    "params": [],
+    "desc": "Action function: A_DropFire"
+  },
+  "A_GiveQuestItem": {
+    "params": [
+      {
+        "name": "itemno",
+        "type": "int",
+        "optional": false
+      }
+    ],
+    "desc": "Action function: A_GiveQuestItem"
+  },
+  "A_RemoveForcefield": {
+    "params": [],
+    "desc": "Action function: A_RemoveForcefield"
+  },
+  "A_DropWeaponPieces": {
+    "params": [
+      {
+        "name": "p1",
+        "type": "string",
+        "optional": false
+      },
+      {
+        "name": "p2",
+        "type": "string",
+        "optional": false
+      },
+      {
+        "name": "p3",
+        "type": "string",
+        "optional": false
+      }
+    ],
+    "desc": "Action function: A_DropWeaponPieces"
+  },
+  "A_PigPain": {
+    "params": [],
+    "desc": "Action function: A_PigPain"
+  },
+  "A_MonsterRefire": {
+    "params": [
+      {
+        "name": "chance",
+        "type": "int",
+        "optional": false
+      },
+      {
+        "name": "label",
+        "type": "string",
+        "optional": false
+      }
+    ],
+    "desc": "Action function: A_MonsterRefire"
+  },
+  "A_SetAngle": {
+    "params": [
+      {
+        "name": "angle",
+        "type": "float",
+        "optional": true,
+        "default": "0"
+      },
+      {
+        "name": "flags",
+        "type": "int",
+        "optional": true,
+        "default": "0",
+        "mode": "bitmask",
+        "enum": [
+          {
+            "name": "SPF_FORCECLAMP",
+            "value": 1
+          },
+          {
+            "name": "SPF_INTERPOLATE",
+            "value": 2
+          }
+        ]
+      }
+    ],
+    "desc": "Action function: A_SetAngle"
+  },
+  "A_SetPitch": {
+    "params": [
+      {
+        "name": "pitch",
+        "type": "float",
+        "optional": false
+      },
+      {
+        "name": "flags",
+        "type": "int",
+        "optional": true,
+        "default": "0",
+        "mode": "bitmask",
+        "enum": [
+          {
+            "name": "SPF_FORCECLAMP",
+            "value": 1
+          },
+          {
+            "name": "SPF_INTERPOLATE",
+            "value": 2
+          }
+        ]
+      }
+    ],
+    "desc": "Action function: A_SetPitch"
+  },
+  "A_ScaleVelocity": {
+    "params": [
+      {
+        "name": "scale",
+        "type": "float",
+        "optional": false
+      }
+    ],
+    "desc": "Action function: A_ScaleVelocity"
+  },
+  "A_ChangeVelocity": {
+    "params": [
+      {
+        "name": "x",
+        "type": "float",
+        "optional": true,
+        "default": "0"
+      },
+      {
+        "name": "y",
+        "type": "float",
+        "optional": true,
+        "default": "0"
+      },
+      {
+        "name": "z",
+        "type": "float",
+        "optional": true,
+        "default": "0"
+      },
+      {
+        "name": "flags",
+        "type": "int",
+        "optional": true,
+        "default": "0",
+        "mode": "bitmask",
+        "enum": [
+          {
+            "name": "CVF_RELATIVE",
+            "value": 1
+          },
+          {
+            "name": "CVF_REPLACE",
+            "value": 2
+          }
+        ]
+      }
+    ],
+    "desc": "Action function: A_ChangeVelocity"
+  },
+  "A_SetArg": {
+    "params": [
+      {
+        "name": "pos",
+        "type": "int",
+        "optional": false
+      },
+      {
+        "name": "value",
+        "type": "int",
+        "optional": false
+      }
+    ],
+    "desc": "Action function: A_SetArg"
+  },
+  "A_SetUserVar": {
+    "params": [
+      {
+        "name": "varname",
+        "type": "string",
+        "optional": false
+      },
+      {
+        "name": "value",
+        "type": "int",
+        "optional": false
+      }
+    ],
+    "desc": "Action function: A_SetUserVar"
+  },
+  "A_SetUserArray": {
+    "params": [
+      {
+        "name": "varname",
+        "type": "string",
+        "optional": false
+      },
+      {
+        "name": "index",
+        "type": "int",
+        "optional": false
+      },
+      {
+        "name": "value",
+        "type": "int",
+        "optional": false
+      }
+    ],
+    "desc": "Action function: A_SetUserArray"
+  },
+  "A_SetSpecial": {
+    "params": [
+      {
+        "name": "spec",
+        "type": "int",
+        "optional": false
+      },
+      {
+        "name": "arg0",
+        "type": "int",
+        "optional": true,
+        "default": "0"
+      },
+      {
+        "name": "arg1",
+        "type": "int",
+        "optional": true,
+        "default": "0"
+      },
+      {
+        "name": "arg2",
+        "type": "int",
+        "optional": true,
+        "default": "0"
+      },
+      {
+        "name": "arg3",
+        "type": "int",
+        "optional": true,
+        "default": "0"
+      },
+      {
+        "name": "arg4",
+        "type": "int",
+        "optional": true,
+        "default": "0"
+      }
+    ],
+    "desc": "Action function: A_SetSpecial"
+  },
+  "A_Quake": {
+    "params": [
+      {
+        "name": "intensity",
+        "type": "int",
+        "optional": false
+      },
+      {
+        "name": "duration",
+        "type": "int",
+        "optional": false
+      },
+      {
+        "name": "damrad",
+        "type": "int",
+        "optional": false
+      },
+      {
+        "name": "tremrad",
+        "type": "int",
+        "optional": false
+      },
+      {
+        "name": "sfx",
+        "type": "string",
+        "optional": true,
+        "default": "\"world/quake\""
+      }
+    ],
+    "desc": "Action function: A_Quake"
+  },
+  "A_SetTics": {
+    "params": [
+      {
+        "name": "tics",
+        "type": "int",
+        "optional": false
+      }
+    ],
+    "desc": "Action function: A_SetTics"
+  },
+  "A_SetDamageType": {
+    "params": [
+      {
+        "name": "damagetype",
+        "type": "string",
+        "optional": false
+      }
+    ],
+    "desc": "Action function: A_SetDamageType"
+  },
+  "A_DropItem": {
+    "params": [
+      {
+        "name": "item",
+        "type": "string",
+        "optional": false
+      },
+      {
+        "name": "dropamount",
+        "type": "int",
+        "optional": true,
+        "default": "-1"
+      },
+      {
+        "name": "chance",
+        "type": "int",
+        "optional": true,
+        "default": "256"
+      }
+    ],
+    "desc": "Action function: A_DropItem"
+  },
+  "A_GiveToChildren": {
+    "params": [
+      {
+        "name": "itemtype",
+        "type": "string",
+        "optional": false
+      },
+      {
+        "name": "amount",
+        "type": "int",
+        "optional": true,
+        "default": "0"
+      }
+    ],
+    "desc": "Action function: A_GiveToChildren"
+  },
+  "A_GiveToSiblings": {
+    "params": [
+      {
+        "name": "itemtype",
+        "type": "string",
+        "optional": false
+      },
+      {
+        "name": "amount",
+        "type": "int",
+        "optional": true,
+        "default": "0"
+      }
+    ],
+    "desc": "Action function: A_GiveToSiblings"
+  },
+  "A_TakeFromChildren": {
+    "params": [
+      {
+        "name": "itemtype",
+        "type": "string",
+        "optional": false
+      },
+      {
+        "name": "amount",
+        "type": "int",
+        "optional": true,
+        "default": "0"
+      }
+    ],
+    "desc": "Action function: A_TakeFromChildren"
+  },
+  "A_TakeFromSiblings": {
+    "params": [
+      {
+        "name": "itemtype",
+        "type": "string",
+        "optional": false
+      },
+      {
+        "name": "amount",
+        "type": "int",
+        "optional": true,
+        "default": "0"
+      }
+    ],
+    "desc": "Action function: A_TakeFromSiblings"
+  },
+  "A_CheckSightOrRange": {
+    "params": [
+      {
+        "name": "distance",
+        "type": "float",
+        "optional": false
+      },
+      {
+        "name": "label",
+        "type": "string",
+        "optional": false
+      }
+    ],
+    "desc": "Action function: A_CheckSightOrRange"
+  },
+  "A_CheckRange": {
+    "params": [
+      {
+        "name": "distance",
+        "type": "float",
+        "optional": false
+      },
+      {
+        "name": "label",
+        "type": "string",
+        "optional": false
+      }
+    ],
+    "desc": "Action function: A_CheckRange"
+  },
+  "A_RearrangePointers": {
+    "params": [
+      {
+        "name": "newtarget",
+        "type": "int",
+        "optional": false,
+        "mode": "bitmask",
+        "enum": [
+          {
+            "name": "AAPTR_DEFAULT",
+            "value": 0
+          },
+          {
+            "name": "AAPTR_NULL",
+            "value": 1
+          },
+          {
+            "name": "AAPTR_TARGET",
+            "value": 2
+          },
+          {
+            "name": "AAPTR_MASTER",
+            "value": 4
+          },
+          {
+            "name": "AAPTR_TRACER",
+            "value": 8
+          },
+          {
+            "name": "AAPTR_PLAYER_GETTARGET",
+            "value": 16
+          },
+          {
+            "name": "AAPTR_PLAYER_GETCONVERSATION",
+            "value": 32
+          },
+          {
+            "name": "AAPTR_PLAYER1",
+            "value": 64
+          },
+          {
+            "name": "AAPTR_PLAYER2",
+            "value": 128
+          },
+          {
+            "name": "AAPTR_PLAYER3",
+            "value": 256
+          },
+          {
+            "name": "AAPTR_PLAYER4",
+            "value": 512
+          },
+          {
+            "name": "AAPTR_PLAYER5",
+            "value": 1024
+          },
+          {
+            "name": "AAPTR_PLAYER6",
+            "value": 2048
+          },
+          {
+            "name": "AAPTR_PLAYER7",
+            "value": 4096
+          },
+          {
+            "name": "AAPTR_PLAYER8",
+            "value": 8192
+          },
+          {
+            "name": "AAPTR_FRIENDPLAYER",
+            "value": 16384
+          },
+          {
+            "name": "AAPTR_PLAYER_GETFLOATYICON",
+            "value": 67108864
+          },
+          {
+            "name": "AAPTR_PLAYER_GETCAMERA",
+            "value": 134217728
+          }
+        ]
+      },
+      {
+        "name": "newmaster",
+        "type": "int",
+        "optional": true,
+        "default": "AAPTR_DEFAULT",
+        "mode": "bitmask",
+        "enum": [
+          {
+            "name": "AAPTR_DEFAULT",
+            "value": 0
+          },
+          {
+            "name": "AAPTR_NULL",
+            "value": 1
+          },
+          {
+            "name": "AAPTR_TARGET",
+            "value": 2
+          },
+          {
+            "name": "AAPTR_MASTER",
+            "value": 4
+          },
+          {
+            "name": "AAPTR_TRACER",
+            "value": 8
+          },
+          {
+            "name": "AAPTR_PLAYER_GETTARGET",
+            "value": 16
+          },
+          {
+            "name": "AAPTR_PLAYER_GETCONVERSATION",
+            "value": 32
+          },
+          {
+            "name": "AAPTR_PLAYER1",
+            "value": 64
+          },
+          {
+            "name": "AAPTR_PLAYER2",
+            "value": 128
+          },
+          {
+            "name": "AAPTR_PLAYER3",
+            "value": 256
+          },
+          {
+            "name": "AAPTR_PLAYER4",
+            "value": 512
+          },
+          {
+            "name": "AAPTR_PLAYER5",
+            "value": 1024
+          },
+          {
+            "name": "AAPTR_PLAYER6",
+            "value": 2048
+          },
+          {
+            "name": "AAPTR_PLAYER7",
+            "value": 4096
+          },
+          {
+            "name": "AAPTR_PLAYER8",
+            "value": 8192
+          },
+          {
+            "name": "AAPTR_FRIENDPLAYER",
+            "value": 16384
+          },
+          {
+            "name": "AAPTR_PLAYER_GETFLOATYICON",
+            "value": 67108864
+          },
+          {
+            "name": "AAPTR_PLAYER_GETCAMERA",
+            "value": 134217728
+          }
+        ]
+      },
+      {
+        "name": "newtracer",
+        "type": "int",
+        "optional": true,
+        "default": "AAPTR_DEFAULT",
+        "mode": "bitmask",
+        "enum": [
+          {
+            "name": "AAPTR_DEFAULT",
+            "value": 0
+          },
+          {
+            "name": "AAPTR_NULL",
+            "value": 1
+          },
+          {
+            "name": "AAPTR_TARGET",
+            "value": 2
+          },
+          {
+            "name": "AAPTR_MASTER",
+            "value": 4
+          },
+          {
+            "name": "AAPTR_TRACER",
+            "value": 8
+          },
+          {
+            "name": "AAPTR_PLAYER_GETTARGET",
+            "value": 16
+          },
+          {
+            "name": "AAPTR_PLAYER_GETCONVERSATION",
+            "value": 32
+          },
+          {
+            "name": "AAPTR_PLAYER1",
+            "value": 64
+          },
+          {
+            "name": "AAPTR_PLAYER2",
+            "value": 128
+          },
+          {
+            "name": "AAPTR_PLAYER3",
+            "value": 256
+          },
+          {
+            "name": "AAPTR_PLAYER4",
+            "value": 512
+          },
+          {
+            "name": "AAPTR_PLAYER5",
+            "value": 1024
+          },
+          {
+            "name": "AAPTR_PLAYER6",
+            "value": 2048
+          },
+          {
+            "name": "AAPTR_PLAYER7",
+            "value": 4096
+          },
+          {
+            "name": "AAPTR_PLAYER8",
+            "value": 8192
+          },
+          {
+            "name": "AAPTR_FRIENDPLAYER",
+            "value": 16384
+          },
+          {
+            "name": "AAPTR_PLAYER_GETFLOATYICON",
+            "value": 67108864
+          },
+          {
+            "name": "AAPTR_PLAYER_GETCAMERA",
+            "value": 134217728
+          }
+        ]
+      },
+      {
+        "name": "flags",
+        "type": "int",
+        "optional": true,
+        "default": "0"
+      }
+    ],
+    "desc": "Action function: A_RearrangePointers"
+  },
+  "A_TransferPointer": {
+    "params": [
+      {
+        "name": "ptr_source",
+        "type": "int",
+        "optional": false,
+        "mode": "bitmask",
+        "enum": [
+          {
+            "name": "AAPTR_DEFAULT",
+            "value": 0
+          },
+          {
+            "name": "AAPTR_NULL",
+            "value": 1
+          },
+          {
+            "name": "AAPTR_TARGET",
+            "value": 2
+          },
+          {
+            "name": "AAPTR_MASTER",
+            "value": 4
+          },
+          {
+            "name": "AAPTR_TRACER",
+            "value": 8
+          },
+          {
+            "name": "AAPTR_PLAYER_GETTARGET",
+            "value": 16
+          },
+          {
+            "name": "AAPTR_PLAYER_GETCONVERSATION",
+            "value": 32
+          },
+          {
+            "name": "AAPTR_PLAYER1",
+            "value": 64
+          },
+          {
+            "name": "AAPTR_PLAYER2",
+            "value": 128
+          },
+          {
+            "name": "AAPTR_PLAYER3",
+            "value": 256
+          },
+          {
+            "name": "AAPTR_PLAYER4",
+            "value": 512
+          },
+          {
+            "name": "AAPTR_PLAYER5",
+            "value": 1024
+          },
+          {
+            "name": "AAPTR_PLAYER6",
+            "value": 2048
+          },
+          {
+            "name": "AAPTR_PLAYER7",
+            "value": 4096
+          },
+          {
+            "name": "AAPTR_PLAYER8",
+            "value": 8192
+          },
+          {
+            "name": "AAPTR_FRIENDPLAYER",
+            "value": 16384
+          },
+          {
+            "name": "AAPTR_PLAYER_GETFLOATYICON",
+            "value": 67108864
+          },
+          {
+            "name": "AAPTR_PLAYER_GETCAMERA",
+            "value": 134217728
+          }
+        ]
+      },
+      {
+        "name": "ptr_recepient",
+        "type": "int",
+        "optional": false,
+        "mode": "bitmask",
+        "enum": [
+          {
+            "name": "AAPTR_DEFAULT",
+            "value": 0
+          },
+          {
+            "name": "AAPTR_NULL",
+            "value": 1
+          },
+          {
+            "name": "AAPTR_TARGET",
+            "value": 2
+          },
+          {
+            "name": "AAPTR_MASTER",
+            "value": 4
+          },
+          {
+            "name": "AAPTR_TRACER",
+            "value": 8
+          },
+          {
+            "name": "AAPTR_PLAYER_GETTARGET",
+            "value": 16
+          },
+          {
+            "name": "AAPTR_PLAYER_GETCONVERSATION",
+            "value": 32
+          },
+          {
+            "name": "AAPTR_PLAYER1",
+            "value": 64
+          },
+          {
+            "name": "AAPTR_PLAYER2",
+            "value": 128
+          },
+          {
+            "name": "AAPTR_PLAYER3",
+            "value": 256
+          },
+          {
+            "name": "AAPTR_PLAYER4",
+            "value": 512
+          },
+          {
+            "name": "AAPTR_PLAYER5",
+            "value": 1024
+          },
+          {
+            "name": "AAPTR_PLAYER6",
+            "value": 2048
+          },
+          {
+            "name": "AAPTR_PLAYER7",
+            "value": 4096
+          },
+          {
+            "name": "AAPTR_PLAYER8",
+            "value": 8192
+          },
+          {
+            "name": "AAPTR_FRIENDPLAYER",
+            "value": 16384
+          },
+          {
+            "name": "AAPTR_PLAYER_GETFLOATYICON",
+            "value": 67108864
+          },
+          {
+            "name": "AAPTR_PLAYER_GETCAMERA",
+            "value": 134217728
+          }
+        ]
+      },
+      {
+        "name": "sourcefield",
+        "type": "int",
+        "optional": false,
+        "mode": "bitmask",
+        "enum": [
+          {
+            "name": "AAPTR_DEFAULT",
+            "value": 0
+          },
+          {
+            "name": "AAPTR_NULL",
+            "value": 1
+          },
+          {
+            "name": "AAPTR_TARGET",
+            "value": 2
+          },
+          {
+            "name": "AAPTR_MASTER",
+            "value": 4
+          },
+          {
+            "name": "AAPTR_TRACER",
+            "value": 8
+          },
+          {
+            "name": "AAPTR_PLAYER_GETTARGET",
+            "value": 16
+          },
+          {
+            "name": "AAPTR_PLAYER_GETCONVERSATION",
+            "value": 32
+          },
+          {
+            "name": "AAPTR_PLAYER1",
+            "value": 64
+          },
+          {
+            "name": "AAPTR_PLAYER2",
+            "value": 128
+          },
+          {
+            "name": "AAPTR_PLAYER3",
+            "value": 256
+          },
+          {
+            "name": "AAPTR_PLAYER4",
+            "value": 512
+          },
+          {
+            "name": "AAPTR_PLAYER5",
+            "value": 1024
+          },
+          {
+            "name": "AAPTR_PLAYER6",
+            "value": 2048
+          },
+          {
+            "name": "AAPTR_PLAYER7",
+            "value": 4096
+          },
+          {
+            "name": "AAPTR_PLAYER8",
+            "value": 8192
+          },
+          {
+            "name": "AAPTR_FRIENDPLAYER",
+            "value": 16384
+          },
+          {
+            "name": "AAPTR_PLAYER_GETFLOATYICON",
+            "value": 67108864
+          },
+          {
+            "name": "AAPTR_PLAYER_GETCAMERA",
+            "value": 134217728
+          }
+        ]
+      },
+      {
+        "name": "recepientfield",
+        "type": "int",
+        "optional": true,
+        "default": "AAPTR_DEFAULT",
+        "mode": "bitmask",
+        "enum": [
+          {
+            "name": "AAPTR_DEFAULT",
+            "value": 0
+          },
+          {
+            "name": "AAPTR_NULL",
+            "value": 1
+          },
+          {
+            "name": "AAPTR_TARGET",
+            "value": 2
+          },
+          {
+            "name": "AAPTR_MASTER",
+            "value": 4
+          },
+          {
+            "name": "AAPTR_TRACER",
+            "value": 8
+          },
+          {
+            "name": "AAPTR_PLAYER_GETTARGET",
+            "value": 16
+          },
+          {
+            "name": "AAPTR_PLAYER_GETCONVERSATION",
+            "value": 32
+          },
+          {
+            "name": "AAPTR_PLAYER1",
+            "value": 64
+          },
+          {
+            "name": "AAPTR_PLAYER2",
+            "value": 128
+          },
+          {
+            "name": "AAPTR_PLAYER3",
+            "value": 256
+          },
+          {
+            "name": "AAPTR_PLAYER4",
+            "value": 512
+          },
+          {
+            "name": "AAPTR_PLAYER5",
+            "value": 1024
+          },
+          {
+            "name": "AAPTR_PLAYER6",
+            "value": 2048
+          },
+          {
+            "name": "AAPTR_PLAYER7",
+            "value": 4096
+          },
+          {
+            "name": "AAPTR_PLAYER8",
+            "value": 8192
+          },
+          {
+            "name": "AAPTR_FRIENDPLAYER",
+            "value": 16384
+          },
+          {
+            "name": "AAPTR_PLAYER_GETFLOATYICON",
+            "value": 67108864
+          },
+          {
+            "name": "AAPTR_PLAYER_GETCAMERA",
+            "value": 134217728
+          }
+        ]
+      },
+      {
+        "name": "flags",
+        "type": "int",
+        "optional": true,
+        "default": "0"
+      }
+    ],
+    "desc": "Action function: A_TransferPointer"
+  },
+  "A_CopyFriendliness": {
+    "params": [
+      {
+        "name": "ptr_source",
+        "type": "int",
+        "optional": true,
+        "default": "AAPTR_MASTER",
+        "mode": "bitmask",
+        "enum": [
+          {
+            "name": "AAPTR_DEFAULT",
+            "value": 0
+          },
+          {
+            "name": "AAPTR_NULL",
+            "value": 1
+          },
+          {
+            "name": "AAPTR_TARGET",
+            "value": 2
+          },
+          {
+            "name": "AAPTR_MASTER",
+            "value": 4
+          },
+          {
+            "name": "AAPTR_TRACER",
+            "value": 8
+          },
+          {
+            "name": "AAPTR_PLAYER_GETTARGET",
+            "value": 16
+          },
+          {
+            "name": "AAPTR_PLAYER_GETCONVERSATION",
+            "value": 32
+          },
+          {
+            "name": "AAPTR_PLAYER1",
+            "value": 64
+          },
+          {
+            "name": "AAPTR_PLAYER2",
+            "value": 128
+          },
+          {
+            "name": "AAPTR_PLAYER3",
+            "value": 256
+          },
+          {
+            "name": "AAPTR_PLAYER4",
+            "value": 512
+          },
+          {
+            "name": "AAPTR_PLAYER5",
+            "value": 1024
+          },
+          {
+            "name": "AAPTR_PLAYER6",
+            "value": 2048
+          },
+          {
+            "name": "AAPTR_PLAYER7",
+            "value": 4096
+          },
+          {
+            "name": "AAPTR_PLAYER8",
+            "value": 8192
+          },
+          {
+            "name": "AAPTR_FRIENDPLAYER",
+            "value": 16384
+          },
+          {
+            "name": "AAPTR_PLAYER_GETFLOATYICON",
+            "value": 67108864
+          },
+          {
+            "name": "AAPTR_PLAYER_GETCAMERA",
+            "value": 134217728
+          }
+        ]
+      }
+    ],
+    "desc": "Action function: A_CopyFriendliness"
+  },
+  "ACS_NamedExecute": {
+    "params": [
+      {
+        "name": "script",
+        "type": "string",
+        "optional": false
+      },
+      {
+        "name": "mapnum",
+        "type": "int",
+        "optional": true,
+        "default": "0"
+      },
+      {
+        "name": "arg1",
+        "type": "int",
+        "optional": true,
+        "default": "0"
+      },
+      {
+        "name": "arg2",
+        "type": "int",
+        "optional": true,
+        "default": "0"
+      },
+      {
+        "name": "arg3",
+        "type": "int",
+        "optional": true,
+        "default": "0"
+      }
+    ],
+    "desc": "Action function: ACS_NamedExecute"
+  },
+  "ACS_NamedSuspend": {
+    "params": [
+      {
+        "name": "script",
+        "type": "string",
+        "optional": false
+      },
+      {
+        "name": "mapnum",
+        "type": "int",
+        "optional": true,
+        "default": "0"
+      }
+    ],
+    "desc": "Action function: ACS_NamedSuspend"
+  },
+  "ACS_NamedTerminate": {
+    "params": [
+      {
+        "name": "script",
+        "type": "string",
+        "optional": false
+      },
+      {
+        "name": "mapnum",
+        "type": "int",
+        "optional": true,
+        "default": "0"
+      }
+    ],
+    "desc": "Action function: ACS_NamedTerminate"
+  },
+  "ACS_NamedLockedExecute": {
+    "params": [
+      {
+        "name": "script",
+        "type": "string",
+        "optional": false
+      },
+      {
+        "name": "mapnum",
+        "type": "int",
+        "optional": true,
+        "default": "0"
+      },
+      {
+        "name": "arg1",
+        "type": "int",
+        "optional": true,
+        "default": "0"
+      },
+      {
+        "name": "arg2",
+        "type": "int",
+        "optional": true,
+        "default": "0"
+      },
+      {
+        "name": "lock",
+        "type": "int",
+        "optional": true,
+        "default": "0"
+      }
+    ],
+    "desc": "Action function: ACS_NamedLockedExecute"
+  },
+  "ACS_NamedLockedExecuteDoor": {
+    "params": [
+      {
+        "name": "script",
+        "type": "string",
+        "optional": false
+      },
+      {
+        "name": "mapnum",
+        "type": "int",
+        "optional": true,
+        "default": "0"
+      },
+      {
+        "name": "arg1",
+        "type": "int",
+        "optional": true,
+        "default": "0"
+      },
+      {
+        "name": "arg2",
+        "type": "int",
+        "optional": true,
+        "default": "0"
+      },
+      {
+        "name": "lock",
+        "type": "int",
+        "optional": true,
+        "default": "0"
+      }
+    ],
+    "desc": "Action function: ACS_NamedLockedExecuteDoor"
+  },
+  "ACS_NamedExecuteWithResult": {
+    "params": [
+      {
+        "name": "script",
+        "type": "string",
+        "optional": false
+      },
+      {
+        "name": "arg1",
+        "type": "int",
+        "optional": true,
+        "default": "0"
+      },
+      {
+        "name": "arg2",
+        "type": "int",
+        "optional": true,
+        "default": "0"
+      },
+      {
+        "name": "arg3",
+        "type": "int",
+        "optional": true,
+        "default": "0"
+      },
+      {
+        "name": "arg4",
+        "type": "int",
+        "optional": true,
+        "default": "0"
+      }
+    ],
+    "desc": "Action function: ACS_NamedExecuteWithResult"
+  },
+  "ACS_NamedExecuteAlways": {
+    "params": [
+      {
+        "name": "script",
+        "type": "string",
+        "optional": false
+      },
+      {
+        "name": "mapnum",
+        "type": "int",
+        "optional": true,
+        "default": "0"
+      },
+      {
+        "name": "arg1",
+        "type": "int",
+        "optional": true,
+        "default": "0"
+      },
+      {
+        "name": "arg2",
+        "type": "int",
+        "optional": true,
+        "default": "0"
+      },
+      {
+        "name": "arg3",
+        "type": "int",
+        "optional": true,
+        "default": "0"
+      }
+    ],
+    "desc": "Action function: ACS_NamedExecuteAlways"
+  },
+  "A_FireBullets": {
+    "params": [
+      {
+        "name": "spread_xy",
+        "type": "float",
+        "optional": false
+      },
+      {
+        "name": "spread_z",
+        "type": "float",
+        "optional": true,
+        "default": "0"
+      },
+      {
+        "name": "numbullets",
+        "type": "int",
+        "optional": true,
+        "default": "0"
+      },
+      {
+        "name": "damageperbullet",
+        "type": "int",
+        "optional": true,
+        "default": "0"
+      },
+      {
+        "name": "pufftype",
+        "type": "string",
+        "optional": true,
+        "default": "\"\""
+      },
+      {
+        "name": "flags",
+        "type": "int",
+        "optional": true,
+        "mode": "bitmask",
+        "enum": [
+          {
+            "name": "FBF_USEAMMO",
+            "value": 1
+          },
+          {
+            "name": "FBF_NORANDOM",
+            "value": 2
+          },
+          {
+            "name": "FBF_EXPLICITANGLE",
+            "value": 4
+          },
+          {
+            "name": "FBF_NOPITCH",
+            "value": 8
+          },
+          {
+            "name": "FBF_NOFLASH",
+            "value": 16
+          },
+          {
+            "name": "FBF_NORANDOMPUFFZ",
+            "value": 32
+          }
+        ]
+      }
+    ],
+    "desc": "Action function: A_FireBullets"
+  },
+  "A_FireCustomMissile": {
+    "params": [
+      {
+        "name": "missiletype",
+        "type": "string",
+        "optional": false
+      },
+      {
+        "name": "angle",
+        "type": "float",
+        "optional": true,
+        "default": "0"
+      },
+      {
+        "name": "useammo",
+        "type": "bool",
+        "optional": true,
+        "default": "0"
+      },
+      {
+        "name": "spawnofs_horz",
+        "type": "int",
+        "optional": true,
+        "default": "0"
+      },
+      {
+        "name": "spawnheight",
+        "type": "int",
+        "optional": true,
+        "default": "0"
+      },
+      {
+        "name": "aim",
+        "type": "bool",
+        "optional": true,
+        "default": "0"
+      },
+      {
+        "name": "pitch",
+        "type": "float",
+        "optional": true,
+        "default": "0"
+      }
+    ],
+    "desc": "Action function: A_FireCustomMissile"
+  },
+  "ThrustThing": {
+    "params": [
+      {
+        "name": "byteangle",
+        "type": "int",
+        "optional": false
+      },
+      {
+        "name": "force",
+        "type": "int",
+        "optional": false
+      },
+      {
+        "name": "nolimit",
+        "type": "bool",
+        "optional": true,
+        "default": "0"
+      },
+      {
+        "name": "tid",
+        "type": "int",
+        "optional": true,
+        "default": "0"
+      }
+    ],
+    "desc": "Action function: A_FireBullets"
+  },
+  "ThrustThingZ": {
+    "params": [
+      {
+        "name": "tid",
+        "type": "int",
+        "optional": false
+      },
+      {
+        "name": "force",
+        "type": "int",
+        "optional": false
+      },
+      {
+        "name": "up_down",
+        "type": "bool",
+        "optional": false
+      },
+      {
+        "name": "set_add",
+        "type": "bool",
+        "optional": false
+      }
+    ],
+    "desc": "Action function: A_FireBullets"
+  }
+}

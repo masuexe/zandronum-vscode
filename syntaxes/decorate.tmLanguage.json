@@ -18,13 +18,13 @@
 			"include": "#keywords"
 		},
 		{
+			"include": "#flags"
+		},
+		{
 			"include": "#constants"
 		},
 		{
 			"include": "#properties"
-		},
-		{
-			"include": "#flags"
 		},
 		{
 			"include": "#action-functions"
@@ -144,7 +144,7 @@
 		"constants": {
 			"patterns": [
 				{
-					"match": "\\b[A-Z][A-Z0-9]*_[A-Z0-9_]+\\b",
+					"match": "\\b[A-Z][A-Z0-9]*[_.][A-Z][A-Z0-9_]+\\b",
 					"name": "constant.other.enum.decorate"
 				}
 			]

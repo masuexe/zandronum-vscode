@@ -1,14 +1,911 @@
 {
+  "PICKUP": {
+    "desc": "Actor flag"
+  },
+  "SPECIAL": {
+    "desc": "Actor flag"
+  },
   "SOLID": {
     "desc": "Object should be solid (blocking)"
   },
   "SHOOTABLE": {
     "desc": "Object can be damaged"
   },
-  "FLOAT": {
-    "desc": "Actor can change height at will"
+  "NOSECTOR": {
+    "desc": "Actor flag"
+  },
+  "NOBLOCKMAP": {
+    "desc": "Actor flag"
+  },
+  "AMBUSH": {
+    "desc": "Actor flag"
+  },
+  "JUSTHIT": {
+    "desc": "Actor flag"
+  },
+  "JUSTATTACKED": {
+    "desc": "Actor flag"
+  },
+  "SPAWNCEILING": {
+    "desc": "Actor flag"
   },
   "NOGRAVITY": {
     "desc": "Actor is not subject to gravity"
+  },
+  "DROPOFF": {
+    "desc": "Actor flag"
+  },
+  "NOCLIP": {
+    "desc": "Actor flag"
+  },
+  "FLOAT": {
+    "desc": "Actor can change height at will"
+  },
+  "TELEPORT": {
+    "desc": "Actor flag"
+  },
+  "MISSILE": {
+    "desc": "Actor flag"
+  },
+  "DROPPED": {
+    "desc": "Actor flag"
+  },
+  "SHADOW": {
+    "desc": "Actor flag"
+  },
+  "NOBLOOD": {
+    "desc": "Actor flag"
+  },
+  "CORPSE": {
+    "desc": "Actor flag"
+  },
+  "INFLOAT": {
+    "desc": "Actor flag"
+  },
+  "COUNTKILL": {
+    "desc": "Actor flag"
+  },
+  "COUNTITEM": {
+    "desc": "Actor flag"
+  },
+  "SKULLFLY": {
+    "desc": "Actor flag"
+  },
+  "NOTDMATCH": {
+    "desc": "Actor flag"
+  },
+  "SPAWNSOUNDSOURCE": {
+    "desc": "Actor flag"
+  },
+  "FRIENDLY": {
+    "desc": "Actor flag"
+  },
+  "NOLIFTDROP": {
+    "desc": "Actor flag"
+  },
+  "STEALTH": {
+    "desc": "Actor flag"
+  },
+  "ICECORPSE": {
+    "desc": "Actor flag"
+  },
+  "DONTREFLECT": {
+    "desc": "Actor flag"
+  },
+  "WINDTHRUST": {
+    "desc": "Actor flag"
+  },
+  "DONTSEEKINVISIBLE": {
+    "desc": "Actor flag"
+  },
+  "BLASTED": {
+    "desc": "Actor flag"
+  },
+  "FLOORCLIP": {
+    "desc": "Actor flag"
+  },
+  "SPAWNFLOAT": {
+    "desc": "Actor flag"
+  },
+  "NOTELEPORT": {
+    "desc": "Actor flag"
+  },
+  "RIPPER": {
+    "desc": "Actor flag"
+  },
+  "PUSHABLE": {
+    "desc": "Actor flag"
+  },
+  "SLIDESONWALLS": {
+    "desc": "Actor flag"
+  },
+  "CANPASS": {
+    "desc": "Actor flag"
+  },
+  "CANNOTPUSH": {
+    "desc": "Actor flag"
+  },
+  "THRUGHOST": {
+    "desc": "Actor flag"
+  },
+  "BOSS": {
+    "desc": "Actor flag"
+  },
+  "NODAMAGETHRUST": {
+    "desc": "Actor flag"
+  },
+  "DONTTRANSLATE": {
+    "desc": "Actor flag"
+  },
+  "TELESTOMP": {
+    "desc": "Actor flag"
+  },
+  "FLOATBOB": {
+    "desc": "Actor flag"
+  },
+  "THRUACTORS": {
+    "desc": "Actor flag"
+  },
+  "ACTIVATEIMPACT": {
+    "desc": "Actor flag"
+  },
+  "CANPUSHWALLS": {
+    "desc": "Actor flag"
+  },
+  "ACTIVATEMCROSS": {
+    "desc": "Actor flag"
+  },
+  "ACTIVATEPCROSS": {
+    "desc": "Actor flag"
+  },
+  "CANTLEAVEFLOORPIC": {
+    "desc": "Actor flag"
+  },
+  "NONSHOOTABLE": {
+    "desc": "Actor flag"
+  },
+  "INVULNERABLE": {
+    "desc": "Actor flag"
+  },
+  "DORMANT": {
+    "desc": "Actor flag"
+  },
+  "SEEKERMISSILE": {
+    "desc": "Actor flag"
+  },
+  "REFLECTIVE": {
+    "desc": "Actor flag"
+  },
+  "FLOORHUGGER": {
+    "desc": "Actor flag"
+  },
+  "CEILINGHUGGER": {
+    "desc": "Actor flag"
+  },
+  "NORADIUSDMG": {
+    "desc": "Actor flag"
+  },
+  "GHOST": {
+    "desc": "Actor flag"
+  },
+  "SPECIALFLOORCLIP": {
+    "desc": "Actor flag"
+  },
+  "ALWAYSPUFF": {
+    "desc": "Actor flag"
+  },
+  "DONTSPLASH": {
+    "desc": "Actor flag"
+  },
+  "DONTOVERLAP": {
+    "desc": "Actor flag"
+  },
+  "DONTMORPH": {
+    "desc": "Actor flag"
+  },
+  "DONTSQUASH": {
+    "desc": "Actor flag"
+  },
+  "EXPLOCOUNT": {
+    "desc": "Actor flag"
+  },
+  "FULLVOLACTIVE": {
+    "desc": "Actor flag"
+  },
+  "ISMONSTER": {
+    "desc": "Actor flag"
+  },
+  "SKYEXPLODE": {
+    "desc": "Actor flag"
+  },
+  "STAYMORPHED": {
+    "desc": "Actor flag"
+  },
+  "DONTBLAST": {
+    "desc": "Actor flag"
+  },
+  "CANBLAST": {
+    "desc": "Actor flag"
+  },
+  "NOTARGET": {
+    "desc": "Actor flag"
+  },
+  "DONTGIB": {
+    "desc": "Actor flag"
+  },
+  "NOBLOCKMONST": {
+    "desc": "Actor flag"
+  },
+  "FULLVOLDEATH": {
+    "desc": "Actor flag"
+  },
+  "AVOIDMELEE": {
+    "desc": "Actor flag"
+  },
+  "SCREENSEEKER": {
+    "desc": "Actor flag"
+  },
+  "FOILINVUL": {
+    "desc": "Actor flag"
+  },
+  "NOTELEOTHER": {
+    "desc": "Actor flag"
+  },
+  "BLOODLESSIMPACT": {
+    "desc": "Actor flag"
+  },
+  "NOEXPLODEFLOOR": {
+    "desc": "Actor flag"
+  },
+  "PUFFONACTORS": {
+    "desc": "Actor flag"
+  },
+  "QUICKTORETALIATE": {
+    "desc": "Actor flag"
+  },
+  "NOICEDEATH": {
+    "desc": "Actor flag"
+  },
+  "RANDOMIZE": {
+    "desc": "Actor flag"
+  },
+  "FIXMAPTHINGPOS": {
+    "desc": "Actor flag"
+  },
+  "ACTLIKEBRIDGE": {
+    "desc": "Actor flag"
+  },
+  "STRIFEDAMAGE": {
+    "desc": "Actor flag"
+  },
+  "CANUSEWALLS": {
+    "desc": "Actor flag"
+  },
+  "MISSILEMORE": {
+    "desc": "Actor flag"
+  },
+  "MISSILEEVENMORE": {
+    "desc": "Actor flag"
+  },
+  "FORCERADIUSDMG": {
+    "desc": "Actor flag"
+  },
+  "DONTFALL": {
+    "desc": "Actor flag"
+  },
+  "SEESDAGGERS": {
+    "desc": "Actor flag"
+  },
+  "INCOMBAT": {
+    "desc": "Actor flag"
+  },
+  "LOOKALLAROUND": {
+    "desc": "Actor flag"
+  },
+  "STANDSTILL": {
+    "desc": "Actor flag"
+  },
+  "SPECTRAL": {
+    "desc": "Actor flag"
+  },
+  "NOSPLASHALERT": {
+    "desc": "Actor flag"
+  },
+  "SYNCHRONIZED": {
+    "desc": "Actor flag"
+  },
+  "NOTARGETSWITCH": {
+    "desc": "Actor flag"
+  },
+  "DONTHARMCLASS": {
+    "desc": "Actor flag"
+  },
+  "DONTHURTSPECIES": {
+    "desc": "Actor flag"
+  },
+  "SHIELDREFLECT": {
+    "desc": "Actor flag"
+  },
+  "DEFLECT": {
+    "desc": "Actor flag"
+  },
+  "ALLOWPARTICLES": {
+    "desc": "Actor flag"
+  },
+  "EXTREMEDEATH": {
+    "desc": "Actor flag"
+  },
+  "NOEXTREMEDEATH": {
+    "desc": "Actor flag"
+  },
+  "FRIGHTENED": {
+    "desc": "Actor flag"
+  },
+  "NOSKIN": {
+    "desc": "Actor flag"
+  },
+  "BOSSDEATH": {
+    "desc": "Actor flag"
+  },
+  "DONTDRAIN": {
+    "desc": "Actor flag"
+  },
+  "NODROPOFF": {
+    "desc": "Actor flag"
+  },
+  "NOFORWARDFALL": {
+    "desc": "Actor flag"
+  },
+  "COUNTSECRET": {
+    "desc": "Actor flag"
+  },
+  "NODAMAGE": {
+    "desc": "Actor flag"
+  },
+  "BLOODSPLATTER": {
+    "desc": "Actor flag"
+  },
+  "OLDRADIUSDMG": {
+    "desc": "Actor flag"
+  },
+  "DEHEXPLOSION": {
+    "desc": "Actor flag"
+  },
+  "PIERCEARMOR": {
+    "desc": "Actor flag"
+  },
+  "NOBLOODDECALS": {
+    "desc": "Actor flag"
+  },
+  "USESPECIAL": {
+    "desc": "Actor flag"
+  },
+  "NOPAIN": {
+    "desc": "Actor flag"
+  },
+  "ALWAYSFAST": {
+    "desc": "Actor flag"
+  },
+  "NEVERFAST": {
+    "desc": "Actor flag"
+  },
+  "ALWAYSRESPAWN": {
+    "desc": "Actor flag"
+  },
+  "NEVERRESPAWN": {
+    "desc": "Actor flag"
+  },
+  "DONTRIP": {
+    "desc": "Actor flag"
+  },
+  "NOINFIGHTING": {
+    "desc": "Actor flag"
+  },
+  "NOINTERACTION": {
+    "desc": "Actor flag"
+  },
+  "NOTIMEFREEZE": {
+    "desc": "Actor flag"
+  },
+  "PUFFGETSOWNER": {
+    "desc": "Actor flag"
+  },
+  "SPECIALFIREDAMAGE": {
+    "desc": "Actor flag"
+  },
+  "SUMMONEDMONSTER": {
+    "desc": "Actor flag"
+  },
+  "NOVERTICALMELEERANGE": {
+    "desc": "Actor flag"
+  },
+  "BRIGHT": {
+    "desc": "Actor flag"
+  },
+  "CANTSEEK": {
+    "desc": "Actor flag"
+  },
+  "PAINLESS": {
+    "desc": "Actor flag"
+  },
+  "MOVEWITHSECTOR": {
+    "desc": "Actor flag"
+  },
+  "NOBOSSRIP": {
+    "desc": "Actor flag"
+  },
+  "THRUSPECIES": {
+    "desc": "Actor flag"
+  },
+  "MTHRUSPECIES": {
+    "desc": "Actor flag"
+  },
+  "FORCEPAIN": {
+    "desc": "Actor flag"
+  },
+  "NOFEAR": {
+    "desc": "Actor flag"
+  },
+  "BUMPSPECIAL": {
+    "desc": "Actor flag"
+  },
+  "DONTHARMSPECIES": {
+    "desc": "Actor flag"
+  },
+  "STEPMISSILE": {
+    "desc": "Actor flag"
+  },
+  "NOTELEFRAG": {
+    "desc": "Actor flag"
+  },
+  "TOUCHY": {
+    "desc": "Actor flag"
+  },
+  "CANJUMP": {
+    "desc": "Actor flag"
+  },
+  "JUMPDOWN": {
+    "desc": "Actor flag"
+  },
+  "VULNERABLE": {
+    "desc": "Actor flag"
+  },
+  "NOTRIGGER": {
+    "desc": "Actor flag"
+  },
+  "ADDITIVEPOISONDAMAGE": {
+    "desc": "Actor flag"
+  },
+  "ADDITIVEPOISONDURATION": {
+    "desc": "Actor flag"
+  },
+  "BLOCKEDBYSOLIDACTORS": {
+    "desc": "Actor flag"
+  },
+  "NOMENU": {
+    "desc": "Actor flag"
+  },
+  "SEEINVISIBLE": {
+    "desc": "Actor flag"
+  },
+  "DONTCORPSE": {
+    "desc": "Actor flag"
+  },
+  "DOHARMSPECIES": {
+    "desc": "Actor flag"
+  },
+  "POISONALWAYS": {
+    "desc": "Actor flag"
+  },
+  "NOTAUTOAIMED": {
+    "desc": "Actor flag"
+  },
+  "NOTONAUTOMAP": {
+    "desc": "Actor flag"
+  },
+  "RELATIVETOFLOOR": {
+    "desc": "Actor flag"
+  },
+  "NEVERTARGET": {
+    "desc": "Actor flag"
+  },
+  "NOTELESTOMP": {
+    "desc": "Actor flag"
+  },
+  "ALWAYSTELEFRAG": {
+    "desc": "Actor flag"
+  },
+  "HITTARGET": {
+    "desc": "Actor flag"
+  },
+  "HITMASTER": {
+    "desc": "Actor flag"
+  },
+  "HITTRACER": {
+    "desc": "Actor flag"
+  },
+  "NODECAL": {
+    "desc": "Actor flag"
+  },
+  "FORCEDECAL": {
+    "desc": "Actor flag"
+  },
+  "USEKILLSCRIPTS": {
+    "desc": "Actor flag"
+  },
+  "NOKILLSCRIPTS": {
+    "desc": "Actor flag"
+  },
+  "BLUETEAM": {
+    "desc": "Actor flag"
+  },
+  "REDTEAM": {
+    "desc": "Actor flag"
+  },
+  "BASEHEALTH": {
+    "desc": "Actor flag"
+  },
+  "SUPERHEALTH": {
+    "desc": "Actor flag"
+  },
+  "BASEARMOR": {
+    "desc": "Actor flag"
+  },
+  "SUPERARMOR": {
+    "desc": "Actor flag"
+  },
+  "SCOREPILLAR": {
+    "desc": "Actor flag"
+  },
+  "NODE": {
+    "desc": "Actor flag"
+  },
+  "USESTBOUNCESOUND": {
+    "desc": "Actor flag"
+  },
+  "EXPLODEONDEATH": {
+    "desc": "Actor flag"
+  },
+  "DONTIDENTIFYTARGET": {
+    "desc": "Actor flag"
+  },
+  "FORCEALLYCOLLISION": {
+    "desc": "Actor flag"
+  },
+  "USESPAWNEVENTSCRIPT": {
+    "desc": "Actor flag"
+  },
+  "NOSPAWNEVENTSCRIPT": {
+    "desc": "Actor flag"
+  },
+  "USEDAMAGEEVENTSCRIPT": {
+    "desc": "Actor flag"
+  },
+  "NODAMAGEEVENTSCRIPT": {
+    "desc": "Actor flag"
+  },
+  "NONETID": {
+    "desc": "Actor flag"
+  },
+  "ALLOWCLIENTSPAWN": {
+    "desc": "Actor flag"
+  },
+  "CLIENTSIDEONLY": {
+    "desc": "Actor flag"
+  },
+  "SERVERSIDEONLY": {
+    "desc": "Actor flag"
+  },
+  "VISIBILITYPULSE": {
+    "desc": "Actor flag"
+  },
+  "ROCKETTRAIL": {
+    "desc": "Actor flag"
+  },
+  "GRENADETRAIL": {
+    "desc": "Actor flag"
+  },
+  "INVISIBLE": {
+    "desc": "Actor flag"
+  },
+  "FORCEYBILLBOARD": {
+    "desc": "Actor flag"
+  },
+  "FORCEXYBILLBOARD": {
+    "desc": "Actor flag"
+  },
+  "BOUNCEONWALLS": {
+    "desc": "Actor flag"
+  },
+  "BOUNCEONFLOORS": {
+    "desc": "Actor flag"
+  },
+  "BOUNCEONCEILINGS": {
+    "desc": "Actor flag"
+  },
+  "ALLOWBOUNCEONACTORS": {
+    "desc": "Actor flag"
+  },
+  "BOUNCEAUTOOFF": {
+    "desc": "Actor flag"
+  },
+  "BOUNCELIKEHERETIC": {
+    "desc": "Actor flag"
+  },
+  "CANBOUNCEWATER": {
+    "desc": "Actor flag"
+  },
+  "NOWALLBOUNCESND": {
+    "desc": "Actor flag"
+  },
+  "NOBOUNCESOUND": {
+    "desc": "Actor flag"
+  },
+  "BOUNCEONACTORS": {
+    "desc": "Actor flag"
+  },
+  "EXPLODEONWATER": {
+    "desc": "Actor flag"
+  },
+  "MBFBOUNCER": {
+    "desc": "Actor flag"
+  },
+  "BOUNCEAUTOOFFFLOORONLY": {
+    "desc": "Actor flag"
+  },
+  "USEBOUNCESTATE": {
+    "desc": "Actor flag"
+  },
+  "FIREDAMAGE": {
+    "desc": "Actor flag (deprecated)"
+  },
+  "ICEDAMAGE": {
+    "desc": "Actor flag (deprecated)"
+  },
+  "LOWGRAVITY": {
+    "desc": "Actor flag (deprecated)"
+  },
+  "SHORTMISSILERANGE": {
+    "desc": "Actor flag (deprecated)"
+  },
+  "LONGMELEERANGE": {
+    "desc": "Actor flag (deprecated)"
+  },
+  "QUARTERGRAVITY": {
+    "desc": "Actor flag (deprecated)"
+  },
+  "FIRERESIST": {
+    "desc": "Actor flag (deprecated)"
+  },
+  "HERETICBOUNCE": {
+    "desc": "Actor flag (deprecated)"
+  },
+  "HEXENBOUNCE": {
+    "desc": "Actor flag (deprecated)"
+  },
+  "DOOMBOUNCE": {
+    "desc": "Actor flag (deprecated)"
+  },
+  "FASTER": {
+    "desc": "Actor flag (obsolete)"
+  },
+  "FASTMELEE": {
+    "desc": "Actor flag (obsolete)"
+  },
+  "INVENTORY.QUIET": {
+    "desc": "Pickup sound, message and palette flash are not displayed",
+    "for": "Inventory"
+  },
+  "INVENTORY.AUTOACTIVATE": {
+    "desc": "Activates automatically when picked up",
+    "for": "Inventory"
+  },
+  "INVENTORY.UNDROPPABLE": {
+    "desc": "Cannot be dropped once picked up",
+    "for": "Inventory"
+  },
+  "INVENTORY.UNCLEARABLE": {
+    "desc": "Cannot be removed by ClearInventory but can be dropped",
+    "for": "Inventory"
+  },
+  "INVENTORY.INVBAR": {
+    "desc": "Placed into the visible inventory bar when picked up",
+    "for": "Inventory"
+  },
+  "INVENTORY.HUBPOWER": {
+    "desc": "Kept when travelling between levels of the same hub",
+    "for": "Inventory"
+  },
+  "INVENTORY.PERSISTENTPOWER": {
+    "desc": "Kept when travelling between levels, even outside a hub",
+    "for": "Inventory"
+  },
+  "INVENTORY.INTERHUBSTRIP": {
+    "desc": "Taken away between hubs (deprecated)",
+    "for": "Inventory"
+  },
+  "INVENTORY.PICKUPFLASH": {
+    "desc": "PickupFlash actor spawned on pickup (deprecated)",
+    "for": "Inventory"
+  },
+  "INVENTORY.ALWAYSPICKUP": {
+    "desc": "Always picked up regardless of whether player can use it",
+    "for": "Inventory"
+  },
+  "INVENTORY.FANCYPICKUPSOUND": {
+    "desc": "Pickup sound played in surround mode (deprecated, no effect)",
+    "for": "Inventory"
+  },
+  "INVENTORY.NOATTENPICKUPSOUND": {
+    "desc": "Pickup sound played with no attenuation",
+    "for": "Inventory"
+  },
+  "INVENTORY.BIGPOWERUP": {
+    "desc": "Controlled by mega powerups respawn dmflag",
+    "for": "Inventory"
+  },
+  "INVENTORY.NEVERRESPAWN": {
+    "desc": "Will never respawn in any circumstance",
+    "for": "Inventory"
+  },
+  "INVENTORY.KEEPDEPLETED": {
+    "desc": "Remains in inventory bar even after last one is used",
+    "for": "Inventory"
+  },
+  "INVENTORY.IGNORESKILL": {
+    "desc": "Ignores skill-based ammo doubling",
+    "for": "Inventory"
+  },
+  "INVENTORY.ADDITIVETIME": {
+    "desc": "New powerup duration added to existing instead of overriding",
+    "for": "Inventory"
+  },
+  "INVENTORY.UNTOSSABLE": {
+    "desc": "Cannot be tossed with the drop console command",
+    "for": "Inventory"
+  },
+  "INVENTORY.RESTRICTABSOLUTELY": {
+    "desc": "Prevents restricted player classes from picking up for ammo",
+    "for": "Inventory"
+  },
+  "INVENTORY.NOSCREENFLASH": {
+    "desc": "Pickup palette flash not displayed",
+    "for": "Inventory"
+  },
+  "INVENTORY.TOSSED": {
+    "desc": "Treated as being dropped",
+    "for": "Inventory"
+  },
+  "INVENTORY.ALWAYSRESPAWN": {
+    "desc": "Always respawns regardless of dmflag (for items)",
+    "for": "Inventory"
+  },
+  "INVENTORY.TRANSFER": {
+    "desc": "Transfers all items in inventory to acquiring actor",
+    "for": "Inventory"
+  },
+  "INVENTORY.NOTELEPORTFREEZE": {
+    "desc": "Overrides teleport freeze behavior",
+    "for": "Inventory"
+  },
+  "INVENTORY.NOSCREENBLINK": {
+    "desc": "No fade blinking as expiration warning",
+    "for": "Inventory"
+  },
+  "INVENTORY.ISHEALTH": {
+    "desc": "Does not spawn if sv_nohealth is true",
+    "for": "Inventory"
+  },
+  "INVENTORY.ISARMOR": {
+    "desc": "Does not spawn if sv_noarmor is true",
+    "for": "Inventory"
+  },
+  "WEAPON.NOAUTOFIRE": {
+    "desc": "Does not fire automatically when selected while holding fire",
+    "for": "Weapon"
+  },
+  "WEAPON.READYSNDHALF": {
+    "desc": "Ready sound played only 50% of the time",
+    "for": "Weapon"
+  },
+  "WEAPON.DONTBOB": {
+    "desc": "Weapon sprite does not bob",
+    "for": "Weapon"
+  },
+  "WEAPON.AXEBLOOD": {
+    "desc": "Spawns AxeBlood when hitting bleeding enemies",
+    "for": "Weapon"
+  },
+  "WEAPON.NOALERT": {
+    "desc": "Does not alert nearby monsters when fired",
+    "for": "Weapon"
+  },
+  "WEAPON.AMMO_OPTIONAL": {
+    "desc": "Weapon does not require ammo to work",
+    "for": "Weapon"
+  },
+  "WEAPON.ALT_AMMO_OPTIONAL": {
+    "desc": "Alternate attack does not require ammo",
+    "for": "Weapon"
+  },
+  "WEAPON.AMMO_CHECKBOTH": {
+    "desc": "Weapon selectable if either primary or alt has ammo",
+    "for": "Weapon"
+  },
+  "WEAPON.PRIMARY_USES_BOTH": {
+    "desc": "Primary attack uses both ammo types",
+    "for": "Weapon"
+  },
+  "WEAPON.ALT_USES_BOTH": {
+    "desc": "AltFire attack uses both ammo types",
+    "for": "Weapon"
+  },
+  "WEAPON.WIMPY_WEAPON": {
+    "desc": "Small weapon; auto-switch if better ammo available",
+    "for": "Weapon"
+  },
+  "WEAPON.POWERED_UP": {
+    "desc": "Powered up weapon linked via sisterweapon",
+    "for": "Weapon"
+  },
+  "WEAPON.STAFF2_KICKBACK": {
+    "desc": "Uses Heretic powered staff kickback formula",
+    "for": "Weapon"
+  },
+  "WEAPON.EXPLOSIVE": {
+    "desc": "Weapon fires explosive projectiles",
+    "for": "Weapon"
+  },
+  "WEAPON.MELEEWEAPON": {
+    "desc": "Weapon is a melee weapon (for bots/AVOIDMELEE)",
+    "for": "Weapon"
+  },
+  "WEAPON.BFG": {
+    "desc": "Weapon causes a lot of damage (BFG-tier)",
+    "for": "Weapon"
+  },
+  "WEAPON.CHEATNOTWEAPON": {
+    "desc": "Not given by give weapons cheat",
+    "for": "Weapon"
+  },
+  "WEAPON.NO_AUTO_SWITCH": {
+    "desc": "Never auto-switch to this weapon on pickup",
+    "for": "Weapon"
+  },
+  "WEAPON.NOAUTOSWITCHTO": {
+    "desc": "Cannot be auto-switched to when obtaining ammo",
+    "for": "Weapon"
+  },
+  "WEAPON.NOAUTOAIM": {
+    "desc": "Will not adjust aim of attack regardless of autoaim",
+    "for": "Weapon"
+  },
+  "WEAPON.NODEATHDESELECT": {
+    "desc": "Will not deselect when player dies",
+    "for": "Weapon"
+  },
+  "WEAPON.NODEATHINPUT": {
+    "desc": "Cannot act on input when player is dead",
+    "for": "Weapon"
+  },
+  "PLAYERPAWN.NOTHRUSTWHENINVUL": {
+    "desc": "Player not thrusted when invulnerable",
+    "for": "PlayerPawn"
+  },
+  "PLAYERPAWN.CANSUPERMORPH": {
+    "desc": "Morphed player gets tome of power if morphed again",
+    "for": "PlayerPawn"
+  },
+  "PLAYERPAWN.CROUCHABLEMORPH": {
+    "desc": "Enables crouching for morphed player classes",
+    "for": "PlayerPawn"
+  },
+  "PLAYERPAWN.WEAPONLEVEL2ENDED": {
+    "desc": "Signals enhanced weapon power has expired (internal)",
+    "for": "PlayerPawn"
+  },
+  "PLAYERPAWN.MAKEFOOTSTEPS": {
+    "desc": "Enables pawn to run MakeFootsteps",
+    "for": "PlayerPawn"
   }
 }

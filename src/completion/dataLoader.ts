@@ -21,15 +21,35 @@ export interface ActionData {
 export interface PropertyData {
     type: string;
     desc?: string;
+    for?: string;
 }
 
 export interface FlagData {
     type: string;
     desc?: string;
+    for?: string;
 }
 
 export interface ExpressionData {
     desc?: string;
+}
+
+export interface InheritanceData {
+    category?: string;
+    desc?: string;
+    extends?: string;
+}
+
+export function findActionCaseInsensitive(
+    actionsData: Record<string, ActionData>,
+    name: string
+): ActionData | undefined {
+    if (actionsData[name]) return actionsData[name];
+    const lower = name.toLowerCase();
+    for (const key of Object.keys(actionsData)) {
+        if (key.toLowerCase() === lower) return actionsData[key];
+    }
+    return undefined;
 }
 
 let cache: Record<string, any> = {};
@@ -56,4 +76,8 @@ export function getFlags(context: vscode.ExtensionContext): Record<string, FlagD
 
 export function getExpressions(context: vscode.ExtensionContext): Record<string, ExpressionData> {
     return loadDataJson<ExpressionData>(context, 'expressions.json');
+}
+
+export function getInheritance(context: vscode.ExtensionContext): Record<string, InheritanceData> {
+    return loadDataJson<InheritanceData>(context, 'inheritance.json');
 }

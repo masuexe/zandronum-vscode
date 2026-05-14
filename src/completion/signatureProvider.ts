@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { ActionData } from './dataLoader';
+import { ActionData, findActionCaseInsensitive } from './dataLoader';
 
 function calculateActiveParameter(fullLine: string, cursorPosition: number, openParenIndex: number): number {
     const textInParens = fullLine.substring(openParenIndex + 1, cursorPosition);
@@ -94,7 +94,7 @@ export function registerSignatureHelp(
                 }
 
                 const functionName = textBeforeCursor.substring(fnNameStart, fnNameEnd + 1);
-                const actionData = actionsData[functionName];
+                const actionData = findActionCaseInsensitive(actionsData, functionName);
 
                 if (!actionData) {
                     return null;

@@ -1,7 +1,8 @@
 import * as vscode from 'vscode';
-import { ActionData, PropertyData, FlagData, ExpressionData } from './dataLoader';
+import { ActionData, PropertyData, FlagData, ExpressionData, InheritanceData, findActionCaseInsensitive } from './dataLoader';
+import { buildSnippetString } from './snippetBuilder';
 
-type ContextType = 'flag' | 'state' | 'function' | 'property' | 'none';
+type ContextType = 'flag' | 'state' | 'function' | 'property' | 'inherit' | 'none';
 
 function getWordPrefix(lineText: string, position: vscode.Position): string {
     let prefix = '';
@@ -13,9 +14,6 @@ function getWordPrefix(lineText: string, position: vscode.Position): string {
     return prefix;
 }
 
-function generateParamSnippet(params?: any[]): string {
-    return '$0';
-}
 
 interface CallInfo {
     functionName: string;
@@ -187,8 +185,30 @@ function getContextType(
         return /[+-]/.test(beforeCursor.slice(-1));
     };
 
+    const isInheritTrigger = (): boolean => {
+        const beforeCursor = lineText.substring(0, position.character);
+        const actorMatch = /\bactor\b\s+(\w+)\s*:\s*(.*)$/i.exec(beforeCursor);
+        if (!actorMatch) {
+            return false;
+        }
+        let openParens = 0;
+        for (const char of beforeCursor) {
+            if (char === '(') {
+                openParens++;
+            }
+            if (char === ')') {
+                openParens--;
+            }
+        }
+        return openParens === 0;
+    };
+
     if (isFlagTrigger()) {
         return 'flag';
+    }
+
+    if (isInheritTrigger()) {
+        return 'inherit';
     }
 
     if (isInFunctionCall()) {
@@ -208,7 +228,8 @@ function getContextType(
 
 function provideFlagItems(
     flagsData: Record<string, FlagData>,
-    prefix: string
+    prefix: string,
+    allowedClasses?: Set<string>
 ): vscode.CompletionItem[] {
     const items: vscode.CompletionItem[] = [];
 
@@ -216,8 +237,12 @@ function provideFlagItems(
         if (prefix && !flag.toUpperCase().startsWith(prefix.toUpperCase())) {
             continue;
         }
+        if (allowedClasses && data.for && !allowedClasses.has(data.for)) {
+            continue;
+        }
         const item = new vscode.CompletionItem(flag, vscode.CompletionItemKind.Constant);
-        item.detail = data.desc || "Actor flag";
+        const forLabel = data.for ? ` [${data.for}]` : ' [Actor]';
+        item.detail = `${data.desc || "Actor flag"}${forLabel}`;
         items.push(item);
     }
 
@@ -233,8 +258,7 @@ function provideActionItems(actionsData: Record<string, ActionData>, prefix: str
         }
         const item = new vscode.CompletionItem(fn, vscode.CompletionItemKind.Function);
         item.detail = data.desc || "DECORATE Action Function";
-        const paramSnippet = generateParamSnippet(data.params);
-        item.insertText = new vscode.SnippetString(`${fn}(${paramSnippet})`);
+        item.insertText = buildSnippetString(fn, data.params as any);
         item.command = {
             title: 'Trigger Signature Help',
             command: 'editor.action.triggerParameterHints'
@@ -260,15 +284,94 @@ function provideExpressionItems(expressionsData: Record<string, ExpressionData>,
     return items;
 }
 
-function providePropertyItems(propertiesData: Record<string, PropertyData>, prefix: string): vscode.CompletionItem[] {
+function findActorParent(
+    document: vscode.TextDocument,
+    position: vscode.Position
+): string | null {
+    let braceDepth = 0;
+    const parentAtDepth: (string | null)[] = [];
+
+    for (let i = 0; i <= position.line; i++) {
+        const lineText = document.lineAt(i).text;
+
+        const match = /\bactor\b\s+\w+\s*:\s*(\w+)/i.exec(lineText);
+        if (match) {
+            parentAtDepth[braceDepth] = match[1];
+        }
+
+        for (const char of lineText) {
+            if (char === '{') {
+                braceDepth++;
+            } else if (char === '}') {
+                braceDepth--;
+                if (braceDepth < 0) {
+                    braceDepth = 0;
+                }
+            }
+        }
+
+        if (i === position.line && braceDepth > 0) {
+            return parentAtDepth[braceDepth - 1] || null;
+        }
+    }
+
+    return null;
+}
+
+function resolveChain(
+    parent: string,
+    inheritanceData: Record<string, InheritanceData>
+): Set<string> {
+    const chain = new Set<string>();
+    chain.add(parent);
+    let current = parent;
+    while (true) {
+        const data = inheritanceData[current];
+        if (!data || !data.extends || chain.has(data.extends)) {
+            break;
+        }
+        chain.add(data.extends);
+        current = data.extends;
+    }
+    return chain;
+}
+
+function providePropertyItems(
+    propertiesData: Record<string, PropertyData>,
+    prefix: string,
+    allowedClasses?: Set<string>
+): vscode.CompletionItem[] {
     const items: vscode.CompletionItem[] = [];
 
     for (const [prop, data] of Object.entries(propertiesData)) {
         if (prefix && !prop.toUpperCase().startsWith(prefix.toUpperCase())) {
             continue;
         }
+        if (allowedClasses && data.for && !allowedClasses.has(data.for)) {
+            continue;
+        }
         const item = new vscode.CompletionItem(prop, vscode.CompletionItemKind.Property);
-        item.detail = `${data.type} - ${data.desc || ""}`;
+        const forLabel = data.for ? ` [${data.for}]` : '';
+        item.detail = `${data.type} - ${data.desc || ""}${forLabel}`;
+        items.push(item);
+    }
+
+    return items;
+}
+
+function provideInheritanceItems(
+    inheritanceData: Record<string, InheritanceData>,
+    prefix: string
+): vscode.CompletionItem[] {
+    const items: vscode.CompletionItem[] = [];
+
+    for (const [cls, data] of Object.entries(inheritanceData)) {
+        if (prefix && !cls.toUpperCase().startsWith(prefix.toUpperCase())) {
+            continue;
+        }
+        const item = new vscode.CompletionItem(cls, vscode.CompletionItemKind.Class);
+        item.detail = data.category ? `${data.category}` : "Built-in Actor";
+        item.sortText = '0_' + cls;
         items.push(item);
     }
 
@@ -280,7 +383,8 @@ export function registerCompletionProvider(
     actionsData: Record<string, ActionData>,
     propertiesData: Record<string, PropertyData>,
     flagsData: Record<string, FlagData>,
-    expressionsData: Record<string, ExpressionData>
+    expressionsData: Record<string, ExpressionData>,
+    inheritanceData: Record<string, InheritanceData>
 ) {
     const provider = vscode.languages.registerCompletionItemProvider(
         [{ language: 'decorate' }],
@@ -292,8 +396,14 @@ export function registerCompletionProvider(
                 const wordPrefix = getWordPrefix(lineText, position);
 
                 switch (contextType) {
-                    case 'flag':
-                        return provideFlagItems(flagsData, wordPrefix);
+                    case 'flag': {
+                        const parent = findActorParent(document, position);
+                        const chain = parent ? resolveChain(parent, inheritanceData) : undefined;
+                        return provideFlagItems(flagsData, wordPrefix, chain);
+                    }
+
+                    case 'inherit':
+                        return provideInheritanceItems(inheritanceData, wordPrefix);
 
                     case 'state':
                         return provideActionItems(actionsData, wordPrefix);
@@ -301,7 +411,7 @@ export function registerCompletionProvider(
                     case 'function': {
                         const callInfo = findCallInfo(document, position);
                         if (callInfo) {
-                            const action = actionsData[callInfo.functionName];
+                            const action = findActionCaseInsensitive(actionsData, callInfo.functionName);
                             if (action && Array.isArray(action.params)) {
                                 const param = action.params[callInfo.paramIndex] as any;
                                 if (param && param.mode && Array.isArray(param.enum)) {
@@ -312,8 +422,11 @@ export function registerCompletionProvider(
                         return provideExpressionItems(expressionsData, wordPrefix);
                     }
 
-                    case 'property':
-                        return providePropertyItems(propertiesData, wordPrefix);
+                    case 'property': {
+                        const parent = findActorParent(document, position);
+                        const chain = parent ? resolveChain(parent, inheritanceData) : undefined;
+                        return providePropertyItems(propertiesData, wordPrefix, chain);
+                    }
 
                     case 'none':
                     default:

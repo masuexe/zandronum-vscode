@@ -1,110 +1,422 @@
 {
   "Scale": {
     "type": "int",
-    "desc": "Scale property"
+    "desc": "Scale property",
+    "for": "Actor"
   },
   "Health": {
     "type": "int",
-    "desc": "Health points"
+    "desc": "Health points",
+    "for": "Actor"
   },
   "GibHealth": {
     "type": "int",
-    "desc": "Health below which this actor enters the extreme death sequence"
+    "desc": "Health below which this actor enters the extreme death sequence",
+    "for": "Actor"
   },
   "WoundHealth": {
     "type": "int",
-    "desc": "Health below which the actor enters the Wound state"
+    "desc": "Health below which the actor enters the Wound state",
+    "for": "Actor"
   },
   "Reactiontime": {
     "type": "int",
-    "desc": "Reactiontime property"
+    "desc": "Reactiontime property",
+    "for": "Actor"
   },
   "Radius": {
     "type": "int",
-    "desc": "Radius property"
+    "desc": "Radius property",
+    "for": "Actor"
   },
   "Height": {
     "type": "int",
-    "desc": "Height property"
+    "desc": "Height property",
+    "for": "Actor"
   },
   "Mass": {
     "type": "int",
-    "desc": "Mass property"
+    "desc": "Mass property",
+    "for": "Actor"
   },
   "RenderStyle": {
     "type": "string",
-    "desc": "RenderStyle property"
+    "desc": "RenderStyle property",
+    "for": "Actor"
   },
   "Alpha": {
     "type": "int",
-    "desc": "Alpha property"
+    "desc": "Alpha property",
+    "for": "Actor"
   },
   "MinMissileChance": {
     "type": "int",
-    "desc": "MinMissileChance property"
+    "desc": "MinMissileChance property",
+    "for": "Actor"
   },
   "MeleeRange": {
     "type": "int",
-    "desc": "MeleeRange property"
+    "desc": "MeleeRange property",
+    "for": "Actor"
   },
   "MaxDropoffHeight": {
     "type": "int",
-    "desc": "MaxDropoffHeight property"
+    "desc": "MaxDropoffHeight property",
+    "for": "Actor"
   },
   "MaxStepHeight": {
     "type": "int",
-    "desc": "MaxStepHeight property"
+    "desc": "MaxStepHeight property",
+    "for": "Actor"
   },
   "BounceFactor": {
     "type": "float",
-    "desc": "BounceFactor property"
+    "desc": "BounceFactor property",
+    "for": "Actor"
   },
   "WallBounceFactor": {
     "type": "float",
-    "desc": "WallBounceFactor property"
+    "desc": "WallBounceFactor property",
+    "for": "Actor"
   },
   "BounceCount": {
     "type": "int",
-    "desc": "BounceCount property"
+    "desc": "BounceCount property",
+    "for": "Actor"
   },
   "FloatSpeed": {
     "type": "int",
-    "desc": "FloatSpeed property"
+    "desc": "FloatSpeed property",
+    "for": "Actor"
   },
   "FloatBobPhase": {
     "type": "int",
-    "desc": "FloatBobPhase property"
+    "desc": "FloatBobPhase property",
+    "for": "Actor"
   },
   "Gravity": {
     "type": "int",
-    "desc": "Gravity property"
+    "desc": "Gravity property",
+    "for": "Actor"
   },
   "DamageFactor": {
     "type": "float",
-    "desc": "DamageFactor property"
+    "desc": "DamageFactor property",
+    "for": "Actor"
   },
   "PushFactor": {
     "type": "float",
-    "desc": "PushFactor property"
+    "desc": "PushFactor property",
+    "for": "Actor"
   },
   "WeaveIndexXY": {
     "type": "int",
-    "desc": "WeaveIndexXY property"
+    "desc": "WeaveIndexXY property",
+    "for": "Actor"
   },
   "WeaveIndexZ": {
     "type": "int",
-    "desc": "WeaveIndexZ property"
+    "desc": "WeaveIndexZ property",
+    "for": "Actor"
   },
   "DesignatedTeam": {
     "type": "int",
-    "desc": "DesignatedTeam property"
+    "desc": "DesignatedTeam property",
+    "for": "Actor"
   },
   "PainType": {
     "type": "string",
-    "desc": "PainType property"
+    "desc": "PainType property",
+    "for": "Actor"
   },
   "DeathType": {
     "type": "string",
-    "desc": "DeathType property"
+    "desc": "DeathType property",
+    "for": "Actor"
+  },
+  "Inventory.Amount": {
+    "type": "int",
+    "desc": "Number of items given",
+    "for": "Inventory"
+  },
+  "Inventory.DefMaxAmount": {
+    "type": "int",
+    "desc": "Default maximum carry amount",
+    "for": "Inventory"
+  },
+  "Inventory.MaxAmount": {
+    "type": "int",
+    "desc": "Maximum carry amount",
+    "for": "Inventory"
+  },
+  "Inventory.Icon": {
+    "type": "string",
+    "desc": "Icon graphic for inventory bar",
+    "for": "Inventory"
+  },
+  "Inventory.PickupMessage": {
+    "type": "string",
+    "desc": "Message shown on pickup",
+    "for": "Inventory"
+  },
+  "Inventory.PickupSound": {
+    "type": "string",
+    "desc": "Sound played on pickup",
+    "for": "Inventory"
+  },
+  "Inventory.UseSound": {
+    "type": "string",
+    "desc": "Sound played on use",
+    "for": "Inventory"
+  },
+  "Inventory.RespawnTics": {
+    "type": "int",
+    "desc": "Tics before respawn (0 = never)",
+    "for": "Inventory"
+  },
+  "Inventory.GiveQuest": {
+    "type": "int",
+    "desc": "Quest item number given",
+    "for": "Inventory"
+  },
+  "Inventory.InterHubAmount": {
+    "type": "int",
+    "desc": "Amount carried between hubs",
+    "for": "Inventory"
+  },
+  "Inventory.PickupFlash": {
+    "type": "string",
+    "desc": "Pickup flash color",
+    "for": "Inventory"
+  },
+  "Weapon.AmmoType": {
+    "type": "string",
+    "desc": "Primary ammo class",
+    "for": "Weapon"
+  },
+  "Weapon.AmmoType1": {
+    "type": "string",
+    "desc": "Primary ammo class",
+    "for": "Weapon"
+  },
+  "Weapon.AmmoType2": {
+    "type": "string",
+    "desc": "Secondary ammo class",
+    "for": "Weapon"
+  },
+  "Weapon.AmmoGive": {
+    "type": "int",
+    "desc": "Ammo given on pickup",
+    "for": "Weapon"
+  },
+  "Weapon.AmmoGive1": {
+    "type": "int",
+    "desc": "Primary ammo given on pickup",
+    "for": "Weapon"
+  },
+  "Weapon.AmmoGive2": {
+    "type": "int",
+    "desc": "Secondary ammo given on pickup",
+    "for": "Weapon"
+  },
+  "Weapon.AmmoUse": {
+    "type": "int",
+    "desc": "Ammo consumed per shot",
+    "for": "Weapon"
+  },
+  "Weapon.AmmoUse1": {
+    "type": "int",
+    "desc": "Primary ammo consumed per shot",
+    "for": "Weapon"
+  },
+  "Weapon.AmmoUse2": {
+    "type": "int",
+    "desc": "Secondary ammo consumed per shot",
+    "for": "Weapon"
+  },
+  "Weapon.Kickback": {
+    "type": "int",
+    "desc": "Recoil amount",
+    "for": "Weapon"
+  },
+  "Weapon.SlotNumber": {
+    "type": "int",
+    "desc": "Weapon slot (1-10)",
+    "for": "Weapon"
+  },
+  "Weapon.SisterWeapon": {
+    "type": "string",
+    "desc": "Sister weapon class for switching",
+    "for": "Weapon"
+  },
+  "Weapon.SelectionOrder": {
+    "type": "int",
+    "desc": "Priority in auto-selection",
+    "for": "Weapon"
+  },
+  "Weapon.UpSound": {
+    "type": "string",
+    "desc": "Sound played when raising weapon",
+    "for": "Weapon"
+  },
+  "Weapon.ReadySound": {
+    "type": "string",
+    "desc": "Sound played when weapon is ready",
+    "for": "Weapon"
+  },
+  "Weapon.AttackSound": {
+    "type": "string",
+    "desc": "Sound played on attack",
+    "for": "Weapon"
+  },
+  "Weapon.YAdjust": {
+    "type": "int",
+    "desc": "Vertical offset on HUD",
+    "for": "Weapon"
+  },
+  "Weapon.BobStyle": {
+    "type": "string",
+    "desc": "Weapon bob style (Normal/Inverse/Alpha)",
+    "for": "Weapon"
+  },
+  "Weapon.BobSpeed": {
+    "type": "float",
+    "desc": "Weapon bob speed",
+    "for": "Weapon"
+  },
+  "Weapon.BobRangeX": {
+    "type": "float",
+    "desc": "Horizontal bob range",
+    "for": "Weapon"
+  },
+  "Weapon.BobRangeY": {
+    "type": "float",
+    "desc": "Vertical bob range",
+    "for": "Weapon"
+  },
+  "Weapon.WeaponScaleX": {
+    "type": "float",
+    "desc": "Horizontal sprite scale",
+    "for": "Weapon"
+  },
+  "Weapon.WeaponScaleY": {
+    "type": "float",
+    "desc": "Vertical sprite scale",
+    "for": "Weapon"
+  },
+  "Ammo.BackpackAmount": {
+    "type": "int",
+    "desc": "Ammo gained from backpack",
+    "for": "Ammo"
+  },
+  "Ammo.BackpackMaxAmount": {
+    "type": "int",
+    "desc": "Max ammo with backpack",
+    "for": "Ammo"
+  },
+  "Armor.SavePercent": {
+    "type": "float",
+    "desc": "Damage absorption percentage (0-100)",
+    "for": "Armor"
+  },
+  "Armor.SaveAmount": {
+    "type": "int",
+    "desc": "Armor durability",
+    "for": "Armor"
+  },
+  "Powerup.Duration": {
+    "type": "int",
+    "desc": "Duration in tics (-1 = permanent)",
+    "for": "Powerup"
+  },
+  "Powerup.Color": {
+    "type": "string",
+    "desc": "Screen blend color",
+    "for": "Powerup"
+  },
+  "Powerup.Type": {
+    "type": "string",
+    "desc": "Powerup type name",
+    "for": "Powerup"
+  },
+  "Powerup.Strength": {
+    "type": "int",
+    "desc": "Power strength multiplier",
+    "for": "Powerup"
+  },
+  "Player.DisplayName": {
+    "type": "string",
+    "desc": "Player name shown in messages",
+    "for": "PlayerPawn"
+  },
+  "Player.JumpZ": {
+    "type": "float",
+    "desc": "Jump height",
+    "for": "PlayerPawn"
+  },
+  "Player.ViewHeight": {
+    "type": "float",
+    "desc": "Eye height from floor",
+    "for": "PlayerPawn"
+  },
+  "Player.ForwardMove": {
+    "type": "float",
+    "desc": "Forward movement speed multiplier",
+    "for": "PlayerPawn"
+  },
+  "Player.SideMove": {
+    "type": "float",
+    "desc": "Side movement speed multiplier",
+    "for": "PlayerPawn"
+  },
+  "Player.ColorRange": {
+    "type": "int",
+    "desc": "Translation color range",
+    "for": "PlayerPawn"
+  },
+  "Player.SoundClass": {
+    "type": "string",
+    "desc": "Player sound class",
+    "for": "PlayerPawn"
+  },
+  "Player.StartItem": {
+    "type": "string",
+    "desc": "Starting inventory item",
+    "for": "PlayerPawn"
+  },
+  "Player.WeaponSlot": {
+    "type": "string",
+    "desc": "Weapon slot assignment",
+    "for": "PlayerPawn"
+  },
+  "Player.CrouchSprite": {
+    "type": "string",
+    "desc": "Sprite used while crouching",
+    "for": "PlayerPawn"
+  },
+  "Player.MaxHealth": {
+    "type": "int",
+    "desc": "Maximum health",
+    "for": "PlayerPawn"
+  },
+  "Player.RunHealth": {
+    "type": "int",
+    "desc": "Health below which running stops",
+    "for": "PlayerPawn"
+  },
+  "Player.ScoreIcon": {
+    "type": "string",
+    "desc": "Icon shown on scoreboard",
+    "for": "PlayerPawn"
+  },
+  "Player.Portrait": {
+    "type": "string",
+    "desc": "Portrait graphic",
+    "for": "PlayerPawn"
+  },
+  "Player.HexenArmor": {
+    "type": "string",
+    "desc": "Armor class(es) for Hexen armor system",
+    "for": "PlayerPawn"
   }
 }

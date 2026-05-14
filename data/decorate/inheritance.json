@@ -1,0 +1,413 @@
+{
+  "Inventory": {
+    "category": "Inventory",
+    "extends": "Actor"
+  },
+  "Ammo": {
+    "category": "Inventory",
+    "extends": "Inventory"
+  },
+  "Armor": {
+    "category": "Inventory",
+    "extends": "Inventory"
+  },
+  "ArtiBlastRadius": {
+    "category": "Inventory",
+    "extends": "Inventory"
+  },
+  "ArtiBoostArmor": {
+    "category": "Inventory",
+    "extends": "Inventory"
+  },
+  "ArtiDarkServant": {
+    "category": "Inventory",
+    "extends": "Inventory"
+  },
+  "ArtiHealingRadius": {
+    "category": "Inventory",
+    "extends": "Inventory"
+  },
+  "ArtiPoisonBag": {
+    "category": "Inventory",
+    "extends": "Inventory"
+  },
+  "ArtiTeleport": {
+    "category": "Inventory",
+    "extends": "Inventory"
+  },
+  "ArtiTeleportOther": {
+    "category": "Inventory",
+    "extends": "Inventory"
+  },
+  "ArtiTimeBomb": {
+    "category": "Inventory",
+    "extends": "Inventory"
+  },
+  "BackpackItem": {
+    "category": "Inventory",
+    "extends": "Inventory"
+  },
+  "CustomInventory": {
+    "category": "Inventory",
+    "extends": "Inventory"
+  },
+  "DehackedPickup": {
+    "category": "Inventory",
+    "extends": "Inventory"
+  },
+  "DummyStrifeItem": {
+    "category": "Inventory",
+    "extends": "Inventory"
+  },
+  "FakeInventory": {
+    "category": "Inventory",
+    "extends": "Inventory"
+  },
+  "Health": {
+    "category": "Inventory",
+    "extends": "Inventory"
+  },
+  "HealthPickup": {
+    "category": "Inventory",
+    "extends": "Inventory"
+  },
+  "Key": {
+    "category": "Inventory",
+    "extends": "Inventory"
+  },
+  "MapRevealer": {
+    "category": "Inventory",
+    "extends": "Inventory"
+  },
+  "Powerup": {
+    "category": "Inventory",
+    "extends": "Inventory"
+  },
+  "PowerupGiver": {
+    "category": "Inventory",
+    "extends": "Inventory"
+  },
+  "PuzzleItem": {
+    "category": "Inventory",
+    "extends": "Inventory"
+  },
+  "QuestItem": {
+    "category": "Inventory",
+    "extends": "Inventory"
+  },
+  "ScoreItem": {
+    "category": "Inventory",
+    "extends": "Inventory"
+  },
+  "Weapon": {
+    "category": "Inventory",
+    "extends": "Inventory"
+  },
+  "WeaponGiver": {
+    "category": "Inventory",
+    "extends": "Inventory"
+  },
+  "WeaponHolder": {
+    "category": "Inventory",
+    "extends": "Inventory"
+  },
+  "WeaponPiece": {
+    "category": "Inventory",
+    "extends": "Inventory"
+  },
+  "MorphProjectile": {
+    "category": "Inventory",
+    "extends": "Inventory"
+  },
+  "PowerDamage": {
+    "category": "Powerup",
+    "extends": "Powerup"
+  },
+  "PowerDoubleFiringSpeed": {
+    "category": "Powerup",
+    "extends": "Powerup"
+  },
+  "PowerDrain": {
+    "category": "Powerup",
+    "extends": "Powerup"
+  },
+  "PowerFlight": {
+    "category": "Powerup",
+    "extends": "Powerup"
+  },
+  "PowerFrightener": {
+    "category": "Powerup",
+    "extends": "Powerup"
+  },
+  "PowerHighJump": {
+    "category": "Powerup",
+    "extends": "Powerup"
+  },
+  "PowerInfiniteAmmo": {
+    "category": "Powerup",
+    "extends": "Powerup"
+  },
+  "PowerInvisibility": {
+    "category": "Powerup",
+    "extends": "Powerup"
+  },
+  "PowerGhost": {
+    "category": "Powerup",
+    "extends": "Powerup"
+  },
+  "PowerShadow": {
+    "category": "Powerup",
+    "extends": "Powerup"
+  },
+  "PowerInvulnerable": {
+    "category": "Powerup",
+    "extends": "Powerup"
+  },
+  "PowerIronFeet": {
+    "category": "Powerup",
+    "extends": "Powerup"
+  },
+  "PowerMask": {
+    "category": "Powerup",
+    "extends": "Powerup"
+  },
+  "PowerLightAmp": {
+    "category": "Powerup",
+    "extends": "Powerup"
+  },
+  "PowerTorch": {
+    "category": "Powerup",
+    "extends": "Powerup"
+  },
+  "PowerMinotaur": {
+    "category": "Powerup",
+    "extends": "Powerup"
+  },
+  "PowerMorph": {
+    "category": "Powerup",
+    "extends": "Powerup"
+  },
+  "PowerProtection": {
+    "category": "Powerup",
+    "extends": "Powerup"
+  },
+  "PowerRegeneration": {
+    "category": "Powerup",
+    "extends": "Powerup"
+  },
+  "PowerScanner": {
+    "category": "Powerup",
+    "extends": "Powerup"
+  },
+  "PowerSpeed": {
+    "category": "Powerup",
+    "extends": "Powerup"
+  },
+  "PowerStrength": {
+    "category": "Powerup",
+    "extends": "Powerup"
+  },
+  "PowerTargeter": {
+    "category": "Powerup",
+    "extends": "Powerup"
+  },
+  "PowerTimeFreezer": {
+    "category": "Powerup",
+    "extends": "Powerup"
+  },
+  "PowerWeaponLevel2": {
+    "category": "Powerup",
+    "extends": "Powerup"
+  },
+  "Actor": {
+    "category": "Actor"
+  },
+  "SwitchableDecoration": {
+    "category": "Actor",
+    "extends": "Actor"
+  },
+  "PlayerPawn": {
+    "category": "Actor",
+    "extends": "Actor"
+  },
+  "ArtiEgg": {
+    "category": "Actor",
+    "extends": "Actor"
+  },
+  "BasicArmor": {
+    "category": "Actor",
+    "extends": "Inventory"
+  },
+  "BasicArmorBonus": {
+    "category": "Actor",
+    "extends": "Inventory"
+  },
+  "BasicArmorPickup": {
+    "category": "Actor",
+    "extends": "Inventory"
+  },
+  "InventorySpot": {
+    "category": "Actor",
+    "extends": "Actor"
+  },
+  "SpectralMonster": {
+    "category": "Actor",
+    "extends": "Actor"
+  },
+  "StealthMonster": {
+    "category": "Actor",
+    "extends": "Actor"
+  },
+  "BossBrain": {
+    "category": "Actor",
+    "extends": "Actor"
+  },
+  "BossEye": {
+    "category": "Actor",
+    "extends": "Actor"
+  },
+  "BossTarget": {
+    "category": "Actor",
+    "extends": "Actor"
+  },
+  "BurningBarrel": {
+    "category": "Actor",
+    "extends": "Actor"
+  },
+  "CantLeaveBody": {
+    "category": "Actor",
+    "extends": "Actor"
+  },
+  "Cardinal": {
+    "category": "Actor",
+    "extends": "Actor"
+  },
+  "CommanderKeensLegacy": {
+    "category": "Actor",
+    "extends": "Actor"
+  },
+  "DeadAracnorb": {
+    "category": "Actor",
+    "extends": "Actor"
+  },
+  "DeadCacodemon": {
+    "category": "Actor",
+    "extends": "Actor"
+  },
+  "DeadDemon": {
+    "category": "Actor",
+    "extends": "Actor"
+  },
+  "DoomBuilderDecal": {
+    "category": "Actor",
+    "extends": "Actor"
+  },
+  "DoomBuilderThing": {
+    "category": "Actor",
+    "extends": "Actor"
+  },
+  "DoomPlayer": {
+    "category": "Actor",
+    "extends": "Actor"
+  },
+  "FastProjectile": {
+    "category": "Actor",
+    "extends": "Actor"
+  },
+  "HateTarget": {
+    "category": "Actor",
+    "extends": "Actor"
+  },
+  "HolySpirits": {
+    "category": "Actor",
+    "extends": "Actor"
+  },
+  "MagicSewerLights": {
+    "category": "Actor",
+    "extends": "Actor"
+  },
+  "MageStaffFX2": {
+    "category": "Actor",
+    "extends": "Actor"
+  },
+  "MageWandSmoke": {
+    "category": "Actor",
+    "extends": "Actor"
+  },
+  "Minotaur": {
+    "category": "Actor",
+    "extends": "Actor"
+  },
+  "MinotaurFriend": {
+    "category": "Actor",
+    "extends": "Actor"
+  },
+  "PhoenixFX2": {
+    "category": "Actor",
+    "extends": "Actor"
+  },
+  "RandomSpawner": {
+    "category": "Actor",
+    "extends": "Actor"
+  },
+  "SecActEnter": {
+    "category": "Actor",
+    "extends": "Actor"
+  },
+  "SecActExit": {
+    "category": "Actor",
+    "extends": "Actor"
+  },
+  "SecActEyesDive": {
+    "category": "Actor",
+    "extends": "Actor"
+  },
+  "SecActEyesSurface": {
+    "category": "Actor",
+    "extends": "Actor"
+  },
+  "SecActEyesAboveC": {
+    "category": "Actor",
+    "extends": "Actor"
+  },
+  "SecActEyesBelowC": {
+    "category": "Actor",
+    "extends": "Actor"
+  },
+  "SecActHitFakeFloor": {
+    "category": "Actor",
+    "extends": "Actor"
+  },
+  "SecActUseWall": {
+    "category": "Actor",
+    "extends": "Actor"
+  },
+  "SectorSilencer": {
+    "category": "Actor",
+    "extends": "Actor"
+  },
+  "ShootableEtching": {
+    "category": "Actor",
+    "extends": "Actor"
+  },
+  "Sorcerer2FX3": {
+    "category": "Actor",
+    "extends": "Actor"
+  },
+  "Sorcerer2FX4": {
+    "category": "Actor",
+    "extends": "Actor"
+  },
+  "TeleportDest": {
+    "category": "Actor",
+    "extends": "Actor"
+  },
+  "TeleportDest2": {
+    "category": "Actor",
+    "extends": "Actor"
+  },
+  "TeleportDest3": {
+    "category": "Actor",
+    "extends": "Actor"
+  }
+}

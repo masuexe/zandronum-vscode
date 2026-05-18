@@ -1,0 +1,184 @@
+{
+	"$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+	"name": "ACS",
+	"patterns": [
+		{
+			"include": "#comments"
+		},
+		{
+			"include": "#preprocessor"
+		},
+		{
+			"include": "#strings"
+		},
+		{
+			"include": "#numbers"
+		},
+		{
+			"include": "#script-declaration"
+		},
+		{
+			"include": "#keywords"
+		},
+		{
+			"include": "#types"
+		},
+		{
+			"include": "#functions"
+		},
+		{
+			"include": "#constants"
+		}
+	],
+	"repository": {
+		"comments": {
+			"patterns": [
+				{
+					"name": "comment.line.double-slash.acs",
+					"match": "//.*$"
+				},
+				{
+					"name": "comment.block.acs",
+					"begin": "/\\*",
+					"end": "\\*/"
+				}
+			]
+		},
+		"preprocessor": {
+			"patterns": [
+				{
+					"match": "(?i)^\\s*#(include|import|library)\\s+(\"[^\"]*\")",
+					"captures": {
+						"1": { "name": "keyword.control.preprocessor.acs" },
+						"2": { "name": "string.quoted.double.acs" }
+					}
+				},
+				{
+					"match": "(?i)^\\s*#(define)\\s+([A-Za-z_][A-Za-z0-9_]*)",
+					"captures": {
+						"1": { "name": "keyword.control.preprocessor.acs" },
+						"2": { "name": "entity.name.macro.acs" }
+					}
+				},
+				{
+					"match": "(?i)^\\s*#(undef|ifdef|ifndef)\\s+([A-Za-z_][A-Za-z0-9_]*)",
+					"captures": {
+						"1": { "name": "keyword.control.preprocessor.acs" },
+						"2": { "name": "entity.name.macro.acs" }
+					}
+				},
+				{
+					"match": "(?i)^\\s*#(else|endif|pragma|wadauthor)\\b",
+					"name": "keyword.control.preprocessor.acs"
+				},
+				{
+					"match": "(?i)^\\s*#\\w+",
+					"name": "keyword.control.preprocessor.acs"
+				}
+			]
+		},
+		"strings": {
+			"patterns": [
+				{
+					"name": "string.quoted.double.acs",
+					"begin": "\"",
+					"end": "\"",
+					"patterns": [
+						{
+							"name": "constant.character.escape.acs",
+							"match": "\\\\."
+						}
+					]
+				}
+			]
+		},
+		"numbers": {
+			"patterns": [
+				{
+					"match": "-?\\b[0-9]+\\.[0-9]*\\b",
+					"name": "constant.numeric.float.acs"
+				},
+				{
+					"match": "-?\\b[0-9]+\\b",
+					"name": "constant.numeric.integer.acs"
+				},
+				{
+					"match": "\\b0x[0-9a-fA-F]+\\b",
+					"name": "constant.numeric.hex.acs"
+				}
+			]
+		},
+		"script-declaration": {
+			"patterns": [
+				{
+					"name": "keyword.declaration.acs",
+					"match": "(?i)\\b(script)\\b"
+				},
+				{
+					"name": "constant.numeric.integer.acs",
+					"match": "\\b\\d+(?=\\s*\\)|\\s+\\w|\\s+\"(?!\"))",
+					"comment": "Script number: digits before activation type or paren"
+				},
+				{
+					"name": "string.quoted.double.acs",
+					"match": "\"[^\"]*\"",
+					"comment": "Named script identifier"
+				},
+				{
+					"name": "storage.type.acs",
+					"match": "(?i)\\b(OPEN|ENTER|DEATH|RESPAWN|PICKUP|BLUE|RED|YELLOW|WHITE|LIGHTNING|USE|UNLOADING|DISCONNECT|CLIENTSIDE|NET|DISPATCH|RETURN|EXECUTE)\\b"
+				},
+				{
+					"name": "storage.type.acs",
+					"match": "(?i)\\b(int|str|bool)\\b",
+					"comment": "Script parameter types inside parens"
+				}
+			]
+		},
+		"keywords": {
+			"patterns": [
+				{
+					"name": "keyword.control.acs",
+					"match": "(?i)\\b(if|else|for|while|do|switch|case|default|break|continue|return|until|terminate|restart|suspend|goto)\\b"
+				},
+				{
+					"name": "constant.language.acs",
+					"match": "(?i)\\b(true|false|on|off)\\b"
+				}
+			]
+		},
+		"types": {
+			"patterns": [
+				{
+					"name": "storage.type.acs",
+					"match": "(?i)\\b(int|str|bool|void)\\b"
+				},
+				{
+					"name": "keyword.declaration.acs",
+					"match": "(?i)\\b(function)\\b"
+				},
+				{
+					"name": "storage.modifier.acs",
+					"match": "(?i)\\b(world|global)\\b"
+				}
+			]
+		},
+		"constants": {
+			"patterns": [
+				{
+					"name": "constant.other.acs",
+					"match": "(?i)\\b[A-Z][A-Z0-9_]{2,}\\b"
+				}
+			]
+		},
+		"functions": {
+			"patterns": [
+				{
+					"name": "entity.name.function.acs",
+					"match": "[A-Za-z_][A-Za-z0-9_]*(?=\\s*\\()"
+				}
+			]
+		}
+	},
+	"scopeName": "source.acs"
+}

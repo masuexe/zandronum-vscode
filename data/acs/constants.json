@@ -1,163 +1,191 @@
 {
-  "TRUE": {
-    "value": 1,
-    "desc": "Boolean true"
+  "APROP_Accuracy": {
+    "value": 33,
+    "desc": "Actor property: Accuracy"
   },
-  "FALSE": {
+  "APROP_ActiveSound": {
+    "value": 9,
+    "desc": "Actor property: ActiveSound"
+  },
+  "APROP_Alpha": {
+    "value": 3,
+    "desc": "Actor property: Alpha"
+  },
+  "APROP_Ambush": {
+    "value": 10,
+    "desc": "Actor property: Ambush"
+  },
+  "APROP_AttackSound": {
+    "value": 6,
+    "desc": "Actor property: AttackSound"
+  },
+  "APROP_AttackZOffset": {
+    "value": 40,
+    "desc": "Actor property: AttackZOffset"
+  },
+  "APROP_ChaseGoal": {
+    "value": 13,
+    "desc": "Actor property: ChaseGoal"
+  },
+  "APROP_Damage": {
+    "value": 2,
+    "desc": "Actor property: Damage"
+  },
+  "APROP_DamageFactor": {
+    "value": 24,
+    "desc": "Actor property: DamageFactor"
+  },
+  "APROP_DeathSound": {
+    "value": 8,
+    "desc": "Actor property: DeathSound"
+  },
+  "APROP_Dormant": {
+    "value": 31,
+    "desc": "Actor property: Dormant"
+  },
+  "APROP_Dropped": {
+    "value": 18,
+    "desc": "Actor property: Dropped"
+  },
+  "APROP_Friendly": {
+    "value": 16,
+    "desc": "Actor property: Friendly"
+  },
+  "APROP_Frightened": {
+    "value": 14,
+    "desc": "Actor property: Frightened"
+  },
+  "APROP_Gravity": {
+    "value": 15,
+    "desc": "Actor property: Gravity"
+  },
+  "APROP_Health": {
     "value": 0,
-    "desc": "Boolean false"
+    "desc": "Actor property: Health"
   },
-  "ON": {
-    "value": 1,
-    "desc": "Boolean on"
-  },
-  "OFF": {
-    "value": 0,
-    "desc": "Boolean off"
-  },
-  "TICRATE": {
+  "APROP_Height": {
     "value": 35,
-    "desc": "Tics per second"
+    "desc": "Actor property: Height"
   },
-  "MAX_PLAYERS": {
-    "value": 64,
-    "desc": "Maximum number of players"
-  },
-  "GAME_SKILL_VERY_EASY": {
-    "value": 0,
-    "desc": "Very easy / I'm Too Young To Die"
-  },
-  "GAME_SKILL_EASY": {
-    "value": 1,
-    "desc": "Easy / Hey Not Too Rough"
-  },
-  "GAME_SKILL_NORMAL": {
-    "value": 2,
-    "desc": "Normal / Hurt Me Plenty"
-  },
-  "GAME_SKILL_HARD": {
-    "value": 3,
-    "desc": "Hard / Ultra-Violence"
-  },
-  "GAME_SKILL_VERY_HARD": {
-    "value": 4,
-    "desc": "Very hard / Nightmare"
-  },
-  "GAMETYPE_COOPERATIVE": {
-    "value": 0,
-    "desc": "Cooperative game mode"
-  },
-  "GAMETYPE_DEATHMATCH": {
-    "value": 1,
-    "desc": "Deathmatch game mode"
-  },
-  "GAMETYPE_TEAMDEATHMATCH": {
-    "value": 2,
-    "desc": "Team Deathmatch game mode"
-  },
-  "GAMETYPE_CTF": {
-    "value": 3,
-    "desc": "Capture the Flag game mode"
-  },
-  "GAMETYPE_SKULLTAG": {
-    "value": 4,
-    "desc": "Skulltag game mode"
-  },
-  "GAMETYPE_DOMINATION": {
-    "value": 5,
-    "desc": "Domination game mode"
-  },
-  "GAMETYPE_TEAMLMS": {
-    "value": 6,
-    "desc": "Team Last Man Standing"
-  },
-  "GAMETYPE_LMS": {
-    "value": 7,
-    "desc": "Last Man Standing"
-  },
-  "GAMETYPE_POSSESSION": {
-    "value": 8,
-    "desc": "Possession game mode"
-  },
-  "GAMETYPE_TEAMPOSSESSION": {
-    "value": 9,
-    "desc": "Team Possession game mode"
-  },
-  "GAMETYPE_INVASION": {
-    "value": 10,
-    "desc": "Invasion game mode"
-  },
-  "HUDMSG_PLAIN": {
-    "value": 0,
-    "desc": "HUD message: plain text"
-  },
-  "HUDMSG_FADEINOUT": {
-    "value": 1,
-    "desc": "HUD message: fade in/out"
-  },
-  "HUDMSG_FADEOUT": {
-    "value": 2,
-    "desc": "HUD message: fade out"
-  },
-  "HUDMSG_TYPEON": {
-    "value": 3,
-    "desc": "HUD message: type on"
-  },
-  "HUDMSG_ALPHA": {
-    "value": 4,
-    "desc": "HUD message: with alpha"
-  },
-  "HUDMSG_ADDBLEND": {
-    "value": 5,
-    "desc": "HUD message: additive blend"
-  },
-  "HUDMSG_LAYER_OVER": {
-    "value": 6,
-    "desc": "HUD message: layer over everything"
-  },
-  "HUDMSG_LAYER_UNDER": {
-    "value": 7,
-    "desc": "HUD message: layer under HUD"
-  },
-  "HUDMSG_NOTWITHFULLMAP": {
-    "value": 8,
-    "desc": "HUD message: hidden with automap"
-  },
-  "HUDMSG_NOTWITHOVERLAY": {
-    "value": 9,
-    "desc": "HUD message: hidden with overlay"
-  },
-  "HUDMSG_NOTWITHAUTOMAP": {
-    "value": 10,
-    "desc": "HUD message: hidden with full automap"
-  },
-  "HUDMSG_LOG": {
+  "APROP_Invulnerable": {
     "value": 11,
-    "desc": "HUD message: log to console"
+    "desc": "Actor property: Invulnerable"
   },
-  "HUDMSG_COLORSTRING": {
+  "APROP_JumpZ": {
     "value": 12,
-    "desc": "HUD message: color string support"
+    "desc": "Actor property: JumpZ"
   },
-  "CHAN_AUTO": {
-    "value": 0,
-    "desc": "Sound channel: auto"
+  "APROP_Mass": {
+    "value": 32,
+    "desc": "Actor property: Mass"
   },
-  "CHAN_WEAPON": {
-    "value": 1,
-    "desc": "Sound channel: weapon"
+  "APROP_MasterTID": {
+    "value": 25,
+    "desc": "Actor property: MasterTID"
   },
-  "CHAN_VOICE": {
-    "value": 2,
-    "desc": "Sound channel: voice"
+  "APROP_MeleeRange": {
+    "value": 38,
+    "desc": "Actor property: MeleeRange"
   },
-  "CHAN_ITEM": {
-    "value": 3,
-    "desc": "Sound channel: item"
+  "APROP_NameTag": {
+    "value": 21,
+    "desc": "Actor property: NameTag"
   },
-  "CHAN_BODY": {
+  "APROP_Notarget": {
+    "value": 19,
+    "desc": "Actor property: Notarget"
+  },
+  "APROP_Notrigger": {
+    "value": 23,
+    "desc": "Actor property: Notrigger"
+  },
+  "APROP_PainSound": {
+    "value": 7,
+    "desc": "Actor property: PainSound"
+  },
+  "APROP_Radius": {
+    "value": 36,
+    "desc": "Actor property: Radius"
+  },
+  "APROP_ReactionTime": {
+    "value": 37,
+    "desc": "Actor property: ReactionTime"
+  },
+  "APROP_RenderStyle": {
     "value": 4,
-    "desc": "Sound channel: body / auto"
+    "desc": "Actor property: RenderStyle"
+  },
+  "APROP_ScaleX": {
+    "value": 29,
+    "desc": "Actor property: ScaleX"
+  },
+  "APROP_ScaleY": {
+    "value": 30,
+    "desc": "Actor property: ScaleY"
+  },
+  "APROP_Score": {
+    "value": 22,
+    "desc": "Actor property: Score"
+  },
+  "APROP_SeeSound": {
+    "value": 5,
+    "desc": "Actor property: SeeSound"
+  },
+  "APROP_SpawnHealth": {
+    "value": 17,
+    "desc": "Actor property: SpawnHealth"
+  },
+  "APROP_Species": {
+    "value": 20,
+    "desc": "Actor property: Species"
+  },
+  "APROP_Speed": {
+    "value": 1,
+    "desc": "Actor property: Speed"
+  },
+  "APROP_Stamina": {
+    "value": 34,
+    "desc": "Actor property: Stamina"
+  },
+  "APROP_StencilColor": {
+    "value": 41,
+    "desc": "Actor property: StencilColor"
+  },
+  "APROP_TargetTID": {
+    "value": 26,
+    "desc": "Actor property: TargetTID"
+  },
+  "APROP_TracerTID": {
+    "value": 27,
+    "desc": "Actor property: TracerTID"
+  },
+  "APROP_ViewHeight": {
+    "value": 39,
+    "desc": "Actor property: ViewHeight"
+  },
+  "APROP_WaterLevel": {
+    "value": 28,
+    "desc": "Actor property: WaterLevel"
+  },
+  "BLOCK_CREATURES": {
+    "value": 1,
+    "desc": "Line_SetBlocking: creatures"
+  },
+  "BLOCK_EVERYTHING": {
+    "value": 2,
+    "desc": "Line_SetBlocking: everything"
+  },
+  "BLOCK_NOTHING": {
+    "value": 0,
+    "desc": "Line_SetBlocking: nothing"
+  },
+  "BLOCK_PLAYERS": {
+    "value": 4,
+    "desc": "Line_SetBlocking: players"
+  },
+  "BLOCK_RAILING": {
+    "value": 3,
+    "desc": "Line_SetBlocking: railing"
   },
   "CHAN_5": {
     "value": 5,
@@ -171,208 +199,516 @@
     "value": 7,
     "desc": "Sound channel: 7"
   },
-  "APROP_Health": {
+  "CHAN_AUTO": {
     "value": 0,
-    "desc": "Actor health"
+    "desc": "Sound channel: auto"
   },
-  "APROP_Speed": {
-    "value": 1,
-    "desc": "Actor speed"
-  },
-  "APROP_Damage": {
-    "value": 2,
-    "desc": "Actor damage"
-  },
-  "APROP_Alpha": {
-    "value": 3,
-    "desc": "Actor alpha (0.0 - 1.0)"
-  },
-  "APROP_RenderStyle": {
+  "CHAN_BODY": {
     "value": 4,
-    "desc": "Actor render style"
+    "desc": "Sound channel: body"
   },
-  "APROP_SeeSound": {
-    "value": 5,
-    "desc": "Actor see sound"
+  "CHAN_ITEM": {
+    "value": 3,
+    "desc": "Sound channel: item"
   },
-  "APROP_AttackSound": {
-    "value": 6,
-    "desc": "Actor attack sound"
+  "CHAN_VOICE": {
+    "value": 2,
+    "desc": "Sound channel: voice"
   },
-  "APROP_PainSound": {
-    "value": 7,
-    "desc": "Actor pain sound"
+  "CHAN_WEAPON": {
+    "value": 1,
+    "desc": "Sound channel: weapon"
   },
-  "APROP_DeathSound": {
-    "value": 8,
-    "desc": "Actor death sound"
+  "FALSE": {
+    "value": 0,
+    "desc": "Boolean false"
   },
-  "APROP_ActiveSound": {
-    "value": 9,
-    "desc": "Actor active sound"
+  "GAMETYPE_COOPERATIVE": {
+    "value": 0,
+    "desc": "GetGameMode: cooperative"
   },
-  "APROP_Ambush": {
-    "value": 10,
-    "desc": "Actor ambush flag"
-  },
-  "APROP_Invulnerable": {
+  "GAMETYPE_CTF": {
     "value": 11,
-    "desc": "Actor invulnerability"
+    "desc": "GetGameMode: CTF"
   },
-  "APROP_JumpZ": {
-    "value": 12,
-    "desc": "Actor jump height"
-  },
-  "APROP_ChaseGoal": {
-    "value": 13,
-    "desc": "Actor chase goal"
-  },
-  "APROP_Frightened": {
-    "value": 14,
-    "desc": "Actor frightened flag"
-  },
-  "APROP_Gravity": {
-    "value": 15,
-    "desc": "Actor gravity multiplier"
-  },
-  "APROP_Friendly": {
-    "value": 16,
-    "desc": "Actor friendly flag"
-  },
-  "APROP_SpawnHealth": {
-    "value": 17,
-    "desc": "Actor spawn health"
-  },
-  "APROP_Dropped": {
-    "value": 18,
-    "desc": "Actor dropped flag"
-  },
-  "APROP_Notarget": {
-    "value": 19,
-    "desc": "Actor no target flag"
-  },
-  "PROP_FROZEN": {
-    "value": 0,
-    "desc": "Player is frozen"
-  },
-  "PROP_NOTARGET": {
-    "value": 1,
-    "desc": "Player is not targeted by monsters"
-  },
-  "PROP_INSTANTWEAPONSWITCH": {
-    "value": 2,
-    "desc": "Player has instant weapon switching"
-  },
-  "PROP_FLY": {
+  "GAMETYPE_DEATHMATCH": {
     "value": 3,
-    "desc": "Player can fly"
+    "desc": "GetGameMode: deathmatch"
   },
-  "PROP_TOTALLYFROZEN": {
+  "GAMETYPE_DOMINATION": {
+    "value": 14,
+    "desc": "GetGameMode: domination"
+  },
+  "GAMETYPE_DUEL": {
+    "value": 5,
+    "desc": "GetGameMode: duel"
+  },
+  "GAMETYPE_INVASION": {
+    "value": 2,
+    "desc": "GetGameMode: invasion"
+  },
+  "GAMETYPE_LMS": {
+    "value": 7,
+    "desc": "GetGameMode: LMS"
+  },
+  "GAMETYPE_ONEFLAGCTF": {
+    "value": 12,
+    "desc": "GetGameMode: one-flag CTF"
+  },
+  "GAMETYPE_POSSESSION": {
+    "value": 9,
+    "desc": "GetGameMode: possession"
+  },
+  "GAMETYPE_SKULLTAG": {
+    "value": 13,
+    "desc": "GetGameMode: skulltag"
+  },
+  "GAMETYPE_SURVIVAL": {
+    "value": 1,
+    "desc": "GetGameMode: survival"
+  },
+  "GAMETYPE_TEAMLMS": {
+    "value": 8,
+    "desc": "GetGameMode: team LMS"
+  },
+  "GAMETYPE_TEAMPLAY": {
     "value": 4,
-    "desc": "Player is completely frozen"
+    "desc": "GetGameMode: team DM"
+  },
+  "GAMETYPE_TEAMPOSSESSION": {
+    "value": 10,
+    "desc": "GetGameMode: team possession"
+  },
+  "GAMETYPE_TERMINATOR": {
+    "value": 6,
+    "desc": "GetGameMode: terminator"
+  },
+  "GAME_NET_COOPERATIVE": {
+    "value": 1,
+    "desc": "GameType: net cooperative"
+  },
+  "GAME_NET_DEATHMATCH": {
+    "value": 2,
+    "desc": "GameType: net deathmatch"
+  },
+  "GAME_NET_TEAMGAME": {
+    "value": 4,
+    "desc": "GameType: net team game"
+  },
+  "GAME_SINGLE_PLAYER": {
+    "value": 0,
+    "desc": "GameType: single player"
+  },
+  "GAME_SKILL_EASY": {
+    "value": 1,
+    "desc": "Skill: easy (alias)"
+  },
+  "GAME_SKILL_HARD": {
+    "value": 3,
+    "desc": "Skill: hard (alias)"
+  },
+  "GAME_SKILL_NORMAL": {
+    "value": 2,
+    "desc": "Skill: normal (alias)"
+  },
+  "GAME_SKILL_VERY_EASY": {
+    "value": 0,
+    "desc": "Skill: very easy (alias)"
+  },
+  "GAME_SKILL_VERY_HARD": {
+    "value": 4,
+    "desc": "Skill: very hard (alias)"
+  },
+  "GAME_TITLE_MAP": {
+    "value": 3,
+    "desc": "GameType: title map"
+  },
+  "HUDMSG_ADDBLEND": {
+    "value": 536870912,
+    "desc": "HUD message flag: additive blend (0x20000000)"
+  },
+  "HUDMSG_ALPHA": {
+    "value": 268435456,
+    "desc": "HUD message flag: alpha (0x10000000)"
+  },
+  "HUDMSG_COLORSTRING": {
+    "value": 1073741824,
+    "desc": "HUD message flag: color string (0x40000000)"
+  },
+  "HUDMSG_FADEINOUT": {
+    "value": 1,
+    "desc": "HUD message: fade in/out"
+  },
+  "HUDMSG_FADEOUT": {
+    "value": 2,
+    "desc": "HUD message: fade out"
+  },
+  "HUDMSG_LOG": {
+    "value": 2147483648,
+    "desc": "HUD message flag: log (0x80000000)"
+  },
+  "HUDMSG_NOWRAP": {
+    "value": 134217728,
+    "desc": "HUD message flag: no wrap (0x08000000)"
+  },
+  "HUDMSG_PLAIN": {
+    "value": 0,
+    "desc": "HUD message: plain"
+  },
+  "HUDMSG_TYPEON": {
+    "value": 3,
+    "desc": "HUD message: type on"
+  },
+  "LEVELINFO_CLUSTERNUM": {
+    "value": 1,
+    "desc": "GetLevelInfo: cluster number"
+  },
+  "LEVELINFO_FOUND_ITEMS": {
+    "value": 6,
+    "desc": "GetLevelInfo: found items"
+  },
+  "LEVELINFO_FOUND_SECRETS": {
+    "value": 4,
+    "desc": "GetLevelInfo: found secrets"
+  },
+  "LEVELINFO_KILLED_MONSTERS": {
+    "value": 8,
+    "desc": "GetLevelInfo: killed monsters"
+  },
+  "LEVELINFO_LEVELNUM": {
+    "value": 2,
+    "desc": "GetLevelInfo: level number"
+  },
+  "LEVELINFO_PAR_TIME": {
+    "value": 0,
+    "desc": "GetLevelInfo: par time"
+  },
+  "LEVELINFO_SUCK_TIME": {
+    "value": 9,
+    "desc": "GetLevelInfo: suck time"
+  },
+  "LEVELINFO_TOTAL_ITEMS": {
+    "value": 5,
+    "desc": "GetLevelInfo: total items"
+  },
+  "LEVELINFO_TOTAL_MONSTERS": {
+    "value": 7,
+    "desc": "GetLevelInfo: total monsters"
+  },
+  "LEVELINFO_TOTAL_SECRETS": {
+    "value": 3,
+    "desc": "GetLevelInfo: total secrets"
+  },
+  "LINE_BACK": {
+    "value": 1,
+    "desc": "Line side: back"
+  },
+  "LINE_FRONT": {
+    "value": 0,
+    "desc": "Line side: front"
+  },
+  "MAX_PLAYERS": {
+    "value": 64,
+    "desc": "Maximum players"
+  },
+  "OFF": {
+    "value": 0,
+    "desc": "Boolean off"
+  },
+  "ON": {
+    "value": 1,
+    "desc": "Boolean on"
+  },
+  "PLAYERINFO_AIMDIST": {
+    "value": 1,
+    "desc": "GetPlayerInfo: aim distance"
+  },
+  "PLAYERINFO_COLOR": {
+    "value": 2,
+    "desc": "GetPlayerInfo: color"
+  },
+  "PLAYERINFO_DESIREDFOV": {
+    "value": 9,
+    "desc": "GetPlayerInfo: desired FOV"
+  },
+  "PLAYERINFO_FOV": {
+    "value": 8,
+    "desc": "GetPlayerInfo: FOV"
+  },
+  "PLAYERINFO_GENDER": {
+    "value": 3,
+    "desc": "GetPlayerInfo: gender"
+  },
+  "PLAYERINFO_MOVEBOB": {
+    "value": 5,
+    "desc": "GetPlayerInfo: move bob"
+  },
+  "PLAYERINFO_NEVERSWITCH": {
+    "value": 4,
+    "desc": "GetPlayerInfo: never switch"
+  },
+  "PLAYERINFO_PLAYERCLASS": {
+    "value": 7,
+    "desc": "GetPlayerInfo: player class"
+  },
+  "PLAYERINFO_STILLBOB": {
+    "value": 6,
+    "desc": "GetPlayerInfo: still bob"
+  },
+  "PLAYERINFO_TEAM": {
+    "value": 0,
+    "desc": "GetPlayerInfo: team"
   },
   "PROP_BUDDHA": {
     "value": 16,
-    "desc": "Player in Buddha mode"
+    "desc": "Player property: buddha mode"
+  },
+  "PROP_FLY": {
+    "value": 3,
+    "desc": "Player property: fly"
+  },
+  "PROP_FROZEN": {
+    "value": 0,
+    "desc": "Player property: frozen"
+  },
+  "PROP_INSTANTWEAPONSWITCH": {
+    "value": 2,
+    "desc": "Player property: instant weapon switch"
+  },
+  "PROP_NOTARGET": {
+    "value": 1,
+    "desc": "Player property: no target"
+  },
+  "PROP_TOTALLYFROZEN": {
+    "value": 4,
+    "desc": "Player property: totally frozen"
+  },
+  "SIDE_BACK": {
+    "value": 1,
+    "desc": "Side: back"
+  },
+  "SIDE_FRONT": {
+    "value": 0,
+    "desc": "Side: front"
+  },
+  "SKILL_EASY": {
+    "value": 1,
+    "desc": "Skill: easy / HNTR"
+  },
+  "SKILL_HARD": {
+    "value": 3,
+    "desc": "Skill: hard / UV"
+  },
+  "SKILL_NORMAL": {
+    "value": 2,
+    "desc": "Skill: normal / HMP"
+  },
+  "SKILL_VERY_EASY": {
+    "value": 0,
+    "desc": "Skill: very easy / ITYTD"
+  },
+  "SKILL_VERY_HARD": {
+    "value": 4,
+    "desc": "Skill: very hard / Nightmare"
+  },
+  "STYLE_Add": {
+    "value": 7,
+    "desc": "Render style: additive"
+  },
+  "STYLE_AddShaded": {
+    "value": 13,
+    "desc": "Render style: additive shaded"
+  },
+  "STYLE_AddStencil": {
+    "value": 12,
+    "desc": "Render style: additive stencil"
+  },
+  "STYLE_Fuzzy": {
+    "value": 2,
+    "desc": "Render style: fuzzy"
+  },
+  "STYLE_None": {
+    "value": 0,
+    "desc": "Render style: none"
+  },
+  "STYLE_Normal": {
+    "value": 1,
+    "desc": "Render style: normal"
+  },
+  "STYLE_OptFuzzy": {
+    "value": 4,
+    "desc": "Render style: optional fuzzy"
+  },
+  "STYLE_Shaded": {
+    "value": 8,
+    "desc": "Render style: shaded"
+  },
+  "STYLE_Shadow": {
+    "value": 10,
+    "desc": "Render style: shadow"
+  },
+  "STYLE_SoulTrans": {
+    "value": 3,
+    "desc": "Render style: soul translucency"
+  },
+  "STYLE_Stencil": {
+    "value": 5,
+    "desc": "Render style: stencil"
+  },
+  "STYLE_Subtract": {
+    "value": 11,
+    "desc": "Render style: subtractive"
+  },
+  "STYLE_Translucent": {
+    "value": 6,
+    "desc": "Render style: translucent"
+  },
+  "STYLE_TranslucentStencil": {
+    "value": 9,
+    "desc": "Render style: translucent stencil"
+  },
+  "SXF_ABSOLUTEPOSITION": {
+    "value": 2,
+    "desc": "SpawnFlag: absolute position"
+  },
+  "SXF_NOCHECKPOSITION": {
+    "value": 32,
+    "desc": "SpawnFlag: no position check"
+  },
+  "SXF_SETMASTER": {
+    "value": 16,
+    "desc": "SpawnFlag: set as master"
+  },
+  "SXF_TELEFRAG": {
+    "value": 64,
+    "desc": "SpawnFlag: telefrag"
+  },
+  "SXF_TRANSFERPITCH": {
+    "value": 512,
+    "desc": "SpawnFlag: transfer pitch"
+  },
+  "SXF_TRANSFERTRANSLATION": {
+    "value": 1,
+    "desc": "SpawnFlag: transfer translation"
   },
   "TEAM_BLUE": {
     "value": 0,
     "desc": "Blue team"
   },
-  "TEAM_RED": {
-    "value": 1,
-    "desc": "Red team"
-  },
   "TEAM_NONE": {
     "value": 255,
     "desc": "No team"
   },
-  "STYLE_None": {
+  "TEAM_RED": {
+    "value": 1,
+    "desc": "Red team"
+  },
+  "TEXTURE_BOTTOM": {
+    "value": 2,
+    "desc": "Texture part: bottom"
+  },
+  "TEXTURE_MIDDLE": {
+    "value": 1,
+    "desc": "Texture part: middle"
+  },
+  "TEXTURE_TOP": {
     "value": 0,
-    "desc": "No render style"
-  },
-  "STYLE_Normal": {
-    "value": 1,
-    "desc": "Normal render style"
-  },
-  "STYLE_Fuzzy": {
-    "value": 2,
-    "desc": "Fuzzy render style"
-  },
-  "STYLE_SoulTrans": {
-    "value": 3,
-    "desc": "Soul translucency"
-  },
-  "STYLE_OptFuzzy": {
-    "value": 4,
-    "desc": "Optional fuzzy"
-  },
-  "STYLE_Stencil": {
-    "value": 5,
-    "desc": "Stencil render style"
-  },
-  "STYLE_Translucent": {
-    "value": 6,
-    "desc": "Translucent render style"
-  },
-  "STYLE_Add": {
-    "value": 7,
-    "desc": "Additive render style"
-  },
-  "STYLE_Shaded": {
-    "value": 8,
-    "desc": "Shaded render style"
-  },
-  "STYLE_TranslucentStencil": {
-    "value": 9,
-    "desc": "Translucent with stencil"
-  },
-  "STYLE_Shadow": {
-    "value": 10,
-    "desc": "Shadow render style"
-  },
-  "STYLE_Subtract": {
-    "value": 11,
-    "desc": "Subtractive render style"
-  },
-  "STYLE_AddStencil": {
-    "value": 12,
-    "desc": "Additive with stencil"
-  },
-  "STYLE_AddShaded": {
-    "value": 13,
-    "desc": "Additive shaded"
-  },
-  "SXF_NOCHECKPOSITION": {
-    "value": 32,
-    "desc": "Do not check position before spawn"
-  },
-  "SXF_TELEFRAG": {
-    "value": 64,
-    "desc": "Telefrag anything at spawn position"
-  },
-  "SXF_SETMASTER": {
-    "value": 16,
-    "desc": "Set spawned actor as master"
-  },
-  "SXF_TRANSFERPITCH": {
-    "value": 512,
-    "desc": "Transfer source pitch"
-  },
-  "SXF_TRANSFERTRANSLATION": {
-    "value": 1,
-    "desc": "Transfer translation"
-  },
-  "SXF_ABSOLUTEPOSITION": {
-    "value": 2,
-    "desc": "Use absolute position"
-  },
-  "TF_TELEFRAG": {
-    "value": 1,
-    "desc": "Telefrag at destination"
+    "desc": "Texture part: top"
   },
   "TF_RANDOMDECIDE": {
     "value": 2,
-    "desc": "Randomly choose destination"
+    "desc": "TeleportFlag: random decide"
+  },
+  "TF_TELEFRAG": {
+    "value": 1,
+    "desc": "TeleportFlag: telefrag"
+  },
+  "TICRATE": {
+    "value": 35,
+    "desc": "Tics per second"
+  },
+  "TPROP_Assister": {
+    "value": 9,
+    "desc": "Team property: Assister"
+  },
+  "TPROP_Carrier": {
+    "value": 8,
+    "desc": "Team property: Carrier"
+  },
+  "TPROP_DeathCount": {
+    "value": 11,
+    "desc": "Team property: DeathCount"
+  },
+  "TPROP_FragCount": {
+    "value": 10,
+    "desc": "Team property: FragCount"
+  },
+  "TPROP_IsValid": {
+    "value": 2,
+    "desc": "Team property: IsValid"
+  },
+  "TPROP_LoserTheme": {
+    "value": 17,
+    "desc": "Team property: LoserTheme"
+  },
+  "TPROP_LoserThemeOrder": {
+    "value": 19,
+    "desc": "Team property: LoserThemeOrder"
+  },
+  "TPROP_Name": {
+    "value": 0,
+    "desc": "Team property: Name"
+  },
+  "TPROP_NumLivePlayers": {
+    "value": 4,
+    "desc": "Team property: NumLivePlayers"
+  },
+  "TPROP_NumPlayers": {
+    "value": 3,
+    "desc": "Team property: NumPlayers"
+  },
+  "TPROP_PlayerStartNum": {
+    "value": 6,
+    "desc": "Team property: PlayerStartNum"
+  },
+  "TPROP_PointCount": {
+    "value": 13,
+    "desc": "Team property: PointCount"
+  },
+  "TPROP_ReturnTics": {
+    "value": 14,
+    "desc": "Team property: ReturnTics"
+  },
+  "TPROP_Score": {
+    "value": 1,
+    "desc": "Team property: Score"
+  },
+  "TPROP_Spread": {
+    "value": 7,
+    "desc": "Team property: Spread"
+  },
+  "TPROP_TeamItem": {
+    "value": 15,
+    "desc": "Team property: TeamItem"
+  },
+  "TPROP_TextColor": {
+    "value": 5,
+    "desc": "Team property: TextColor"
+  },
+  "TPROP_WinCount": {
+    "value": 12,
+    "desc": "Team property: WinCount"
+  },
+  "TPROP_WinnerTheme": {
+    "value": 16,
+    "desc": "Team property: WinnerTheme"
+  },
+  "TPROP_WinnerThemeOrder": {
+    "value": 18,
+    "desc": "Team property: WinnerThemeOrder"
+  },
+  "TRUE": {
+    "value": 1,
+    "desc": "Boolean true"
   }
 }

@@ -47,36 +47,23 @@
 		"preprocessor": {
 			"patterns": [
 				{
-					"match": "(?i)^\\s*#(include|import|library)\\s+(\"[^\"]*\")",
+					"name": "keyword.control.preprocessor.acs",
+					"match": "(?i)^\\s*#\\s*(?:include|undef|import|library|ifdef|ifndef|else|endif|pragma|wadauthor)\\b"
+				},
+				{
+					"match": "(?i)^\\s*(#\\s*define)\\s+([A-Za-z_][A-Za-z0-9_]*)",
 					"captures": {
 						"1": { "name": "keyword.control.preprocessor.acs" },
-						"2": { "name": "string.quoted.double.acs" }
+						"2": { "name": "entity.name.constant.preprocessor.acs" }
 					}
 				},
 				{
-					"match": "(?i)^\\s*#(define)\\s+([A-Za-z_][A-Za-z0-9_]*)",
-					"captures": {
-						"1": { "name": "keyword.control.preprocessor.acs" },
-						"2": { "name": "entity.name.macro.acs" }
-					}
-				},
-				{
-					"match": "(?i)^\\s*#(undef|ifdef|ifndef)\\s+([A-Za-z_][A-Za-z0-9_]*)",
-					"captures": {
-						"1": { "name": "keyword.control.preprocessor.acs" },
-						"2": { "name": "entity.name.macro.acs" }
-					}
-				},
-				{
-					"match": "(?i)^\\s*#(else|endif|pragma|wadauthor)\\b",
-					"name": "keyword.control.preprocessor.acs"
-				},
-				{
-					"match": "(?i)^\\s*#\\w+",
-					"name": "keyword.control.preprocessor.acs"
+					"name": "string.quoted.double.acs",
+					"match": "(?i)(?<=#\\s*(?:include|import|library)\\s*)\"[^\"]*\""
 				}
 			]
 		},
+
 		"strings": {
 			"patterns": [
 				{

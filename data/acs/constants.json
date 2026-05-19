@@ -1,0 +1,378 @@
+{
+  "TRUE": {
+    "value": 1,
+    "desc": "Boolean true"
+  },
+  "FALSE": {
+    "value": 0,
+    "desc": "Boolean false"
+  },
+  "ON": {
+    "value": 1,
+    "desc": "Boolean on"
+  },
+  "OFF": {
+    "value": 0,
+    "desc": "Boolean off"
+  },
+  "TICRATE": {
+    "value": 35,
+    "desc": "Tics per second"
+  },
+  "MAX_PLAYERS": {
+    "value": 64,
+    "desc": "Maximum number of players"
+  },
+  "GAME_SKILL_VERY_EASY": {
+    "value": 0,
+    "desc": "Very easy / I'm Too Young To Die"
+  },
+  "GAME_SKILL_EASY": {
+    "value": 1,
+    "desc": "Easy / Hey Not Too Rough"
+  },
+  "GAME_SKILL_NORMAL": {
+    "value": 2,
+    "desc": "Normal / Hurt Me Plenty"
+  },
+  "GAME_SKILL_HARD": {
+    "value": 3,
+    "desc": "Hard / Ultra-Violence"
+  },
+  "GAME_SKILL_VERY_HARD": {
+    "value": 4,
+    "desc": "Very hard / Nightmare"
+  },
+  "GAMETYPE_COOPERATIVE": {
+    "value": 0,
+    "desc": "Cooperative game mode"
+  },
+  "GAMETYPE_DEATHMATCH": {
+    "value": 1,
+    "desc": "Deathmatch game mode"
+  },
+  "GAMETYPE_TEAMDEATHMATCH": {
+    "value": 2,
+    "desc": "Team Deathmatch game mode"
+  },
+  "GAMETYPE_CTF": {
+    "value": 3,
+    "desc": "Capture the Flag game mode"
+  },
+  "GAMETYPE_SKULLTAG": {
+    "value": 4,
+    "desc": "Skulltag game mode"
+  },
+  "GAMETYPE_DOMINATION": {
+    "value": 5,
+    "desc": "Domination game mode"
+  },
+  "GAMETYPE_TEAMLMS": {
+    "value": 6,
+    "desc": "Team Last Man Standing"
+  },
+  "GAMETYPE_LMS": {
+    "value": 7,
+    "desc": "Last Man Standing"
+  },
+  "GAMETYPE_POSSESSION": {
+    "value": 8,
+    "desc": "Possession game mode"
+  },
+  "GAMETYPE_TEAMPOSSESSION": {
+    "value": 9,
+    "desc": "Team Possession game mode"
+  },
+  "GAMETYPE_INVASION": {
+    "value": 10,
+    "desc": "Invasion game mode"
+  },
+  "HUDMSG_PLAIN": {
+    "value": 0,
+    "desc": "HUD message: plain text"
+  },
+  "HUDMSG_FADEINOUT": {
+    "value": 1,
+    "desc": "HUD message: fade in/out"
+  },
+  "HUDMSG_FADEOUT": {
+    "value": 2,
+    "desc": "HUD message: fade out"
+  },
+  "HUDMSG_TYPEON": {
+    "value": 3,
+    "desc": "HUD message: type on"
+  },
+  "HUDMSG_ALPHA": {
+    "value": 4,
+    "desc": "HUD message: with alpha"
+  },
+  "HUDMSG_ADDBLEND": {
+    "value": 5,
+    "desc": "HUD message: additive blend"
+  },
+  "HUDMSG_LAYER_OVER": {
+    "value": 6,
+    "desc": "HUD message: layer over everything"
+  },
+  "HUDMSG_LAYER_UNDER": {
+    "value": 7,
+    "desc": "HUD message: layer under HUD"
+  },
+  "HUDMSG_NOTWITHFULLMAP": {
+    "value": 8,
+    "desc": "HUD message: hidden with automap"
+  },
+  "HUDMSG_NOTWITHOVERLAY": {
+    "value": 9,
+    "desc": "HUD message: hidden with overlay"
+  },
+  "HUDMSG_NOTWITHAUTOMAP": {
+    "value": 10,
+    "desc": "HUD message: hidden with full automap"
+  },
+  "HUDMSG_LOG": {
+    "value": 11,
+    "desc": "HUD message: log to console"
+  },
+  "HUDMSG_COLORSTRING": {
+    "value": 12,
+    "desc": "HUD message: color string support"
+  },
+  "CHAN_AUTO": {
+    "value": 0,
+    "desc": "Sound channel: auto"
+  },
+  "CHAN_WEAPON": {
+    "value": 1,
+    "desc": "Sound channel: weapon"
+  },
+  "CHAN_VOICE": {
+    "value": 2,
+    "desc": "Sound channel: voice"
+  },
+  "CHAN_ITEM": {
+    "value": 3,
+    "desc": "Sound channel: item"
+  },
+  "CHAN_BODY": {
+    "value": 4,
+    "desc": "Sound channel: body / auto"
+  },
+  "CHAN_5": {
+    "value": 5,
+    "desc": "Sound channel: 5"
+  },
+  "CHAN_6": {
+    "value": 6,
+    "desc": "Sound channel: 6"
+  },
+  "CHAN_7": {
+    "value": 7,
+    "desc": "Sound channel: 7"
+  },
+  "APROP_Health": {
+    "value": 0,
+    "desc": "Actor health"
+  },
+  "APROP_Speed": {
+    "value": 1,
+    "desc": "Actor speed"
+  },
+  "APROP_Damage": {
+    "value": 2,
+    "desc": "Actor damage"
+  },
+  "APROP_Alpha": {
+    "value": 3,
+    "desc": "Actor alpha (0.0 - 1.0)"
+  },
+  "APROP_RenderStyle": {
+    "value": 4,
+    "desc": "Actor render style"
+  },
+  "APROP_SeeSound": {
+    "value": 5,
+    "desc": "Actor see sound"
+  },
+  "APROP_AttackSound": {
+    "value": 6,
+    "desc": "Actor attack sound"
+  },
+  "APROP_PainSound": {
+    "value": 7,
+    "desc": "Actor pain sound"
+  },
+  "APROP_DeathSound": {
+    "value": 8,
+    "desc": "Actor death sound"
+  },
+  "APROP_ActiveSound": {
+    "value": 9,
+    "desc": "Actor active sound"
+  },
+  "APROP_Ambush": {
+    "value": 10,
+    "desc": "Actor ambush flag"
+  },
+  "APROP_Invulnerable": {
+    "value": 11,
+    "desc": "Actor invulnerability"
+  },
+  "APROP_JumpZ": {
+    "value": 12,
+    "desc": "Actor jump height"
+  },
+  "APROP_ChaseGoal": {
+    "value": 13,
+    "desc": "Actor chase goal"
+  },
+  "APROP_Frightened": {
+    "value": 14,
+    "desc": "Actor frightened flag"
+  },
+  "APROP_Gravity": {
+    "value": 15,
+    "desc": "Actor gravity multiplier"
+  },
+  "APROP_Friendly": {
+    "value": 16,
+    "desc": "Actor friendly flag"
+  },
+  "APROP_SpawnHealth": {
+    "value": 17,
+    "desc": "Actor spawn health"
+  },
+  "APROP_Dropped": {
+    "value": 18,
+    "desc": "Actor dropped flag"
+  },
+  "APROP_Notarget": {
+    "value": 19,
+    "desc": "Actor no target flag"
+  },
+  "PROP_FROZEN": {
+    "value": 0,
+    "desc": "Player is frozen"
+  },
+  "PROP_NOTARGET": {
+    "value": 1,
+    "desc": "Player is not targeted by monsters"
+  },
+  "PROP_INSTANTWEAPONSWITCH": {
+    "value": 2,
+    "desc": "Player has instant weapon switching"
+  },
+  "PROP_FLY": {
+    "value": 3,
+    "desc": "Player can fly"
+  },
+  "PROP_TOTALLYFROZEN": {
+    "value": 4,
+    "desc": "Player is completely frozen"
+  },
+  "PROP_BUDDHA": {
+    "value": 16,
+    "desc": "Player in Buddha mode"
+  },
+  "TEAM_BLUE": {
+    "value": 0,
+    "desc": "Blue team"
+  },
+  "TEAM_RED": {
+    "value": 1,
+    "desc": "Red team"
+  },
+  "TEAM_NONE": {
+    "value": 255,
+    "desc": "No team"
+  },
+  "STYLE_None": {
+    "value": 0,
+    "desc": "No render style"
+  },
+  "STYLE_Normal": {
+    "value": 1,
+    "desc": "Normal render style"
+  },
+  "STYLE_Fuzzy": {
+    "value": 2,
+    "desc": "Fuzzy render style"
+  },
+  "STYLE_SoulTrans": {
+    "value": 3,
+    "desc": "Soul translucency"
+  },
+  "STYLE_OptFuzzy": {
+    "value": 4,
+    "desc": "Optional fuzzy"
+  },
+  "STYLE_Stencil": {
+    "value": 5,
+    "desc": "Stencil render style"
+  },
+  "STYLE_Translucent": {
+    "value": 6,
+    "desc": "Translucent render style"
+  },
+  "STYLE_Add": {
+    "value": 7,
+    "desc": "Additive render style"
+  },
+  "STYLE_Shaded": {
+    "value": 8,
+    "desc": "Shaded render style"
+  },
+  "STYLE_TranslucentStencil": {
+    "value": 9,
+    "desc": "Translucent with stencil"
+  },
+  "STYLE_Shadow": {
+    "value": 10,
+    "desc": "Shadow render style"
+  },
+  "STYLE_Subtract": {
+    "value": 11,
+    "desc": "Subtractive render style"
+  },
+  "STYLE_AddStencil": {
+    "value": 12,
+    "desc": "Additive with stencil"
+  },
+  "STYLE_AddShaded": {
+    "value": 13,
+    "desc": "Additive shaded"
+  },
+  "SXF_NOCHECKPOSITION": {
+    "value": 32,
+    "desc": "Do not check position before spawn"
+  },
+  "SXF_TELEFRAG": {
+    "value": 64,
+    "desc": "Telefrag anything at spawn position"
+  },
+  "SXF_SETMASTER": {
+    "value": 16,
+    "desc": "Set spawned actor as master"
+  },
+  "SXF_TRANSFERPITCH": {
+    "value": 512,
+    "desc": "Transfer source pitch"
+  },
+  "SXF_TRANSFERTRANSLATION": {
+    "value": 1,
+    "desc": "Transfer translation"
+  },
+  "SXF_ABSOLUTEPOSITION": {
+    "value": 2,
+    "desc": "Use absolute position"
+  },
+  "TF_TELEFRAG": {
+    "value": 1,
+    "desc": "Telefrag at destination"
+  },
+  "TF_RANDOMDECIDE": {
+    "value": 2,
+    "desc": "Randomly choose destination"
+  }
+}

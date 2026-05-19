@@ -9,7 +9,10 @@
   "categories": [
     "Other"
   ],
-  "activationEvents": [],
+  "activationEvents": [
+    "onLanguage:decorate",
+    "onLanguage:acs"
+  ],
   "main": "./out/extension.js",
   "contributes": {
     "languages": [
@@ -24,6 +27,17 @@
           ".decorate"
         ],
         "configuration": "./language-configuration.json"
+      },
+      {
+        "id": "acs",
+        "aliases": [
+          "ACS",
+          "acs"
+        ],
+        "extensions": [
+          ".acs"
+        ],
+        "configuration": "./language-configuration.json"
       }
     ],
     "grammars": [
@@ -31,12 +45,21 @@
         "language": "decorate",
         "scopeName": "source.decorate",
         "path": "./syntaxes/decorate.tmLanguage.json"
+      },
+      {
+        "language": "acs",
+        "scopeName": "source.acs",
+        "path": "./syntaxes/acs.tmLanguage.json"
       }
     ],
     "snippets": [
       {
         "language": "decorate",
         "path": "./snippets/decorate.snippets.json"
+      },
+      {
+        "language": "acs",
+        "path": "./snippets/acs.snippets.json"
       }
     ],
     "commands": [
@@ -47,6 +70,10 @@
       {
         "command": "decorate.enterComplete",
         "title": "Complete Sprite Frame"
+      },
+      {
+        "command": "acs.compile",
+        "title": "Compile ACS"
       }
     ],
     "keybindings": [

@@ -1,0 +1,32 @@
+{
+    "Script Template": {
+        "prefix": "script",
+        "body": [
+            "script ${1:1} (${2:void})",
+            "{",
+            "\t$0",
+            "}"
+        ],
+        "description": "ACS Script"
+    },
+    "ACS Library": {
+        "prefix": "library",
+        "body": [
+            "#library \"${1:name}\"",
+            "#include \"zcommon.acs\"",
+            "",
+            "$0"
+        ],
+        "description": "ACS Library header"
+    },
+    "ACS Function": {
+        "prefix": "function",
+        "body": [
+            "function ${1:void} ${2:Name}(${3})",
+            "{",
+            "\t$0",
+            "}"
+        ],
+        "description": "ACS Function definition"
+    }
+}

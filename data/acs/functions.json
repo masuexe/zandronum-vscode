@@ -1,0 +1,3360 @@
+{
+  "Print": {
+    "params": [
+      {
+        "name": "s",
+        "type": "string",
+        "optional": true
+      }
+    ],
+    "desc": "Prints a message to the screen and console."
+  },
+  "PrintBold": {
+    "params": [
+      {
+        "name": "s",
+        "type": "string",
+        "optional": true
+      }
+    ],
+    "desc": "Prints a message in bold to the screen and console."
+  },
+  "PrintHud": {
+    "params": [
+      {
+        "name": "s",
+        "type": "string",
+        "optional": true
+      }
+    ],
+    "desc": "Prints a message only to the screen (not console)."
+  },
+  "Log": {
+    "params": [
+      {
+        "name": "s",
+        "type": "string",
+        "optional": true
+      }
+    ],
+    "desc": "Prints a message to the console only."
+  },
+  "LogI": {
+    "params": [
+      {
+        "name": "n",
+        "type": "int",
+        "optional": true
+      }
+    ],
+    "desc": "Prints an integer to the console."
+  },
+  "HudMessage": {
+    "params": [
+      {
+        "name": "s",
+        "type": "string",
+        "optional": true
+      },
+      {
+        "name": "type",
+        "type": "int",
+        "optional": true
+      },
+      {
+        "name": "id",
+        "type": "int",
+        "optional": true
+      },
+      {
+        "name": "color",
+        "type": "int",
+        "optional": true
+      },
+      {
+        "name": "x",
+        "type": "float",
+        "optional": true
+      },
+      {
+        "name": "y",
+        "type": "float",
+        "optional": true
+      },
+      {
+        "name": "holdTime",
+        "type": "float",
+        "optional": true
+      }
+    ],
+    "desc": "Displays a HUD message on screen."
+  },
+  "HudMessageBold": {
+    "params": [
+      {
+        "name": "s",
+        "type": "string",
+        "optional": true
+      },
+      {
+        "name": "type",
+        "type": "int",
+        "optional": true
+      },
+      {
+        "name": "id",
+        "type": "int",
+        "optional": true
+      },
+      {
+        "name": "color",
+        "type": "int",
+        "optional": true
+      },
+      {
+        "name": "x",
+        "type": "float",
+        "optional": true
+      },
+      {
+        "name": "y",
+        "type": "float",
+        "optional": true
+      },
+      {
+        "name": "holdTime",
+        "type": "float",
+        "optional": true
+      }
+    ],
+    "desc": "Displays a bold HUD message on screen."
+  },
+  "SetFont": {
+    "params": [
+      {
+        "name": "fontname",
+        "type": "string"
+      }
+    ],
+    "desc": "Sets the font for subsequent HUD messages."
+  },
+  "SetHudSize": {
+    "params": [
+      {
+        "name": "width",
+        "type": "int"
+      },
+      {
+        "name": "height",
+        "type": "int"
+      },
+      {
+        "name": "statusbar",
+        "type": "bool",
+        "optional": true
+      }
+    ],
+    "desc": "Sets the virtual HUD coordinate space."
+  },
+  "BeginPrint": {
+    "params": [],
+    "desc": "Begins a print block for scripted HUD drawing."
+  },
+  "EndPrint": {
+    "params": [],
+    "desc": "Ends a print block."
+  },
+  "MoreHudMessage": {
+    "params": [],
+    "desc": "Allows more HUD messages on screen simultaneously."
+  },
+  "OptHudMessage": {
+    "params": [
+      {
+        "name": "mode",
+        "type": "int"
+      }
+    ],
+    "desc": "Sets HUD message options."
+  },
+  "StrParam": {
+    "params": [
+      {
+        "name": "s",
+        "type": "string",
+        "optional": true
+      }
+    ],
+    "desc": "Returns a formatted string with parameter substitution."
+  },
+  "Delay": {
+    "params": [
+      {
+        "name": "tics",
+        "type": "int"
+      }
+    ],
+    "desc": "Pauses script execution for the specified number of tics."
+  },
+  "TagWait": {
+    "params": [
+      {
+        "name": "tag",
+        "type": "int"
+      }
+    ],
+    "desc": "Waits until the tagged sector(s) finish moving."
+  },
+  "PolyWait": {
+    "params": [
+      {
+        "name": "polyObjId",
+        "type": "int"
+      }
+    ],
+    "desc": "Waits until the polyobject finishes moving."
+  },
+  "ScriptWait": {
+    "params": [
+      {
+        "name": "scriptNum",
+        "type": "int"
+      }
+    ],
+    "desc": "Waits until the specified script finishes."
+  },
+  "NamedScriptWait": {
+    "params": [
+      {
+        "name": "scriptName",
+        "type": "string"
+      }
+    ],
+    "desc": "Waits until the named script finishes."
+  },
+  "Suspend": {
+    "params": [],
+    "desc": "Suspends the current script."
+  },
+  "Terminate": {
+    "params": [],
+    "desc": "Terminates the current script."
+  },
+  "SetResultValue": {
+    "params": [
+      {
+        "name": "value",
+        "type": "int"
+      }
+    ],
+    "desc": "Sets the return value for the current script."
+  },
+  "ACS_Execute": {
+    "params": [
+      {
+        "name": "script",
+        "type": "int"
+      },
+      {
+        "name": "map",
+        "type": "int",
+        "optional": true
+      },
+      {
+        "name": "s_arg1",
+        "type": "int",
+        "optional": true
+      },
+      {
+        "name": "s_arg2",
+        "type": "int",
+        "optional": true
+      },
+      {
+        "name": "s_arg3",
+        "type": "int",
+        "optional": true
+      }
+    ],
+    "desc": "Executes a script on the specified map."
+  },
+  "ACS_Terminate": {
+    "params": [
+      {
+        "name": "script",
+        "type": "int"
+      },
+      {
+        "name": "map",
+        "type": "int",
+        "optional": true
+      }
+    ],
+    "desc": "Terminates a script on the specified map."
+  },
+  "ACS_Suspend": {
+    "params": [
+      {
+        "name": "script",
+        "type": "int"
+      },
+      {
+        "name": "map",
+        "type": "int",
+        "optional": true
+      }
+    ],
+    "desc": "Suspends a script on the specified map."
+  },
+  "ACS_ExecuteAlways": {
+    "params": [
+      {
+        "name": "script",
+        "type": "int"
+      },
+      {
+        "name": "map",
+        "type": "int",
+        "optional": true
+      },
+      {
+        "name": "s_arg1",
+        "type": "int",
+        "optional": true
+      },
+      {
+        "name": "s_arg2",
+        "type": "int",
+        "optional": true
+      },
+      {
+        "name": "s_arg3",
+        "type": "int",
+        "optional": true
+      }
+    ],
+    "desc": "Executes a script on the specified map, allowing concurrent instances."
+  },
+  "ACS_ExecuteWithResult": {
+    "params": [
+      {
+        "name": "script",
+        "type": "int"
+      },
+      {
+        "name": "s_arg1",
+        "type": "int",
+        "optional": true
+      },
+      {
+        "name": "s_arg2",
+        "type": "int",
+        "optional": true
+      },
+      {
+        "name": "s_arg3",
+        "type": "int",
+        "optional": true
+      }
+    ],
+    "desc": "Executes a script and returns its result value."
+  },
+  "ACS_NamedExecute": {
+    "params": [
+      {
+        "name": "script",
+        "type": "string"
+      },
+      {
+        "name": "map",
+        "type": "int",
+        "optional": true
+      },
+      {
+        "name": "s_arg1",
+        "type": "int",
+        "optional": true
+      },
+      {
+        "name": "s_arg2",
+        "type": "int",
+        "optional": true
+      },
+      {
+        "name": "s_arg3",
+        "type": "int",
+        "optional": true
+      }
+    ],
+    "desc": "Executes a named script on the specified map."
+  },
+  "ACS_NamedExecuteAlways": {
+    "params": [
+      {
+        "name": "script",
+        "type": "string"
+      },
+      {
+        "name": "map",
+        "type": "int",
+        "optional": true
+      },
+      {
+        "name": "s_arg1",
+        "type": "int",
+        "optional": true
+      },
+      {
+        "name": "s_arg2",
+        "type": "int",
+        "optional": true
+      },
+      {
+        "name": "s_arg3",
+        "type": "int",
+        "optional": true
+      }
+    ],
+    "desc": "Executes a named script on the specified map, allowing concurrent instances."
+  },
+  "ACS_NamedExecuteWithResult": {
+    "params": [
+      {
+        "name": "script",
+        "type": "string"
+      },
+      {
+        "name": "s_arg1",
+        "type": "int",
+        "optional": true
+      },
+      {
+        "name": "s_arg2",
+        "type": "int",
+        "optional": true
+      },
+      {
+        "name": "s_arg3",
+        "type": "int",
+        "optional": true
+      }
+    ],
+    "desc": "Executes a named script and returns its result value."
+  },
+  "ACS_NamedTerminate": {
+    "params": [
+      {
+        "name": "script",
+        "type": "string"
+      },
+      {
+        "name": "map",
+        "type": "int",
+        "optional": true
+      }
+    ],
+    "desc": "Terminates a named script on the specified map."
+  },
+  "ACS_NamedSuspend": {
+    "params": [
+      {
+        "name": "script",
+        "type": "string"
+      },
+      {
+        "name": "map",
+        "type": "int",
+        "optional": true
+      }
+    ],
+    "desc": "Suspends a named script on the specified map."
+  },
+  "ACS_NamedLockedExecute": {
+    "params": [
+      {
+        "name": "script",
+        "type": "string"
+      },
+      {
+        "name": "map",
+        "type": "int",
+        "optional": true
+      },
+      {
+        "name": "s_arg1",
+        "type": "int",
+        "optional": true
+      },
+      {
+        "name": "s_arg2",
+        "type": "int",
+        "optional": true
+      },
+      {
+        "name": "lock",
+        "type": "int",
+        "optional": true
+      }
+    ],
+    "desc": "Executes a named script with a lock check."
+  },
+  "ACS_NamedLockedExecuteDoor": {
+    "params": [
+      {
+        "name": "script",
+        "type": "string"
+      },
+      {
+        "name": "map",
+        "type": "int",
+        "optional": true
+      },
+      {
+        "name": "s_arg1",
+        "type": "int",
+        "optional": true
+      },
+      {
+        "name": "s_arg2",
+        "type": "int",
+        "optional": true
+      },
+      {
+        "name": "lock",
+        "type": "int",
+        "optional": true
+      }
+    ],
+    "desc": "Executes a named script with a lock check (door variant)."
+  },
+  "IsScriptActive": {
+    "params": [
+      {
+        "name": "script",
+        "type": "int"
+      }
+    ],
+    "desc": "Returns true if the specified script is currently running."
+  },
+  "Restart": {
+    "params": [],
+    "desc": "Restarts the current script from the beginning."
+  },
+  "Spawn": {
+    "params": [
+      {
+        "name": "classname",
+        "type": "string"
+      },
+      {
+        "name": "x",
+        "type": "int"
+      },
+      {
+        "name": "y",
+        "type": "int"
+      },
+      {
+        "name": "z",
+        "type": "int"
+      },
+      {
+        "name": "tid",
+        "type": "int",
+        "optional": true
+      },
+      {
+        "name": "angle",
+        "type": "int",
+        "optional": true
+      }
+    ],
+    "desc": "Spawns an actor at the given fixed-point coordinates."
+  },
+  "SpawnSpot": {
+    "params": [
+      {
+        "name": "classname",
+        "type": "string"
+      },
+      {
+        "name": "spotTid",
+        "type": "int"
+      },
+      {
+        "name": "tid",
+        "type": "int",
+        "optional": true
+      },
+      {
+        "name": "angle",
+        "type": "int",
+        "optional": true
+      }
+    ],
+    "desc": "Spawns an actor at a map spot with the given TID."
+  },
+  "SpawnSpotFacing": {
+    "params": [
+      {
+        "name": "classname",
+        "type": "string"
+      },
+      {
+        "name": "spotTid",
+        "type": "int"
+      },
+      {
+        "name": "tid",
+        "type": "int",
+        "optional": true
+      }
+    ],
+    "desc": "Spawns an actor at a map spot, facing the spot's direction."
+  },
+  "SpawnSpotForced": {
+    "params": [
+      {
+        "name": "classname",
+        "type": "string"
+      },
+      {
+        "name": "spotTid",
+        "type": "int"
+      },
+      {
+        "name": "tid",
+        "type": "int",
+        "optional": true
+      },
+      {
+        "name": "angle",
+        "type": "int",
+        "optional": true
+      }
+    ],
+    "desc": "Spawns an actor at a map spot, even if blocked."
+  },
+  "SpawnSpotFacingForced": {
+    "params": [
+      {
+        "name": "classname",
+        "type": "string"
+      },
+      {
+        "name": "spotTid",
+        "type": "int"
+      },
+      {
+        "name": "tid",
+        "type": "int",
+        "optional": true
+      }
+    ],
+    "desc": "Spawns an actor at a map spot facing it, even if blocked."
+  },
+  "Thing_Spawn": {
+    "params": [
+      {
+        "name": "tid",
+        "type": "int"
+      },
+      {
+        "name": "type",
+        "type": "string"
+      },
+      {
+        "name": "angle",
+        "type": "int",
+        "optional": true
+      },
+      {
+        "name": "newTid",
+        "type": "int",
+        "optional": true
+      }
+    ],
+    "desc": "Spawns a thing at the location of the actor with the given TID."
+  },
+  "Thing_SpawnFacing": {
+    "params": [
+      {
+        "name": "tid",
+        "type": "int"
+      },
+      {
+        "name": "type",
+        "type": "string"
+      },
+      {
+        "name": "nomonsters",
+        "type": "bool",
+        "optional": true
+      },
+      {
+        "name": "newTid",
+        "type": "int",
+        "optional": true
+      }
+    ],
+    "desc": "Spawns a thing facing the same direction as the spawn spot."
+  },
+  "Thing_SpawnNoFog": {
+    "params": [
+      {
+        "name": "tid",
+        "type": "int"
+      },
+      {
+        "name": "type",
+        "type": "string"
+      },
+      {
+        "name": "angle",
+        "type": "int",
+        "optional": true
+      },
+      {
+        "name": "newTid",
+        "type": "int",
+        "optional": true
+      }
+    ],
+    "desc": "Spawns a thing without teleport fog."
+  },
+  "Thing_Remove": {
+    "params": [
+      {
+        "name": "tid",
+        "type": "int"
+      }
+    ],
+    "desc": "Removes all things with the given TID."
+  },
+  "Thing_Destroy": {
+    "params": [
+      {
+        "name": "tid",
+        "type": "int"
+      },
+      {
+        "name": "extreme",
+        "type": "bool",
+        "optional": true
+      }
+    ],
+    "desc": "Destroys all things with the given TID (plays death animation)."
+  },
+  "Thing_Damage": {
+    "params": [
+      {
+        "name": "tid",
+        "type": "int"
+      },
+      {
+        "name": "amount",
+        "type": "int"
+      },
+      {
+        "name": "mod",
+        "type": "string",
+        "optional": true
+      }
+    ],
+    "desc": "Damages all things with the given TID."
+  },
+  "ThingCount": {
+    "params": [
+      {
+        "name": "type",
+        "type": "string",
+        "optional": true
+      },
+      {
+        "name": "tid",
+        "type": "int",
+        "optional": true
+      }
+    ],
+    "desc": "Returns the count of things of a given type/TID."
+  },
+  "ThingCountName": {
+    "params": [
+      {
+        "name": "type",
+        "type": "string"
+      },
+      {
+        "name": "tid",
+        "type": "int",
+        "optional": true
+      }
+    ],
+    "desc": "Returns the count of things of a given actor class."
+  },
+  "ThingCountSector": {
+    "params": [
+      {
+        "name": "type",
+        "type": "string",
+        "optional": true
+      },
+      {
+        "name": "tid",
+        "type": "int",
+        "optional": true
+      },
+      {
+        "name": "tag",
+        "type": "int",
+        "optional": true
+      }
+    ],
+    "desc": "Returns the count of things in a tagged sector."
+  },
+  "SetThingSpecial": {
+    "params": [
+      {
+        "name": "tid",
+        "type": "int"
+      },
+      {
+        "name": "special",
+        "type": "int"
+      },
+      {
+        "name": "arg1",
+        "type": "int",
+        "optional": true
+      },
+      {
+        "name": "arg2",
+        "type": "int",
+        "optional": true
+      },
+      {
+        "name": "arg3",
+        "type": "int",
+        "optional": true
+      }
+    ],
+    "desc": "Sets the special for things with the given TID."
+  },
+  "SetActorFlag": {
+    "params": [
+      {
+        "name": "tid",
+        "type": "int"
+      },
+      {
+        "name": "flag",
+        "type": "string"
+      },
+      {
+        "name": "value",
+        "type": "bool"
+      }
+    ],
+    "desc": "Sets a flag on the actor with the given TID."
+  },
+  "CheckActorFlag": {
+    "params": [
+      {
+        "name": "tid",
+        "type": "int"
+      },
+      {
+        "name": "flag",
+        "type": "string"
+      }
+    ],
+    "desc": "Returns true if the actor has the given flag set."
+  },
+  "ClassifyActor": {
+    "params": [
+      {
+        "name": "tid",
+        "type": "int"
+      }
+    ],
+    "desc": "Returns the classification of an actor (player, monster, etc.)."
+  },
+  "SetActorProperty": {
+    "params": [
+      {
+        "name": "tid",
+        "type": "int"
+      },
+      {
+        "name": "property",
+        "type": "int"
+      },
+      {
+        "name": "value",
+        "type": "int"
+      }
+    ],
+    "desc": "Sets a property on the actor with the given TID."
+  },
+  "GetActorProperty": {
+    "params": [
+      {
+        "name": "tid",
+        "type": "int"
+      },
+      {
+        "name": "property",
+        "type": "int"
+      }
+    ],
+    "desc": "Returns a property value of the actor with the given TID."
+  },
+  "SetActorAngle": {
+    "params": [
+      {
+        "name": "tid",
+        "type": "int"
+      },
+      {
+        "name": "angle",
+        "type": "int"
+      }
+    ],
+    "desc": "Sets the angle of the actor."
+  },
+  "SetActorPitch": {
+    "params": [
+      {
+        "name": "tid",
+        "type": "int"
+      },
+      {
+        "name": "pitch",
+        "type": "int"
+      }
+    ],
+    "desc": "Sets the pitch of the actor."
+  },
+  "SetActorState": {
+    "params": [
+      {
+        "name": "tid",
+        "type": "int"
+      },
+      {
+        "name": "state",
+        "type": "string"
+      },
+      {
+        "name": "exact",
+        "type": "bool",
+        "optional": true
+      }
+    ],
+    "desc": "Sets the state of the actor to a named state."
+  },
+  "SetActorPosition": {
+    "params": [
+      {
+        "name": "tid",
+        "type": "int"
+      },
+      {
+        "name": "x",
+        "type": "int"
+      },
+      {
+        "name": "y",
+        "type": "int"
+      },
+      {
+        "name": "z",
+        "type": "int"
+      },
+      {
+        "name": "fog",
+        "type": "bool",
+        "optional": true
+      }
+    ],
+    "desc": "Sets the position of the actor."
+  },
+  "SetActorVelocity": {
+    "params": [
+      {
+        "name": "tid",
+        "type": "int"
+      },
+      {
+        "name": "x",
+        "type": "int"
+      },
+      {
+        "name": "y",
+        "type": "int"
+      },
+      {
+        "name": "z",
+        "type": "int"
+      },
+      {
+        "name": "add",
+        "type": "bool",
+        "optional": true
+      },
+      {
+        "name": "setbob",
+        "type": "bool",
+        "optional": true
+      }
+    ],
+    "desc": "Sets the velocity of the actor."
+  },
+  "GetActorX": {
+    "params": [
+      {
+        "name": "tid",
+        "type": "int"
+      }
+    ],
+    "desc": "Returns the X coordinate of the actor."
+  },
+  "GetActorY": {
+    "params": [
+      {
+        "name": "tid",
+        "type": "int"
+      }
+    ],
+    "desc": "Returns the Y coordinate of the actor."
+  },
+  "GetActorZ": {
+    "params": [
+      {
+        "name": "tid",
+        "type": "int"
+      }
+    ],
+    "desc": "Returns the Z coordinate of the actor."
+  },
+  "GetActorVelX": {
+    "params": [
+      {
+        "name": "tid",
+        "type": "int"
+      }
+    ],
+    "desc": "Returns the X velocity of the actor."
+  },
+  "GetActorVelY": {
+    "params": [
+      {
+        "name": "tid",
+        "type": "int"
+      }
+    ],
+    "desc": "Returns the Y velocity of the actor."
+  },
+  "GetActorVelZ": {
+    "params": [
+      {
+        "name": "tid",
+        "type": "int"
+      }
+    ],
+    "desc": "Returns the Z velocity of the actor."
+  },
+  "GetActorAngle": {
+    "params": [
+      {
+        "name": "tid",
+        "type": "int"
+      }
+    ],
+    "desc": "Returns the angle of the actor."
+  },
+  "GetActorPitch": {
+    "params": [
+      {
+        "name": "tid",
+        "type": "int"
+      }
+    ],
+    "desc": "Returns the pitch of the actor."
+  },
+  "GetActorFloorZ": {
+    "params": [
+      {
+        "name": "tid",
+        "type": "int"
+      }
+    ],
+    "desc": "Returns the Z floor height underneath the actor."
+  },
+  "GetActorCeilingZ": {
+    "params": [
+      {
+        "name": "tid",
+        "type": "int"
+      }
+    ],
+    "desc": "Returns the Z ceiling height above the actor."
+  },
+  "GetActorViewHeight": {
+    "params": [
+      {
+        "name": "tid",
+        "type": "int"
+      }
+    ],
+    "desc": "Returns the view height of the actor."
+  },
+  "SetActorClip": {
+    "params": [
+      {
+        "name": "tid",
+        "type": "int"
+      },
+      {
+        "name": "clip",
+        "type": "int"
+      }
+    ],
+    "desc": "Sets the clip of the actor."
+  },
+  "ClearActorClip": {
+    "params": [
+      {
+        "name": "tid",
+        "type": "int"
+      }
+    ],
+    "desc": "Clears the clip of the actor."
+  },
+  "GiveInventory": {
+    "params": [
+      {
+        "name": "type",
+        "type": "string"
+      },
+      {
+        "name": "amount",
+        "type": "int",
+        "optional": true
+      }
+    ],
+    "desc": "Gives an inventory item to the activator."
+  },
+  "TakeInventory": {
+    "params": [
+      {
+        "name": "type",
+        "type": "string"
+      },
+      {
+        "name": "amount",
+        "type": "int",
+        "optional": true
+      }
+    ],
+    "desc": "Takes an inventory item from the activator."
+  },
+  "CheckInventory": {
+    "params": [
+      {
+        "name": "type",
+        "type": "string"
+      }
+    ],
+    "desc": "Returns the amount of an inventory item the activator has."
+  },
+  "GiveActorInventory": {
+    "params": [
+      {
+        "name": "tid",
+        "type": "int"
+      },
+      {
+        "name": "type",
+        "type": "string"
+      },
+      {
+        "name": "amount",
+        "type": "int",
+        "optional": true
+      }
+    ],
+    "desc": "Gives an inventory item to the specified actor."
+  },
+  "TakeActorInventory": {
+    "params": [
+      {
+        "name": "tid",
+        "type": "int"
+      },
+      {
+        "name": "type",
+        "type": "string"
+      },
+      {
+        "name": "amount",
+        "type": "int",
+        "optional": true
+      }
+    ],
+    "desc": "Takes an inventory item from the specified actor."
+  },
+  "CheckActorInventory": {
+    "params": [
+      {
+        "name": "tid",
+        "type": "int"
+      },
+      {
+        "name": "type",
+        "type": "string"
+      }
+    ],
+    "desc": "Returns the amount of an inventory item the actor has."
+  },
+  "ClearInventory": {
+    "params": [],
+    "desc": "Clears the activator's entire inventory."
+  },
+  "ClearActorInventory": {
+    "params": [
+      {
+        "name": "tid",
+        "type": "int"
+      }
+    ],
+    "desc": "Clears the entire inventory of the specified actor."
+  },
+  "UseInventory": {
+    "params": [
+      {
+        "name": "type",
+        "type": "string"
+      }
+    ],
+    "desc": "Forces the activator to use an inventory item."
+  },
+  "DropInventory": {
+    "params": [
+      {
+        "name": "type",
+        "type": "string"
+      }
+    ],
+    "desc": "Drops an inventory item from the activator."
+  },
+  "SetAmmoCapacity": {
+    "params": [
+      {
+        "name": "type",
+        "type": "string"
+      },
+      {
+        "name": "amount",
+        "type": "int"
+      }
+    ],
+    "desc": "Sets the maximum ammo capacity for an ammo type."
+  },
+  "GetAmmoCapacity": {
+    "params": [
+      {
+        "name": "type",
+        "type": "string"
+      }
+    ],
+    "desc": "Returns the max ammo capacity for an ammo type."
+  },
+  "AddAmmoCapacity": {
+    "params": [
+      {
+        "name": "type",
+        "type": "string"
+      },
+      {
+        "name": "amount",
+        "type": "int"
+      }
+    ],
+    "desc": "Adds to the max ammo capacity for an ammo type."
+  },
+  "CheckWeapon": {
+    "params": [
+      {
+        "name": "weapon",
+        "type": "string"
+      }
+    ],
+    "desc": "Returns true if the activator has the specified weapon."
+  },
+  "SetWeapon": {
+    "params": [
+      {
+        "name": "weapon",
+        "type": "string"
+      }
+    ],
+    "desc": "Selects the specified weapon for the activator."
+  },
+  "GiveWeapon": {
+    "params": [
+      {
+        "name": "weapon",
+        "type": "string"
+      }
+    ],
+    "desc": "Gives a weapon to the activator."
+  },
+  "TakeWeapon": {
+    "params": [
+      {
+        "name": "weapon",
+        "type": "string"
+      }
+    ],
+    "desc": "Takes a weapon from the activator."
+  },
+  "ChangeLevel": {
+    "params": [
+      {
+        "name": "levelname",
+        "type": "string"
+      },
+      {
+        "name": "position",
+        "type": "int",
+        "optional": true
+      },
+      {
+        "name": "flags",
+        "type": "int",
+        "optional": true
+      },
+      {
+        "name": "skill",
+        "type": "int",
+        "optional": true
+      }
+    ],
+    "desc": "Changes to the specified level."
+  },
+  "Exit_Normal": {
+    "params": [
+      {
+        "name": "position",
+        "type": "int",
+        "optional": true
+      }
+    ],
+    "desc": "Exits the current level normally."
+  },
+  "Exit_Secret": {
+    "params": [
+      {
+        "name": "position",
+        "type": "int",
+        "optional": true
+      }
+    ],
+    "desc": "Exits to the secret level."
+  },
+  "Teleport_EndGame": {
+    "params": [],
+    "desc": "Ends the game and shows the finale."
+  },
+  "Teleport_NewMap": {
+    "params": [
+      {
+        "name": "map",
+        "type": "string"
+      },
+      {
+        "name": "position",
+        "type": "int",
+        "optional": true
+      },
+      {
+        "name": "face",
+        "type": "bool",
+        "optional": true
+      }
+    ],
+    "desc": "Teleports to a new map."
+  },
+  "Teleport": {
+    "params": [
+      {
+        "name": "tid",
+        "type": "int"
+      },
+      {
+        "name": "targetTid",
+        "type": "int",
+        "optional": true
+      },
+      {
+        "name": "fog",
+        "type": "bool",
+        "optional": true
+      }
+    ],
+    "desc": "Teleports the actor to the target thing."
+  },
+  "TeleportOther": {
+    "params": [
+      {
+        "name": "tid",
+        "type": "int"
+      },
+      {
+        "name": "targetTid",
+        "type": "int"
+      },
+      {
+        "name": "fog",
+        "type": "bool",
+        "optional": true
+      }
+    ],
+    "desc": "Teleports an actor to a target thing."
+  },
+  "TeleportInSector": {
+    "params": [
+      {
+        "name": "tag",
+        "type": "int"
+      },
+      {
+        "name": "sourceTid",
+        "type": "int"
+      },
+      {
+        "name": "destTid",
+        "type": "int",
+        "optional": true
+      },
+      {
+        "name": "fog",
+        "type": "bool",
+        "optional": true
+      },
+      {
+        "name": "group",
+        "type": "int",
+        "optional": true
+      }
+    ],
+    "desc": "Teleports things from one tagged sector to another."
+  },
+  "TeleportGroup": {
+    "params": [
+      {
+        "name": "groupTid",
+        "type": "int"
+      },
+      {
+        "name": "sourceTid",
+        "type": "int"
+      },
+      {
+        "name": "destTid",
+        "type": "int",
+        "optional": true
+      },
+      {
+        "name": "moveSource",
+        "type": "bool",
+        "optional": true
+      },
+      {
+        "name": "fog",
+        "type": "bool",
+        "optional": true
+      }
+    ],
+    "desc": "Teleports all members of a group to a destination."
+  },
+  "ChangeSky": {
+    "params": [
+      {
+        "name": "sky1",
+        "type": "string"
+      },
+      {
+        "name": "sky2",
+        "type": "string",
+        "optional": true
+      }
+    ],
+    "desc": "Changes the sky texture."
+  },
+  "SetMusic": {
+    "params": [
+      {
+        "name": "song",
+        "type": "string"
+      },
+      {
+        "name": "pattern",
+        "type": "int",
+        "optional": true
+      },
+      {
+        "name": "transition",
+        "type": "int",
+        "optional": true
+      }
+    ],
+    "desc": "Changes the music."
+  },
+  "SetMusicVolume": {
+    "params": [
+      {
+        "name": "volume",
+        "type": "float"
+      }
+    ],
+    "desc": "Sets the music volume."
+  },
+  "LocalSetMusic": {
+    "params": [
+      {
+        "name": "song",
+        "type": "string"
+      },
+      {
+        "name": "pattern",
+        "type": "int",
+        "optional": true
+      },
+      {
+        "name": "transition",
+        "type": "int",
+        "optional": true
+      }
+    ],
+    "desc": "Changes the music for the activator only (client-side)."
+  },
+  "SetCameraToTexture": {
+    "params": [
+      {
+        "name": "tid",
+        "type": "int"
+      },
+      {
+        "name": "textureName",
+        "type": "string"
+      },
+      {
+        "name": "fov",
+        "type": "int",
+        "optional": true
+      }
+    ],
+    "desc": "Sets a camera texture view to follow a thing."
+  },
+  "ChangeCamera": {
+    "params": [
+      {
+        "name": "tid",
+        "type": "int"
+      },
+      {
+        "name": "who",
+        "type": "int",
+        "optional": true
+      },
+      {
+        "name": "revert",
+        "type": "bool",
+        "optional": true
+      }
+    ],
+    "desc": "Changes the activator's camera to view from the given actor."
+  },
+  "SetGlobalFog": {
+    "params": [
+      {
+        "name": "density",
+        "type": "int",
+        "optional": true
+      },
+      {
+        "name": "color",
+        "type": "string",
+        "optional": true
+      }
+    ],
+    "desc": "Sets global fog parameters."
+  },
+  "SetGlobalFade": {
+    "params": [
+      {
+        "name": "r",
+        "type": "int"
+      },
+      {
+        "name": "g",
+        "type": "int"
+      },
+      {
+        "name": "b",
+        "type": "int"
+      },
+      {
+        "name": "alpha",
+        "type": "int"
+      },
+      {
+        "name": "duration",
+        "type": "int",
+        "optional": true
+      }
+    ],
+    "desc": "Sets a global screen fade."
+  },
+  "PlaySound": {
+    "params": [
+      {
+        "name": "tid",
+        "type": "int"
+      },
+      {
+        "name": "sound",
+        "type": "string"
+      },
+      {
+        "name": "slot",
+        "type": "int",
+        "optional": true
+      },
+      {
+        "name": "volume",
+        "type": "float",
+        "optional": true
+      },
+      {
+        "name": "looping",
+        "type": "bool",
+        "optional": true
+      },
+      {
+        "name": "attenuation",
+        "type": "float",
+        "optional": true
+      }
+    ],
+    "desc": "Plays a sound from the given actor."
+  },
+  "AmbientSound": {
+    "params": [
+      {
+        "name": "sound",
+        "type": "string"
+      },
+      {
+        "name": "volume",
+        "type": "float",
+        "optional": true
+      }
+    ],
+    "desc": "Plays an ambient sound globally."
+  },
+  "SoundSequence": {
+    "params": [
+      {
+        "name": "tid",
+        "type": "int"
+      }
+    ],
+    "desc": "Plays a sound sequence on a sector."
+  },
+  "ThingSound": {
+    "params": [
+      {
+        "name": "tid",
+        "type": "int"
+      },
+      {
+        "name": "sound",
+        "type": "string"
+      },
+      {
+        "name": "volume",
+        "type": "float",
+        "optional": true
+      }
+    ],
+    "desc": "Plays a sound from a thing."
+  },
+  "Light_Fade": {
+    "params": [
+      {
+        "name": "tag",
+        "type": "int"
+      },
+      {
+        "name": "value",
+        "type": "int"
+      },
+      {
+        "name": "tics",
+        "type": "int"
+      }
+    ],
+    "desc": "Fades the light level of the tagged sector."
+  },
+  "Light_Glow": {
+    "params": [
+      {
+        "name": "tag",
+        "type": "int"
+      },
+      {
+        "name": "type",
+        "type": "int"
+      },
+      {
+        "name": "value",
+        "type": "int"
+      },
+      {
+        "name": "tics",
+        "type": "int"
+      }
+    ],
+    "desc": "Creates a glowing light effect in the tagged sector."
+  },
+  "Light_ChangeToValue": {
+    "params": [
+      {
+        "name": "tag",
+        "type": "int"
+      },
+      {
+        "name": "value",
+        "type": "int"
+      }
+    ],
+    "desc": "Sets the light level of the tagged sector."
+  },
+  "Light_RaiseByValue": {
+    "params": [
+      {
+        "name": "tag",
+        "type": "int"
+      },
+      {
+        "name": "value",
+        "type": "int"
+      }
+    ],
+    "desc": "Raises the light level of the tagged sector."
+  },
+  "Light_LowerByValue": {
+    "params": [
+      {
+        "name": "tag",
+        "type": "int"
+      },
+      {
+        "name": "value",
+        "type": "int"
+      }
+    ],
+    "desc": "Lowers the light level of the tagged sector."
+  },
+  "Light_Stop": {
+    "params": [
+      {
+        "name": "tag",
+        "type": "int"
+      }
+    ],
+    "desc": "Stops the light effect on the tagged sector."
+  },
+  "Light_Strobe": {
+    "params": [
+      {
+        "name": "tag",
+        "type": "int"
+      },
+      {
+        "name": "upper",
+        "type": "int"
+      },
+      {
+        "name": "lower",
+        "type": "int"
+      },
+      {
+        "name": "tics",
+        "type": "int"
+      }
+    ],
+    "desc": "Strobes the light level of the tagged sector."
+  },
+  "Floor_LowerByValue": {
+    "params": [
+      {
+        "name": "tag",
+        "type": "int"
+      },
+      {
+        "name": "speed",
+        "type": "int"
+      },
+      {
+        "name": "value",
+        "type": "int"
+      }
+    ],
+    "desc": "Lowers the floor by the given value."
+  },
+  "Floor_RaiseByValue": {
+    "params": [
+      {
+        "name": "tag",
+        "type": "int"
+      },
+      {
+        "name": "speed",
+        "type": "int"
+      },
+      {
+        "name": "value",
+        "type": "int"
+      }
+    ],
+    "desc": "Raises the floor by the given value."
+  },
+  "Floor_LowerInstant": {
+    "params": [
+      {
+        "name": "tag",
+        "type": "int"
+      },
+      {
+        "name": "unused",
+        "type": "int",
+        "optional": true
+      },
+      {
+        "name": "value",
+        "type": "int",
+        "optional": true
+      }
+    ],
+    "desc": "Instantly lowers the floor."
+  },
+  "Floor_RaiseInstant": {
+    "params": [
+      {
+        "name": "tag",
+        "type": "int"
+      },
+      {
+        "name": "unused",
+        "type": "int",
+        "optional": true
+      },
+      {
+        "name": "value",
+        "type": "int",
+        "optional": true
+      }
+    ],
+    "desc": "Instantly raises the floor."
+  },
+  "Floor_MoveToValue": {
+    "params": [
+      {
+        "name": "tag",
+        "type": "int"
+      },
+      {
+        "name": "speed",
+        "type": "int"
+      },
+      {
+        "name": "height",
+        "type": "int"
+      },
+      {
+        "name": "negValue",
+        "type": "int",
+        "optional": true
+      }
+    ],
+    "desc": "Moves the floor to the given absolute height."
+  },
+  "Floor_Waggle": {
+    "params": [
+      {
+        "name": "tag",
+        "type": "int"
+      },
+      {
+        "name": "amplitude",
+        "type": "int"
+      },
+      {
+        "name": "frequency",
+        "type": "int"
+      },
+      {
+        "name": "startDelay",
+        "type": "int",
+        "optional": true
+      },
+      {
+        "name": "phaseOffset",
+        "type": "int",
+        "optional": true
+      }
+    ],
+    "desc": "Waggles the floor."
+  },
+  "Ceiling_LowerByValue": {
+    "params": [
+      {
+        "name": "tag",
+        "type": "int"
+      },
+      {
+        "name": "speed",
+        "type": "int"
+      },
+      {
+        "name": "value",
+        "type": "int"
+      }
+    ],
+    "desc": "Lowers the ceiling by the given value."
+  },
+  "Ceiling_RaiseByValue": {
+    "params": [
+      {
+        "name": "tag",
+        "type": "int"
+      },
+      {
+        "name": "speed",
+        "type": "int"
+      },
+      {
+        "name": "value",
+        "type": "int"
+      }
+    ],
+    "desc": "Raises the ceiling by the given value."
+  },
+  "Ceiling_LowerInstant": {
+    "params": [
+      {
+        "name": "tag",
+        "type": "int"
+      },
+      {
+        "name": "unused",
+        "type": "int",
+        "optional": true
+      },
+      {
+        "name": "value",
+        "type": "int",
+        "optional": true
+      }
+    ],
+    "desc": "Instantly lowers the ceiling."
+  },
+  "Ceiling_RaiseInstant": {
+    "params": [
+      {
+        "name": "tag",
+        "type": "int"
+      },
+      {
+        "name": "unused",
+        "type": "int",
+        "optional": true
+      },
+      {
+        "name": "value",
+        "type": "int",
+        "optional": true
+      }
+    ],
+    "desc": "Instantly raises the ceiling."
+  },
+  "Ceiling_MoveToValue": {
+    "params": [
+      {
+        "name": "tag",
+        "type": "int"
+      },
+      {
+        "name": "speed",
+        "type": "int"
+      },
+      {
+        "name": "height",
+        "type": "int"
+      },
+      {
+        "name": "negValue",
+        "type": "int",
+        "optional": true
+      }
+    ],
+    "desc": "Moves the ceiling to the given absolute height."
+  },
+  "Ceiling_Waggle": {
+    "params": [
+      {
+        "name": "tag",
+        "type": "int"
+      },
+      {
+        "name": "amplitude",
+        "type": "int"
+      },
+      {
+        "name": "frequency",
+        "type": "int"
+      },
+      {
+        "name": "startDelay",
+        "type": "int",
+        "optional": true
+      },
+      {
+        "name": "phaseOffset",
+        "type": "int",
+        "optional": true
+      }
+    ],
+    "desc": "Waggles the ceiling."
+  },
+  "Door_Open": {
+    "params": [
+      {
+        "name": "tag",
+        "type": "int"
+      },
+      {
+        "name": "speed",
+        "type": "int",
+        "optional": true
+      },
+      {
+        "name": "lightTag",
+        "type": "int",
+        "optional": true
+      }
+    ],
+    "desc": "Opens a door."
+  },
+  "Door_Close": {
+    "params": [
+      {
+        "name": "tag",
+        "type": "int"
+      },
+      {
+        "name": "speed",
+        "type": "int",
+        "optional": true
+      },
+      {
+        "name": "lightTag",
+        "type": "int",
+        "optional": true
+      }
+    ],
+    "desc": "Closes a door."
+  },
+  "Door_Raise": {
+    "params": [
+      {
+        "name": "tag",
+        "type": "int"
+      },
+      {
+        "name": "speed",
+        "type": "int",
+        "optional": true
+      },
+      {
+        "name": "delay",
+        "type": "int",
+        "optional": true
+      },
+      {
+        "name": "lightTag",
+        "type": "int",
+        "optional": true
+      }
+    ],
+    "desc": "Raises a door and then closes it after a delay."
+  },
+  "Door_LockedRaise": {
+    "params": [
+      {
+        "name": "tag",
+        "type": "int"
+      },
+      {
+        "name": "speed",
+        "type": "int",
+        "optional": true
+      },
+      {
+        "name": "delay",
+        "type": "int",
+        "optional": true
+      },
+      {
+        "name": "lightTag",
+        "type": "int",
+        "optional": true
+      },
+      {
+        "name": "lock",
+        "type": "int",
+        "optional": true
+      }
+    ],
+    "desc": "Raises a locked door."
+  },
+  "Door_Animated": {
+    "params": [
+      {
+        "name": "tag",
+        "type": "int"
+      },
+      {
+        "name": "speed",
+        "type": "int",
+        "optional": true
+      },
+      {
+        "name": "delay",
+        "type": "int",
+        "optional": true
+      }
+    ],
+    "desc": "Opens an animated door and closes it after a delay."
+  },
+  "Generic_Door": {
+    "params": [
+      {
+        "name": "tag",
+        "type": "int"
+      },
+      {
+        "name": "speed",
+        "type": "int",
+        "optional": true
+      },
+      {
+        "name": "kind",
+        "type": "int",
+        "optional": true
+      },
+      {
+        "name": "delay",
+        "type": "int",
+        "optional": true
+      },
+      {
+        "name": "lightTag",
+        "type": "int",
+        "optional": true
+      }
+    ],
+    "desc": "Performs a generic door action."
+  },
+  "Plat_DownWaitUpStay": {
+    "params": [
+      {
+        "name": "tag",
+        "type": "int"
+      },
+      {
+        "name": "speed",
+        "type": "int",
+        "optional": true
+      },
+      {
+        "name": "delay",
+        "type": "int",
+        "optional": true
+      }
+    ],
+    "desc": "Lowers a platform, waits, then raises it."
+  },
+  "Plat_PerpetualRaise": {
+    "params": [
+      {
+        "name": "tag",
+        "type": "int"
+      },
+      {
+        "name": "speed",
+        "type": "int",
+        "optional": true
+      },
+      {
+        "name": "delay",
+        "type": "int",
+        "optional": true
+      }
+    ],
+    "desc": "Continuously raises a platform."
+  },
+  "Pillar_Open": {
+    "params": [
+      {
+        "name": "tag",
+        "type": "int"
+      },
+      {
+        "name": "speed",
+        "type": "int",
+        "optional": true
+      },
+      {
+        "name": "distFloor",
+        "type": "int",
+        "optional": true
+      },
+      {
+        "name": "distCeiling",
+        "type": "int",
+        "optional": true
+      }
+    ],
+    "desc": "Opens a pillar."
+  },
+  "Pillar_Build": {
+    "params": [
+      {
+        "name": "tag",
+        "type": "int"
+      },
+      {
+        "name": "speed",
+        "type": "int",
+        "optional": true
+      },
+      {
+        "name": "height",
+        "type": "int"
+      }
+    ],
+    "desc": "Builds a pillar to the specified height."
+  },
+  "Pillar_BuildAndCrush": {
+    "params": [
+      {
+        "name": "tag",
+        "type": "int"
+      },
+      {
+        "name": "speed",
+        "type": "int",
+        "optional": true
+      },
+      {
+        "name": "height",
+        "type": "int",
+        "optional": true
+      },
+      {
+        "name": "crush",
+        "type": "int",
+        "optional": true
+      }
+    ],
+    "desc": "Builds a pillar and crushes."
+  },
+  "Stairs_BuildDown": {
+    "params": [
+      {
+        "name": "tag",
+        "type": "int"
+      },
+      {
+        "name": "speed",
+        "type": "int",
+        "optional": true
+      },
+      {
+        "name": "height",
+        "type": "int",
+        "optional": true
+      },
+      {
+        "name": "delay",
+        "type": "int",
+        "optional": true
+      },
+      {
+        "name": "reset",
+        "type": "int",
+        "optional": true
+      }
+    ],
+    "desc": "Builds stairs going down."
+  },
+  "Stairs_BuildUp": {
+    "params": [
+      {
+        "name": "tag",
+        "type": "int"
+      },
+      {
+        "name": "speed",
+        "type": "int",
+        "optional": true
+      },
+      {
+        "name": "height",
+        "type": "int",
+        "optional": true
+      },
+      {
+        "name": "delay",
+        "type": "int",
+        "optional": true
+      },
+      {
+        "name": "reset",
+        "type": "int",
+        "optional": true
+      }
+    ],
+    "desc": "Builds stairs going up."
+  },
+  "Generic_Floor": {
+    "params": [
+      {
+        "name": "tag",
+        "type": "int"
+      },
+      {
+        "name": "speed",
+        "type": "int",
+        "optional": true
+      },
+      {
+        "name": "height",
+        "type": "int",
+        "optional": true
+      },
+      {
+        "name": "target",
+        "type": "int",
+        "optional": true
+      },
+      {
+        "name": "flags",
+        "type": "int",
+        "optional": true
+      }
+    ],
+    "desc": "Performs a generic floor action."
+  },
+  "Generic_Ceiling": {
+    "params": [
+      {
+        "name": "tag",
+        "type": "int"
+      },
+      {
+        "name": "speed",
+        "type": "int",
+        "optional": true
+      },
+      {
+        "name": "height",
+        "type": "int",
+        "optional": true
+      },
+      {
+        "name": "target",
+        "type": "int",
+        "optional": true
+      },
+      {
+        "name": "flags",
+        "type": "int",
+        "optional": true
+      }
+    ],
+    "desc": "Performs a generic ceiling action."
+  },
+  "Generic_Crusher": {
+    "params": [
+      {
+        "name": "tag",
+        "type": "int"
+      },
+      {
+        "name": "speed",
+        "type": "int",
+        "optional": true
+      },
+      {
+        "name": "silent",
+        "type": "int",
+        "optional": true
+      }
+    ],
+    "desc": "Performs a generic crusher action."
+  },
+  "Sector_SetColor": {
+    "params": [
+      {
+        "name": "tag",
+        "type": "int"
+      },
+      {
+        "name": "r",
+        "type": "int"
+      },
+      {
+        "name": "g",
+        "type": "int"
+      },
+      {
+        "name": "b",
+        "type": "int"
+      },
+      {
+        "name": "desaturate",
+        "type": "int",
+        "optional": true
+      }
+    ],
+    "desc": "Sets the color of a tagged sector."
+  },
+  "Sector_SetFade": {
+    "params": [
+      {
+        "name": "tag",
+        "type": "int"
+      },
+      {
+        "name": "r",
+        "type": "int"
+      },
+      {
+        "name": "g",
+        "type": "int"
+      },
+      {
+        "name": "b",
+        "type": "int"
+      }
+    ],
+    "desc": "Sets the fade color of a tagged sector."
+  },
+  "Sector_SetDamage": {
+    "params": [
+      {
+        "name": "tag",
+        "type": "int"
+      },
+      {
+        "name": "amount",
+        "type": "int"
+      },
+      {
+        "name": "name",
+        "type": "string",
+        "optional": true
+      }
+    ],
+    "desc": "Sets damage for a tagged sector."
+  },
+  "Sector_SetCeilingPanning": {
+    "params": [
+      {
+        "name": "tag",
+        "type": "int"
+      },
+      {
+        "name": "xInt",
+        "type": "int"
+      },
+      {
+        "name": "xFrac",
+        "type": "int",
+        "optional": true
+      },
+      {
+        "name": "yInt",
+        "type": "int",
+        "optional": true
+      },
+      {
+        "name": "yFrac",
+        "type": "int",
+        "optional": true
+      }
+    ],
+    "desc": "Sets ceiling texture panning for a sector."
+  },
+  "Sector_SetFloorPanning": {
+    "params": [
+      {
+        "name": "tag",
+        "type": "int"
+      },
+      {
+        "name": "xInt",
+        "type": "int"
+      },
+      {
+        "name": "xFrac",
+        "type": "int",
+        "optional": true
+      },
+      {
+        "name": "yInt",
+        "type": "int",
+        "optional": true
+      },
+      {
+        "name": "yFrac",
+        "type": "int",
+        "optional": true
+      }
+    ],
+    "desc": "Sets floor texture panning for a sector."
+  },
+  "Sector_SetCeilingScale": {
+    "params": [
+      {
+        "name": "tag",
+        "type": "int"
+      },
+      {
+        "name": "xInt",
+        "type": "int"
+      },
+      {
+        "name": "xFrac",
+        "type": "int"
+      },
+      {
+        "name": "yInt",
+        "type": "int",
+        "optional": true
+      },
+      {
+        "name": "yFrac",
+        "type": "int",
+        "optional": true
+      }
+    ],
+    "desc": "Sets ceiling texture scale for a sector."
+  },
+  "Sector_SetFloorScale": {
+    "params": [
+      {
+        "name": "tag",
+        "type": "int"
+      },
+      {
+        "name": "xInt",
+        "type": "int"
+      },
+      {
+        "name": "xFrac",
+        "type": "int"
+      },
+      {
+        "name": "yInt",
+        "type": "int",
+        "optional": true
+      },
+      {
+        "name": "yFrac",
+        "type": "int",
+        "optional": true
+      }
+    ],
+    "desc": "Sets floor texture scale for a sector."
+  },
+  "Sector_SetGravity": {
+    "params": [
+      {
+        "name": "tag",
+        "type": "int"
+      },
+      {
+        "name": "xInt",
+        "type": "int"
+      },
+      {
+        "name": "xFrac",
+        "type": "int",
+        "optional": true
+      }
+    ],
+    "desc": "Sets gravity for a sector."
+  },
+  "Sector_SetLink": {
+    "params": [
+      {
+        "name": "controlTag",
+        "type": "int"
+      },
+      {
+        "name": "linkTag",
+        "type": "int"
+      },
+      {
+        "name": "controlType",
+        "type": "int",
+        "optional": true
+      },
+      {
+        "name": "linkType",
+        "type": "int",
+        "optional": true
+      }
+    ],
+    "desc": "Links two sectors together."
+  },
+  "Line_SetBlocking": {
+    "params": [
+      {
+        "name": "lineId",
+        "type": "int"
+      },
+      {
+        "name": "flags",
+        "type": "int"
+      },
+      {
+        "name": "flags2",
+        "type": "int",
+        "optional": true
+      }
+    ],
+    "desc": "Sets blocking flags for a line."
+  },
+  "Line_SetTextureOffset": {
+    "params": [
+      {
+        "name": "lineId",
+        "type": "int"
+      },
+      {
+        "name": "side",
+        "type": "int"
+      },
+      {
+        "name": "offset",
+        "type": "int"
+      }
+    ],
+    "desc": "Sets texture offset for a line."
+  },
+  "Line_SetTextureScale": {
+    "params": [
+      {
+        "name": "lineId",
+        "type": "int"
+      },
+      {
+        "name": "side",
+        "type": "int"
+      },
+      {
+        "name": "scale",
+        "type": "int"
+      },
+      {
+        "name": "scaleY",
+        "type": "int",
+        "optional": true
+      }
+    ],
+    "desc": "Sets texture scale for a line."
+  },
+  "Line_SetIdentification": {
+    "params": [
+      {
+        "name": "lineId",
+        "type": "int"
+      },
+      {
+        "name": "moreId",
+        "type": "int",
+        "optional": true
+      },
+      {
+        "name": "flags",
+        "type": "int",
+        "optional": true
+      },
+      {
+        "name": "side",
+        "type": "int",
+        "optional": true
+      }
+    ],
+    "desc": "Sets identification parameters for a line."
+  },
+  "GetLineRowOffset": {
+    "params": [],
+    "desc": "Returns the current line's row offset."
+  },
+  "GetSectorLightLevel": {
+    "params": [
+      {
+        "name": "tag",
+        "type": "int"
+      }
+    ],
+    "desc": "Returns the light level of a tagged sector."
+  },
+  "GetSectorFloorZ": {
+    "params": [
+      {
+        "name": "tag",
+        "type": "int"
+      },
+      {
+        "name": "x",
+        "type": "int",
+        "optional": true
+      },
+      {
+        "name": "y",
+        "type": "int",
+        "optional": true
+      }
+    ],
+    "desc": "Returns the floor Z of a tagged sector."
+  },
+  "GetSectorCeilingZ": {
+    "params": [
+      {
+        "name": "tag",
+        "type": "int"
+      },
+      {
+        "name": "x",
+        "type": "int",
+        "optional": true
+      },
+      {
+        "name": "y",
+        "type": "int",
+        "optional": true
+      }
+    ],
+    "desc": "Returns the ceiling Z of a tagged sector."
+  },
+  "PlayerCount": {
+    "params": [],
+    "desc": "Returns the number of players currently in the game."
+  },
+  "PlayerNumber": {
+    "params": [],
+    "desc": "Returns the player number of the activator."
+  },
+  "ActivatorTID": {
+    "params": [],
+    "desc": "Returns the TID of the activator."
+  },
+  "SetPlayerProperty": {
+    "params": [
+      {
+        "name": "who",
+        "type": "int",
+        "optional": true
+      },
+      {
+        "name": "set",
+        "type": "bool"
+      },
+      {
+        "name": "property",
+        "type": "int"
+      }
+    ],
+    "desc": "Sets a player property for the given player."
+  },
+  "GetPlayerProperty": {
+    "params": [
+      {
+        "name": "who",
+        "type": "int",
+        "optional": true
+      },
+      {
+        "name": "property",
+        "type": "int"
+      }
+    ],
+    "desc": "Returns a player property value."
+  },
+  "CheckPlayerCamera": {
+    "params": [
+      {
+        "name": "who",
+        "type": "int",
+        "optional": true
+      }
+    ],
+    "desc": "Returns true if the player is viewing through a camera."
+  },
+  "SetPlayerCamera": {
+    "params": [
+      {
+        "name": "who",
+        "type": "int",
+        "optional": true
+      },
+      {
+        "name": "tid",
+        "type": "int"
+      }
+    ],
+    "desc": "Sets the player's camera to the given actor."
+  },
+  "PlayerIsBot": {
+    "params": [
+      {
+        "name": "who",
+        "type": "int"
+      }
+    ],
+    "desc": "Returns true if the player is a bot."
+  },
+  "PlayerIsSpectator": {
+    "params": [
+      {
+        "name": "who",
+        "type": "int"
+      }
+    ],
+    "desc": "Returns true if the player is spectating."
+  },
+  "GetPlayerInput": {
+    "params": [
+      {
+        "name": "who",
+        "type": "int"
+      },
+      {
+        "name": "input",
+        "type": "int"
+      }
+    ],
+    "desc": "Returns the player's input state."
+  },
+  "GetPlayerAccountName": {
+    "params": [
+      {
+        "name": "player",
+        "type": "int"
+      }
+    ],
+    "desc": "Returns the player's account/login name."
+  },
+  "GetPlayerIP": {
+    "params": [
+      {
+        "name": "player",
+        "type": "int"
+      }
+    ],
+    "desc": "Returns the player's IP address as an integer."
+  },
+  "Random": {
+    "params": [
+      {
+        "name": "min",
+        "type": "int"
+      },
+      {
+        "name": "max",
+        "type": "int"
+      }
+    ],
+    "desc": "Returns a random integer between min and max inclusive."
+  },
+  "sin": {
+    "params": [
+      {
+        "name": "angle",
+        "type": "int"
+      }
+    ],
+    "desc": "Returns the sine of the angle (fixed-point angle)."
+  },
+  "cos": {
+    "params": [
+      {
+        "name": "angle",
+        "type": "int"
+      }
+    ],
+    "desc": "Returns the cosine of the angle (fixed-point angle)."
+  },
+  "VectorAngle": {
+    "params": [
+      {
+        "name": "x",
+        "type": "int"
+      },
+      {
+        "name": "y",
+        "type": "int"
+      }
+    ],
+    "desc": "Returns the angle vector from origin to (x, y)."
+  },
+  "FixedMul": {
+    "params": [
+      {
+        "name": "a",
+        "type": "int"
+      },
+      {
+        "name": "b",
+        "type": "int"
+      }
+    ],
+    "desc": "Multiplies two fixed-point numbers."
+  },
+  "FixedDiv": {
+    "params": [
+      {
+        "name": "a",
+        "type": "int"
+      },
+      {
+        "name": "b",
+        "type": "int"
+      }
+    ],
+    "desc": "Divides two fixed-point numbers."
+  },
+  "abs": {
+    "params": [
+      {
+        "name": "x",
+        "type": "int"
+      }
+    ],
+    "desc": "Returns the absolute value."
+  },
+  "min": {
+    "params": [
+      {
+        "name": "a",
+        "type": "int"
+      },
+      {
+        "name": "b",
+        "type": "int"
+      }
+    ],
+    "desc": "Returns the minimum of two values."
+  },
+  "max": {
+    "params": [
+      {
+        "name": "a",
+        "type": "int"
+      },
+      {
+        "name": "b",
+        "type": "int"
+      }
+    ],
+    "desc": "Returns the maximum of two values."
+  },
+  "CheckSight": {
+    "params": [
+      {
+        "name": "sourceTid",
+        "type": "int"
+      },
+      {
+        "name": "destTid",
+        "type": "int"
+      },
+      {
+        "name": "flags",
+        "type": "int",
+        "optional": true
+      }
+    ],
+    "desc": "Returns true if there's a line of sight between two actors."
+  },
+  "CheckActorClass": {
+    "params": [
+      {
+        "name": "tid",
+        "type": "int"
+      },
+      {
+        "name": "classname",
+        "type": "string"
+      }
+    ],
+    "desc": "Returns true if the actor is of the given class."
+  },
+  "CheckActorState": {
+    "params": [
+      {
+        "name": "tid",
+        "type": "int"
+      },
+      {
+        "name": "state",
+        "type": "string"
+      },
+      {
+        "name": "exact",
+        "type": "bool",
+        "optional": true
+      }
+    ],
+    "desc": "Returns true if the actor is in the given state."
+  },
+  "SetCVar": {
+    "params": [
+      {
+        "name": "cvar",
+        "type": "string"
+      },
+      {
+        "name": "value",
+        "type": "int"
+      }
+    ],
+    "desc": "Sets a server CVar to the given value."
+  },
+  "GetCVar": {
+    "params": [
+      {
+        "name": "cvar",
+        "type": "string"
+      }
+    ],
+    "desc": "Returns the integer value of a server CVar."
+  },
+  "SetCVarString": {
+    "params": [
+      {
+        "name": "cvar",
+        "type": "string"
+      },
+      {
+        "name": "value",
+        "type": "string"
+      }
+    ],
+    "desc": "Sets a server CVar to the given string value."
+  },
+  "GetCVarString": {
+    "params": [
+      {
+        "name": "cvar",
+        "type": "string"
+      }
+    ],
+    "desc": "Returns the string value of a server CVar."
+  },
+  "GetLevelInfo": {
+    "params": [
+      {
+        "name": "info",
+        "type": "int"
+      }
+    ],
+    "desc": "Returns level information."
+  },
+  "RequestScriptPuke": {
+    "params": [
+      {
+        "name": "script",
+        "type": "int"
+      },
+      {
+        "name": "arg1",
+        "type": "int",
+        "optional": true
+      },
+      {
+        "name": "arg2",
+        "type": "int",
+        "optional": true
+      },
+      {
+        "name": "arg3",
+        "type": "int",
+        "optional": true
+      },
+      {
+        "name": "clientOnly",
+        "type": "bool",
+        "optional": true
+      }
+    ],
+    "desc": "Requests a client to puke (execute) a script."
+  },
+  "NamedRequestScriptPuke": {
+    "params": [
+      {
+        "name": "name",
+        "type": "string"
+      },
+      {
+        "name": "arg1",
+        "type": "int",
+        "optional": true
+      },
+      {
+        "name": "arg2",
+        "type": "int",
+        "optional": true
+      },
+      {
+        "name": "arg3",
+        "type": "int",
+        "optional": true
+      },
+      {
+        "name": "clientOnly",
+        "type": "bool",
+        "optional": true
+      }
+    ],
+    "desc": "Requests a client to puke a named script."
+  },
+  "SendNetworkString": {
+    "params": [
+      {
+        "name": "player",
+        "type": "int"
+      },
+      {
+        "name": "message",
+        "type": "string"
+      }
+    ],
+    "desc": "Sends a network string to the specified player."
+  },
+  "AllowClientSideScripts": {
+    "params": [
+      {
+        "name": "allow",
+        "type": "bool"
+      }
+    ],
+    "desc": "Enables or disables CLIENTSIDE script execution."
+  },
+  "SetGameModeLimit": {
+    "params": [
+      {
+        "name": "limit",
+        "type": "int"
+      },
+      {
+        "name": "value",
+        "type": "int"
+      }
+    ],
+    "desc": "Sets a game mode limit."
+  },
+  "SetCurrentGameMode": {
+    "params": [
+      {
+        "name": "mode",
+        "type": "int"
+      }
+    ],
+    "desc": "Changes the current game mode."
+  },
+  "GetGameMode": {
+    "params": [],
+    "desc": "Returns the current game mode number."
+  },
+  "GetGameModeState": {
+    "params": [],
+    "desc": "Returns the current game mode state."
+  },
+  "Team_Score": {
+    "params": [
+      {
+        "name": "team",
+        "type": "int"
+      }
+    ],
+    "desc": "Returns the current score of the given team (count mode)."
+  },
+  "Team_CountPlayers": {
+    "params": [
+      {
+        "name": "team",
+        "type": "int"
+      }
+    ],
+    "desc": "Returns the number of players on the given team."
+  },
+  "SetTeamScoreLimit": {
+    "params": [
+      {
+        "name": "limit",
+        "type": "int"
+      }
+    ],
+    "desc": "Sets the team score limit (count mode)."
+  },
+  "SetTimeLimit": {
+    "params": [
+      {
+        "name": "seconds",
+        "type": "int"
+      }
+    ],
+    "desc": "Sets the time limit for the current game mode."
+  },
+  "SetFragLimit": {
+    "params": [
+      {
+        "name": "frags",
+        "type": "int"
+      }
+    ],
+    "desc": "Sets the frag limit for the current game mode."
+  },
+  "SetWinLimit": {
+    "params": [
+      {
+        "name": "wins",
+        "type": "int"
+      }
+    ],
+    "desc": "Sets the win limit for the current game mode."
+  },
+  "GetTeamProperty": {
+    "params": [
+      {
+        "name": "team",
+        "type": "int"
+      },
+      {
+        "name": "prop",
+        "type": "int"
+      }
+    ],
+    "desc": "Returns a property value of the given team."
+  },
+  "ConsoleCommand": {
+    "params": [
+      {
+        "name": "command",
+        "type": "string"
+      }
+    ],
+    "desc": "Executes a console command on the server."
+  },
+  "SetActivator": {
+    "params": [
+      {
+        "name": "tid",
+        "type": "int"
+      },
+      {
+        "name": "ptrFlags",
+        "type": "int",
+        "optional": true
+      }
+    ],
+    "desc": "Changes the activator to the specified actor."
+  },
+  "SetActivatorToPlayer": {
+    "params": [
+      {
+        "name": "player",
+        "type": "int"
+      }
+    ],
+    "desc": "Changes the activator to the specified player."
+  },
+  "GetBaseActorX": {
+    "params": [
+      {
+        "name": "tid",
+        "type": "int"
+      }
+    ],
+    "desc": "Returns the X position of the actor without interpolation."
+  },
+  "GetBaseActorY": {
+    "params": [
+      {
+        "name": "tid",
+        "type": "int"
+      }
+    ],
+    "desc": "Returns the Y position of the actor without interpolation."
+  },
+  "GetBaseActorZ": {
+    "params": [
+      {
+        "name": "tid",
+        "type": "int"
+      }
+    ],
+    "desc": "Returns the Z position of the actor without interpolation."
+  },
+  "SetPlayerAudioVolume": {
+    "params": [
+      {
+        "name": "player",
+        "type": "int"
+      },
+      {
+        "name": "type",
+        "type": "int"
+      },
+      {
+        "name": "volume",
+        "type": "float"
+      }
+    ],
+    "desc": "Sets a player's audio volume."
+  },
+  "SetPlayerIgnoringVoiceChat": {
+    "params": [
+      {
+        "name": "player",
+        "type": "int"
+      },
+      {
+        "name": "flags",
+        "type": "int"
+      }
+    ],
+    "desc": "Sets voice chat ignore flags for a player."
+  }
+}

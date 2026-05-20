@@ -223,65 +223,133 @@
     "value": 0,
     "desc": "Boolean false"
   },
-  "GAMETYPE_COOPERATIVE": {
-    "value": 0,
-    "desc": "GetGameMode: cooperative"
-  },
-  "GAMETYPE_CTF": {
+  "GAMEEVENT_ACTOR_DAMAGED": {
     "value": 11,
-    "desc": "GetGameMode: CTF"
+    "desc": "Game event: actor damaged"
   },
-  "GAMETYPE_DEATHMATCH": {
-    "value": 3,
-    "desc": "GetGameMode: deathmatch"
-  },
-  "GAMETYPE_DOMINATION": {
-    "value": 14,
-    "desc": "GetGameMode: domination"
-  },
-  "GAMETYPE_DUEL": {
-    "value": 5,
-    "desc": "GetGameMode: duel"
-  },
-  "GAMETYPE_INVASION": {
-    "value": 2,
-    "desc": "GetGameMode: invasion"
-  },
-  "GAMETYPE_LMS": {
-    "value": 7,
-    "desc": "GetGameMode: LMS"
-  },
-  "GAMETYPE_ONEFLAGCTF": {
+  "GAMEEVENT_ACTOR_DAMAGED_PREMOD": {
     "value": 12,
-    "desc": "GetGameMode: one-flag CTF"
+    "desc": "Game event: actor damaged (pre-mod)"
   },
-  "GAMETYPE_POSSESSION": {
-    "value": 9,
-    "desc": "GetGameMode: possession"
-  },
-  "GAMETYPE_SKULLTAG": {
-    "value": 13,
-    "desc": "GetGameMode: skulltag"
-  },
-  "GAMETYPE_SURVIVAL": {
-    "value": 1,
-    "desc": "GetGameMode: survival"
-  },
-  "GAMETYPE_TEAMLMS": {
-    "value": 8,
-    "desc": "GetGameMode: team LMS"
-  },
-  "GAMETYPE_TEAMPLAY": {
-    "value": 4,
-    "desc": "GetGameMode: team DM"
-  },
-  "GAMETYPE_TEAMPOSSESSION": {
+  "GAMEEVENT_ACTOR_SPAWNED": {
     "value": 10,
-    "desc": "GetGameMode: team possession"
+    "desc": "Game event: actor spawned"
   },
-  "GAMETYPE_TERMINATOR": {
+  "GAMEEVENT_CAPTURES": {
+    "value": 2,
+    "desc": "Game event: captures"
+  },
+  "GAMEEVENT_CHAT": {
+    "value": 8,
+    "desc": "Game event: chat"
+  },
+  "GAMEEVENT_DOMINATION_CONTEST": {
+    "value": 19,
+    "desc": "Game event: domination contest"
+  },
+  "GAMEEVENT_DOMINATION_CONTROL": {
+    "value": 13,
+    "desc": "Game event: domination control"
+  },
+  "GAMEEVENT_DOMINATION_POINT": {
+    "value": 14,
+    "desc": "Game event: domination point"
+  },
+  "GAMEEVENT_DOMINATION_PRECONTROL": {
+    "value": 18,
+    "desc": "Game event: domination pre-control"
+  },
+  "GAMEEVENT_JOINQUEUECHANGED": {
+    "value": 17,
+    "desc": "Game event: join queue changed"
+  },
+  "GAMEEVENT_LEVEL_INIT": {
+    "value": 16,
+    "desc": "Game event: level init"
+  },
+  "GAMEEVENT_MEDALS": {
+    "value": 1,
+    "desc": "Game event: medals"
+  },
+  "GAMEEVENT_PLAYERCONNECT": {
+    "value": 9,
+    "desc": "Game event: player connect"
+  },
+  "GAMEEVENT_PLAYERFRAGS": {
+    "value": 0,
+    "desc": "Game event: player frags"
+  },
+  "GAMEEVENT_PLAYERJOINS": {
+    "value": 20,
+    "desc": "Game event: player joins"
+  },
+  "GAMEEVENT_PLAYERLEAVESSERVER": {
+    "value": 15,
+    "desc": "Game event: player leaves server"
+  },
+  "GAMEEVENT_RETURNS": {
+    "value": 4,
+    "desc": "Game event: returns (flag/skull)"
+  },
+  "GAMEEVENT_ROUND_ABORTED": {
+    "value": 7,
+    "desc": "Game event: round aborted"
+  },
+  "GAMEEVENT_ROUND_ENDS": {
     "value": 6,
-    "desc": "GetGameMode: terminator"
+    "desc": "Game event: round ends"
+  },
+  "GAMEEVENT_ROUND_STARTS": {
+    "value": 5,
+    "desc": "Game event: round starts"
+  },
+  "GAMEEVENT_TOUCHES": {
+    "value": 3,
+    "desc": "Game event: touches (flag/skull)"
+  },
+  "GAMELIMIT_DUELS": {
+    "value": 3,
+    "desc": "Game limit: duels"
+  },
+  "GAMELIMIT_FRAGS": {
+    "value": 0,
+    "desc": "Game limit: frags"
+  },
+  "GAMELIMIT_POINTS": {
+    "value": 2,
+    "desc": "Game limit: points"
+  },
+  "GAMELIMIT_TIME": {
+    "value": 1,
+    "desc": "Game limit: time"
+  },
+  "GAMELIMIT_WAVES": {
+    "value": 5,
+    "desc": "Game limit: waves"
+  },
+  "GAMELIMIT_WINS": {
+    "value": 4,
+    "desc": "Game limit: wins"
+  },
+  "GAMESTATE_COUNTDOWN": {
+    "value": 1,
+    "desc": "Game state: countdown"
+  },
+  "GAMESTATE_INPROGRESS": {
+    "value": 2,
+    "desc": "Game state: in progress"
+  },
+  "GAMESTATE_INRESULTSEQUENCE": {
+    "value": 3,
+    "desc": "Game state: result sequence"
+  },
+  "GAMESTATE_UNSPECIFIED": {
+    "value": -1,
+    "desc": "Game state: unspecified"
+  },
+  "GAMESTATE_WAITFORPLAYERS": {
+    "value": 0,
+    "desc": "Game state: waiting for players"
   },
   "GAME_NET_COOPERATIVE": {
     "value": 1,
@@ -298,26 +366,6 @@
   "GAME_SINGLE_PLAYER": {
     "value": 0,
     "desc": "GameType: single player"
-  },
-  "GAME_SKILL_EASY": {
-    "value": 1,
-    "desc": "Skill: easy (alias)"
-  },
-  "GAME_SKILL_HARD": {
-    "value": 3,
-    "desc": "Skill: hard (alias)"
-  },
-  "GAME_SKILL_NORMAL": {
-    "value": 2,
-    "desc": "Skill: normal (alias)"
-  },
-  "GAME_SKILL_VERY_EASY": {
-    "value": 0,
-    "desc": "Skill: very easy (alias)"
-  },
-  "GAME_SKILL_VERY_HARD": {
-    "value": 4,
-    "desc": "Skill: very hard (alias)"
   },
   "GAME_TITLE_MAP": {
     "value": 3,

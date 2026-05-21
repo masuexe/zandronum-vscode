@@ -8,6 +8,7 @@ import { registerSignatureHelp } from './language/decorate/signatureProvider';
 import { registerHoverProvider } from './language/decorate/hoverProvider';
 import { registerEnterCompleteCommand } from './language/decorate/commands';
 import { buildPK3 } from './tools/build';
+import { compileAcs } from './tools/compileAcs';
 
 
 export function activate(context: vscode.ExtensionContext) {
@@ -34,6 +35,12 @@ export function activate(context: vscode.ExtensionContext) {
         buildPK3
     );
     context.subscriptions.push(buildCmd);
+
+    const compileAcsCmd = vscode.commands.registerCommand(
+        'acs.compile',
+        compileAcs
+    );
+    context.subscriptions.push(compileAcsCmd);
 }
 
 

@@ -82,7 +82,17 @@
         "key": "Enter",
         "when": "editorLangId == decorate"
       }
-    ]
+    ],
+    "configuration": {
+      "title": "Zandronum",
+      "properties": {
+        "zandronum-vscode.accPath": {
+          "type": "string",
+          "default": "",
+          "description": "Path to the ACC compiler executable. Leave empty to use 'acc' from system PATH."
+        }
+      }
+    }
   },
   "scripts": {
     "vscode:prepublish": "npm run compile",

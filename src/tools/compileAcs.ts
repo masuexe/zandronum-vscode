@@ -2,6 +2,7 @@ import * as vscode from 'vscode';
 import * as cp from 'child_process';
 import * as path from 'path';
 import * as fs from 'fs';
+import { buildPK3 } from './build';
 
 function getAccPath(): string {
     const config = vscode.workspace.getConfiguration('zandronum-vscode');
@@ -108,8 +109,6 @@ export async function compileAcs() {
     }
 
     const srcFile = editor.document.uri.fsPath;
-
-    // Save if dirty
     if (editor.document.isDirty) {
         await editor.document.save();
     }
@@ -120,11 +119,14 @@ export async function compileAcs() {
         return;
     }
 
+    await compileSingleFile(srcFile, workspaceRoot);
+}
+
+async function compileSingleFile(srcFile: string, workspaceRoot: string): Promise<boolean> {
     const accPath = getAccPath();
     const outputDir = getOutputDir(workspaceRoot);
     const includePaths = resolveIncludePaths(workspaceRoot, srcFile);
 
-    // Ensure output directory exists
     if (!fs.existsSync(outputDir)) {
         fs.mkdirSync(outputDir, { recursive: true });
     }
@@ -132,69 +134,140 @@ export async function compileAcs() {
     const srcName = path.basename(srcFile, path.extname(srcFile));
     const outFile = path.join(outputDir, `${srcName}.o`);
 
-    // Build ACC command line
     const args: string[] = [];
     for (const inc of includePaths) {
         args.push('-i', inc);
     }
     args.push(srcFile, outFile);
 
-    // Clear previous diagnostics
+    return new Promise<boolean>((resolve) => {
+        const proc = cp.spawn(accPath, args, {
+            cwd: workspaceRoot,
+            shell: false
+        });
+
+        let stdout = '';
+        let stderr = '';
+
+        proc.stdout.on('data', (data: Buffer) => { stdout += data.toString(); });
+        proc.stderr.on('data', (data: Buffer) => { stderr += data.toString(); });
+
+        proc.on('close', (code) => {
+            const output = stderr + stdout;
+            const diagnostics = parseAcsErrors(output, srcFile);
+            diagnosticCollection.set(vscode.Uri.file(srcFile), diagnostics);
+
+            if (code === 0 && diagnostics.length === 0) {
+                resolve(true);
+            } else {
+                resolve(false);
+            }
+        });
+
+        proc.on('error', () => {
+            resolve(false);
+        });
+    });
+}
+
+function readLoadAcsLibraries(workspaceRoot: string): string[] {
+    const srcDir = path.join(workspaceRoot, 'src');
+
+    // Find a file named LOADACS (any extension or none) in src/
+    let loadAcsPath: string | null = null;
+    try {
+        const entries = fs.readdirSync(srcDir, { withFileTypes: true });
+        for (const entry of entries) {
+            if (!entry.isFile()) continue;
+            const nameWithoutExt = entry.name.includes('.')
+                ? entry.name.substring(0, entry.name.lastIndexOf('.'))
+                : entry.name;
+            if (nameWithoutExt.toUpperCase() === 'LOADACS') {
+                loadAcsPath = path.join(srcDir, entry.name);
+                break;
+            }
+        }
+    } catch {
+        return [];
+    }
+
+    if (!loadAcsPath) return [];
+
+    try {
+        const content = fs.readFileSync(loadAcsPath, 'utf-8');
+        return content
+            .split(/\r?\n/)
+            .map(line => line.trim())
+            .filter(line => line.length > 0 && !line.startsWith('//'));
+    } catch {
+        return [];
+    }
+}
+
+function findAcsFile(workspaceRoot: string, libName: string): string | null {
+    const searchName = libName.toLowerCase() + '.acs';
+
+    function scan(dir: string): string | null {
+        let entries: fs.Dirent[];
+        try { entries = fs.readdirSync(dir, { withFileTypes: true }); }
+        catch { return null; }
+
+        for (const entry of entries) {
+            if (entry.name.startsWith('.') || entry.name === 'node_modules') continue;
+            const full = path.join(dir, entry.name);
+            if (entry.isDirectory()) {
+                const found = scan(full);
+                if (found) return found;
+            } else if (entry.isFile() && entry.name.toLowerCase() === searchName) {
+                return full;
+            }
+        }
+        return null;
+    }
+
+    return scan(workspaceRoot);
+}
+
+export async function compileAllAndBuild() {
+    const workspaceRoot = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath;
+    if (!workspaceRoot) {
+        vscode.window.showErrorMessage('No workspace folder opened.');
+        return;
+    }
+
     diagnosticCollection.clear();
 
-    vscode.window.withProgress(
-        {
-            location: vscode.ProgressLocation.Notification,
-            title: `Compiling ${srcName}.acs...`,
-            cancellable: false
-        },
-        async () => {
-            return new Promise<void>((resolve) => {
-                const proc = cp.spawn(accPath, args, {
-                    cwd: workspaceRoot,
-                    shell: false
-                });
+    const libNames = readLoadAcsLibraries(workspaceRoot);
+    if (libNames.length === 0) {
+        vscode.window.showWarningMessage('No LOADACS file found in workspace root, or it is empty.');
+        return;
+    }
 
-                let stdout = '';
-                let stderr = '';
+    let totalCompiled = 0;
+    let totalErrors = 0;
 
-                proc.stdout.on('data', (data: Buffer) => {
-                    stdout += data.toString();
-                });
-
-                proc.stderr.on('data', (data: Buffer) => {
-                    stderr += data.toString();
-                });
-
-                proc.on('close', (code) => {
-                    const output = stderr + stdout;
-                    const diagnostics = parseAcsErrors(output, srcFile);
-                    diagnosticCollection.set(vscode.Uri.file(srcFile), diagnostics);
-
-                    if (code === 0 && diagnostics.length === 0) {
-                        vscode.window.showInformationMessage(
-                            `Compiled ${srcName}.acs → ${path.relative(workspaceRoot, outFile)}`
-                        );
-                    } else if (diagnostics.length > 0) {
-                        vscode.window.showErrorMessage(
-                            `Compilation failed with ${diagnostics.length} error(s).`
-                        );
-                    } else {
-                        vscode.window.showErrorMessage(
-                            `ACC exited with code ${code}.\n${output.substring(0, 500)}`
-                        );
-                    }
-
-                    resolve();
-                });
-
-                proc.on('error', (err) => {
-                    vscode.window.showErrorMessage(
-                        `Failed to launch ACC: ${err.message}\n\nSet the path in preferences: zandronum-vscode.accPath`
-                    );
-                    resolve();
-                });
-            });
+    for (const libName of libNames) {
+        const acsFile = findAcsFile(workspaceRoot, libName);
+        if (!acsFile) {
+            vscode.window.showWarningMessage(`ACS source not found for library "${libName}".`);
+            totalErrors++;
+            continue;
         }
-    );
+
+        const ok = await compileSingleFile(acsFile, workspaceRoot);
+        if (ok) {
+            totalCompiled++;
+        } else {
+            totalErrors++;
+        }
+    }
+
+    if (totalErrors > 0) {
+        const msg = `Compiled ${totalCompiled}, ${totalErrors} failed. Fix errors before building.`;
+        vscode.window.showErrorMessage(msg);
+        return;
+    }
+
+    // All compiled, now build PK3
+    await buildPK3();
 }

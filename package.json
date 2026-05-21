@@ -74,6 +74,10 @@
       {
         "command": "acs.compile",
         "title": "Compile ACS"
+      },
+      {
+        "command": "acs.compileAllAndBuild",
+        "title": "Compile All ACS and Build PK3"
       }
     ],
     "keybindings": [

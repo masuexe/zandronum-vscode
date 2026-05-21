@@ -170,62 +170,49 @@ async function compileSingleFile(srcFile: string, workspaceRoot: string): Promis
     });
 }
 
-function readLoadAcsLibraries(workspaceRoot: string): string[] {
-    const srcDir = path.join(workspaceRoot, 'src');
-
-    // Find a file named LOADACS (any extension or none) in src/
-    let loadAcsPath: string | null = null;
+function hasLibraryDirective(filePath: string): boolean {
     try {
-        const entries = fs.readdirSync(srcDir, { withFileTypes: true });
-        for (const entry of entries) {
-            if (!entry.isFile()) continue;
-            const nameWithoutExt = entry.name.includes('.')
-                ? entry.name.substring(0, entry.name.lastIndexOf('.'))
-                : entry.name;
-            if (nameWithoutExt.toUpperCase() === 'LOADACS') {
-                loadAcsPath = path.join(srcDir, entry.name);
-                break;
-            }
-        }
-    } catch {
-        return [];
-    }
+        const fd = fs.openSync(filePath, 'r');
+        const buf = Buffer.alloc(1024);
+        const bytesRead = fs.readSync(fd, buf, 0, buf.length, 0);
+        fs.closeSync(fd);
 
-    if (!loadAcsPath) return [];
+        const header = buf.toString('utf-8', 0, bytesRead);
 
-    try {
-        const content = fs.readFileSync(loadAcsPath, 'utf-8');
-        return content
-            .split(/\r?\n/)
-            .map(line => line.trim())
-            .filter(line => line.length > 0 && !line.startsWith('//'));
+        // Strip block comments and line comments for reliable detection
+        const clean = header
+            .replace(/\/\*[\s\S]*?\*\//g, '')  // block comments
+            .replace(/\/\/.*$/gm, '');           // line comments
+
+        return /#library\b/im.test(clean);
     } catch {
-        return [];
+        return false;
     }
 }
 
-function findAcsFile(workspaceRoot: string, libName: string): string | null {
-    const searchName = libName.toLowerCase() + '.acs';
+function findLibraryAcsFiles(workspaceRoot: string): string[] {
+    const files: string[] = [];
 
-    function scan(dir: string): string | null {
+    function scan(dir: string) {
         let entries: fs.Dirent[];
         try { entries = fs.readdirSync(dir, { withFileTypes: true }); }
-        catch { return null; }
+        catch { return; }
 
         for (const entry of entries) {
             if (entry.name.startsWith('.') || entry.name === 'node_modules') continue;
             const full = path.join(dir, entry.name);
             if (entry.isDirectory()) {
-                const found = scan(full);
-                if (found) return found;
-            } else if (entry.isFile() && entry.name.toLowerCase() === searchName) {
-                return full;
+                scan(full);
+            } else if (entry.isFile() && entry.name.toLowerCase().endsWith('.acs')) {
+                if (hasLibraryDirective(full)) {
+                    files.push(full);
+                }
             }
         }
-        return null;
     }
 
-    return scan(workspaceRoot);
+    scan(workspaceRoot);
+    return files;
 }
 
 export async function compileAllAndBuild() {
@@ -237,23 +224,16 @@ export async function compileAllAndBuild() {
 
     diagnosticCollection.clear();
 
-    const libNames = readLoadAcsLibraries(workspaceRoot);
-    if (libNames.length === 0) {
-        vscode.window.showWarningMessage('No LOADACS file found in workspace root, or it is empty.');
+    const acsFiles = findLibraryAcsFiles(workspaceRoot);
+    if (acsFiles.length === 0) {
+        vscode.window.showWarningMessage('No ACS files with #library directive found in workspace.');
         return;
     }
 
     let totalCompiled = 0;
     let totalErrors = 0;
 
-    for (const libName of libNames) {
-        const acsFile = findAcsFile(workspaceRoot, libName);
-        if (!acsFile) {
-            vscode.window.showWarningMessage(`ACS source not found for library "${libName}".`);
-            totalErrors++;
-            continue;
-        }
-
+    for (const acsFile of acsFiles) {
         const ok = await compileSingleFile(acsFile, workspaceRoot);
         if (ok) {
             totalCompiled++;

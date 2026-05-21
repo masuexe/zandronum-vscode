@@ -52,6 +52,11 @@ export function findActionCaseInsensitive(
     return undefined;
 }
 
+export interface AcsConstantData {
+    value?: number;
+    desc?: string;
+}
+
 let cache: Record<string, any> = {};
 
 function loadDataJson<T>(context: vscode.ExtensionContext, filename: string): Record<string, T> {
@@ -80,4 +85,21 @@ export function getExpressions(context: vscode.ExtensionContext): Record<string,
 
 export function getInheritance(context: vscode.ExtensionContext): Record<string, InheritanceData> {
     return loadDataJson<InheritanceData>(context, 'inheritance.json');
+}
+
+function loadAcsDataJson<T>(context: vscode.ExtensionContext, filename: string): Record<string, T> {
+    const key = 'acs/' + filename;
+    if (!cache[key]) {
+        const file = path.join(context.extensionPath, 'data/acs', filename);
+        cache[key] = JSON.parse(fs.readFileSync(file, 'utf-8'));
+    }
+    return cache[key];
+}
+
+export function getAcsFunctions(context: vscode.ExtensionContext): Record<string, ActionData> {
+    return loadAcsDataJson<ActionData>(context, 'functions.json');
+}
+
+export function getAcsConstants(context: vscode.ExtensionContext): Record<string, AcsConstantData> {
+    return loadAcsDataJson<AcsConstantData>(context, 'constants.json');
 }

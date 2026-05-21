@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
-import { ActionData, findActionCaseInsensitive, ParamData } from './dataLoader';
-import { buildSignatureLabel, buildParamLabel } from './signatureBuilder';
+import { ActionData, findActionCaseInsensitive, ParamData } from '../../shared/dataLoader';
+import { buildSignatureLabel, buildParamLabel } from '../../shared/signatureBuilder';
 
 function buildHoverContent(functionName: string, actionData: ActionData): vscode.MarkdownString {
     const md = new vscode.MarkdownString();

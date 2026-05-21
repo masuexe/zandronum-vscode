@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { ActionData, findActionCaseInsensitive } from './dataLoader';
+import { ActionData, findActionCaseInsensitive } from '../../shared/dataLoader';
 
 function calculateActiveParameter(fullLine: string, cursorPosition: number, openParenIndex: number): number {
     const textInParens = fullLine.substring(openParenIndex + 1, cursorPosition);

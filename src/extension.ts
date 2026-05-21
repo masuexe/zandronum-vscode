@@ -1,9 +1,10 @@
 import * as vscode from 'vscode';
-import { getActions, getProperties, getFlags, getExpressions, getInheritance } from './completion/dataLoader';
-import { registerCompletionProvider } from './completion/completionProvider';
-import { registerSignatureHelp } from './completion/signatureProvider';
-import { registerHoverProvider } from './completion/hoverProvider';
-import { registerEnterCompleteCommand } from './completion/commands';
+import { getActions, getProperties, getFlags, getExpressions, getInheritance, getAcsFunctions, getAcsConstants } from './shared/dataLoader';
+import { registerCompletionProvider } from './language/decorate/completionProvider';
+import { registerAcsCompletionProvider } from './language/acs/completionProvider';
+import { registerSignatureHelp } from './language/decorate/signatureProvider';
+import { registerHoverProvider } from './language/decorate/hoverProvider';
+import { registerEnterCompleteCommand } from './language/decorate/commands';
 import { buildPK3 } from './tools/build';
 
 
@@ -18,6 +19,10 @@ export function activate(context: vscode.ExtensionContext) {
     registerSignatureHelp(context, actionsData);
     registerHoverProvider(context, actionsData);
     registerEnterCompleteCommand(context);
+
+    const acsFunctionsData = getAcsFunctions(context);
+    const acsConstantsData = getAcsConstants(context);
+    registerAcsCompletionProvider(context, acsFunctionsData, acsConstantsData);
 
 
     const buildCmd = vscode.commands.registerCommand(

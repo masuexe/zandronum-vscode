@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
-import { ActionData, PropertyData, FlagData, ExpressionData, InheritanceData, findActionCaseInsensitive } from './dataLoader';
-import { buildSnippetString } from './snippetBuilder';
+import { ActionData, PropertyData, FlagData, ExpressionData, InheritanceData, findActionCaseInsensitive } from '../../shared/dataLoader';
+import { buildSnippetString } from '../../shared/snippetBuilder';
 
 type ContextType = 'flag' | 'state' | 'function' | 'property' | 'inherit' | 'none';
 

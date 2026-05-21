@@ -102,7 +102,7 @@
         },
         "zandronum-vscode.accOutputDir": {
           "type": "string",
-          "default": "acs",
+          "default": "src/acs",
           "description": "Output directory for compiled .o files, relative to the workspace root."
         }
       }

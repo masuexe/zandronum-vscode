@@ -31,10 +31,5 @@ export async function buildPK3() {
         archive.directory(srcPath, false);
     }
 
-    const acsPath = path.join(root, 'acs');
-    if (fs.existsSync(acsPath)) {
-        archive.directory(acsPath, 'acs');
-    }
-
     await archive.finalize();
 }

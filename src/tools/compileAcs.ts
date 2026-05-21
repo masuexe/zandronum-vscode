@@ -18,7 +18,7 @@ function getUserIncludePaths(): string[] {
 
 function getOutputDir(workspaceRoot: string): string {
     const config = vscode.workspace.getConfiguration('zandronum-vscode');
-    const dir = config.get<string>('accOutputDir') || 'acs';
+    const dir = config.get<string>('accOutputDir') || 'src/acs';
     return path.join(workspaceRoot, dir);
 }
 

@@ -90,6 +90,16 @@
           "type": "string",
           "default": "",
           "description": "Path to the ACC compiler executable. Leave empty to use 'acc' from system PATH."
+        },
+        "zandronum-vscode.accIncludePaths": {
+          "type": "string",
+          "default": "",
+          "description": "Additional include directories for ACC (-i), separated by semicolons."
+        },
+        "zandronum-vscode.accOutputDir": {
+          "type": "string",
+          "default": "acs",
+          "description": "Output directory for compiled .o files, relative to the workspace root."
         }
       }
     }

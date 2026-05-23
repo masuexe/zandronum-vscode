@@ -1,0 +1,43 @@
+{
+    "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+    "name": "GLDEFS",
+    "patterns": [
+        { "include": "#comments" },
+        { "include": "#strings" },
+        { "include": "#numbers" },
+        { "include": "#keywords" }
+    ],
+    "repository": {
+        "comments": {
+            "patterns": [
+                { "name": "comment.line.double-slash.gldefs", "match": "//.*$" },
+                { "name": "comment.block.gldefs", "begin": "/\\*", "end": "\\*/" }
+            ]
+        },
+        "strings": {
+            "patterns": [
+                {
+                    "name": "string.quoted.double.gldefs",
+                    "begin": "\"",
+                    "end": "\"",
+                    "patterns": [
+                        { "name": "constant.character.escape.gldefs", "match": "\\\\." }
+                    ]
+                }
+            ]
+        },
+        "numbers": {
+            "patterns": [
+                { "match": "-?\\b[0-9]+\\.[0-9]*\\b", "name": "constant.numeric.float.gldefs" },
+                { "match": "-?\\b[0-9]+\\b", "name": "constant.numeric.integer.gldefs" },
+                { "match": "\\b0x[0-9a-fA-F]+\\b", "name": "constant.numeric.hex.gldefs" }
+            ]
+        },
+        "keywords": {
+            "patterns": [
+                { "match": "(?i)\\b(glow|wallglow|floorglow|ceilingglow|brightmap|glowingflat|shader|skybox|skybox2|light|addlight|removelight|model|frame|object|hardwareshader|postprocessshader|gldefs)\\b", "name": "keyword.other.gldefs" }
+            ]
+        }
+    },
+    "scopeName": "source.gldefs"
+}

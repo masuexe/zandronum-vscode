@@ -1,0 +1,43 @@
+{
+    "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+    "name": "MAPINFO",
+    "patterns": [
+        { "include": "#comments" },
+        { "include": "#strings" },
+        { "include": "#numbers" },
+        { "include": "#keywords" }
+    ],
+    "repository": {
+        "comments": {
+            "patterns": [
+                { "name": "comment.line.double-slash.mapinfo", "match": "//.*$" },
+                { "name": "comment.block.mapinfo", "begin": "/\\*", "end": "\\*/" }
+            ]
+        },
+        "strings": {
+            "patterns": [
+                {
+                    "name": "string.quoted.double.mapinfo",
+                    "begin": "\"",
+                    "end": "\"",
+                    "patterns": [
+                        { "name": "constant.character.escape.mapinfo", "match": "\\\\." }
+                    ]
+                }
+            ]
+        },
+        "numbers": {
+            "patterns": [
+                { "match": "-?\\b[0-9]+\\.[0-9]*\\b", "name": "constant.numeric.float.mapinfo" },
+                { "match": "-?\\b[0-9]+\\b", "name": "constant.numeric.integer.mapinfo" },
+                { "match": "\\b0x[0-9a-fA-F]+\\b", "name": "constant.numeric.hex.mapinfo" }
+            ]
+        },
+        "keywords": {
+            "patterns": [
+                { "match": "(?i)\\b(map|clusterdef|skill|clearepisodes|episode|defaultmap|gamedefaults|gameinfo|adddefaultmap|intermission|secret|automap|titlepage|next|secretnext|sky1|sky2|skybox|par|sucktime|nointermission|music|levelnum|cluster|nocutscenes|allowmonstertelefrags|removeitems|teamtplayon|noinfighting|fallingdamage|allowcrouch|forceskystretch|compatflags|compatflags2|aircontrol|normalfont|smallfont|bigfont|exitpic|enterpic|border|flat|author|required|toname|fromname)\\b", "name": "keyword.other.mapinfo" }
+            ]
+        }
+    },
+    "scopeName": "source.mapinfo"
+}

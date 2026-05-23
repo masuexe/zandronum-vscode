@@ -1,0 +1,36 @@
+{
+    "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+    "name": "SNDINFO",
+    "patterns": [
+        { "include": "#comments" },
+        { "include": "#strings" },
+        { "include": "#keywords" }
+    ],
+    "repository": {
+        "comments": {
+            "patterns": [
+                { "name": "comment.line.double-slash.sndinfo", "match": "//.*$" },
+                { "name": "comment.block.sndinfo", "begin": "/\\*", "end": "\\*/" }
+            ]
+        },
+        "strings": {
+            "patterns": [
+                {
+                    "name": "string.quoted.double.sndinfo",
+                    "begin": "\"",
+                    "end": "\"",
+                    "patterns": [
+                        { "name": "constant.character.escape.sndinfo", "match": "\\\\." }
+                    ]
+                }
+            ]
+        },
+        "keywords": {
+            "patterns": [
+                { "match": "(?i)\\b(\\$random|\\$alias|\\$limit|\\$volume|\\$attenuation|\\$singular|\\$rolloff|\\$pitch|\\$pitchshift|\\$playeralias|\\$ambient|\\$compat|\\$PitchShift)\\b", "name": "keyword.control.sndinfo" },
+                { "match": "[A-Za-z_][A-Za-z0-9_/]*(?=\\s)", "name": "entity.name.sound.sndinfo" }
+            ]
+        }
+    },
+    "scopeName": "source.sndinfo"
+}

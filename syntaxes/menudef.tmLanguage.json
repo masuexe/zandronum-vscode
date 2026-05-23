@@ -1,0 +1,43 @@
+{
+    "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+    "name": "MENUDEF",
+    "patterns": [
+        { "include": "#comments" },
+        { "include": "#strings" },
+        { "include": "#numbers" },
+        { "include": "#keywords" }
+    ],
+    "repository": {
+        "comments": {
+            "patterns": [
+                { "name": "comment.line.double-slash.menudef", "match": "//.*$" },
+                { "name": "comment.block.menudef", "begin": "/\\*", "end": "\\*/" }
+            ]
+        },
+        "strings": {
+            "patterns": [
+                {
+                    "name": "string.quoted.double.menudef",
+                    "begin": "\"",
+                    "end": "\"",
+                    "patterns": [
+                        { "name": "constant.character.escape.menudef", "match": "\\\\." }
+                    ]
+                }
+            ]
+        },
+        "numbers": {
+            "patterns": [
+                { "match": "-?\\b[0-9]+\\.[0-9]*\\b", "name": "constant.numeric.float.menudef" },
+                { "match": "-?\\b[0-9]+\\b", "name": "constant.numeric.integer.menudef" },
+                { "match": "\\b0x[0-9a-fA-F]+\\b", "name": "constant.numeric.hex.menudef" }
+            ]
+        },
+        "keywords": {
+            "patterns": [
+                { "match": "(?i)\\b(menuitem|option|addoptionmenu|addmenukey|defaultmessage|defaultselection|listslider|listmenuitem|menu|menublock|playerdisplay|playerclass|pausemenu|playermenu|optionsmenu|netmenu|combatmacro|cheat|selector|slider|statictext|staticpatch|submenu|textitem|yesno|onoff|value|serverinfo|command)\\b", "name": "keyword.other.menudef" }
+            ]
+        }
+    },
+    "scopeName": "source.menudef"
+}

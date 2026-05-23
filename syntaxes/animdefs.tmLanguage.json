@@ -1,0 +1,43 @@
+{
+    "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+    "name": "ANIMDEFS",
+    "patterns": [
+        { "include": "#comments" },
+        { "include": "#strings" },
+        { "include": "#numbers" },
+        { "include": "#keywords" }
+    ],
+    "repository": {
+        "comments": {
+            "patterns": [
+                { "name": "comment.line.double-slash.animdefs", "match": "//.*$" },
+                { "name": "comment.block.animdefs", "begin": "/\\*", "end": "\\*/" }
+            ]
+        },
+        "strings": {
+            "patterns": [
+                {
+                    "name": "string.quoted.double.animdefs",
+                    "begin": "\"",
+                    "end": "\"",
+                    "patterns": [
+                        { "name": "constant.character.escape.animdefs", "match": "\\\\." }
+                    ]
+                }
+            ]
+        },
+        "numbers": {
+            "patterns": [
+                { "match": "-?\\b[0-9]+\\.[0-9]*\\b", "name": "constant.numeric.float.animdefs" },
+                { "match": "-?\\b[0-9]+\\b", "name": "constant.numeric.integer.animdefs" },
+                { "match": "\\b0x[0-9a-fA-F]+\\b", "name": "constant.numeric.hex.animdefs" }
+            ]
+        },
+        "keywords": {
+            "patterns": [
+                { "match": "(?i)\\b(texture|flat|pic|range|tics|warp|warp2|animated|switch|allowdecals|oscillate|random|offset)\\b", "name": "keyword.other.animdefs" }
+            ]
+        }
+    },
+    "scopeName": "source.animdefs"
+}

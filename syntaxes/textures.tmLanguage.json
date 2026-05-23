@@ -1,0 +1,43 @@
+{
+    "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+    "name": "TEXTURES",
+    "patterns": [
+        { "include": "#comments" },
+        { "include": "#strings" },
+        { "include": "#numbers" },
+        { "include": "#keywords" }
+    ],
+    "repository": {
+        "comments": {
+            "patterns": [
+                { "name": "comment.line.double-slash.textures", "match": "//.*$" },
+                { "name": "comment.block.textures", "begin": "/\\*", "end": "\\*/" }
+            ]
+        },
+        "strings": {
+            "patterns": [
+                {
+                    "name": "string.quoted.double.textures",
+                    "begin": "\"",
+                    "end": "\"",
+                    "patterns": [
+                        { "name": "constant.character.escape.textures", "match": "\\\\." }
+                    ]
+                }
+            ]
+        },
+        "numbers": {
+            "patterns": [
+                { "match": "-?\\b[0-9]+\\.[0-9]*\\b", "name": "constant.numeric.float.textures" },
+                { "match": "-?\\b[0-9]+\\b", "name": "constant.numeric.integer.textures" },
+                { "match": "\\b0x[0-9a-fA-F]+\\b", "name": "constant.numeric.hex.textures" }
+            ]
+        },
+        "keywords": {
+            "patterns": [
+                { "match": "(?i)\\b(texture|sprite|graphic|patch|xscale|yscale|flipx|flipy|offset|worldpanning|nopresscale|patch|rotate|translation|blend|alpha|style|wrap|clamp|null|useownpalette|basepalette|playerteamskull|playerblueskull|playerredskull|playersilverskull|playergoldskull|playerblackskull|textures)\\b", "name": "keyword.other.textures" }
+            ]
+        }
+    },
+    "scopeName": "source.textures"
+}

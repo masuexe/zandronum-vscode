@@ -18,39 +18,64 @@
     "languages": [
       {
         "id": "decorate",
-        "aliases": [
-          "DECORATE",
-          "decorate"
-        ],
-        "extensions": [
-          ".dec",
-          ".decorate"
-        ],
+        "aliases": ["DECORATE", "decorate"],
+        "extensions": [".dec", ".decorate"],
+        "filenames": ["DECORATE"],
         "configuration": "./language-configuration.json"
       },
       {
         "id": "acs",
-        "aliases": [
-          "ACS",
-          "acs"
-        ],
-        "extensions": [
-          ".acs"
-        ],
+        "aliases": ["ACS", "acs"],
+        "extensions": [".acs"],
+        "filenames": ["SCRIPTS"],
+        "configuration": "./language-configuration.json"
+      },
+      {
+        "id": "mapinfo",
+        "aliases": ["MAPINFO"],
+        "filenames": ["MAPINFO"],
+        "configuration": "./language-configuration.json"
+      },
+      {
+        "id": "sndinfo",
+        "aliases": ["SNDINFO"],
+        "filenames": ["SNDINFO"],
+        "configuration": "./language-configuration.json"
+      },
+      {
+        "id": "gldefs",
+        "aliases": ["GLDEFS"],
+        "filenames": ["GLDEFS"],
+        "configuration": "./language-configuration.json"
+      },
+      {
+        "id": "menudef",
+        "aliases": ["MENUDEF"],
+        "filenames": ["MENUDEF"],
+        "configuration": "./language-configuration.json"
+      },
+      {
+        "id": "textures",
+        "aliases": ["TEXTURES"],
+        "filenames": ["TEXTURES"],
+        "configuration": "./language-configuration.json"
+      },
+      {
+        "id": "animdefs",
+        "aliases": ["ANIMDEFS"],
+        "filenames": ["ANIMDEFS"],
         "configuration": "./language-configuration.json"
       }
     ],
     "grammars": [
-      {
-        "language": "decorate",
-        "scopeName": "source.decorate",
-        "path": "./syntaxes/decorate.tmLanguage.json"
-      },
-      {
-        "language": "acs",
-        "scopeName": "source.acs",
-        "path": "./syntaxes/acs.tmLanguage.json"
-      }
+      { "language": "decorate", "scopeName": "source.decorate", "path": "./syntaxes/decorate.tmLanguage.json" },
+      { "language": "acs", "scopeName": "source.acs", "path": "./syntaxes/acs.tmLanguage.json" },
+      { "language": "mapinfo", "scopeName": "source.mapinfo", "path": "./syntaxes/mapinfo.tmLanguage.json" },
+      { "language": "sndinfo", "scopeName": "source.sndinfo", "path": "./syntaxes/sndinfo.tmLanguage.json" },
+      { "language": "gldefs", "scopeName": "source.gldefs", "path": "./syntaxes/gldefs.tmLanguage.json" },
+      { "language": "menudef", "scopeName": "source.menudef", "path": "./syntaxes/menudef.tmLanguage.json" },
+      { "language": "textures", "scopeName": "source.textures", "path": "./syntaxes/textures.tmLanguage.json" },
+      { "language": "animdefs", "scopeName": "source.animdefs", "path": "./syntaxes/animdefs.tmLanguage.json" }
     ],
     "snippets": [
       {

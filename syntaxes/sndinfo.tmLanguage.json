@@ -27,7 +27,7 @@
         },
         "keywords": {
             "patterns": [
-                { "match": "(?i)\\b(\\$random|\\$alias|\\$limit|\\$volume|\\$attenuation|\\$singular|\\$rolloff|\\$pitch|\\$pitchshift|\\$playeralias|\\$ambient|\\$compat|\\$PitchShift)\\b", "name": "keyword.control.sndinfo" },
+                { "match": "(?i)(?:^|\\s)(\\$(?:ambient|alias|archivepath|attenuation|edfoverride|ifdoom|ifheretic|ifhexen|ifstrife|limit|map|mididevice|musicalias|musicvolume|pitchshift|pitchshiftrange|playercompat|playeralias|playersound|playersounddup|random|registered|rolloff|singular|volume))\\b", "captures": { "1": { "name": "keyword.control.sndinfo" } } },
                 { "match": "[A-Za-z_][A-Za-z0-9_/]*(?=\\s)", "name": "entity.name.sound.sndinfo" }
             ]
         }

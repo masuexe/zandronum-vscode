@@ -103,3 +103,16 @@ export function getAcsFunctions(context: vscode.ExtensionContext): Record<string
 export function getAcsConstants(context: vscode.ExtensionContext): Record<string, AcsConstantData> {
     return loadAcsDataJson<AcsConstantData>(context, 'constants.json');
 }
+
+function loadLangDataJson<T>(context: vscode.ExtensionContext, subdir: string, filename: string): Record<string, T> {
+    const key = subdir + '/' + filename;
+    if (!cache[key]) {
+        const file = path.join(context.extensionPath, 'data', subdir, filename);
+        cache[key] = JSON.parse(fs.readFileSync(file, 'utf-8'));
+    }
+    return cache[key];
+}
+
+export function getSndinfoCommands(context: vscode.ExtensionContext): Record<string, ActionData> {
+    return loadLangDataJson<ActionData>(context, 'sndinfo', 'commands.json');
+}

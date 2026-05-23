@@ -1,0 +1,189 @@
+{
+    "$ambient": {
+        "params": [
+            { "name": "index", "type": "int" },
+            { "name": "logicalname", "type": "string" },
+            {
+                "name": "type",
+                "type": "string",
+                "mode": "enum",
+                "enum": [
+                    { "name": "continuous", "value": 0 },
+                    { "name": "random", "value": 1 },
+                    { "name": "periodic", "value": 2 }
+                ]
+            },
+            { "name": "mode", "type": "float" },
+            { "name": "volume", "type": "float" }
+        ],
+        "desc": "Defines an ambient sound point for a map."
+    },
+    "$alias": {
+        "params": [
+            { "name": "logicalname", "type": "string" },
+            { "name": "aliasname", "type": "string" }
+        ],
+        "desc": "Creates an alias so that one logical sound plays another."
+    },
+    "$archivepath": {
+        "params": [
+            { "name": "path", "type": "string" }
+        ],
+        "desc": "Sets the path where sound archives are located."
+    },
+    "$attenuation": {
+        "params": [
+            { "name": "logicalname", "type": "string" },
+            {
+                "name": "type",
+                "type": "string",
+                "mode": "enum",
+                "enum": [
+                    { "name": "none", "value": 0 },
+                    { "name": "normal", "value": 1 },
+                    { "name": "idle", "value": 2 },
+                    { "name": "static", "value": 3 }
+                ]
+            }
+        ],
+        "desc": "Sets the attenuation type for a logical sound."
+    },
+    "$edfoverride": {
+        "params": [
+            { "name": "lumpname", "type": "string" }
+        ],
+        "desc": "Overrides EDF sound definitions with the specified lump."
+    },
+    "$ifdoom": {
+        "params": [],
+        "desc": "Following SNDINFO entries apply only when playing Doom."
+    },
+    "$ifheretic": {
+        "params": [],
+        "desc": "Following SNDINFO entries apply only when playing Heretic."
+    },
+    "$ifhexen": {
+        "params": [],
+        "desc": "Following SNDINFO entries apply only when playing Hexen."
+    },
+    "$ifstrife": {
+        "params": [],
+        "desc": "Following SNDINFO entries apply only when playing Strife."
+    },
+    "$limit": {
+        "params": [
+            { "name": "logicalname", "type": "string" },
+            { "name": "limit", "type": "int" }
+        ],
+        "desc": "Limits how many simultaneous instances of a sound can play. 0 = unlimited."
+    },
+    "$map": {
+        "params": [
+            { "name": "mapname", "type": "string" },
+            { "name": "logicalname", "type": "string" }
+        ],
+        "desc": "Map-specific sound definition."
+    },
+    "$mididevice": {
+        "params": [
+            { "name": "logicalname", "type": "string" },
+            { "name": "device", "type": "string" }
+        ],
+        "desc": "Sets the MIDI device for a logical sound."
+    },
+    "$musicalias": {
+        "params": [
+            { "name": "logicalname", "type": "string" },
+            { "name": "musicname", "type": "string" }
+        ],
+        "desc": "Creates an alias for a logical music entry."
+    },
+    "$musicvolume": {
+        "params": [
+            { "name": "logicalname", "type": "string" },
+            { "name": "volume", "type": "float" }
+        ],
+        "desc": "Sets the volume for a logical music entry."
+    },
+    "$pitchshift": {
+        "params": [
+            { "name": "logicalname", "type": "string" },
+            { "name": "range", "type": "int" }
+        ],
+        "desc": "Sets the pitch shift amount (random variation) for a logical sound, in cents."
+    },
+    "$pitchshiftrange": {
+        "params": [
+            { "name": "logicalname", "type": "string" },
+            { "name": "min", "type": "int" },
+            { "name": "max", "type": "int" }
+        ],
+        "desc": "Sets the pitch shift range (min/max) for a logical sound, in cents."
+    },
+    "$playercompat": {
+        "params": [
+            { "name": "playerclass", "type": "string" },
+            { "name": "oldname", "type": "string" },
+            { "name": "newname", "type": "string" }
+        ],
+        "desc": "Player-class-specific compatibility alias for older sound names."
+    },
+    "$playeralias": {
+        "params": [
+            { "name": "playerclass", "type": "string" },
+            { "name": "logicalname", "type": "string" },
+            { "name": "aliasname", "type": "string" }
+        ],
+        "desc": "Creates a player-class-specific sound alias."
+    },
+    "$playersound": {
+        "params": [
+            { "name": "playerclass", "type": "string" },
+            { "name": "soundname", "type": "string" },
+            { "name": "logicalname", "type": "string" }
+        ],
+        "desc": "Defines a player-class-specific sound."
+    },
+    "$playersounddup": {
+        "params": [
+            { "name": "playerclass", "type": "string" },
+            { "name": "soundname", "type": "string" },
+            { "name": "logicalname", "type": "string" }
+        ],
+        "desc": "Defines a player-class-specific sound (duplicate entry allowed)."
+    },
+    "$random": {
+        "params": [
+            { "name": "logicalname", "type": "string" },
+            { "name": "{ sounds... }", "type": "block" }
+        ],
+        "desc": "Defines a sound that randomly picks from a list of sounds in curly braces."
+    },
+    "$registered": {
+        "params": [
+            { "name": "logicalname", "type": "string" }
+        ],
+        "desc": "Marks a logical sound as registered."
+    },
+    "$rolloff": {
+        "params": [
+            { "name": "logicalname", "type": "string" },
+            { "name": "mindist", "type": "float" },
+            { "name": "maxdist", "type": "float" }
+        ],
+        "desc": "Sets the 3D sound rolloff distance range. Use * for all sounds."
+    },
+    "$singular": {
+        "params": [
+            { "name": "logicalname", "type": "string" }
+        ],
+        "desc": "Ensures only one instance of the sound plays at a time."
+    },
+    "$volume": {
+        "params": [
+            { "name": "logicalname", "type": "string" },
+            { "name": "volume", "type": "float" }
+        ],
+        "desc": "Sets the volume for a logical sound."
+    }
+}

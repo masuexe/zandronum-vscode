@@ -28,7 +28,7 @@
         "keywords": {
             "patterns": [
                 { "match": "(?i)(?:^|\\s)(\\$(?:ambient|alias|archivepath|attenuation|edfoverride|ifdoom|ifheretic|ifhexen|ifstrife|limit|map|mididevice|musicalias|musicvolume|pitchshift|pitchshiftrange|playercompat|playeralias|playersound|playersounddup|random|registered|rolloff|singular|volume))\\b", "captures": { "1": { "name": "keyword.control.sndinfo" } } },
-                { "match": "[A-Za-z_][A-Za-z0-9_/]*(?=\\s)", "name": "entity.name.sound.sndinfo" }
+                { "match": "[A-Za-z_][A-Za-z0-9_/]+", "name": "entity.name.sound.sndinfo" }
             ]
         }
     },

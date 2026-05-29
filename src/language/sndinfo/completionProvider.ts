@@ -45,8 +45,10 @@ export function registerSndinfoCompletionProvider(
                 const lineText = line.text;
                 const wordPrefix = getWordPrefix(lineText, position);
 
-                // Only provide completions when typing a $ command
-                if (!wordPrefix.startsWith('$') && !lineText.substring(0, position.character).includes('$')) {
+                const textBefore = lineText.substring(0, position.character);
+
+                // Only trigger when $ is preceded by whitespace or line start
+                if (!/(?:^|\s)\$/.test(textBefore)) {
                     return [];
                 }
 

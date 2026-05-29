@@ -4,6 +4,7 @@
     "patterns": [
         { "include": "#comments" },
         { "include": "#strings" },
+        { "include": "#command-line" },
         { "include": "#keywords" },
         { "include": "#numbers" }
     ],
@@ -26,10 +27,25 @@
                 }
             ]
         },
+        "command-line": {
+            "patterns": [
+                {
+                    "name": "meta.command.sndinfo",
+                    "begin": "(?i)(?:^|\\s)(\\$(?:ambient|alias|archivepath|attenuation|edfoverride|ifdoom|ifheretic|ifhexen|ifstrife|limit|map|mididevice|musicalias|musicvolume|pitchshift|pitchshiftrange|playercompat|playeralias|playersound|playersounddup|random|registered|rolloff|singular|volume))\\b",
+                    "beginCaptures": { "1": { "name": "keyword.control.sndinfo" } },
+                    "end": "$",
+                    "patterns": [
+                        { "include": "#strings" },
+                        { "include": "#numbers" },
+                        { "match": "[A-Za-z_][A-Za-z0-9_/]+", "name": "variable.other.logicalname.sndinfo" }
+                    ]
+                }
+            ]
+        },
         "keywords": {
             "patterns": [
-                { "match": "(?i)(?:^|\\s)(\\$(?:ambient|alias|archivepath|attenuation|edfoverride|ifdoom|ifheretic|ifhexen|ifstrife|limit|map|mididevice|musicalias|musicvolume|pitchshift|pitchshiftrange|playercompat|playeralias|playersound|playersounddup|random|registered|rolloff|singular|volume))\\b", "captures": { "1": { "name": "keyword.control.sndinfo" } } },
-                { "match": "[A-Za-z_][A-Za-z0-9_/]+", "name": "entity.name.sound.sndinfo" }
+                { "match": "^\\s*(?!\\$)([A-Za-z_][A-Za-z0-9_/]+)", "captures": { "1": { "name": "variable.other.logicalname.sndinfo" } } },
+                { "match": "[A-Za-z_][A-Za-z0-9_/]+", "name": "entity.name.lump.sndinfo" }
             ]
         },
         "numbers": {

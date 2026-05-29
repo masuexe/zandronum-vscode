@@ -4,7 +4,8 @@
     "patterns": [
         { "include": "#comments" },
         { "include": "#strings" },
-        { "include": "#keywords" }
+        { "include": "#keywords" },
+        { "include": "#numbers" }
     ],
     "repository": {
         "comments": {
@@ -29,6 +30,13 @@
             "patterns": [
                 { "match": "(?i)(?:^|\\s)(\\$(?:ambient|alias|archivepath|attenuation|edfoverride|ifdoom|ifheretic|ifhexen|ifstrife|limit|map|mididevice|musicalias|musicvolume|pitchshift|pitchshiftrange|playercompat|playeralias|playersound|playersounddup|random|registered|rolloff|singular|volume))\\b", "captures": { "1": { "name": "keyword.control.sndinfo" } } },
                 { "match": "[A-Za-z_][A-Za-z0-9_/]+", "name": "entity.name.sound.sndinfo" }
+            ]
+        },
+        "numbers": {
+            "patterns": [
+                { "match": "-?\\b[0-9]+\\.[0-9]*\\b", "name": "constant.numeric.float.sndinfo" },
+                { "match": "-?\\b[0-9]+\\b", "name": "constant.numeric.integer.sndinfo" },
+                { "match": "\\b0x[0-9a-fA-F]+\\b", "name": "constant.numeric.hex.sndinfo" }
             ]
         }
     },

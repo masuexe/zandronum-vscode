@@ -104,7 +104,7 @@ export function registerSndinfoSignatureHelp(
                 signatureHelp.activeParameter = calculateActiveParameter(
                     fullLineText,
                     position.character,
-                    fnNameStart - 1
+                    i
                 );
 
                 return signatureHelp;

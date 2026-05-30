@@ -3,19 +3,17 @@ import { ActionData, findActionCaseInsensitive } from '../../shared/dataLoader';
 
 function buildSignature(fnName: string, params?: any[]): string {
     if (!Array.isArray(params) || params.length === 0) {
-        return `${fnName}()`;
+        return fnName;
     }
 
     const paramStrs = params
         .filter((p: any) => typeof p === 'object')
         .map((p: any) => {
             if (p.variadic) return `${p.type} ${p.name}...`;
-            return p.optional
-                ? `[${p.type} ${p.name}]`
-                : `${p.type} ${p.name}`;
+            return `${p.type} ${p.name}`;
         });
 
-    return `${fnName}(${paramStrs.join(', ')})`;
+    return `${fnName} ${paramStrs.map(s => `<${s}>`).join(' ')}`;
 }
 
 function calculateActiveParameter(fullLine: string, cursorPosition: number, openParenIndex: number): number {
@@ -88,9 +86,7 @@ export function registerSndinfoSignatureHelp(
                     signature.parameters = actionData.params
                         .filter((p: any) => typeof p === 'object')
                         .map((p: any) => {
-                            const label = p.optional
-                                ? `[${p.name}: ${p.type}]`
-                                : `${p.name}: ${p.type}`;
+                        const label = `${p.name}: ${p.type}`;
                             return new vscode.ParameterInformation(
                                 label,
                                 `Parameter: ${p.name} (${p.type})`

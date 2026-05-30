@@ -5,6 +5,7 @@ import { registerAcsCompletionProvider } from './language/acs/completionProvider
 import { registerAcsSignatureHelp } from './language/acs/signatureProvider';
 import { registerAcsHoverProvider } from './language/acs/hoverProvider';
 import { registerSndinfoCompletionProvider } from './language/sndinfo/completionProvider';
+import { registerSndinfoSignatureHelp } from './language/sndinfo/signatureProvider';
 import { registerSignatureHelp } from './language/decorate/signatureProvider';
 import { registerHoverProvider } from './language/decorate/hoverProvider';
 import { registerEnterCompleteCommand } from './language/decorate/commands';
@@ -32,6 +33,7 @@ export function activate(context: vscode.ExtensionContext) {
 
     const sndinfoCommandsData = getSndinfoCommands(context);
     registerSndinfoCompletionProvider(context, sndinfoCommandsData);
+    registerSndinfoSignatureHelp(context, sndinfoCommandsData);
 
 
     const buildCmd = vscode.commands.registerCommand(

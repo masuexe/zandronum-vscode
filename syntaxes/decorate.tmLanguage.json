@@ -152,8 +152,11 @@
 		"flags": {
 			"patterns": [
 				{
-					"match": "[+\\-][A-Za-z.]+",
-					"name": "variable.other.flag.decorate"
+					"match": "([+\\-])([A-Za-z][A-Za-z.]*)",
+					"captures": {
+						"1": {"name": "keyword.operator.flag.decorate"},
+						"2": {"name": "constant.language.flag.decorate"}
+					}
 				}
 			]
 		},

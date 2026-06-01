@@ -54,7 +54,7 @@
 			"patterns": [
 				{
 					"name": "meta.actor.decorate",
-					"match": "(?i)\\b(ACTOR)\\b(?:\\s+([a-zA-Z_][a-zA-Z0-9_]*))?(?:\\s*:\\s*([a-zA-Z_][a-zA-Z0-9_]*))?",
+					"match": "(?i)\\b(ACTOR)\\b(?:\\s+([a-zA-Z0-9_][a-zA-Z0-9_]*))?(?:\\s*:\\s*([a-zA-Z0-9_][a-zA-Z0-9_]*))?",
 					"captures": {
 						"1": {"name": "keyword.declaration.decorate"},
 						"2": {"name": "entity.name.class.decorate"},

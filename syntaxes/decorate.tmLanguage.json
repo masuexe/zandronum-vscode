@@ -141,7 +141,7 @@
 			"patterns": [
 				{
 					"match": "\\b[A-Z][A-Z0-9]*[_.][A-Z][A-Z0-9_]+\\b",
-					"name": "constant.other.enum.decorate"
+					"name": "constant.language.enum.decorate"
 				}
 			]
 		},

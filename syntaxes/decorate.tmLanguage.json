@@ -182,7 +182,7 @@
 					"name": "entity.name.function.decorate"
 				},
 				{
-					"match": "\\w+(?=\\s*\\()",
+					"match": "\\w+(?=\\()",
 					"name": "entity.name.function.decorate"
 				}
 

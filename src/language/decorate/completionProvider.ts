@@ -174,7 +174,7 @@ function getContextType(
         if (!isInStateBlockGlobally()) {
             return false;
         }
-        return /^(\s*)(\w+)\s+([A-Za-z0-9]+)\s+(\d+)(\s+|$)/.test(lineText);
+        return /^(\s*)(\w+)\s+([A-Za-z0-9\[\]\\]+)\s+(\d+)(\s+|$)/.test(lineText);
     };
 
     const isFlagTrigger = (): boolean => {

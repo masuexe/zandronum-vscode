@@ -33,6 +33,11 @@ function isInString(charIndex: number, ranges: Array<{ start: number; end: numbe
     return ranges.some(r => charIndex >= r.start && charIndex < r.end);
 }
 
+function isInComment(charIndex: number, lineCommentStart: number, blockRanges: Array<{ start: number; end: number }>): boolean {
+    if (lineCommentStart >= 0 && charIndex >= lineCommentStart) return true;
+    return blockRanges.some(r => charIndex >= r.start && charIndex < r.end);
+}
+
 class DecorateSemanticTokensProvider implements vscode.DocumentSemanticTokensProvider {
     provideDocumentSemanticTokens(
         document: vscode.TextDocument
@@ -42,10 +47,28 @@ class DecorateSemanticTokensProvider implements vscode.DocumentSemanticTokensPro
         const constVars = new Map<string, number[]>();
 
         // Pass 1: collect declarations
+        let inBlockComment = false;
+
         for (let line = 0; line < document.lineCount; line++) {
             const text = document.lineAt(line).text;
+            if (inBlockComment) {
+                const end = text.indexOf('*/');
+                if (end >= 0) inBlockComment = false;
+                continue;
+            }
 
-            let m = /\bvar\s+int\s+(user_\w+)\b/i.exec(text);
+            // Strip line comments for declaration detection
+            const lineCommentIdx = text.indexOf('//');
+            const effective = lineCommentIdx >= 0 ? text.substring(0, lineCommentIdx) : text;
+
+            // Track block comments
+            const blockStart = effective.indexOf('/*');
+            if (blockStart >= 0) {
+                const blockEnd = effective.indexOf('*/', blockStart + 2);
+                if (blockEnd < 0) inBlockComment = true;
+            }
+
+            let m = /\bvar\s+int\s+(user_\w+)\b/i.exec(effective);
             if (m) {
                 const name = m[1].toLowerCase();
                 const arr = userVars.get(name) || [];
@@ -53,7 +76,7 @@ class DecorateSemanticTokensProvider implements vscode.DocumentSemanticTokensPro
                 userVars.set(name, arr);
             }
 
-            m = /\bconst\s+int\s+(\w+)\b/i.exec(text);
+            m = /\bconst\s+int\s+(\w+)\b/i.exec(effective);
             if (m) {
                 const name = m[1].toLowerCase();
                 const arr = constVars.get(name) || [];
@@ -63,18 +86,55 @@ class DecorateSemanticTokensProvider implements vscode.DocumentSemanticTokensPro
         }
 
         // Pass 2: find all occurrences and push tokens
+        inBlockComment = false;
+
         for (let line = 0; line < document.lineCount; line++) {
             const text = document.lineAt(line).text;
             const stringRanges = getStringRanges(text);
             const wordRe = /[A-Za-z_][A-Za-z0-9_]*/g;
             let wm: RegExpExecArray | null;
 
+            // Compute comment ranges for this line
+            let lineCommentStart = -1;
+            const blockRanges: Array<{ start: number; end: number }> = [];
+
+            let i = 0;
+            while (i < text.length) {
+                if (inBlockComment) {
+                    const start = i;
+                    const end = text.indexOf('*/', i);
+                    if (end >= 0) {
+                        blockRanges.push({ start, end: end + 2 });
+                        i = end + 2;
+                        inBlockComment = false;
+                    } else {
+                        blockRanges.push({ start, end: text.length });
+                        i = text.length;
+                    }
+                } else if (text[i] === '/' && text[i + 1] === '/') {
+                    lineCommentStart = i;
+                    break;
+                } else if (text[i] === '/' && text[i + 1] === '*') {
+                    const start = i;
+                    const end = text.indexOf('*/', i + 2);
+                    if (end >= 0) {
+                        blockRanges.push({ start, end: end + 2 });
+                        i = end + 2;
+                    } else {
+                        blockRanges.push({ start, end: text.length });
+                        inBlockComment = true;
+                        i = text.length;
+                    }
+                } else {
+                    i++;
+                }
+            }
+
             while ((wm = wordRe.exec(text)) !== null) {
                 const word = wm[0];
 
-                if (isInString(wm.index, stringRanges)) {
-                    continue;
-                }
+                if (isInString(wm.index, stringRanges)) continue;
+                if (isInComment(wm.index, lineCommentStart, blockRanges)) continue;
 
                 const wordLower = word.toLowerCase();
 

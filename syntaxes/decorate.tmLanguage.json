@@ -206,7 +206,7 @@
 					"name": "punctuation.separator.decorate"
 				},
 				{
-					"match": "[+\\-]",
+					"match": "[=+\\-*/%&|^~<>!]+",
 					"name": "keyword.operator.arithmetic.decorate"
 				}
 			]

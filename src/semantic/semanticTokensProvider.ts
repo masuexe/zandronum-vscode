@@ -97,6 +97,16 @@ class DecorateSemanticTokensProvider implements vscode.DocumentSemanticTokensPro
                         1, // enumMember
                         isDecl ? 3 : 2
                     );
+                    continue;
+                }
+
+                // System enums: SXF_*, CHF_*, INVENTORY.*, WEAPON.* etc.
+                if (/\b[A-Z][A-Z0-9]*[_.][A-Z][A-Z0-9_]+\b/.test(word)) {
+                    builder.push(
+                        line, wm.index, word.length,
+                        1, // enumMember
+                        0
+                    );
                 }
             }
         }

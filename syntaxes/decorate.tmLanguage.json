@@ -33,6 +33,9 @@
 			"include": "#properties"
 		},
 		{
+			"include": "#operators"
+		},
+		{
 			"include": "#numbers"
 		}
 	],
@@ -156,7 +159,7 @@
 		"flags": {
 			"patterns": [
 				{
-					"match": "([+\\-])([A-Za-z_][A-Za-z0-9_.]*)",
+					"match": "([+\\-])([A-Za-z_][A-Za-z0-9_.]*)\\b(?!\\s*\\()",
 					"captures": {
 						"1": {"name": "keyword.operator.flag.decorate"},
 						"2": {"name": "constant.language.flag.decorate"}
@@ -171,7 +174,7 @@
 					"name": "entity.name.function.decorate"
 				},
 				{
-					"match": "(?i)\\b(abs|cos|sin|sqrt|random|random2|frandom|ACS_ExecuteWithResult|ACS_NamedExecuteWithResult|CallACS)\b(?=\\s*\\()",
+					"match": "(?i)\\b(abs|cos|sin|sqrt|random|random2|frandom|ACS_ExecuteWithResult|ACS_NamedExecuteWithResult|CallACS)\\b(?=\\s*\\()",
 					"name": "entity.name.function.decorate"
 				},
 				{
@@ -193,6 +196,18 @@
 							"match": "\\\\."
 						}
 					]
+				}
+			]
+		},
+		"operators": {
+			"patterns": [
+				{
+					"match": ",",
+					"name": "punctuation.separator.decorate"
+				},
+				{
+					"match": "[+\\-]",
+					"name": "keyword.operator.arithmetic.decorate"
 				}
 			]
 		},

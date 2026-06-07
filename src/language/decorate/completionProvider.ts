@@ -321,7 +321,10 @@ function findActorParent(
 function resolveChain(
     parent: string,
     inheritanceData: Record<string, InheritanceData>
-): Set<string> {
+): Set<string> | undefined {
+    if (!inheritanceData[parent]) {
+        return undefined;
+    }
     const chain = new Set<string>();
     chain.add(parent);
     let current = parent;

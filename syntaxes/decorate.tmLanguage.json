@@ -90,10 +90,14 @@
 						"3": {"name": "constant.numeric.decorate"}
 					}
 				},
-				{
-					"match": "(?i)\\b(Loop|Stop|Wait)\\b",
-					"name": "keyword.control.decorate"
-				},
+			{
+				"match": "(?i)\\b(Bright|Fast|Slow|NoDelay|CanRaise|Offset|Light)\\b",
+				"name": "storage.type.decorate"
+			},
+			{
+				"match": "(?i)\\b(Loop|Stop|Wait)\\b",
+				"name": "keyword.control.decorate"
+			},
 				{
 					"match": "(?i)\\b(Goto)\\b\\s+([a-zA-Z_][a-zA-Z0-9_]*)(?:\\s*([+\\-])\\s*([0-9]+))?",
 					"captures": {

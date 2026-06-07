@@ -309,9 +309,14 @@
     "desc": "Ammo gained from backpack",
     "for": "Ammo"
   },
-  "Ammo.BackpackMaxAmount": {
+   "Ammo.BackpackMaxAmount": {
     "type": "int",
     "desc": "Max ammo with backpack",
+    "for": "Ammo"
+  },
+  "Ammo.DropAmount": {
+    "type": "int",
+    "desc": "Amount dropped on death",
     "for": "Ammo"
   },
   "Armor.SavePercent": {
@@ -319,10 +324,40 @@
     "desc": "Damage absorption percentage (0-100)",
     "for": "Armor"
   },
-  "Armor.SaveAmount": {
+   "Armor.SaveAmount": {
     "type": "int",
     "desc": "Armor durability",
     "for": "Armor"
+  },
+   "Armor.MaxSaveAmount": {
+    "type": "int",
+    "desc": "Maximum armor durability",
+    "for": "Armor"
+  },
+  "Health.LowMessage": {
+    "type": "string",
+    "desc": "Message displayed when health is low",
+    "for": "Health"
+  },
+  "HealthPickup.AutoUse": {
+    "type": "bool",
+    "desc": "Automatically use when picked up if health below maximum",
+    "for": "HealthPickup"
+  },
+  "PuzzleItem.Number": {
+    "type": "int",
+    "desc": "Puzzle item number for use in scripts",
+    "for": "PuzzleItem"
+  },
+  "WeaponPiece.Number": {
+    "type": "int",
+    "desc": "Weapon piece number (1-32)",
+    "for": "WeaponPiece"
+  },
+  "WeaponPiece.Weapon": {
+    "type": "string",
+    "desc": "Weapon class assembled when all pieces collected",
+    "for": "WeaponPiece"
   },
   "Powerup.Duration": {
     "type": "int",

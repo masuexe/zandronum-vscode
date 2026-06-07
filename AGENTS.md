@@ -23,6 +23,7 @@ And special lumps for Zandronum, including (Note: These special lumps are identi
 * CVARINFO
 * CMPGNINF
 * DECALDEF
+* DECORATE
 * DEHACKED
 * DEHSUPP (deprecated)
 * DMXGUS

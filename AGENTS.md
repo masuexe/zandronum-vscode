@@ -6,7 +6,7 @@ This project is a modern Visual Studio Code extension for developing mods for th
 
 The goal is to provide a development experience comparable to official Microsoft VSCode language extensions such as Python and C/C++.
 
-The extension aims to support all major Zandronum-related languages and workflows, including (Note: Zandronum is based on ZDoom 2.8pre-441-g458e1b1 and GZDoom 1.8.6, and may do not be compatible with the latest ZDoom version):
+The extension aims to support all major Zandronum-related languages and workflows, including:
 
 * DECORATE
 * ACS
@@ -71,7 +71,41 @@ The project focuses on:
 * compile/build integration
 * PK3 or PK7 packaging workflow
 
+
+## Engine Compatibility
+
+Target engine:
+
+Zandronum only. Zandronum is based on ZDoom 2.8pre-441-g458e1b1 and GZDoom 1.8.6.
+
+Do not use:
+- ZScript
+- post ZDoom 2.8pre-441-g458e1b1 language features
+- post GZDoom 1.8.6 language features
+
+If uncertain, assume the feature is NOT available.
+
 ---
+
+
+
+## Semantic Tokens
+
+TextMate Grammar handles:
+
+- built-in functions
+- built-in properties
+- built-in flags
+- built-in constants
+
+Semantic Tokens handle:
+
+- user-defined variables
+- user-defined constants
+- future user-defined symbols
+
+Avoid duplicating TextMate functionality in Semantic Tokens.
+
 
 # Core Design Philosophy
 
@@ -188,6 +222,22 @@ Supported language concepts include:
 * sprite frames
 * expressions
 * constants
+
+## DECORATE Metadata Rules
+
+Users cannot define:
+
+- new action functions
+- new actor properties
+- new built-in flags
+
+Therefore:
+
+- actions.json is authoritative
+- properties.json is authoritative
+- flags.json is authoritative
+
+Completion providers should not attempt to discover additional built-in symbols from source files.
 
 ---
 
@@ -326,7 +376,6 @@ Future goals may include:
 * goto definition
 * symbol indexing
 * workspace-wide diagnostics
-* ZScript support
 
 However, current development should prioritize:
 
@@ -337,3 +386,18 @@ However, current development should prioritize:
 5. incremental progress
 
 over architectural complexity.
+
+## AI Output Rules
+
+Before generating code:
+
+1. Explain implementation plan.
+2. List affected files.
+3. Prefer minimal diffs.
+4. Avoid full file rewrites.
+
+Unless explicitly requested:
+
+- do not generate complete files
+- do not perform large refactors
+- do not change project architecture

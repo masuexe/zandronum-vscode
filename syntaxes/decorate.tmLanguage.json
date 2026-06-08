@@ -6,6 +6,9 @@
 			"include": "#comments"
 		},
 		{
+			"include": "#preprocessor"
+		},
+		{
 			"include": "#actor-declaration"
 		},
 		{
@@ -50,6 +53,14 @@
 					"name": "comment.block.decorate",
 					"begin": "/\\*",
 					"end": "\\*/"
+				}
+			]
+		},
+		"preprocessor": {
+			"patterns": [
+				{
+					"match": "#include\\b",
+					"name": "keyword.control.decorate"
 				}
 			]
 		},

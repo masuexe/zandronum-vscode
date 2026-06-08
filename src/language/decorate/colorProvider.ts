@@ -1,7 +1,8 @@
 import * as vscode from 'vscode';
+import { loadPlaypal } from '../../tools/playpalReader';
 
 const TRANSLATION_LINE_RE = /\bTranslation\b/i;
-const RGB_ARRAY_RE = /(%)?\[(\d+(?:\.\d+)?)\s*,\s*(\d+(?:\.\d+)?)\s*,\s*(\d+(?:\.\d+)?)\s*\]/g;
+const COLOR_VALUE_RE = /(%)?\[(\d+(?:\.\d+)?)\s*,\s*(\d+(?:\.\d+)?)\s*,\s*(\d+(?:\.\d+)?)\s*\]|\b(\d{1,3})\b/g;
 
 function isFloatContext(lineText: string, matchIndex: number): boolean {
     let quotePos = -1;
@@ -17,12 +18,17 @@ function isFloatContext(lineText: string, matchIndex: number): boolean {
     return segment.includes('%');
 }
 
+function isPaletteMatch(match: RegExpExecArray): boolean {
+    return match[5] !== undefined;
+}
+
 export function registerColorProvider(context: vscode.ExtensionContext) {
     const provider = vscode.languages.registerColorProvider(
         [{ language: 'decorate' }],
         {
-            provideDocumentColors(document, token) {
+            async provideDocumentColors(document, token) {
                 const colors: vscode.ColorInformation[] = [];
+                const palette = await loadPlaypal();
 
                 for (let i = 0; i < document.lineCount; i++) {
                     if (token.isCancellationRequested) {
@@ -35,8 +41,25 @@ export function registerColorProvider(context: vscode.ExtensionContext) {
                     }
 
                     let match: RegExpExecArray | null;
-                    RGB_ARRAY_RE.lastIndex = 0;
-                    while ((match = RGB_ARRAY_RE.exec(line.text)) !== null) {
+                    COLOR_VALUE_RE.lastIndex = 0;
+                    while ((match = COLOR_VALUE_RE.exec(line.text)) !== null) {
+                        if (isPaletteMatch(match)) {
+                            if (!palette) {
+                                continue;
+                            }
+                            const idx = parseInt(match[5], 10);
+                            if (idx > 255) {
+                                continue;
+                            }
+                            const pal = palette[idx];
+                            const color = new vscode.Color(pal.r / 255, pal.g / 255, pal.b / 255, 1);
+                            const startPos = new vscode.Position(i, match.index);
+                            const endPos = new vscode.Position(i, match.index + match[0].length);
+                            const range = new vscode.Range(startPos, endPos);
+                            colors.push(new vscode.ColorInformation(range, color));
+                            continue;
+                        }
+
                         const r = parseFloat(match[2]);
                         const g = parseFloat(match[3]);
                         const b = parseFloat(match[4]);
@@ -74,6 +97,11 @@ export function registerColorProvider(context: vscode.ExtensionContext) {
             },
 
             provideColorPresentations(color, context) {
+                const rangeText = context.document.getText(context.range);
+                if (/^\d{1,3}$/.test(rangeText)) {
+                    return [new vscode.ColorPresentation(rangeText)];
+                }
+
                 const lineText = context.document.lineAt(context.range.start.line).text;
                 const floatMode = isFloatContext(lineText, context.range.start.character);
 

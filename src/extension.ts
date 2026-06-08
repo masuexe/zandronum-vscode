@@ -14,6 +14,7 @@ import { buildPK3 } from './tools/build';
 import { compileAcs, compileAllAndBuild } from './tools/compileAcs';
 import { registerDecorateSemanticTokens } from './semantic/semanticTokensProvider';
 import { registerDefinitionProvider } from './language/decorate/definitionProvider';
+import { registerColorProvider } from './language/decorate/colorProvider';
 
 
 export function activate(context: vscode.ExtensionContext) {
@@ -29,6 +30,7 @@ export function activate(context: vscode.ExtensionContext) {
     registerEnterCompleteCommand(context);
     registerDecorateSemanticTokens(context);
     registerDefinitionProvider(context);
+    registerColorProvider(context);
 
     const acsFunctionsData = getAcsFunctions(context);
     const acsConstantsData = getAcsConstants(context);

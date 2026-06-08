@@ -13,6 +13,7 @@ import { registerEnterCompleteCommand } from './language/decorate/commands';
 import { buildPK3 } from './tools/build';
 import { compileAcs, compileAllAndBuild } from './tools/compileAcs';
 import { registerDecorateSemanticTokens } from './semantic/semanticTokensProvider';
+import { registerDefinitionProvider } from './language/decorate/definitionProvider';
 
 
 export function activate(context: vscode.ExtensionContext) {
@@ -27,6 +28,7 @@ export function activate(context: vscode.ExtensionContext) {
     registerHoverProvider(context, actionsData);
     registerEnterCompleteCommand(context);
     registerDecorateSemanticTokens(context);
+    registerDefinitionProvider(context);
 
     const acsFunctionsData = getAcsFunctions(context);
     const acsConstantsData = getAcsConstants(context);

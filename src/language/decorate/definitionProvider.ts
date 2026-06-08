@@ -63,12 +63,31 @@ function extractIncludePath(lineText: string, cursorCol: number): string | null 
     return match[1];
 }
 
-function resolveIncludeLocation(includePath: string, documentUri: vscode.Uri): vscode.Definition | undefined {
-    const currentDir = path.dirname(documentUri.fsPath);
-    const targetPath = path.resolve(currentDir, includePath);
-    if (fs.existsSync(targetPath)) {
-        return new vscode.Location(vscode.Uri.file(targetPath), new vscode.Position(0, 0));
+function resolveIncludeLocation(includePath: string, documentUri: vscode.Uri): vscode.Location | undefined {
+    let searchDir = path.dirname(documentUri.fsPath);
+
+    while (true) {
+        const targetPath = path.resolve(searchDir, includePath);
+        if (fs.existsSync(targetPath)) {
+            return new vscode.Location(vscode.Uri.file(targetPath), new vscode.Position(0, 0));
+        }
+        const parent = path.dirname(searchDir);
+        if (parent === searchDir) {
+            break;
+        }
+        searchDir = parent;
     }
+
+    const workspaceFolders = vscode.workspace.workspaceFolders;
+    if (workspaceFolders) {
+        for (const folder of workspaceFolders) {
+            const targetPath = path.resolve(folder.uri.fsPath, includePath);
+            if (fs.existsSync(targetPath)) {
+                return new vscode.Location(vscode.Uri.file(targetPath), new vscode.Position(0, 0));
+            }
+        }
+    }
+
     return undefined;
 }
 

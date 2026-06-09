@@ -178,7 +178,7 @@
 					"name": "constant.language.flag.decorate"
 				},
 				{
-					"match": "([+\\-])([A-Za-z_][A-Za-z0-9_.]*)\\b(?!\\s*\\()",
+					"match": "(?<![^\\s])([+\\-])([A-Za-z_][A-Za-z0-9_.]*)\\b(?!\\s*\\()",
 					"captures": {
 						"1": {"name": "keyword.operator.flag.decorate"},
 						"2": {"name": "constant.language.flag.decorate"}

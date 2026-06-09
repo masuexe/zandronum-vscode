@@ -55,21 +55,51 @@ function resolveIncludePaths(workspaceRoot: string, srcFile: string): string[] {
     // 1. Always include the source file's directory
     paths.push(path.dirname(srcFile));
 
-    // 2. Always include the workspace root
+    // 2. Include the ACS source directory
+    paths.push(path.join(workspaceRoot, ACS_SOURCE_DIR));
+
+    // 3. Always include the workspace root
     paths.push(workspaceRoot);
 
-    // 3. Discover directories containing other .acs library files
+    // 4. Discover directories containing other .acs library files
     for (const libDir of discoverLibraryPaths(workspaceRoot, srcFile)) {
         paths.push(libDir);
     }
 
-    // 4. User-configured include paths
+    // 5. User-configured include paths
     for (const p of getUserIncludePaths()) {
         const resolved = path.isAbsolute(p) ? p : path.join(workspaceRoot, p);
         paths.push(resolved);
     }
 
     return [...new Set(paths)];
+}
+
+const LOADACS_PATH = 'src/loadacs';
+const ACS_SOURCE_DIR = 'src/acs_source';
+
+function parseLoadAcs(workspaceRoot: string): string[] {
+    const loadacsPath = path.join(workspaceRoot, LOADACS_PATH);
+    if (!fs.existsSync(loadacsPath)) {
+        return [];
+    }
+
+    const content = fs.readFileSync(loadacsPath, 'utf-8');
+    const libraries: string[] = [];
+
+    for (const line of content.split('\n')) {
+        const trimmed = line.trim();
+        if (trimmed === '' || trimmed.startsWith('//') || trimmed.startsWith('#')) {
+            continue;
+        }
+        const commentIdx = trimmed.indexOf('//');
+        const name = (commentIdx >= 0 ? trimmed.substring(0, commentIdx) : trimmed).trim();
+        if (name.length > 0) {
+            libraries.push(name);
+        }
+    }
+
+    return libraries;
 }
 
 const diagnosticCollection = vscode.languages.createDiagnosticCollection('acs');
@@ -191,6 +221,17 @@ function hasLibraryDirective(filePath: string): boolean {
 }
 
 function findLibraryAcsFiles(workspaceRoot: string): string[] {
+    const sourceDir = path.join(workspaceRoot, ACS_SOURCE_DIR);
+    if (!fs.existsSync(sourceDir)) {
+        return [];
+    }
+
+    const loadAcsEntries = parseLoadAcs(workspaceRoot);
+    if (loadAcsEntries.length === 0) {
+        return [];
+    }
+
+    const loadAcsSet = new Set(loadAcsEntries.map(e => e.toLowerCase()));
     const files: string[] = [];
 
     function scan(dir: string) {
@@ -204,14 +245,15 @@ function findLibraryAcsFiles(workspaceRoot: string): string[] {
             if (entry.isDirectory()) {
                 scan(full);
             } else if (entry.isFile() && entry.name.toLowerCase().endsWith('.acs')) {
-                if (hasLibraryDirective(full)) {
+                const baseName = path.basename(entry.name, '.acs').toLowerCase();
+                if (loadAcsSet.has(baseName) && hasLibraryDirective(full)) {
                     files.push(full);
                 }
             }
         }
     }
 
-    scan(workspaceRoot);
+    scan(sourceDir);
     return files;
 }
 
@@ -224,9 +266,17 @@ export async function compileAllAndBuild() {
 
     diagnosticCollection.clear();
 
+    const loadAcsEntries = parseLoadAcs(workspaceRoot);
+    if (loadAcsEntries.length === 0) {
+        vscode.window.showWarningMessage(`No LOADACS entries found in ${LOADACS_PATH}.`);
+        return;
+    }
+
     const acsFiles = findLibraryAcsFiles(workspaceRoot);
     if (acsFiles.length === 0) {
-        vscode.window.showWarningMessage('No ACS files with #library directive found in workspace.');
+        vscode.window.showWarningMessage(
+            `No matching ACS library files found in ${ACS_SOURCE_DIR}/ for LOADACS entries.`
+        );
         return;
     }
 

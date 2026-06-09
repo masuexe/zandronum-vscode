@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { loadPlaypal } from '../../tools/playpalReader';
+import { loadPlaypal, RgbColor } from '../../tools/playpalReader';
 
 const TRANSLATION_LINE_RE = /\bTranslation\b/i;
 const COLOR_VALUE_RE = /(%)?\[(\d+(?:\.\d+)?)\s*,\s*(\d+(?:\.\d+)?)\s*,\s*(\d+(?:\.\d+)?)\s*\]|\b(\d{1,3})\b/g;
@@ -20,6 +20,25 @@ function isFloatContext(lineText: string, matchIndex: number): boolean {
 
 function isPaletteMatch(match: RegExpExecArray): boolean {
     return match[5] !== undefined;
+}
+
+function findNearestPaletteIndex(color: vscode.Color, palette: RgbColor[]): number {
+    let best = 0;
+    let bestDist = Infinity;
+    const cr = color.red * 255;
+    const cg = color.green * 255;
+    const cb = color.blue * 255;
+    for (let i = 0; i < palette.length; i++) {
+        const dr = cr - palette[i].r;
+        const dg = cg - palette[i].g;
+        const db = cb - palette[i].b;
+        const dist = dr * dr + dg * dg + db * db;
+        if (dist < bestDist) {
+            bestDist = dist;
+            best = i;
+        }
+    }
+    return best;
 }
 
 export function registerColorProvider(context: vscode.ExtensionContext) {
@@ -96,10 +115,25 @@ export function registerColorProvider(context: vscode.ExtensionContext) {
                 return colors;
             },
 
-            provideColorPresentations(color, context) {
+            async provideColorPresentations(color, context) {
                 const rangeText = context.document.getText(context.range);
                 if (/^\d{1,3}$/.test(rangeText)) {
-                    return [new vscode.ColorPresentation(rangeText)];
+                    const palette = await loadPlaypal();
+                    if (!palette) {
+                        return [new vscode.ColorPresentation(rangeText)];
+                    }
+
+                    const nearestIdx = findNearestPaletteIndex(color, palette);
+                    const p1 = new vscode.ColorPresentation(String(nearestIdx));
+                    p1.textEdit = vscode.TextEdit.replace(context.range, String(nearestIdx));
+
+                    const ri = Math.round(color.red * 255);
+                    const gi = Math.round(color.green * 255);
+                    const bi = Math.round(color.blue * 255);
+                    const p2 = new vscode.ColorPresentation(`[${ri},${gi},${bi}]`);
+                    p2.textEdit = vscode.TextEdit.replace(context.range, `[${ri},${gi},${bi}]`);
+
+                    return [p1, p2];
                 }
 
                 const lineText = context.document.lineAt(context.range.start.line).text;

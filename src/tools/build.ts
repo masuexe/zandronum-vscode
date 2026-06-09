@@ -32,7 +32,7 @@ export async function buildPK3() {
 
     const srcPath = path.join(root, 'src');
     if (fs.existsSync(srcPath)) {
-        archive.directory(srcPath, false);
+        archive.directory(srcPath, "");
     }
 
     await archive.finalize();

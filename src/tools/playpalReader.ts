@@ -1,4 +1,6 @@
 import * as vscode from 'vscode';
+import * as path from 'path';
+import * as fs from 'fs';
 
 export interface RgbColor {
     r: number;
@@ -7,10 +9,45 @@ export interface RgbColor {
 }
 
 let paletteCache: RgbColor[] | null | undefined;
+let cacheKey: string | undefined;
 
 export async function loadPlaypal(): Promise<RgbColor[] | null> {
-    if (paletteCache !== undefined) {
+    const config = vscode.workspace.getConfiguration('zandronum-vscode');
+    const playpalPath = config.get<string>('playpalPath') || '';
+    const key = playpalPath || '_workspace';
+
+    if (paletteCache !== undefined && cacheKey === key) {
         return paletteCache;
+    }
+    cacheKey = key;
+
+    if (playpalPath) {
+        const root = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath || '';
+        const resolved = path.isAbsolute(playpalPath)
+            ? playpalPath
+            : path.resolve(root, playpalPath);
+
+        if (fs.existsSync(resolved)) {
+            const stat = fs.statSync(resolved);
+            if (stat.isFile()) {
+                const data = await readPlaypalFile(vscode.Uri.file(resolved));
+                if (data) {
+                    paletteCache = data;
+                    return data;
+                }
+            } else if (stat.isDirectory()) {
+                const files = await vscode.workspace.findFiles(
+                    new vscode.RelativePattern(resolved, 'PLAYPAL*')
+                );
+                if (files.length > 0) {
+                    const data = await readPlaypalFile(files[0]);
+                    if (data) {
+                        paletteCache = data;
+                        return data;
+                    }
+                }
+            }
+        }
     }
 
     const files = await vscode.workspace.findFiles('**/PLAYPAL*');
@@ -19,10 +56,15 @@ export async function loadPlaypal(): Promise<RgbColor[] | null> {
         return null;
     }
 
+    const data = await readPlaypalFile(files[0]);
+    paletteCache = data;
+    return data;
+}
+
+async function readPlaypalFile(uri: vscode.Uri): Promise<RgbColor[] | null> {
     try {
-        const data = await vscode.workspace.fs.readFile(files[0]);
+        const data = await vscode.workspace.fs.readFile(uri);
         if (data.length < 768) {
-            paletteCache = null;
             return null;
         }
 
@@ -34,10 +76,8 @@ export async function loadPlaypal(): Promise<RgbColor[] | null> {
                 b: data[i * 3 + 2]
             });
         }
-        paletteCache = palette;
         return palette;
     } catch {
-        paletteCache = null;
         return null;
     }
 }

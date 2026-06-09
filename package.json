@@ -130,6 +130,11 @@
           "type": "string",
           "default": "src/acs",
           "description": "Output directory for compiled .o files, relative to the workspace root."
+        },
+        "zandronum-vscode.playpalPath": {
+          "type": "string",
+          "default": "",
+          "description": "Path to an external PLAYPAL lump file or directory containing one. Supports relative paths (to workspace root) and absolute paths. Used for palette color preview in Translation properties."
         }
       }
     }

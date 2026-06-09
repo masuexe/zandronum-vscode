@@ -116,22 +116,23 @@ export function registerColorProvider(context: vscode.ExtensionContext) {
             },
 
             async provideColorPresentations(color, context) {
+                const palette = await loadPlaypal();
                 const rangeText = context.document.getText(context.range);
+
                 if (/^\d{1,3}$/.test(rangeText)) {
-                    const palette = await loadPlaypal();
                     if (!palette) {
                         return [new vscode.ColorPresentation(rangeText)];
                     }
 
-                    const nearestIdx = findNearestPaletteIndex(color, palette);
-                    const p1 = new vscode.ColorPresentation(String(nearestIdx));
-                    p1.textEdit = vscode.TextEdit.replace(context.range, String(nearestIdx));
-
                     const ri = Math.round(color.red * 255);
                     const gi = Math.round(color.green * 255);
                     const bi = Math.round(color.blue * 255);
-                    const p2 = new vscode.ColorPresentation(`[${ri},${gi},${bi}]`);
-                    p2.textEdit = vscode.TextEdit.replace(context.range, `[${ri},${gi},${bi}]`);
+                    const p1 = new vscode.ColorPresentation(`[${ri},${gi},${bi}]`);
+                    p1.textEdit = vscode.TextEdit.replace(context.range, `[${ri},${gi},${bi}]`);
+
+                    const nearestIdx = findNearestPaletteIndex(color, palette);
+                    const p2 = new vscode.ColorPresentation(String(nearestIdx));
+                    p2.textEdit = vscode.TextEdit.replace(context.range, String(nearestIdx));
 
                     return [p1, p2];
                 }
@@ -144,18 +145,28 @@ export function registerColorProvider(context: vscode.ExtensionContext) {
                     const gf = +(color.green.toFixed(3));
                     const bf = +(color.blue.toFixed(3));
                     const label = `[${rf},${gf},${bf}]`;
-                    const presentation = new vscode.ColorPresentation(label);
-                    presentation.textEdit = vscode.TextEdit.replace(context.range, label);
-                    return [presentation];
+                    const p1 = new vscode.ColorPresentation(label);
+                    p1.textEdit = vscode.TextEdit.replace(context.range, label);
+                    return [p1];
                 }
 
                 const r = Math.round(color.red * 255);
                 const g = Math.round(color.green * 255);
                 const b = Math.round(color.blue * 255);
                 const label = `[${r},${g},${b}]`;
-                const presentation = new vscode.ColorPresentation(label);
-                presentation.textEdit = vscode.TextEdit.replace(context.range, label);
-                return [presentation];
+                const p1 = new vscode.ColorPresentation(label);
+                p1.textEdit = vscode.TextEdit.replace(context.range, label);
+
+                const pres = [p1];
+
+                if (palette) {
+                    const idx = findNearestPaletteIndex(color, palette);
+                    const p2 = new vscode.ColorPresentation(String(idx));
+                    p2.textEdit = vscode.TextEdit.replace(context.range, String(idx));
+                    pres.push(p2);
+                }
+
+                return pres;
             }
         }
     );

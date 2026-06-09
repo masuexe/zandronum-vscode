@@ -11,7 +11,11 @@ export async function buildPK3() {
     }
 
     const root = workspaceFolders[0].uri.fsPath;
-    const outPath = path.join(root, 'build.pk3');
+    const outDir = path.join(root, 'out');
+    if (!fs.existsSync(outDir)) {
+        fs.mkdirSync(outDir, { recursive: true });
+    }
+    const outPath = path.join(outDir, 'build.pk3');
 
     const output = fs.createWriteStream(outPath);
     const archive = archiver('zip', { zlib: { level: 9 } });

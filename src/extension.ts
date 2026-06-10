@@ -15,6 +15,7 @@ import { compileAcs, compileAllAndBuild } from './tools/compileAcs';
 import { registerDecorateSemanticTokens } from './semantic/semanticTokensProvider';
 import { registerAcsSemanticTokens } from './semantic/acsSemanticTokensProvider';
 import { registerDefinitionProvider } from './language/decorate/definitionProvider';
+import { registerAcsDefinitionProvider } from './language/acs/definitionProvider';
 import { registerColorProvider } from './language/decorate/colorProvider';
 
 
@@ -39,6 +40,7 @@ export function activate(context: vscode.ExtensionContext) {
     registerAcsSignatureHelp(context, acsFunctionsData);
     registerAcsHoverProvider(context, acsFunctionsData);
     registerAcsSemanticTokens(context, acsConstantsData);
+    registerAcsDefinitionProvider(context);
 
     const sndinfoCommandsData = getSndinfoCommands(context);
     registerSndinfoCompletionProvider(context, sndinfoCommandsData);

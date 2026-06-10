@@ -104,48 +104,85 @@ function parseLoadAcs(workspaceRoot: string): string[] {
 
 const diagnosticCollection = vscode.languages.createDiagnosticCollection('acs');
 
-function parseAcsErrors(output: string, srcFile: string): vscode.Diagnostic[] {
-    const diagnostics: vscode.Diagnostic[] = [];
-    const srcResolved = path.resolve(srcFile).toLowerCase();
-    const srcBase = path.basename(srcFile).toLowerCase();
+function parseAcsErrors(output: string, srcFile: string, exitCode: number | null): Map<string, vscode.Diagnostic[]> {
+    const map = new Map<string, vscode.Diagnostic[]>();
+    const srcKey = path.resolve(srcFile);
+    const lines = output.split('\n');
 
-    // ACC format: C:\path\file.acs:11: Missing semicolon.
-    const re = /^(.+):(\d+):\s*(.+)$/gm;
+    let currentFile: string | null = null;
+    let currentLine: number = -1;
+    let currentMessage: string[] = [];
 
-    let match: RegExpExecArray | null;
-    while ((match = re.exec(output)) !== null) {
-        const file = match[1].trim();
-        const lineNum = parseInt(match[2], 10) - 1; // 0-based
-        const message = match[3].trim();
+    function flush() {
+        if (currentFile && currentLine >= 0 && currentMessage.length > 0) {
+            const fileKey = path.resolve(currentFile);
+            let diags = map.get(fileKey);
+            if (!diags) {
+                diags = [];
+                map.set(fileKey, diags);
+            }
+            const range = new vscode.Range(currentLine, 0, currentLine, Number.MAX_SAFE_INTEGER);
+            const diagnostic = new vscode.Diagnostic(
+                range, currentMessage.join('\n'), vscode.DiagnosticSeverity.Error
+            );
+            diagnostic.source = 'ACC';
+            diags.push(diagnostic);
+        }
+        currentFile = null;
+        currentLine = -1;
+        currentMessage = [];
+    }
 
-        const fileResolved = path.resolve(file).toLowerCase();
-        const fileBase = path.basename(file).toLowerCase();
-        if (fileResolved !== srcResolved && fileBase !== srcBase) {
+    for (const line of lines) {
+        // Single-line error: file:line: message
+        const singleMatch = /^(.+):(\d+):\s+(\S.*)$/.exec(line);
+        if (singleMatch) {
+            flush();
+            currentFile = singleMatch[1].trim();
+            currentLine = parseInt(singleMatch[2], 10) - 1;
+            currentMessage = [singleMatch[3].trim()];
+            flush();
             continue;
         }
 
-        const range = new vscode.Range(lineNum, 0, lineNum, Number.MAX_SAFE_INTEGER);
-        const diagnostic = new vscode.Diagnostic(
-            range,
-            message,
-            vscode.DiagnosticSeverity.Error
-        );
-        diagnostic.source = 'ACC';
-        diagnostics.push(diagnostic);
+        // Multi-line error header: file:line: (message follows on next lines)
+        const headerMatch = /^(.+):(\d+):\s*$/.exec(line);
+        if (headerMatch) {
+            flush();
+            currentFile = headerMatch[1].trim();
+            currentLine = parseInt(headerMatch[2], 10) - 1;
+            currentMessage = [];
+            continue;
+        }
+
+        // Context lines following a multi-line header
+        if (currentFile) {
+            const trimmed = line.trim();
+            if (trimmed.length > 0 && !/^Host byte order/i.test(trimmed)) {
+                currentMessage.push(trimmed);
+            }
+        }
     }
 
-    if (diagnostics.length === 0 && output.trim().length > 0) {
+    flush();
+
+    // Fallback: no structured errors but compiler exited with error
+    if (map.size === 0 && output.trim().length > 0 && exitCode !== 0) {
         const range = new vscode.Range(0, 0, 0, Number.MAX_SAFE_INTEGER);
         const diagnostic = new vscode.Diagnostic(
-            range,
-            output.trim(),
-            vscode.DiagnosticSeverity.Error
+            range, output.trim(), vscode.DiagnosticSeverity.Error
         );
         diagnostic.source = 'ACC';
-        diagnostics.push(diagnostic);
+        map.set(srcKey, [diagnostic]);
+        return map;
     }
 
-    return diagnostics;
+    // Ensure source file is present in the map to clear stale diagnostics
+    if (!map.has(srcKey)) {
+        map.set(srcKey, []);
+    }
+
+    return map;
 }
 
 export async function compileAcs() {
@@ -166,9 +203,11 @@ export async function compileAcs() {
         return;
     }
 
+    diagnosticCollection.clear();
+
     const ok = await compileSingleFile(srcFile, workspaceRoot);
     if (ok) {
-        vscode.window.showInformationMessage(`Compiled: ${path.basename(srcFile)}`);
+        vscode.window.showInformationMessage(`Compiled to ${path.basename(srcFile, path.extname(srcFile))}.o`);
     } else {
         vscode.window.showErrorMessage('Compilation failed. Check the Problems panel.');
     }
@@ -206,11 +245,16 @@ async function compileSingleFile(srcFile: string, workspaceRoot: string): Promis
 
         proc.on('close', (code) => {
             const output = stderr + stdout;
-            const diagnostics = parseAcsErrors(output, srcFile);
-            diagnosticCollection.set(vscode.Uri.file(srcFile), diagnostics);
+            const diagMap = parseAcsErrors(output, srcFile, code);
+
+            let totalDiags = 0;
+            for (const [filePath, diagnostics] of diagMap) {
+                diagnosticCollection.set(vscode.Uri.file(filePath), diagnostics);
+                totalDiags += diagnostics.length;
+            }
 
             const oExists = fs.existsSync(outFile);
-            if (code === 0 && diagnostics.length === 0 && oExists) {
+            if (code === 0 && totalDiags === 0 && oExists) {
                 resolve(true);
             } else {
                 resolve(false);

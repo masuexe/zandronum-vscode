@@ -149,7 +149,12 @@ export async function compileAcs() {
         return;
     }
 
-    await compileSingleFile(srcFile, workspaceRoot);
+    const ok = await compileSingleFile(srcFile, workspaceRoot);
+    if (ok) {
+        vscode.window.showInformationMessage(`Compiled: ${path.basename(srcFile)}`);
+    } else {
+        vscode.window.showErrorMessage('Compilation failed. Check the Problems panel.');
+    }
 }
 
 async function compileSingleFile(srcFile: string, workspaceRoot: string): Promise<boolean> {
@@ -187,14 +192,24 @@ async function compileSingleFile(srcFile: string, workspaceRoot: string): Promis
             const diagnostics = parseAcsErrors(output, srcFile);
             diagnosticCollection.set(vscode.Uri.file(srcFile), diagnostics);
 
-            if (code === 0 && diagnostics.length === 0) {
+            const oExists = fs.existsSync(outFile);
+            if (code === 0 && diagnostics.length === 0 && oExists) {
                 resolve(true);
             } else {
+                if (!oExists) {
+                    const detail = code === 0
+                        ? 'ACC returned success but did not produce an output file.'
+                        : '';
+                    vscode.window.showErrorMessage(`Failed to compile ${path.basename(srcFile)}. ${detail}`.trim());
+                }
                 resolve(false);
             }
         });
 
         proc.on('error', () => {
+            vscode.window.showErrorMessage(
+                `Failed to run ACC compiler. Check that '${accPath}' is a valid path.`
+            );
             resolve(false);
         });
     });

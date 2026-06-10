@@ -83,7 +83,7 @@ class AcsSemanticTokensProvider implements vscode.DocumentSemanticTokensProvider
             }
 
             // #define constants
-            const defineMatch = /^\s*#\s*define\s+([A-Za-z_][A-Za-z0-9_]*)/.exec(effective);
+            const defineMatch = /^\s*#\s*define\s+([A-Za-z_][A-Za-z0-9_]*)/i.exec(effective);
             if (defineMatch) {
                 const name = defineMatch[1];
                 if (!ACS_KEYWORDS.has(name.toLowerCase())) {

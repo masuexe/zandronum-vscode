@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
 import * as fs from 'fs';
+import { extractScriptRef, findScriptDefinition } from '../acs/definitionProvider';
 
 export function registerDefinitionProvider(context: vscode.ExtensionContext) {
     const defProvider = vscode.languages.registerDefinitionProvider(
@@ -20,6 +21,11 @@ async function provideDefinition(
     const includePath = extractIncludePath(lineText, position.character);
     if (includePath !== null) {
         return resolveIncludeLocation(includePath, document.uri);
+    }
+
+    const scriptRef = extractScriptRef(lineText, position.character);
+    if (scriptRef !== null) {
+        return findScriptDefinition(scriptRef, document.uri, token);
     }
 
     const wordRange = document.getWordRangeAtPosition(position);

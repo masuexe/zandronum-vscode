@@ -106,8 +106,11 @@ const diagnosticCollection = vscode.languages.createDiagnosticCollection('acs');
 
 function parseAcsErrors(output: string, srcFile: string): vscode.Diagnostic[] {
     const diagnostics: vscode.Diagnostic[] = [];
+    const srcResolved = path.resolve(srcFile).toLowerCase();
+    const srcBase = path.basename(srcFile).toLowerCase();
+
     // ACC format: C:\path\file.acs:11: Missing semicolon.
-    const re = /^(.+?):(\d+):\s*(.+)$/gm;
+    const re = /^(.+):(\d+):\s*(.+)$/gm;
 
     let match: RegExpExecArray | null;
     while ((match = re.exec(output)) !== null) {
@@ -115,13 +118,27 @@ function parseAcsErrors(output: string, srcFile: string): vscode.Diagnostic[] {
         const lineNum = parseInt(match[2], 10) - 1; // 0-based
         const message = match[3].trim();
 
-        // Only match errors for the source file (ignore library errors)
-        if (path.resolve(file).toLowerCase() !== path.resolve(srcFile).toLowerCase()) continue;
+        const fileResolved = path.resolve(file).toLowerCase();
+        const fileBase = path.basename(file).toLowerCase();
+        if (fileResolved !== srcResolved && fileBase !== srcBase) {
+            continue;
+        }
 
         const range = new vscode.Range(lineNum, 0, lineNum, Number.MAX_SAFE_INTEGER);
         const diagnostic = new vscode.Diagnostic(
             range,
             message,
+            vscode.DiagnosticSeverity.Error
+        );
+        diagnostic.source = 'ACC';
+        diagnostics.push(diagnostic);
+    }
+
+    if (diagnostics.length === 0 && output.trim().length > 0) {
+        const range = new vscode.Range(0, 0, 0, Number.MAX_SAFE_INTEGER);
+        const diagnostic = new vscode.Diagnostic(
+            range,
+            output.trim(),
             vscode.DiagnosticSeverity.Error
         );
         diagnostic.source = 'ACC';
@@ -196,12 +213,6 @@ async function compileSingleFile(srcFile: string, workspaceRoot: string): Promis
             if (code === 0 && diagnostics.length === 0 && oExists) {
                 resolve(true);
             } else {
-                if (!oExists) {
-                    const detail = code === 0
-                        ? 'ACC returned success but did not produce an output file.'
-                        : '';
-                    vscode.window.showErrorMessage(`Failed to compile ${path.basename(srcFile)}. ${detail}`.trim());
-                }
                 resolve(false);
             }
         });

@@ -31,7 +31,7 @@ export async function buildPK3() {
             const outPath = path.join(outDir, 'build.pk3');
 
             const output = fs.createWriteStream(outPath);
-            const archive = archiver('zip', { zlib: { level: 9 } });
+            const archive = archiver('zip', { store: true });
 
             await new Promise<void>((resolve, reject) => {
                 output.on('close', resolve);

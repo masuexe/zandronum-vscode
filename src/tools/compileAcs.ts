@@ -368,6 +368,8 @@ export async function compileAllAndBuild() {
         return;
     }
 
+    vscode.window.showInformationMessage(`All ${totalCompiled} compiled successfully. Building PK3...`);
+
     // All compiled, now build PK3
     await buildPK3();
 }

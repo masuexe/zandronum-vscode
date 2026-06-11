@@ -17,6 +17,7 @@ import { registerAcsSemanticTokens } from './semantic/acsSemanticTokensProvider'
 import { registerDefinitionProvider } from './language/decorate/definitionProvider';
 import { registerAcsDefinitionProvider } from './language/acs/definitionProvider';
 import { registerColorProvider } from './language/decorate/colorProvider';
+import { registerSpriteOffsetEditor } from './editors/spriteOffsetEditorProvider';
 
 
 export function activate(context: vscode.ExtensionContext) {
@@ -47,6 +48,8 @@ export function activate(context: vscode.ExtensionContext) {
     registerSndinfoSignatureHelp(context, sndinfoCommandsData);
     registerSndinfoHoverProvider(context, sndinfoCommandsData);
 
+
+    registerSpriteOffsetEditor(context);
 
     const buildCmd = vscode.commands.registerCommand(
         'decorate.buildPK3',

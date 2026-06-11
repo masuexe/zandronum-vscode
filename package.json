@@ -12,7 +12,8 @@
   "activationEvents": [
     "onLanguage:decorate",
     "onLanguage:acs",
-    "onLanguage:sndinfo"
+    "onLanguage:sndinfo",
+    "onCustomEditor:zandronum.spriteOffsetEditor"
   ],
   "main": "./out/extension.js",
   "contributes": {
@@ -104,6 +105,10 @@
       {
         "command": "acs.compileAllAndBuild",
         "title": "Compile All ACS and Build PK3"
+      },
+      {
+        "command": "zandronum.editSpriteOffset",
+        "title": "Edit Sprite Offset"
       }
     ],
     "keybindings": [
@@ -137,6 +142,25 @@
           "description": "Path to an external PLAYPAL lump file or directory containing one. Supports relative paths (to workspace root) and absolute paths. Used for palette color preview in Translation properties."
         }
       }
+    },
+    "customEditors": [
+      {
+        "viewType": "zandronum.spriteOffsetEditor",
+        "displayName": "Sprite Offset Editor",
+        "selector": [
+          { "filenamePattern": "*.png" }
+        ],
+        "priority": "option"
+      }
+    ],
+    "menus": {
+      "explorer/context": [
+        {
+          "command": "zandronum.editSpriteOffset",
+          "when": "resourceExtname == .png",
+          "group": "zandronum"
+        }
+      ]
     }
   },
   "scripts": {

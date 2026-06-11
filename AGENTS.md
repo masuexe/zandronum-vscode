@@ -279,12 +279,67 @@ Build logic should remain independent from language providers.
 # Recommended Project Structure
 
 ```text
-data/           Static metadata JSON files
-syntaxes/       TextMate grammars
-snippets/       VSCode snippets
-src/language/   Language-related providers
-src/tools/      Build/compile utilities
+data/               Static metadata JSON files
+syntaxes/           TextMate grammars
+snippets/           VSCode snippets
+media/              Webview assets (JS, CSS for custom editors)
+src/language/       Language-related providers
+src/tools/          Build/compile utilities
+src/tools/png/      PNG parsing tools (reusable outside editors)
+src/editors/        Custom editors (sprite offset, etc.)
+src/editors/providers/  Format-specific SpriteImageProvider implementations
 ```
+
+---
+
+# Sprite Offset Editor
+
+## Architecture
+
+The sprite offset editor is a CustomEditorProvider for visually editing image offsets (grAb chunk in PNG).
+
+**Offset semantics (Doom/ZDoom):**
+- Offset represents the pixel inside the image aligned with world origin
+- `screenX = originX - offset.x`, `screenY = originY - offset.y`
+- Drag right → offset.x decreases; Drag up → offset.y increases
+
+**Layer separation:**
+- `src/tools/png/` — Pure PNG tools (crc32, chunk reader, grAb), no vscode dependency, reusable
+- `src/editors/spriteImage.ts` — Interfaces (`SpriteImageProvider`, `SpriteOffset`, `AutoOffsetPreset`)
+- `src/editors/providers/` — Format-specific implementations (PngSpriteProvider)
+- `src/editors/spriteOffsetEditorProvider.ts` — CustomEditorProvider (depends only on interfaces)
+- `media/spriteOffsetEditor.js` — Webview (pure display + interaction, NO business logic)
+
+**Key patterns:**
+- Provider factory: `createSpriteProvider(Uint8Array, Uri)` — format detection, returns interface
+- Provider takes `Uint8Array` as data source (not fs path), enabling future PK3 support
+- Shared FileSystemWatcher (`**/*.png`) on the provider class, not per-document
+- V1 uses `CustomDocumentContentChangeEvent` for dirty tracking (no undo/redo)
+- Auto offset presets defined as `AutoOffsetPreset[]` array, not hardcoded
+- View modes: Sprite (floor line) and Weapon (320×200 reference frame with anchor at 160,168)
+
+**Constants:**
+```ts
+WEAPON_ANCHOR_X = 160
+WEAPON_ANCHOR_Y = 168
+WEAPON_REFERENCE_WIDTH = 320
+WEAPON_REFERENCE_HEIGHT = 200
+```
+
+## SLADE Compatibility
+
+The grAb chunk must be interoperable with SLADE3:
+- Chunk type: `grAb` (case-sensitive)
+- Data: 8 bytes — int32 big-endian X, int32 big-endian Y
+- Placed after IHDR chunk
+- CRC32 calculated over type + data (standard PNG CRC)
+
+## Future Expansion (V2)
+
+- Undo/Redo via `CustomDocumentEditEvent`
+- Doom Gfx / Doom Patch format support (new providers)
+- PK3 virtual file support
+- Grid overlay
 
 ---
 

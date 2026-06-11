@@ -34,6 +34,13 @@
     let panning = false;
     let lastMouseX = 0;
     let lastMouseY = 0;
+    let dragStartOffsetX = 0;
+    let dragStartOffsetY = 0;
+    let dragStartMouseX = 0;
+    let dragStartMouseY = 0;
+    let renderQueued = false;
+    let canvasW = 0;
+    let canvasH = 0;
 
     function saveState() {
         vscode.setState({ background: state.background, viewMode: state.viewMode });
@@ -108,10 +115,13 @@
 
     function fitZoom() {
         if (!imageWidth || !imageHeight) { return; }
-        const cw = canvas.width;
-        const ch = canvas.height;
+        if (!canvasW || !canvasH) {
+            const rect = canvas.getBoundingClientRect();
+            canvasW = rect.width;
+            canvasH = rect.height;
+        }
         const margin = 60;
-        zoom = Math.min((cw - margin) / imageWidth, (ch - margin) / imageHeight, 8);
+        zoom = Math.min((canvasW - margin) / imageWidth, (canvasH - margin) / imageHeight, 8);
         zoom = Math.max(zoom, 0.1);
         panX = 0;
         panY = 0;
@@ -119,21 +129,35 @@
 
     function resizeCanvas() {
         const rect = canvas.getBoundingClientRect();
-        canvas.width = rect.width * devicePixelRatio;
-        canvas.height = rect.height * devicePixelRatio;
-        ctx.scale(devicePixelRatio, devicePixelRatio);
+        const w = rect.width * devicePixelRatio;
+        const h = rect.height * devicePixelRatio;
+        if (canvas.width !== w || canvas.height !== h) {
+            canvas.width = w;
+            canvas.height = h;
+            canvasW = rect.width;
+            canvasH = rect.height;
+        }
+        ctx.setTransform(devicePixelRatio, 0, 0, devicePixelRatio, 0, 0);
+    }
+
+    function scheduleRender() {
+        if (!renderQueued) {
+            renderQueued = true;
+            requestAnimationFrame(() => {
+                renderQueued = false;
+                render();
+            });
+        }
     }
 
     function getOriginScreen() {
-        const cw = canvas.width / devicePixelRatio;
-        const ch = canvas.height / devicePixelRatio;
-        return { x: cw / 2 + panX, y: ch / 2 + panY };
+        return { x: canvasW / 2 + panX, y: canvasH / 2 + panY };
     }
 
     function render() {
         resizeCanvas();
-        const cw = canvas.width / devicePixelRatio;
-        const ch = canvas.height / devicePixelRatio;
+        const cw = canvasW;
+        const ch = canvasH;
 
         drawBackground(cw, ch);
 
@@ -245,8 +269,10 @@
             e.preventDefault();
         } else if (e.button === 0) {
             dragging = true;
-            lastMouseX = e.clientX;
-            lastMouseY = e.clientY;
+            dragStartMouseX = e.clientX;
+            dragStartMouseY = e.clientY;
+            dragStartOffsetX = offsetX;
+            dragStartOffsetY = offsetY;
             canvas.classList.add('dragging');
         }
     });
@@ -257,18 +283,18 @@
             panY += e.clientY - lastMouseY;
             lastMouseX = e.clientX;
             lastMouseY = e.clientY;
-            render();
+            scheduleRender();
         } else if (dragging) {
-            const dx = e.clientX - lastMouseX;
-            const dy = e.clientY - lastMouseY;
-            lastMouseX = e.clientX;
-            lastMouseY = e.clientY;
-            offsetX -= dx / zoom;
-            offsetY -= dy / zoom;
-            offsetX = Math.round(offsetX);
-            offsetY = Math.round(offsetY);
-            notifyOffsetChanged();
-            render();
+            const totalDx = e.clientX - dragStartMouseX;
+            const totalDy = e.clientY - dragStartMouseY;
+            const newX = Math.round(dragStartOffsetX - totalDx / zoom);
+            const newY = Math.round(dragStartOffsetY - totalDy / zoom);
+            if (newX !== offsetX || newY !== offsetY) {
+                offsetX = newX;
+                offsetY = newY;
+                notifyOffsetChanged();
+            }
+            scheduleRender();
         }
     });
 
@@ -292,7 +318,7 @@
         panX += (mouseX - origin.x) * (1 - zoom / oldZoom);
         panY += (mouseY - origin.y) * (1 - zoom / oldZoom);
 
-        render();
+        scheduleRender();
     }, { passive: false });
 
     window.addEventListener('keydown', (e) => {
@@ -349,7 +375,7 @@
         img.src = imageSource;
     }
 
-    window.addEventListener('resize', () => { render(); });
+    window.addEventListener('resize', () => { scheduleRender(); });
 
     vscode.postMessage({ type: 'ready' });
 })();

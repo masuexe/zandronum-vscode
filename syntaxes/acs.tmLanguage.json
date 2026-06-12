@@ -24,6 +24,9 @@
 			"include": "#types"
 		},
 		{
+			"include": "#casts"
+		},
+		{
 			"include": "#functions"
 		},
 		{
@@ -147,6 +150,14 @@
 				{
 					"name": "storage.modifier.acs",
 					"match": "(?i)\\b(world|global)\\b"
+				}
+			]
+		},
+		"casts": {
+			"patterns": [
+				{
+					"match": "\\b(?:a|b|c|d|f|i|k|l|n|s|x):",
+					"name": "constant.other.printcast.acs"
 				}
 			]
 		},

@@ -382,6 +382,12 @@ class AcsSemanticTokensProvider implements vscode.DocumentSemanticTokensProvider
                 if (isInString(wm.index, stringRanges)) continue;
                 if (isInComment(wm.index, lineCommentStart, blockRanges)) continue;
 
+                // Skip printcast prefix (s:, d:, c:, etc.) — handled by TextMate grammar
+                const afterIdx = wm.index + word.length;
+                if (afterIdx < text.length && text[afterIdx] === ':' && /^[abcdfiklnsx]$/i.test(word)) {
+                    continue;
+                }
+
                 // 1. Local variable declaration
                 const userDecls = userVars.get(word);
                 if (userDecls !== undefined) {

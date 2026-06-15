@@ -106,7 +106,7 @@
 				"name": "storage.type.decorate"
 			},
 			{
-				"match": "(?i)\\b(Loop|Stop|Wait)\\b",
+				"match": "(?i)\\b(Loop|Stop|Wait|Fail)\\b",
 				"name": "keyword.control.decorate"
 			},
 				{

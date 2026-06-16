@@ -104,10 +104,9 @@ function parseLoadAcs(workspaceRoot: string): string[] {
 
 const diagnosticCollection = vscode.languages.createDiagnosticCollection('acs');
 
-function parseAcsErrors(output: string, srcFile: string, exitCode: number | null): Map<string, vscode.Diagnostic[]> {
+function parseAcsErrors(output: string, srcFile: string): Map<string, vscode.Diagnostic[]> {
     const map = new Map<string, vscode.Diagnostic[]>();
-    const srcKey = path.resolve(srcFile);
-    const lines = output.split('\n');
+    const lines = output.replace(/\r/g, '').split('\n');
 
     let currentFile: string | null = null;
     let currentLine: number = -1;
@@ -134,28 +133,34 @@ function parseAcsErrors(output: string, srcFile: string, exitCode: number | null
     }
 
     for (const line of lines) {
-        // Single-line error: file:line: message
-        const singleMatch = /^(.+):(\d+):\s+(\S.*)$/.exec(line);
-        if (singleMatch) {
+        // file:line: message  or  file:line: (multi-line header)
+        const m = /^(.+):(\d+):\s*(.*)$/.exec(line);
+        if (m) {
+            const file = m[1].trim();
+            const lineNum = parseInt(m[2], 10) - 1;
+            const message = m[3].trim();
+
             flush();
-            currentFile = singleMatch[1].trim();
-            currentLine = parseInt(singleMatch[2], 10) - 1;
-            currentMessage = [singleMatch[3].trim()];
-            flush();
+
+            if (message.length > 0) {
+                const fileKey = path.resolve(file);
+                let diags = map.get(fileKey);
+                if (!diags) {
+                    diags = [];
+                    map.set(fileKey, diags);
+                }
+                const range = new vscode.Range(lineNum, 0, lineNum, Number.MAX_SAFE_INTEGER);
+                const diagnostic = new vscode.Diagnostic(range, message, vscode.DiagnosticSeverity.Error);
+                diagnostic.source = 'ACC';
+                diags.push(diagnostic);
+            } else {
+                currentFile = file;
+                currentLine = lineNum;
+                currentMessage = [];
+            }
             continue;
         }
 
-        // Multi-line error header: file:line: (message follows on next lines)
-        const headerMatch = /^(.+):(\d+):\s*$/.exec(line);
-        if (headerMatch) {
-            flush();
-            currentFile = headerMatch[1].trim();
-            currentLine = parseInt(headerMatch[2], 10) - 1;
-            currentMessage = [];
-            continue;
-        }
-
-        // Context lines following a multi-line header
         if (currentFile) {
             const trimmed = line.trim();
             if (trimmed.length > 0 && !/^Host byte order/i.test(trimmed)) {
@@ -165,22 +170,6 @@ function parseAcsErrors(output: string, srcFile: string, exitCode: number | null
     }
 
     flush();
-
-    // Fallback: no structured errors but compiler exited with error
-    if (map.size === 0 && output.trim().length > 0 && exitCode !== 0) {
-        const range = new vscode.Range(0, 0, 0, Number.MAX_SAFE_INTEGER);
-        const diagnostic = new vscode.Diagnostic(
-            range, output.trim(), vscode.DiagnosticSeverity.Error
-        );
-        diagnostic.source = 'ACC';
-        map.set(srcKey, [diagnostic]);
-        return map;
-    }
-
-    // Ensure source file is present in the map to clear stale diagnostics
-    if (!map.has(srcKey)) {
-        map.set(srcKey, []);
-    }
 
     return map;
 }
@@ -245,16 +234,25 @@ async function compileSingleFile(srcFile: string, workspaceRoot: string): Promis
 
         proc.on('close', (code) => {
             const output = stderr + stdout;
-            const diagMap = parseAcsErrors(output, srcFile, code);
+            const diagMap = parseAcsErrors(output, srcFile);
 
-            let totalDiags = 0;
             for (const [filePath, diagnostics] of diagMap) {
                 diagnosticCollection.set(vscode.Uri.file(filePath), diagnostics);
-                totalDiags += diagnostics.length;
             }
 
             const oExists = fs.existsSync(outFile);
-            if (code === 0 && totalDiags === 0 && oExists) {
+
+            // Fallback: no structured errors parsed, but ACC produced output and .o is missing
+            if (diagMap.size === 0 && output.trim().length > 0 && !oExists) {
+                const range = new vscode.Range(0, 0, 0, Number.MAX_SAFE_INTEGER);
+                const diagnostic = new vscode.Diagnostic(
+                    range, output.trim(), vscode.DiagnosticSeverity.Error
+                );
+                diagnostic.source = 'ACC';
+                diagnosticCollection.set(vscode.Uri.file(srcFile), [diagnostic]);
+            }
+
+            if (code === 0 && diagMap.size === 0 && oExists) {
                 resolve(true);
             } else {
                 resolve(false);

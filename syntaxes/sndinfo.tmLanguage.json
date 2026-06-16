@@ -38,6 +38,7 @@
                     "patterns": [
                         { "include": "#strings" },
                         { "include": "#numbers" },
+                        { "match": "\\*[A-Za-z0-9_-]+", "name": "variable.other.logicalname.sndinfo" },
                         { "match": "[A-Za-z_][A-Za-z0-9_/]+", "name": "variable.other.logicalname.sndinfo" }
                     ]
                 }

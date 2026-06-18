@@ -75,6 +75,10 @@
 					"end": "\"",
 					"patterns": [
 						{
+							"name": "constant.character.escape.color.acs",
+							"match": "\\\\c(?:\\[[^\\]]*\\]|[A-Za-z-])"
+						},
+						{
 							"name": "constant.character.escape.acs",
 							"match": "\\\\."
 						}

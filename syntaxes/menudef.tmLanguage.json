@@ -21,7 +21,8 @@
                     "begin": "\"",
                     "end": "\"",
                     "patterns": [
-                        { "name": "constant.character.escape.menudef", "match": "\\\\." }
+                        { "name": "constant.character.escape.color.menudef", "match": "\\\\c(?:\\[[^\\]]*\\]|[A-Za-z-])" },
+                    { "name": "constant.character.escape.menudef", "match": "\\\\." }
                     ]
                 }
             ]

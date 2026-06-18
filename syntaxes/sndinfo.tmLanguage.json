@@ -23,6 +23,7 @@
                     "begin": "\"",
                     "end": "\"",
                     "patterns": [
+                        { "name": "constant.character.escape.color.sndinfo", "match": "\\\\c(?:\\[[^\\]]*\\]|[A-Za-z-])" },
                         { "name": "constant.character.escape.sndinfo", "match": "\\\\." }
                     ]
                 }

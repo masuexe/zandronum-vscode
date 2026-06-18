@@ -139,7 +139,7 @@
     "$playersound": {
         "params": [
             { "name": "playerclass", "type": "string" },
-            { "name": "soundname", "type": "string" },
+            { "name": "gender", "type": "string" },
             { "name": "logicalname", "type": "string" },
             { "name": "lumpname", "type": "string" }
         ],
@@ -148,8 +148,9 @@
     "$playersounddup": {
         "params": [
             { "name": "playerclass", "type": "string" },
-            { "name": "soundname", "type": "string" },
-            { "name": "logicalname", "type": "string" }
+            { "name": "gender", "type": "string" },
+            { "name": "logicalname", "type": "string" },
+            { "name": "lumpname", "type": "string" }
         ],
         "desc": "Defines a player-class-specific sound (duplicate entry allowed)."
     },

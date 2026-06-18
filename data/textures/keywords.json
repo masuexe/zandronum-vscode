@@ -1,0 +1,184 @@
+{
+    "$schemaVersion": 1,
+    "engine": "zandronum",
+    "base": "zdoom-2.8pre-441-g458e1b1",
+
+    "keywords": {
+        "Texture": {
+            "category": "definition",
+            "params": [
+                { "name": "name", "type": "string" },
+                { "name": "width", "type": "int" },
+                { "name": "height", "type": "int" }
+            ],
+            "desc": "Defines a composite texture. An 'optional' keyword may be placed before the name; if present, missing patches will not generate warnings.",
+            "children": ["Patch", "Graphic", "XScale", "YScale", "Offset", "WorldPanning", "NoDecals", "NullTexture"],
+            "example": "Texture \"BIGDOOR1\", 128, 128\n{\n    Patch \"DOOR2_1\", 0, 0\n}"
+        },
+        "WallTexture": {
+            "category": "definition",
+            "params": [
+                { "name": "name", "type": "string" },
+                { "name": "width", "type": "int" },
+                { "name": "height", "type": "int" }
+            ],
+            "desc": "Defines a composite wall texture. Explicitly sets the wall texture namespace.",
+            "children": ["Patch", "Graphic", "XScale", "YScale", "Offset", "WorldPanning", "NoDecals", "NullTexture"],
+            "example": "WallTexture \"MYWALL\", 128, 128\n{\n    Patch \"WALL_1\", 0, 0\n}"
+        },
+        "Flat": {
+            "category": "definition",
+            "params": [
+                { "name": "name", "type": "string" },
+                { "name": "width", "type": "int" },
+                { "name": "height", "type": "int" }
+            ],
+            "desc": "Defines a composite flat (floor/ceiling texture). Explicitly sets the flat namespace.",
+            "children": ["Patch", "Graphic", "XScale", "YScale", "Offset", "WorldPanning", "NoDecals", "NullTexture"],
+            "example": "Flat \"FLOOR4_8\", 64, 64\n{\n    Patch \"FLAT18\", 0, 0\n}"
+        },
+        "Sprite": {
+            "category": "definition",
+            "params": [
+                { "name": "name", "type": "string" },
+                { "name": "width", "type": "int" },
+                { "name": "height", "type": "int" }
+            ],
+            "desc": "Defines a composite sprite. Explicitly sets the sprite namespace.",
+            "children": ["Patch", "Graphic", "XScale", "YScale", "Offset", "WorldPanning", "NoDecals", "NullTexture"],
+            "example": "Sprite \"TNT1A0\", 1, 1\n{\n    Patch \"TNT1A0\", 0, 0\n}"
+        },
+        "Graphic": {
+            "category": "definition",
+            "params": [
+                { "name": "name", "type": "string" },
+                { "name": "width", "type": "int" },
+                { "name": "height", "type": "int" }
+            ],
+            "desc": "Defines a composite graphic (menu graphics). Explicitly sets the graphic namespace. Can also be used inside a texture block as an alternative to Patch with different namespace prioritizing.",
+            "children": ["Patch", "Graphic", "XScale", "YScale", "Offset", "WorldPanning", "NoDecals", "NullTexture"]
+        },
+
+        "Patch": {
+            "category": "textureProperty",
+            "params": [
+                { "name": "name", "type": "string" },
+                { "name": "x", "type": "int" },
+                { "name": "y", "type": "int" }
+            ],
+            "desc": "Adds a graphic layer to the composite image. X/Y define where to place the patch starting from the top-left pixel. An optional property block enclosed in {} may follow.",
+            "children": ["FlipX", "FlipY", "UseOffsets", "Rotate", "Translation", "Blend", "Alpha", "Style"],
+            "example": "Patch \"DOOR2_1\", 0, 0\n{\n    Rotate 90\n}"
+        },
+        "XScale": {
+            "category": "textureProperty",
+            "params": [{ "name": "scale", "type": "float" }],
+            "desc": "Horizontal scale factor using inverted scale. 2 = half size, 0.5 = double size. Only needed when scaling.",
+            "example": "XScale 2.0"
+        },
+        "YScale": {
+            "category": "textureProperty",
+            "params": [{ "name": "scale", "type": "float" }],
+            "desc": "Vertical scale factor using inverted scale. 2 = half size, 0.5 = double size. Only needed when scaling.",
+            "example": "YScale 2.0"
+        },
+        "Offset": {
+            "category": "textureProperty",
+            "params": [
+                { "name": "x", "type": "int" },
+                { "name": "y", "type": "int" }
+            ],
+            "desc": "Specifies the horizontal and vertical offset for a sprite image.",
+            "example": "Offset 16, 8"
+        },
+        "WorldPanning": {
+            "category": "textureProperty",
+            "params": [],
+            "desc": "Texture offsets are applied in world units rather than pixels. Allows scaled textures to be offset properly when replacing lower resolution textures."
+        },
+        "NoDecals": {
+            "category": "textureProperty",
+            "params": [],
+            "desc": "Do not allow decals on this texture."
+        },
+        "NullTexture": {
+            "category": "textureProperty",
+            "params": [],
+            "desc": "The image will never actually be drawn. Duplicates the behavior of AASHITTY and other special textures."
+        },
+
+        "FlipX": {
+            "category": "patchProperty",
+            "params": [],
+            "desc": "Flips the patch horizontally (right-to-left) within the image."
+        },
+        "FlipY": {
+            "category": "patchProperty",
+            "params": [],
+            "desc": "Flips the patch vertically (upside down) within the image."
+        },
+        "UseOffsets": {
+            "category": "patchProperty",
+            "params": [],
+            "desc": "The patch's built-in offsets are subtracted from the X and Y origins, instead of being ignored."
+        },
+        "Rotate": {
+            "category": "patchProperty",
+            "params": [{ "name": "degrees", "type": "int" }],
+            "desc": "Rotates the patch within the image. Only multiples of 90 are valid (0, 90, 180, 270).",
+            "example": "Rotate 90"
+        },
+        "Translation": {
+            "category": "patchProperty",
+            "params": [{
+                "name": "translation", "type": "string",
+                "mode": "enum",
+                "enum": [
+                    { "name": "Inverse", "value": 0 },
+                    { "name": "Gold", "value": 1 },
+                    { "name": "Red", "value": 2 },
+                    { "name": "Green", "value": 3 },
+                    { "name": "Ice", "value": 4 },
+                    { "name": "Desaturate", "value": 5 }
+                ]
+            }],
+            "desc": "Applies a color translation to this patch. Can use a built-in type (Inverse, Gold, Red, Green, Ice, Desaturate) or a custom translation string. Desaturate takes an additional amount (1-31). Mutually incompatible with Blend.",
+            "example": "Translation \"112:127=208:223\""
+        },
+        "Blend": {
+            "category": "patchProperty",
+            "params": [
+                { "name": "color", "type": "string" },
+                { "name": "alpha", "type": "float", "optional": true }
+            ],
+            "desc": "Blends a color into the patch. With color only: creates a custom colormap (like Sector_SetColor). With color and alpha: blends a solid color (screen tinting). Alternative syntax: Blend r, g, b, alpha (values 0-255). Mutually incompatible with Translation.",
+            "example": "Blend Red, 0.5"
+        },
+        "Alpha": {
+            "category": "patchProperty",
+            "params": [{ "name": "value", "type": "float" }],
+            "desc": "Specifies the patch's translucency (0.0-1.0) when compositing. Default is 1.0 (fully opaque). Use Style to control how translucency is applied.",
+            "example": "Alpha 0.5"
+        },
+        "Style": {
+            "category": "patchProperty",
+            "params": [{
+                "name": "style", "type": "string",
+                "mode": "enum",
+                "enum": [
+                    { "name": "Copy", "value": 0 },
+                    { "name": "Translucent", "value": 1 },
+                    { "name": "Add", "value": 2 },
+                    { "name": "Subtract", "value": 3 },
+                    { "name": "ReverseSubtract", "value": 4 },
+                    { "name": "Modulate", "value": 5 },
+                    { "name": "CopyAlpha", "value": 6 },
+                    { "name": "CopyNewAlpha", "value": 7 },
+                    { "name": "Overlay", "value": 8 }
+                ]
+            }],
+            "desc": "Defines the render style for a translucent patch during composition.",
+            "example": "Style CopyAlpha"
+        }
+    }
+}

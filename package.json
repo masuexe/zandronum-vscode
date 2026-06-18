@@ -13,6 +13,7 @@
     "onLanguage:decorate",
     "onLanguage:acs",
     "onLanguage:sndinfo",
+    "onLanguage:textures",
     "onCustomEditor:zandronum.spriteOffsetEditor"
   ],
   "main": "./out/extension.js",

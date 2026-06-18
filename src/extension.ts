@@ -18,6 +18,12 @@ import { registerDefinitionProvider } from './language/decorate/definitionProvid
 import { registerAcsDefinitionProvider } from './language/acs/definitionProvider';
 import { registerColorProvider } from './language/decorate/colorProvider';
 import { registerSpriteOffsetEditor } from './editors/spriteOffsetEditorProvider';
+import { getTexturesKeywords } from './shared/dataLoader';
+import { TexturesParser } from './language/textures/contextParser';
+import { registerTexturesCompletionProvider } from './language/textures/completionProvider';
+import { registerTexturesSymbolProvider } from './language/textures/symbolProvider';
+import { registerTexturesHoverProvider } from './language/textures/hoverProvider';
+import { registerTexturesFoldingProvider } from './language/textures/foldingProvider';
 
 
 export function activate(context: vscode.ExtensionContext) {
@@ -48,6 +54,13 @@ export function activate(context: vscode.ExtensionContext) {
     registerSndinfoSignatureHelp(context, sndinfoCommandsData);
     registerSndinfoHoverProvider(context, sndinfoCommandsData);
 
+
+    const texturesData = getTexturesKeywords(context);
+    const texturesParser = new TexturesParser();
+    registerTexturesCompletionProvider(context, texturesData, texturesParser);
+    registerTexturesSymbolProvider(context, texturesParser);
+    registerTexturesHoverProvider(context, texturesData);
+    registerTexturesFoldingProvider(context, texturesParser);
 
     registerSpriteOffsetEditor(context);
 

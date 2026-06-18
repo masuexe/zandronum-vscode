@@ -116,3 +116,21 @@ function loadLangDataJson<T>(context: vscode.ExtensionContext, subdir: string, f
 export function getSndinfoCommands(context: vscode.ExtensionContext): Record<string, ActionData> {
     return loadLangDataJson<ActionData>(context, 'sndinfo', 'commands.json');
 }
+
+export interface TexturesKeywordData {
+    category: 'definition' | 'textureProperty' | 'patchProperty';
+    params?: ParamData[];
+    desc?: string;
+    children?: string[];
+    example?: string;
+}
+
+export function getTexturesKeywords(context: vscode.ExtensionContext): Record<string, TexturesKeywordData> {
+    const key = 'textures/keywords';
+    if (!cache[key]) {
+        const file = path.join(context.extensionPath, 'data/textures', 'keywords.json');
+        const raw = JSON.parse(fs.readFileSync(file, 'utf-8'));
+        cache[key] = raw.keywords;
+    }
+    return cache[key];
+}

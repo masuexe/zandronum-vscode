@@ -4,8 +4,13 @@
     "patterns": [
         { "include": "#comments" },
         { "include": "#strings" },
+        { "include": "#definition-keywords" },
+        { "include": "#optional-keyword" },
+        { "include": "#style-values" },
+        { "include": "#translation-builtins" },
+        { "include": "#properties" },
         { "include": "#numbers" },
-        { "include": "#keywords" }
+        { "include": "#braces" }
     ],
     "repository": {
         "comments": {
@@ -22,9 +27,34 @@
                     "end": "\"",
                     "patterns": [
                         { "name": "constant.character.escape.color.textures", "match": "\\\\c(?:\\[[^\\]]*\\]|[A-Za-z-])" },
-                    { "name": "constant.character.escape.textures", "match": "\\\\." }
+                        { "name": "constant.character.escape.textures", "match": "\\\\." }
                     ]
                 }
+            ]
+        },
+        "definition-keywords": {
+            "patterns": [
+                { "match": "(?i)\\b(Texture|WallTexture|Flat|Sprite|Graphic|Patch)\\b", "name": "keyword.declaration.textures" }
+            ]
+        },
+        "optional-keyword": {
+            "patterns": [
+                { "match": "(?i)\\b(optional)\\b", "name": "keyword.other.optional.textures" }
+            ]
+        },
+        "style-values": {
+            "patterns": [
+                { "match": "(?i)\\b(Copy|Translucent|Add|Subtract|ReverseSubtract|Modulate|CopyAlpha|CopyNewAlpha|Overlay)\\b", "name": "constant.language.style.textures" }
+            ]
+        },
+        "translation-builtins": {
+            "patterns": [
+                { "match": "(?i)\\b(Inverse|Gold|Red|Green|Ice|Desaturate)\\b", "name": "constant.language.translation.textures" }
+            ]
+        },
+        "properties": {
+            "patterns": [
+                { "match": "(?i)\\b(XScale|YScale|Offset|WorldPanning|NoDecals|NullTexture|FlipX|FlipY|UseOffsets|Rotate|Translation|Blend|Alpha|Style)\\b", "name": "keyword.other.property.textures" }
             ]
         },
         "numbers": {
@@ -34,9 +64,9 @@
                 { "match": "\\b0x[0-9a-fA-F]+\\b", "name": "constant.numeric.hex.textures" }
             ]
         },
-        "keywords": {
+        "braces": {
             "patterns": [
-                { "match": "(?i)\\b(texture|sprite|graphic|patch|xscale|yscale|flipx|flipy|offset|worldpanning|nopresscale|patch|rotate|translation|blend|alpha|style|wrap|clamp|null|useownpalette|basepalette|playerteamskull|playerblueskull|playerredskull|playersilverskull|playergoldskull|playerblackskull|textures)\\b", "name": "keyword.other.textures" }
+                { "match": "[{}]", "name": "punctuation.section.block.textures" }
             ]
         }
     },

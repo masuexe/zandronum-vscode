@@ -24,6 +24,7 @@ import { registerTexturesCompletionProvider } from './language/textures/completi
 import { registerTexturesSymbolProvider } from './language/textures/symbolProvider';
 import { registerTexturesHoverProvider } from './language/textures/hoverProvider';
 import { registerTexturesFoldingProvider } from './language/textures/foldingProvider';
+import { registerTexturesColorProvider } from './language/textures/colorProvider';
 import { ResourceIndex } from './language/textures/resourceIndex';
 import { TextureEditorRegistry } from './language/textures/textureDocumentController';
 
@@ -63,6 +64,7 @@ export function activate(context: vscode.ExtensionContext) {
     registerTexturesSymbolProvider(context, texturesParser);
     registerTexturesHoverProvider(context, texturesData);
     registerTexturesFoldingProvider(context, texturesParser);
+    registerTexturesColorProvider(context);
 
     const resourceIndex = new ResourceIndex();
     resourceIndex.build();

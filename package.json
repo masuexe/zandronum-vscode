@@ -173,6 +173,14 @@
           "group": "textures"
         }
       ]
+    },
+    "configurationDefaults": {
+      "[textures]": {
+        "editor.colorDecoratorsLimit": 10000
+      },
+      "[decorate]": {
+        "editor.colorDecoratorsLimit": 10000
+      }
     }
   },
   "scripts": {

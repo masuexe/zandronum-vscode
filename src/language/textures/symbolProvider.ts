@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { TexturesParser, TexturesNode, TexturesNodeKind } from './contextParser';
+import { TexturesParser, TexturesNode, TexturesNodeKind } from './texturesParser';
 
 export function registerTexturesSymbolProvider(
     context: vscode.ExtensionContext,
@@ -32,7 +32,7 @@ export function registerTexturesSymbolProvider(
                             results.push(new vscode.SymbolInformation(
                                 node.name,
                                 vscode.SymbolKind.Class,
-                                `${node.type} ${node.params[0]}\u00d7${node.params[1]}`,
+                                `${node.type} ${node.defData?.width ?? 0}\u00d7${node.defData?.height ?? 0}`,
                                 new vscode.Location(uri, node.nameRange)
                             ));
                         }
@@ -63,8 +63,8 @@ function nodeToSymbol(node: TexturesNode): vscode.DocumentSymbol {
         : vscode.SymbolKind.Field;
 
     const detail = node.kind === TexturesNodeKind.Definition
-        ? `${node.type} ${node.params[0]}\u00d7${node.params[1]}`
-        : `(${node.params[0]}, ${node.params[1]})`;
+        ? `${node.type} ${node.defData?.width ?? 0}\u00d7${node.defData?.height ?? 0}`
+        : `(${node.patchData?.x ?? 0}, ${node.patchData?.y ?? 0})`;
 
     const symbol = new vscode.DocumentSymbol(
         node.name,

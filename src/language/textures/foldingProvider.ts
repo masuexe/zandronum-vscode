@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { TexturesParser } from './contextParser';
+import { TexturesParser } from './texturesParser';
 
 export function registerTexturesFoldingProvider(
     context: vscode.ExtensionContext,

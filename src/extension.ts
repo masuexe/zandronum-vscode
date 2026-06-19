@@ -19,11 +19,13 @@ import { registerAcsDefinitionProvider } from './language/acs/definitionProvider
 import { registerColorProvider } from './language/decorate/colorProvider';
 import { registerSpriteOffsetEditor } from './editors/spriteOffsetEditorProvider';
 import { getTexturesKeywords } from './shared/dataLoader';
-import { TexturesParser } from './language/textures/contextParser';
+import { TexturesParser } from './language/textures/texturesParser';
 import { registerTexturesCompletionProvider } from './language/textures/completionProvider';
 import { registerTexturesSymbolProvider } from './language/textures/symbolProvider';
 import { registerTexturesHoverProvider } from './language/textures/hoverProvider';
 import { registerTexturesFoldingProvider } from './language/textures/foldingProvider';
+import { ResourceIndex } from './language/textures/resourceIndex';
+import { TextureEditorRegistry } from './language/textures/textureDocumentController';
 
 
 export function activate(context: vscode.ExtensionContext) {
@@ -61,6 +63,40 @@ export function activate(context: vscode.ExtensionContext) {
     registerTexturesSymbolProvider(context, texturesParser);
     registerTexturesHoverProvider(context, texturesData);
     registerTexturesFoldingProvider(context, texturesParser);
+
+    const resourceIndex = new ResourceIndex();
+    resourceIndex.build();
+    context.subscriptions.push({ dispose: () => resourceIndex.dispose() });
+
+    const textureEditorRegistry = new TextureEditorRegistry();
+    context.subscriptions.push({ dispose: () => textureEditorRegistry.dispose() });
+
+    context.subscriptions.push(
+        vscode.commands.registerCommand('textures.openEditor', () => {
+            const editor = vscode.window.activeTextEditor;
+            if (!editor) {
+                vscode.window.showWarningMessage('No active text editor.');
+                return;
+            }
+            if (editor.document.languageId !== 'textures') {
+                vscode.window.showWarningMessage(
+                    `Current file language is "${editor.document.languageId}", expected "textures". ` +
+                    'Ensure the file is named TEXTURES or set the language mode manually.'
+                );
+                return;
+            }
+            texturesParser.update(editor.document);
+            const node = texturesParser.getDefinitionAtPosition(editor.selection.active);
+            const textureName = node?.name ?? texturesParser.getSymbols()[0]?.name;
+            if (!textureName) {
+                vscode.window.showWarningMessage('No texture definitions found in this file.');
+                return;
+            }
+            textureEditorRegistry.open(
+                editor.document, textureName, texturesParser, resourceIndex, context
+            );
+        })
+    );
 
     registerSpriteOffsetEditor(context);
 

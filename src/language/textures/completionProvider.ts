@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import { TexturesKeywordData } from '../../shared/dataLoader';
-import { TexturesParser, TexturesContext } from './contextParser';
+import { TexturesParser, TexturesContext } from './texturesParser';
 
 export function registerTexturesCompletionProvider(
     context: vscode.ExtensionContext,

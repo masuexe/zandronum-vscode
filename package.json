@@ -110,6 +110,10 @@
       {
         "command": "zandronum.editSpriteOffset",
         "title": "Edit Sprite Offset"
+      },
+      {
+        "command": "textures.openEditor",
+        "title": "Open Texture Editor"
       }
     ],
     "keybindings": [
@@ -160,6 +164,13 @@
           "command": "zandronum.editSpriteOffset",
           "when": "resourceExtname == .png",
           "group": "zandronum"
+        }
+      ],
+      "editor/context": [
+        {
+          "command": "textures.openEditor",
+          "when": "editorLangId == textures",
+          "group": "textures"
         }
       ]
     }

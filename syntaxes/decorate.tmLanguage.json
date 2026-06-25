@@ -68,16 +68,21 @@
 			"patterns": [
 				{
 					"name": "meta.actor.decorate",
-					"match": "(?i)\\b(ACTOR)\\b(?:\\s+([a-zA-Z0-9_][a-zA-Z0-9_]*))?(?:\\s*:\\s*([a-zA-Z0-9_][a-zA-Z0-9_]*))?",
+					"match": "(?i)\\b(ACTOR)\\b(?:\\s+([a-zA-Z0-9_][a-zA-Z0-9_]*))?(?:\\s*:\\s*([a-zA-Z0-9_][a-zA-Z0-9_]*))?(?:\\s+(replaces)\\s+([a-zA-Z0-9_][a-zA-Z0-9_]*))?",
 					"captures": {
 						"1": {"name": "keyword.declaration.decorate"},
 						"2": {"name": "entity.name.class.decorate"},
-						"3": {"name": "entity.name.class.inherited.decorate"}
+						"3": {"name": "entity.name.class.inherited.decorate"},
+						"4": {"name": "keyword.other.decorate"},
+						"5": {"name": "entity.name.class.inherited.decorate"}
 					}
 				},
 				{
-					"match": "(?i)\\b(replaces)\\b",
-					"name": "keyword.other.decorate"
+					"match": "(?i)\\b(replaces)\\b\\s+([a-zA-Z0-9_][a-zA-Z0-9_]*)",
+					"captures": {
+						"1": {"name": "keyword.other.decorate"},
+						"2": {"name": "entity.name.class.inherited.decorate"}
+					}
 				}
 			]
 		},

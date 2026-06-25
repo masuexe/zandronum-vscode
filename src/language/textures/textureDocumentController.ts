@@ -166,13 +166,14 @@ export class TextureDocumentController {
     private async handleResolveResource(resourceId: string): Promise<void> {
         if (!this.panel) { return; }
         await this.resourceIndex.whenReady();
-        const uri = this.model.resolveResource(resourceId, this.panel.webview);
-        const size = this.model.getResourceSize(resourceId);
+        const resolved = this.model.resolveResourceFull(resourceId, this.panel.webview);
         this.panel.sendResourceResolved(
             resourceId,
-            uri,
-            size?.width ?? 0,
-            size?.height ?? 0
+            resolved.uri,
+            resolved.width,
+            resolved.height,
+            resolved.resourceType,
+            resolved.subPatches
         );
     }
 

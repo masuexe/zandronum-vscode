@@ -90,8 +90,9 @@
             const px = patch.id === dragPatchId ? dragCurrentX : patch.x;
             const py = patch.id === dragPatchId ? dragCurrentY : patch.y;
             const res = resourceCache.get(patch.resourceId);
-            const pw = (res?.state === 'ready' ? res.width : 32) * zoom;
-            const ph = (res?.state === 'ready' ? res.height : 32) * zoom;
+            const { w: rpw, h: rph } = getResourceDimensions(res);
+            const pw = rpw * zoom;
+            const ph = rph * zoom;
 
             overlayCtx.strokeStyle = isSelected ? 'rgba(0, 150, 255, 0.9)' : 'rgba(255, 200, 0, 0.7)';
             overlayCtx.lineWidth = isSelected ? 2 : 1;
@@ -130,6 +131,23 @@
             return;
         }
 
+        if (res.state === 'definition') {
+            const pw = res.width * zoom;
+            const ph = res.height * zoom;
+            ctx.strokeStyle = 'rgba(80, 160, 255, 0.8)';
+            ctx.lineWidth = 1;
+            ctx.setLineDash([4, 4]);
+            ctx.strokeRect(sx, sy, pw, ph);
+            ctx.setLineDash([]);
+            ctx.fillStyle = 'rgba(80, 160, 255, 0.15)';
+            ctx.fillRect(sx, sy, pw, ph);
+            ctx.fillStyle = 'rgba(80, 160, 255, 0.8)';
+            ctx.font = `${Math.max(9, 11 * zoom)}px monospace`;
+            ctx.fillText(patch.name, sx + 2, sy + 12 * zoom);
+            ctx.fillText(`${res.width}\u00d7${res.height}`, sx + 2, sy + 24 * zoom);
+            return;
+        }
+
         const bmp = res.bitmap;
         const pw = bmp.width * zoom;
         const ph = bmp.height * zoom;
@@ -165,14 +183,20 @@
         }
     }
 
+    function getResourceDimensions(res) {
+        if (res && (res.state === 'ready' || res.state === 'definition')) {
+            return { w: res.width, h: res.height };
+        }
+        return { w: 32, h: 32 };
+    }
+
     function hitTest(mouseX, mouseY) {
         if (!currentTexture) { return null; }
         const origin = getOrigin();
         for (let i = currentTexture.patches.length - 1; i >= 0; i--) {
             const p = currentTexture.patches[i];
             const res = resourceCache.get(p.resourceId);
-            const pw = (res?.state === 'ready' ? res.width : 32);
-            const ph = (res?.state === 'ready' ? res.height : 32);
+            const { w: pw, h: ph } = getResourceDimensions(res);
             const sx = origin.x + p.x * zoom;
             const sy = origin.y + p.y * zoom;
             if (mouseX >= sx && mouseX <= sx + pw * zoom &&
@@ -400,7 +424,29 @@
     });
 
     async function handleResourceResolved(msg) {
-        if (msg.uri) {
+        if (msg.resourceType === 'composite' && msg.subPatches && msg.subPatches.length > 0) {
+            try {
+                const bitmap = await compositePatches(msg.width, msg.height, msg.subPatches);
+                resourceCache.set(msg.resourceId, {
+                    state: 'ready',
+                    bitmap,
+                    width: msg.width,
+                    height: msg.height
+                });
+            } catch {
+                resourceCache.set(msg.resourceId, {
+                    state: 'definition',
+                    width: msg.width || 32,
+                    height: msg.height || 32
+                });
+            }
+        } else if (msg.resourceType === 'composite') {
+            resourceCache.set(msg.resourceId, {
+                state: 'definition',
+                width: msg.width || 32,
+                height: msg.height || 32
+            });
+        } else if (msg.uri) {
             try {
                 const resp = await fetch(msg.uri);
                 const blob = await resp.blob();
@@ -419,6 +465,28 @@
         }
         renderBase();
         renderOverlay();
+    }
+
+    async function compositePatches(width, height, subPatches) {
+        const offscreen = new OffscreenCanvas(width, height);
+        const octx = offscreen.getContext('2d');
+        for (const sp of subPatches) {
+            if (!sp.uri) { continue; }
+            const resp = await fetch(sp.uri);
+            const blob = await resp.blob();
+            const bmp = await createImageBitmap(blob);
+            const pw = bmp.width;
+            const ph = bmp.height;
+            octx.save();
+            octx.translate(sp.x + pw / 2, sp.y + ph / 2);
+            if (sp.rotate) { octx.rotate(sp.rotate * Math.PI / 180); }
+            if (sp.flipX || sp.flipY) { octx.scale(sp.flipX ? -1 : 1, sp.flipY ? -1 : 1); }
+            octx.globalAlpha = sp.alpha ?? 1;
+            octx.drawImage(bmp, -pw / 2, -ph / 2, pw, ph);
+            octx.restore();
+            bmp.close();
+        }
+        return offscreen.transferToImageBitmap();
     }
 
     vscode.postMessage({ type: 'ready' });

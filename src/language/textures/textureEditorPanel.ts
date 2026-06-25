@@ -91,10 +91,12 @@ export class TextureEditorPanel {
         resourceId: string,
         uri: string | null,
         width: number,
-        height: number
+        height: number,
+        resourceType: 'image' | 'composite' | 'missing' = 'missing',
+        subPatches?: any[]
     ): void {
         this.panel.webview.postMessage({
-            type: 'resourceResolved', resourceId, uri, width, height
+            type: 'resourceResolved', resourceId, uri, width, height, resourceType, subPatches
         });
     }
 

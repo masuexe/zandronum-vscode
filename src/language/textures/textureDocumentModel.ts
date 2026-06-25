@@ -1,6 +1,26 @@
 import * as vscode from 'vscode';
 import { TexturesParser, TexturesNode, TexturesContext, TexturesParseDiagnostic } from './texturesParser';
-import { ResourceIndex } from './resourceIndex';
+import { ResourceIndex, ResourceType } from './resourceIndex';
+
+export interface CompositeSubPatch {
+    uri: string | null;
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+    flipX: boolean;
+    flipY: boolean;
+    rotate: number;
+    alpha: number;
+}
+
+export interface ResolvedResource {
+    uri: string | null;
+    width: number;
+    height: number;
+    resourceType: 'image' | 'composite' | 'missing';
+    subPatches?: CompositeSubPatch[];
+}
 
 export class TextureDocumentModel {
     readonly document: vscode.TextDocument;
@@ -47,19 +67,104 @@ export class TextureDocumentModel {
     }
 
     resolveResource(resourceId: string, webview: vscode.Webview): string | null {
-        const parts = resourceId.split(':');
-        if (parts.length < 2) { return null; }
-        const meta = this.resourceIndex.resolve(parts[0], parts[1]);
-        if (!meta) { return null; }
-        return webview.asWebviewUri(meta.uri).toString();
+        const resolved = this.resolveResourceFull(resourceId, webview);
+        return resolved.uri;
     }
 
     getResourceSize(resourceId: string): { width: number; height: number } | null {
         const parts = resourceId.split(':');
         if (parts.length < 2) { return null; }
+        const name = parts[1].toLowerCase();
+        const localDef = this.parser.getSymbols().find(
+            n => n.name.toLowerCase() === name
+        );
+        if (localDef && localDef.defData) {
+            return { width: localDef.defData.width, height: localDef.defData.height };
+        }
         const meta = this.resourceIndex.resolve(parts[0], parts[1]);
         if (!meta || meta.width === undefined || meta.height === undefined) { return null; }
         return { width: meta.width, height: meta.height };
+    }
+
+    resolveResourceFull(resourceId: string, webview: vscode.Webview, visited?: Set<string>): ResolvedResource {
+        const parts = resourceId.split(':');
+        if (parts.length < 2) { return { uri: null, width: 0, height: 0, resourceType: 'missing' }; }
+        const name = parts[1].toLowerCase();
+
+        const v = visited ?? new Set<string>();
+        if (v.has(name)) { return { uri: null, width: 0, height: 0, resourceType: 'missing' }; }
+
+        const localDef = this.parser.getSymbols().find(
+            n => n.name.toLowerCase() === name
+        );
+        if (localDef && localDef.defData && localDef.children.length > 0) {
+            v.add(name);
+            const subPatches = this.resolveSubPatches(localDef, webview, v);
+            return {
+                uri: null,
+                width: localDef.defData.width,
+                height: localDef.defData.height,
+                resourceType: 'composite',
+                subPatches
+            };
+        }
+
+        const meta = this.resourceIndex.resolve(parts[0], parts[1]);
+        if (!meta) { return { uri: null, width: 0, height: 0, resourceType: 'missing' }; }
+
+        if (meta.type === ResourceType.TextureDefinition) {
+            return {
+                uri: null,
+                width: meta.width ?? 0,
+                height: meta.height ?? 0,
+                resourceType: 'composite',
+                subPatches: []
+            };
+        }
+
+        return {
+            uri: webview.asWebviewUri(meta.uri).toString(),
+            width: meta.width ?? 0,
+            height: meta.height ?? 0,
+            resourceType: 'image'
+        };
+    }
+
+    private resolveSubPatches(
+        def: TexturesNode,
+        webview: vscode.Webview,
+        visited: Set<string>
+    ): CompositeSubPatch[] {
+        const results: CompositeSubPatch[] = [];
+        for (const child of def.children) {
+            const childResource = this.resolveResourceFull(`patch:${child.name}`, webview, visited);
+            if (childResource.resourceType === 'image' && childResource.uri) {
+                results.push({
+                    uri: childResource.uri,
+                    x: child.patchData?.x ?? 0,
+                    y: child.patchData?.y ?? 0,
+                    width: childResource.width,
+                    height: childResource.height,
+                    flipX: !!child.patchProps.FlipX,
+                    flipY: !!child.patchProps.FlipY,
+                    rotate: (child.patchProps.Rotate as number) ?? 0,
+                    alpha: (child.patchProps.Alpha as number) ?? 1
+                });
+            } else if (childResource.resourceType === 'composite' && childResource.subPatches) {
+                results.push({
+                    uri: null,
+                    x: child.patchData?.x ?? 0,
+                    y: child.patchData?.y ?? 0,
+                    width: childResource.width,
+                    height: childResource.height,
+                    flipX: !!child.patchProps.FlipX,
+                    flipY: !!child.patchProps.FlipY,
+                    rotate: (child.patchProps.Rotate as number) ?? 0,
+                    alpha: (child.patchProps.Alpha as number) ?? 1
+                });
+            }
+        }
+        return results;
     }
 
     async applyPatchMove(

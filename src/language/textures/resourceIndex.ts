@@ -5,6 +5,7 @@ export enum ResourceType {
     Png,
     Jpeg,
     DoomGraphic,
+    TextureDefinition,
     Unknown
 }
 
@@ -24,12 +25,21 @@ function typeFromExtension(ext: string): ResourceType {
     }
 }
 
-function computePriority(uri: vscode.Uri): number {
+function isInSrc(uri: vscode.Uri): boolean {
     const rel = vscode.workspace.asRelativePath(uri, false);
     const segments = rel.replace(/\\/g, '/').split('/');
-    if (segments[0]?.toLowerCase() === 'src') { return 10; }
-    return 0;
+    return segments[0]?.toLowerCase() === 'src';
 }
+
+function computeImagePriority(uri: vscode.Uri): number {
+    return isInSrc(uri) ? 10 : 0;
+}
+
+function computeDefinitionPriority(uri: vscode.Uri): number {
+    return isInSrc(uri) ? 20 : 5;
+}
+
+const TEXTURES_DEF_RE = /^\s*(Texture|WallTexture|Flat|Sprite|Graphic)\s+(?:optional\s+)?(?:"([^"]*)"|([^\s,]+))\s*,\s*(\d+)\s*,\s*(\d+)/gim;
 
 export class ResourceIndex {
     private index = new Map<string, ResourceMetadata[]>();
@@ -58,13 +68,44 @@ export class ResourceIndex {
 
     private async doBuild(): Promise<void> {
         this.index.clear();
-        const files = await vscode.workspace.findFiles('**/*.{png,jpg,jpeg}', '**/node_modules/**');
-        for (const uri of files) {
+        const imageFiles = await vscode.workspace.findFiles('**/*.{png,jpg,jpeg}', '**/node_modules/**');
+        for (const uri of imageFiles) {
             this.addFile(uri);
+        }
+        const texturesFiles = await vscode.workspace.findFiles('**/TEXTURES*', '**/node_modules/**');
+        for (const uri of texturesFiles) {
+            await this.scanTexturesFile(uri);
         }
         this.watcher = vscode.workspace.createFileSystemWatcher('**/*.{png,jpg,jpeg}');
         this.watcher.onDidCreate(uri => this.addFile(uri));
         this.watcher.onDidDelete(uri => this.removeFile(uri));
+    }
+
+    private async scanTexturesFile(uri: vscode.Uri): Promise<void> {
+        try {
+            const data = await vscode.workspace.fs.readFile(uri);
+            const text = Buffer.from(data).toString('utf-8');
+            TEXTURES_DEF_RE.lastIndex = 0;
+            let m: RegExpExecArray | null;
+            while ((m = TEXTURES_DEF_RE.exec(text)) !== null) {
+                const name = (m[2] ?? m[3]).toLowerCase();
+                const width = parseInt(m[4]);
+                const height = parseInt(m[5]);
+                const entry: ResourceMetadata = {
+                    uri,
+                    type: ResourceType.TextureDefinition,
+                    priority: computeDefinitionPriority(uri),
+                    width,
+                    height
+                };
+                const existing = this.index.get(name);
+                if (existing) {
+                    existing.push(entry);
+                } else {
+                    this.index.set(name, [entry]);
+                }
+            }
+        } catch {}
     }
 
     private addFile(uri: vscode.Uri): void {
@@ -73,7 +114,7 @@ export class ResourceIndex {
         const entry: ResourceMetadata = {
             uri,
             type: typeFromExtension(ext),
-            priority: computePriority(uri)
+            priority: computeImagePriority(uri)
         };
         const existing = this.index.get(name);
         if (existing) {

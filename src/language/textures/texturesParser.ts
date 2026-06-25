@@ -216,6 +216,9 @@ export class TexturesParser {
                         currentDef.children.push(node);
                         this.lineContexts[i] = TexturesContext.Patch;
                         if (clean.lastIndexOf('}') > clean.indexOf('{')) {
+                            const pBraceStart = clean.indexOf('{');
+                            const pBraceEnd = clean.lastIndexOf('}');
+                            this.parseInlineProperties(clean.substring(pBraceStart + 1, pBraceEnd), node);
                             currentPatch.range = new vscode.Range(i, 0, i, lineText.length);
                             currentPatch = undefined;
                             context = TexturesContext.Texture;
@@ -380,7 +383,34 @@ export class TexturesParser {
             yRange: ranges.yRange,
             patchProps: {}
         };
+        const patchBlockStart = afterBrace.indexOf('{', patchMatch.index + patchMatch[0].length);
+        if (patchBlockStart >= 0) {
+            const patchBlockEnd = afterBrace.indexOf('}', patchBlockStart);
+            if (patchBlockEnd >= 0) {
+                this.parseInlineProperties(afterBrace.substring(patchBlockStart + 1, patchBlockEnd), node);
+            }
+        }
         def.children.push(node);
+    }
+
+    private parseInlineProperties(content: string, node: TexturesNode): void {
+        const boolRe = /\b(FlipX|FlipY|UseOffsets)\b/gi;
+        let m: RegExpExecArray | null;
+        while ((m = boolRe.exec(content)) !== null) {
+            node.patchProps[m[1]] = true;
+        }
+        const intRe = /\b(Rotate)\s+(-?\d+)/gi;
+        while ((m = intRe.exec(content)) !== null) {
+            node.patchProps[m[1]] = parseInt(m[2]);
+        }
+        const floatRe = /\b(Alpha)\s+(-?[0-9]+\.?[0-9]*)/gi;
+        while ((m = floatRe.exec(content)) !== null) {
+            node.patchProps[m[1]] = parseFloat(m[2]);
+        }
+        const strRe = /\b(Style)\s+(\S+)/gi;
+        while ((m = strRe.exec(content)) !== null) {
+            node.patchProps[m[1]] = m[2];
+        }
     }
 
     private findNameRange(lineText: string, lineNum: number, name: string, quoted: boolean): vscode.Range {

@@ -22,6 +22,29 @@ function getOutputDir(workspaceRoot: string): string {
     return path.join(workspaceRoot, dir);
 }
 
+function getAccDir(workspaceRoot: string): string | null {
+    const accPath = getAccPath();
+
+    if (accPath !== 'acc') {
+        const resolved = path.isAbsolute(accPath)
+            ? accPath
+            : path.resolve(workspaceRoot, accPath);
+        return path.dirname(resolved);
+    }
+
+    try {
+        const result = cp.execSync('where acc', { encoding: 'utf-8' });
+        const first = result.trim().split('\n')[0];
+        if (first) {
+            return path.dirname(first.trim());
+        }
+    } catch {
+        // acc not found in PATH
+    }
+
+    return null;
+}
+
 function discoverLibraryPaths(workspaceRoot: string, srcFile: string): string[] {
     const dirs = new Set<string>();
 
@@ -37,7 +60,6 @@ function discoverLibraryPaths(workspaceRoot: string, srcFile: string): string[] 
                 scanDir(full);
             } else if (entry.isFile() && entry.name.toLowerCase().endsWith('.acs')) {
                 const parent = path.dirname(full);
-                // Only add if not the source file's directory (already included)
                 if (parent !== path.dirname(srcFile)) {
                     dirs.add(parent);
                 }
@@ -49,24 +71,51 @@ function discoverLibraryPaths(workspaceRoot: string, srcFile: string): string[] 
     return [...dirs];
 }
 
+function collectSubdirs(root: string, dirs: Set<string>) {
+    let entries: fs.Dirent[];
+    try { entries = fs.readdirSync(root, { withFileTypes: true }); }
+    catch { return; }
+
+    for (const entry of entries) {
+        if (entry.name.startsWith('.') || entry.name === 'node_modules') continue;
+        if (entry.isDirectory()) {
+            const full = path.join(root, entry.name);
+            dirs.add(full);
+            collectSubdirs(full, dirs);
+        }
+    }
+}
+
 function resolveIncludePaths(workspaceRoot: string, srcFile: string): string[] {
     const paths: string[] = [];
 
-    // 1. Always include the source file's directory
+    // 1. Include the ACC executable's directory (contains zcommon.acs etc.)
+    const accDir = getAccDir(workspaceRoot);
+    if (accDir) {
+        paths.push(accDir);
+    }
+
+    // 2. Always include the source file's directory
     paths.push(path.dirname(srcFile));
 
-    // 2. Include the ACS source directory
-    paths.push(path.join(workspaceRoot, ACS_SOURCE_DIR));
+    // 3. Include the ACS source directory and all its subdirectories
+    const acsSource = path.join(workspaceRoot, ACS_SOURCE_DIR);
+    paths.push(acsSource);
+    const subdirs = new Set<string>();
+    collectSubdirs(acsSource, subdirs);
+    for (const d of subdirs) {
+        paths.push(d);
+    }
 
-    // 3. Always include the workspace root
+    // 4. Always include the workspace root
     paths.push(workspaceRoot);
 
-    // 4. Discover directories containing other .acs library files
+    // 5. Discover directories containing other .acs library files
     for (const libDir of discoverLibraryPaths(workspaceRoot, srcFile)) {
         paths.push(libDir);
     }
 
-    // 5. User-configured include paths
+    // 6. User-configured include paths
     for (const p of getUserIncludePaths()) {
         const resolved = path.isAbsolute(p) ? p : path.join(workspaceRoot, p);
         paths.push(resolved);

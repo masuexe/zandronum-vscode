@@ -3,6 +3,7 @@ import * as cp from 'child_process';
 import * as path from 'path';
 import * as fs from 'fs';
 import { buildPK3 } from './build';
+import { getPk3Root } from '../shared/pk3Root';
 
 function getAccPath(): string {
     const config = vscode.workspace.getConfiguration('zandronum-vscode');
@@ -18,8 +19,11 @@ function getUserIncludePaths(): string[] {
 
 function getOutputDir(workspaceRoot: string): string {
     const config = vscode.workspace.getConfiguration('zandronum-vscode');
-    const dir = config.get<string>('accOutputDir') || 'src/acs';
-    return path.join(workspaceRoot, dir);
+    const customDir = config.get<string>('accOutputDir');
+    if (customDir) {
+        return path.join(workspaceRoot, customDir);
+    }
+    return path.join(workspaceRoot, getPk3Root(), 'acs');
 }
 
 function getAccDir(workspaceRoot: string): string | null {
@@ -99,7 +103,7 @@ function resolveIncludePaths(workspaceRoot: string, srcFile: string): string[] {
     paths.push(path.dirname(srcFile));
 
     // 3. Include the ACS source directory and all its subdirectories
-    const acsSource = path.join(workspaceRoot, ACS_SOURCE_DIR);
+    const acsSource = path.join(workspaceRoot, getPk3Root(), 'acs_source');
     paths.push(acsSource);
     const subdirs = new Set<string>();
     collectSubdirs(acsSource, subdirs);
@@ -124,11 +128,16 @@ function resolveIncludePaths(workspaceRoot: string, srcFile: string): string[] {
     return [...new Set(paths)];
 }
 
-const LOADACS_PATH = 'src/loadacs';
-const ACS_SOURCE_DIR = 'src/acs_source';
+function getLoadAcsPath(workspaceRoot: string): string {
+    return path.join(workspaceRoot, getPk3Root(), 'loadacs');
+}
+
+function getAcsSourceDir(workspaceRoot: string): string {
+    return path.join(workspaceRoot, getPk3Root(), 'acs_source');
+}
 
 function parseLoadAcs(workspaceRoot: string): string[] {
-    const loadacsPath = path.join(workspaceRoot, LOADACS_PATH);
+    const loadacsPath = getLoadAcsPath(workspaceRoot);
     if (!fs.existsSync(loadacsPath)) {
         return [];
     }
@@ -338,7 +347,7 @@ function hasLibraryDirective(filePath: string): boolean {
 }
 
 function findLibraryAcsFiles(workspaceRoot: string): string[] {
-    const sourceDir = path.join(workspaceRoot, ACS_SOURCE_DIR);
+    const sourceDir = getAcsSourceDir(workspaceRoot);
     if (!fs.existsSync(sourceDir)) {
         return [];
     }
@@ -385,14 +394,14 @@ export async function compileAllAndBuild() {
 
     const loadAcsEntries = parseLoadAcs(workspaceRoot);
     if (loadAcsEntries.length === 0) {
-        vscode.window.showWarningMessage(`No LOADACS entries found in ${LOADACS_PATH}.`);
+        vscode.window.showWarningMessage(`No LOADACS entries found in ${getPk3Root()}/loadacs.`);
         return;
     }
 
     const acsFiles = findLibraryAcsFiles(workspaceRoot);
     if (acsFiles.length === 0) {
         vscode.window.showWarningMessage(
-            `No matching ACS library files found in ${ACS_SOURCE_DIR}/ for LOADACS entries.`
+            `No matching ACS library files found in ${getPk3Root()}/acs_source/ for LOADACS entries.`
         );
         return;
     }

@@ -25,26 +25,32 @@ function typeFromExtension(ext: string): ResourceType {
     }
 }
 
-function isInSrc(uri: vscode.Uri): boolean {
+function isInPk3Root(uri: vscode.Uri, pk3Root: string): boolean {
     const rel = vscode.workspace.asRelativePath(uri, false);
-    const segments = rel.replace(/\\/g, '/').split('/');
-    return segments[0]?.toLowerCase() === 'src';
+    const target = pk3Root.replace(/\\/g, '/').toLowerCase();
+    const pathLower = rel.replace(/\\/g, '/').toLowerCase();
+    return pathLower.startsWith(target + '/') || pathLower === target;
 }
 
-function computeImagePriority(uri: vscode.Uri): number {
-    return isInSrc(uri) ? 10 : 0;
+function computeImagePriority(uri: vscode.Uri, pk3Root: string): number {
+    return isInPk3Root(uri, pk3Root) ? 10 : 0;
 }
 
-function computeDefinitionPriority(uri: vscode.Uri): number {
-    return isInSrc(uri) ? 20 : 5;
+function computeDefinitionPriority(uri: vscode.Uri, pk3Root: string): number {
+    return isInPk3Root(uri, pk3Root) ? 20 : 5;
 }
 
 const TEXTURES_DEF_RE = /^\s*(Texture|WallTexture|Flat|Sprite|Graphic)\s+(?:optional\s+)?(?:"([^"]*)"|([^\s,]+))\s*,\s*(\d+)\s*,\s*(\d+)/gim;
 
 export class ResourceIndex {
+    private readonly pk3Root: string;
     private index = new Map<string, ResourceMetadata[]>();
     private watcher: vscode.FileSystemWatcher | undefined;
     private buildPromise: Promise<void> | undefined;
+
+    constructor(pk3Root: string = 'src') {
+        this.pk3Root = pk3Root;
+    }
 
     build(): void {
         this.buildPromise = this.doBuild();
@@ -94,7 +100,7 @@ export class ResourceIndex {
                 const entry: ResourceMetadata = {
                     uri,
                     type: ResourceType.TextureDefinition,
-                    priority: computeDefinitionPriority(uri),
+                    priority: computeDefinitionPriority(uri, this.pk3Root),
                     width,
                     height
                 };
@@ -114,7 +120,7 @@ export class ResourceIndex {
         const entry: ResourceMetadata = {
             uri,
             type: typeFromExtension(ext),
-            priority: computeImagePriority(uri)
+            priority: computeImagePriority(uri, this.pk3Root)
         };
         const existing = this.index.get(name);
         if (existing) {

@@ -2,6 +2,7 @@ import * as vscode from 'vscode';
 import * as fs from 'fs';
 import * as path from 'path';
 import archiver from 'archiver';
+import { getPk3Root } from '../shared/pk3Root';
 
 export async function buildPK3() {
     const workspaceFolders = vscode.workspace.workspaceFolders;
@@ -10,11 +11,12 @@ export async function buildPK3() {
         return;
     }
 
+    const pk3Root = getPk3Root();
     const root = workspaceFolders[0].uri.fsPath;
-    const srcPath = path.join(root, 'src');
+    const srcPath = path.join(root, pk3Root);
 
     if (!fs.existsSync(srcPath)) {
-        vscode.window.showErrorMessage('Build failed: src/ directory not found in workspace root');
+        vscode.window.showErrorMessage(`Build failed: ${pk3Root}/ directory not found in workspace root`);
         return;
     }
 

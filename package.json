@@ -136,10 +136,15 @@
           "default": "",
           "description": "Additional include directories for ACC (-i), separated by semicolons."
         },
+        "zandronum-vscode.pk3Root": {
+          "type": "string",
+          "default": "src",
+          "description": "PK3 content root directory relative to workspace root. Resources and ACS files inside this directory get higher lookup priority."
+        },
         "zandronum-vscode.accOutputDir": {
           "type": "string",
-          "default": "src/acs",
-          "description": "Output directory for compiled .o files, relative to the workspace root."
+          "default": "",
+          "description": "Output directory for compiled .o files, relative to the workspace root. If empty, defaults to <pk3Root>/acs."
         },
         "zandronum-vscode.playpalPath": {
           "type": "string",

@@ -25,6 +25,7 @@ import { registerTexturesSymbolProvider } from './language/textures/symbolProvid
 import { registerTexturesHoverProvider } from './language/textures/hoverProvider';
 import { registerTexturesFoldingProvider } from './language/textures/foldingProvider';
 import { registerTexturesColorProvider } from './language/textures/colorProvider';
+import { getPk3Root } from './shared/pk3Root';
 import { ResourceIndex } from './language/textures/resourceIndex';
 import { TextureEditorRegistry } from './language/textures/textureDocumentController';
 
@@ -66,7 +67,7 @@ export function activate(context: vscode.ExtensionContext) {
     registerTexturesFoldingProvider(context, texturesParser);
     registerTexturesColorProvider(context);
 
-    const resourceIndex = new ResourceIndex();
+    const resourceIndex = new ResourceIndex(getPk3Root());
     resourceIndex.build();
     context.subscriptions.push({ dispose: () => resourceIndex.dispose() });
 

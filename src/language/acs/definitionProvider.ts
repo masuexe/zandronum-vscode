@@ -1,5 +1,6 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
+import { getPk3Root } from '../../shared/pk3Root';
 
 const SCRIPT_EXEC_FUNCTIONS = new Set([
     'acs_execute', 'acs_executealways',
@@ -37,7 +38,7 @@ async function resolveIncludeLocation(
         return undefined;
     }
 
-    const srcDir = vscode.Uri.joinPath(workspaceRoot, 'src');
+    const srcDir = vscode.Uri.joinPath(workspaceRoot, getPk3Root());
     const includeBase = path.basename(includePath);
 
     const srcPattern = new vscode.RelativePattern(srcDir, `**/${includeBase}`);
@@ -170,7 +171,7 @@ export async function findScriptDefinition(
 
     const isNumbered = /^\d+$/.test(scriptRef);
 
-    const srcDir = vscode.Uri.joinPath(workspaceRoot, 'src');
+    const srcDir = vscode.Uri.joinPath(workspaceRoot, getPk3Root());
     const srcResult = await searchForScript(srcDir, scriptRef, isNumbered, token);
     if (srcResult) {
         return srcResult;

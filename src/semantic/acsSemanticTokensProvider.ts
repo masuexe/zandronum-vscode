@@ -2,6 +2,7 @@ import * as vscode from 'vscode';
 import * as fs from 'fs';
 import * as path from 'path';
 import { AcsConstantData } from '../shared/dataLoader';
+import { getPk3Root } from '../shared/pk3Root';
 
 const legend = new vscode.SemanticTokensLegend(
     ['variable', 'enumMember'],
@@ -151,7 +152,7 @@ function resolveIncludePath(
         return relative;
     }
 
-    const srcDir = path.join(workspaceRoot, 'src');
+    const srcDir = path.join(workspaceRoot, getPk3Root());
     if (fs.existsSync(srcDir)) {
         const found = findFileRecursive(srcDir, includeName);
         if (found) {

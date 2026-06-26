@@ -90,7 +90,7 @@
             const px = patch.id === dragPatchId ? dragCurrentX : patch.x;
             const py = patch.id === dragPatchId ? dragCurrentY : patch.y;
             const res = resourceCache.get(patch.resourceId);
-            const { w: rpw, h: rph } = getResourceDimensions(res);
+            const { w: rpw, h: rph } = getResourceDimensions(res, patch);
             const pw = rpw * zoom;
             const ph = rph * zoom;
 
@@ -148,18 +148,31 @@
             return;
         }
 
-        const bmp = res.bitmap;
+        function getProp(props, name, defaultValue) {
+        if (!props) { return defaultValue; }
+        const lower = name.toLowerCase();
+        for (const [k, v] of Object.entries(props)) {
+            if (k.toLowerCase() === lower) { return v; }
+        }
+        return defaultValue;
+    }
+
+    const bmp = res.bitmap;
         const pw = bmp.width * zoom;
         const ph = bmp.height * zoom;
 
         ctx.save();
-        ctx.translate(sx + pw / 2, sy + ph / 2);
-        const rot = (patch.props?.Rotate ?? 0) * Math.PI / 180;
+        const rotDeg = getProp(patch.props, 'Rotate', 0);
+        const swapped = Math.abs(rotDeg) % 180 === 90;
+        const cx = sx + (swapped ? ph : pw) / 2;
+        const cy = sy + (swapped ? pw : ph) / 2;
+        ctx.translate(cx, cy);
+        const rot = rotDeg * Math.PI / 180;
         if (rot) { ctx.rotate(rot); }
-        const flipX = patch.props?.FlipX ? -1 : 1;
-        const flipY = patch.props?.FlipY ? -1 : 1;
+        const flipX = getProp(patch.props, 'FlipX', false) ? -1 : 1;
+        const flipY = getProp(patch.props, 'FlipY', false) ? -1 : 1;
         if (flipX === -1 || flipY === -1) { ctx.scale(flipX, flipY); }
-        ctx.globalAlpha = patch.props?.Alpha ?? 1;
+        ctx.globalAlpha = getProp(patch.props, 'Alpha', 1);
         ctx.imageSmoothingEnabled = zoom < 1;
         ctx.drawImage(bmp, -pw / 2, -ph / 2, pw, ph);
         ctx.restore();
@@ -183,11 +196,19 @@
         }
     }
 
-    function getResourceDimensions(res) {
+    function getResourceDimensions(res, patch) {
+        let w, h;
         if (res && (res.state === 'ready' || res.state === 'definition')) {
-            return { w: res.width, h: res.height };
+            w = res.width;
+            h = res.height;
+        } else {
+            w = 32; h = 32;
         }
-        return { w: 32, h: 32 };
+        const rotDeg = getProp(patch?.props, 'Rotate', 0);
+        if (Math.abs(rotDeg) % 180 === 90) {
+            return { w: h, h: w };
+        }
+        return { w, h };
     }
 
     function hitTest(mouseX, mouseY) {
@@ -196,7 +217,7 @@
         for (let i = currentTexture.patches.length - 1; i >= 0; i--) {
             const p = currentTexture.patches[i];
             const res = resourceCache.get(p.resourceId);
-            const { w: pw, h: ph } = getResourceDimensions(res);
+            const { w: pw, h: ph } = getResourceDimensions(res, p);
             const sx = origin.x + p.x * zoom;
             const sy = origin.y + p.y * zoom;
             if (mouseX >= sx && mouseX <= sx + pw * zoom &&
@@ -478,8 +499,12 @@
             const pw = bmp.width;
             const ph = bmp.height;
             octx.save();
-            octx.translate(sp.x + pw / 2, sp.y + ph / 2);
-            if (sp.rotate) { octx.rotate(sp.rotate * Math.PI / 180); }
+            const rotDeg = sp.rotate ?? 0;
+            const swapped = Math.abs(rotDeg) % 180 === 90;
+            const cx = sp.x + (swapped ? ph : pw) / 2;
+            const cy = sp.y + (swapped ? pw : ph) / 2;
+            octx.translate(cx, cy);
+            if (rotDeg) { octx.rotate(rotDeg * Math.PI / 180); }
             if (sp.flipX || sp.flipY) { octx.scale(sp.flipX ? -1 : 1, sp.flipY ? -1 : 1); }
             octx.globalAlpha = sp.alpha ?? 1;
             octx.drawImage(bmp, -pw / 2, -ph / 2, pw, ph);

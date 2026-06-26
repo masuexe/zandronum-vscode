@@ -89,7 +89,9 @@ export class TexturesParser {
 
     update(document: vscode.TextDocument): void {
         const uri = document.uri.toString();
-        if (uri === this.cachedUri && document.version === this.cachedVersion) { return; }
+        if (uri === this.cachedUri && document.version === this.cachedVersion) {
+            return;
+        }
         this.cachedUri = uri;
         this.cachedVersion = document.version;
         this.cachedResult = this.parse(document);
@@ -218,7 +220,9 @@ export class TexturesParser {
                         if (clean.lastIndexOf('}') > clean.indexOf('{')) {
                             const pBraceStart = clean.indexOf('{');
                             const pBraceEnd = clean.lastIndexOf('}');
-                            this.parseInlineProperties(clean.substring(pBraceStart + 1, pBraceEnd), node);
+                            this.parseInlineProperties(
+                                clean.substring(pBraceStart + 1, pBraceEnd), node
+                            );
                             currentPatch.range = new vscode.Range(i, 0, i, lineText.length);
                             currentPatch = undefined;
                             context = TexturesContext.Texture;
@@ -267,7 +271,6 @@ export class TexturesParser {
         if (pendingDef) {
             rootNodes.push(pendingDef);
         }
-
         if (currentDef) {
             if (pendingPatch) {
                 currentDef.children.push(pendingPatch);
@@ -280,7 +283,6 @@ export class TexturesParser {
                 severity: vscode.DiagnosticSeverity.Error
             });
         }
-
         if (currentPatch && currentDef) {
             diagnostics.push({
                 message: `Unclosed Patch block "${currentPatch.name}"`,
@@ -387,7 +389,9 @@ export class TexturesParser {
         if (patchBlockStart >= 0) {
             const patchBlockEnd = afterBrace.indexOf('}', patchBlockStart);
             if (patchBlockEnd >= 0) {
-                this.parseInlineProperties(afterBrace.substring(patchBlockStart + 1, patchBlockEnd), node);
+                this.parseInlineProperties(
+                    afterBrace.substring(patchBlockStart + 1, patchBlockEnd), node
+                );
             }
         }
         def.children.push(node);
@@ -436,7 +440,6 @@ export class TexturesParser {
         } else {
             pos = lineText.indexOf(name) + name.length;
         }
-
         while (pos < lineText.length && lineText[pos] !== '-' && !/[0-9]/.test(lineText[pos])) { pos++; }
         const xStart = pos;
         if (lineText[pos] === '-') { pos++; }
@@ -459,28 +462,16 @@ export class TexturesParser {
         let m: RegExpExecArray | null;
 
         m = PROP_BOOL_RE.exec(clean);
-        if (m) {
-            patch.patchProps[m[1]] = true;
-            return;
-        }
+        if (m) { patch.patchProps[m[1]] = true; return; }
 
         m = PROP_INT_RE.exec(clean);
-        if (m) {
-            patch.patchProps[m[1]] = parseInt(m[2]);
-            return;
-        }
+        if (m) { patch.patchProps[m[1]] = parseInt(m[2]); return; }
 
         m = PROP_FLOAT_RE.exec(clean);
-        if (m) {
-            patch.patchProps[m[1]] = parseFloat(m[2]);
-            return;
-        }
+        if (m) { patch.patchProps[m[1]] = parseFloat(m[2]); return; }
 
         m = PROP_STR_RE.exec(clean);
-        if (m) {
-            patch.patchProps[m[1]] = m[2];
-            return;
-        }
+        if (m) { patch.patchProps[m[1]] = m[2]; return; }
     }
 
     private stripComments(line: string, inBlock: boolean): { text: string; inBlockComment: boolean } {

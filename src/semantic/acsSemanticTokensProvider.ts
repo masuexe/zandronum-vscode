@@ -388,6 +388,12 @@ class AcsSemanticTokensProvider implements vscode.DocumentSemanticTokensProvider
                     continue;
                 }
 
+                // Skip function calls/declarations — handled by TextMate grammar
+                const after = text.substring(afterIdx);
+                if (/^\s*\(/.test(after)) {
+                    continue;
+                }
+
                 // 1. Local variable declaration
                 const userDecls = userVars.get(word);
                 if (userDecls !== undefined) {

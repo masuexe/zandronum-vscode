@@ -1,6 +1,8 @@
 import * as vscode from 'vscode';
 import { ActionData, PropertyData, FlagData, ExpressionData, InheritanceData, findActionCaseInsensitive } from '../../shared/dataLoader';
 import { buildSnippetString } from '../../shared/snippetBuilder';
+import { SymbolDatabase } from '../../base/symbolDatabase';
+import { SymbolKind } from '../../base/types';
 
 type ContextType = 'flag' | 'state' | 'function' | 'property' | 'inherit' | 'none';
 
@@ -364,18 +366,31 @@ function providePropertyItems(
 
 function provideInheritanceItems(
     inheritanceData: Record<string, InheritanceData>,
+    symbolDb: SymbolDatabase | undefined,
     prefix: string
 ): vscode.CompletionItem[] {
     const items: vscode.CompletionItem[] = [];
+    const seen = new Set<string>();
+
+    const addItem = (name: string, detail: string) => {
+        const key = name.toLowerCase();
+        if (seen.has(key)) { return; }
+        seen.add(key);
+        if (prefix && !name.toUpperCase().startsWith(prefix.toUpperCase())) { return; }
+        const item = new vscode.CompletionItem(name, vscode.CompletionItemKind.Class);
+        item.detail = detail;
+        item.sortText = '0_' + name;
+        items.push(item);
+    };
 
     for (const [cls, data] of Object.entries(inheritanceData)) {
-        if (prefix && !cls.toUpperCase().startsWith(prefix.toUpperCase())) {
-            continue;
+        addItem(cls, data.category ? `${data.category}` : "Built-in Actor");
+    }
+
+    if (symbolDb) {
+        for (const sym of symbolDb.queryAll(SymbolKind.Actor)) {
+            addItem(sym.name, `Base Resource: ${sym.source}`);
         }
-        const item = new vscode.CompletionItem(cls, vscode.CompletionItemKind.Class);
-        item.detail = data.category ? `${data.category}` : "Built-in Actor";
-        item.sortText = '0_' + cls;
-        items.push(item);
     }
 
     return items;
@@ -387,7 +402,8 @@ export function registerCompletionProvider(
     propertiesData: Record<string, PropertyData>,
     flagsData: Record<string, FlagData>,
     expressionsData: Record<string, ExpressionData>,
-    inheritanceData: Record<string, InheritanceData>
+    inheritanceData: Record<string, InheritanceData>,
+    symbolDb?: SymbolDatabase
 ) {
     const provider = vscode.languages.registerCompletionItemProvider(
         [{ language: 'decorate' }],
@@ -406,7 +422,7 @@ export function registerCompletionProvider(
                     }
 
                     case 'inherit':
-                        return provideInheritanceItems(inheritanceData, wordPrefix);
+                        return provideInheritanceItems(inheritanceData, symbolDb, wordPrefix);
 
                     case 'state':
                         return provideActionItems(actionsData, wordPrefix);

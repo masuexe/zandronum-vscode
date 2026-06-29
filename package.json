@@ -21,64 +21,135 @@
     "languages": [
       {
         "id": "decorate",
-        "aliases": ["DECORATE", "decorate"],
-        "extensions": [".dec", ".decorate"],
-        "filenames": ["DECORATE"],
+        "aliases": [
+          "DECORATE",
+          "decorate"
+        ],
+        "extensions": [
+          ".dec",
+          ".decorate"
+        ],
+        "filenames": [
+          "DECORATE"
+        ],
         "configuration": "./language-configuration.json"
       },
       {
         "id": "acs",
-        "aliases": ["ACS", "acs"],
-        "extensions": [".acs"],
-        "filenames": ["SCRIPTS"],
+        "aliases": [
+          "ACS",
+          "acs"
+        ],
+        "extensions": [
+          ".acs"
+        ],
+        "filenames": [
+          "SCRIPTS"
+        ],
         "configuration": "./language-configuration.json"
       },
       {
         "id": "mapinfo",
-        "aliases": ["MAPINFO"],
-        "filenames": ["MAPINFO"],
+        "aliases": [
+          "MAPINFO"
+        ],
+        "filenames": [
+          "MAPINFO"
+        ],
         "configuration": "./language-configuration.json"
       },
       {
         "id": "sndinfo",
-        "aliases": ["SNDINFO"],
-        "filenames": ["SNDINFO"],
+        "aliases": [
+          "SNDINFO"
+        ],
+        "filenames": [
+          "SNDINFO"
+        ],
         "configuration": "./language-configuration.json"
       },
       {
         "id": "gldefs",
-        "aliases": ["GLDEFS"],
-        "filenames": ["GLDEFS"],
+        "aliases": [
+          "GLDEFS"
+        ],
+        "filenames": [
+          "GLDEFS"
+        ],
         "configuration": "./language-configuration.json"
       },
       {
         "id": "menudef",
-        "aliases": ["MENUDEF"],
-        "filenames": ["MENUDEF"],
+        "aliases": [
+          "MENUDEF"
+        ],
+        "filenames": [
+          "MENUDEF"
+        ],
         "configuration": "./language-configuration.json"
       },
       {
         "id": "textures",
-        "aliases": ["TEXTURES"],
-        "filenames": ["TEXTURES"],
+        "aliases": [
+          "TEXTURES"
+        ],
+        "filenames": [
+          "TEXTURES"
+        ],
         "configuration": "./language-configuration.json"
       },
       {
         "id": "animdefs",
-        "aliases": ["ANIMDEFS"],
-        "filenames": ["ANIMDEFS"],
+        "aliases": [
+          "ANIMDEFS"
+        ],
+        "filenames": [
+          "ANIMDEFS"
+        ],
         "configuration": "./language-configuration.json"
       }
     ],
     "grammars": [
-      { "language": "decorate", "scopeName": "source.decorate", "path": "./syntaxes/decorate.tmLanguage.json" },
-      { "language": "acs", "scopeName": "source.acs", "path": "./syntaxes/acs.tmLanguage.json" },
-      { "language": "mapinfo", "scopeName": "source.mapinfo", "path": "./syntaxes/mapinfo.tmLanguage.json" },
-      { "language": "sndinfo", "scopeName": "source.sndinfo", "path": "./syntaxes/sndinfo.tmLanguage.json" },
-      { "language": "gldefs", "scopeName": "source.gldefs", "path": "./syntaxes/gldefs.tmLanguage.json" },
-      { "language": "menudef", "scopeName": "source.menudef", "path": "./syntaxes/menudef.tmLanguage.json" },
-      { "language": "textures", "scopeName": "source.textures", "path": "./syntaxes/textures.tmLanguage.json" },
-      { "language": "animdefs", "scopeName": "source.animdefs", "path": "./syntaxes/animdefs.tmLanguage.json" }
+      {
+        "language": "decorate",
+        "scopeName": "source.decorate",
+        "path": "./syntaxes/decorate.tmLanguage.json"
+      },
+      {
+        "language": "acs",
+        "scopeName": "source.acs",
+        "path": "./syntaxes/acs.tmLanguage.json"
+      },
+      {
+        "language": "mapinfo",
+        "scopeName": "source.mapinfo",
+        "path": "./syntaxes/mapinfo.tmLanguage.json"
+      },
+      {
+        "language": "sndinfo",
+        "scopeName": "source.sndinfo",
+        "path": "./syntaxes/sndinfo.tmLanguage.json"
+      },
+      {
+        "language": "gldefs",
+        "scopeName": "source.gldefs",
+        "path": "./syntaxes/gldefs.tmLanguage.json"
+      },
+      {
+        "language": "menudef",
+        "scopeName": "source.menudef",
+        "path": "./syntaxes/menudef.tmLanguage.json"
+      },
+      {
+        "language": "textures",
+        "scopeName": "source.textures",
+        "path": "./syntaxes/textures.tmLanguage.json"
+      },
+      {
+        "language": "animdefs",
+        "scopeName": "source.animdefs",
+        "path": "./syntaxes/animdefs.tmLanguage.json"
+      }
     ],
     "snippets": [
       {
@@ -141,6 +212,12 @@
           "default": "src",
           "description": "PK3 content root directory relative to workspace root. Resources and ACS files inside this directory get higher lookup priority."
         },
+        "zandronum-vscode.baseResources": {
+          "type": "array",
+          "items": { "type": "string" },
+          "default": [],
+          "description": "Base resource paths for external symbol resolution. Can be PK3 files (.pk3/.zip), directories, or absolute paths. Later entries override earlier ones from a symbol perspective."
+        },
         "zandronum-vscode.accOutputDir": {
           "type": "string",
           "default": "",
@@ -158,7 +235,9 @@
         "viewType": "zandronum.spriteOffsetEditor",
         "displayName": "Sprite Offset Editor",
         "selector": [
-          { "filenamePattern": "*.png" }
+          {
+            "filenamePattern": "*.png"
+          }
         ],
         "priority": "option"
       }
@@ -209,6 +288,7 @@
     "typescript-eslint": "^8.56.1"
   },
   "dependencies": {
-    "archiver": "^7.0.1"
+    "archiver": "^7.0.1",
+    "fflate": "^0.8.3"
   }
 }

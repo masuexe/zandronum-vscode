@@ -28,16 +28,37 @@ import { registerTexturesColorProvider } from './language/textures/colorProvider
 import { getPk3Root } from './shared/pk3Root';
 import { ResourceIndex } from './language/textures/resourceIndex';
 import { TextureEditorRegistry } from './language/textures/textureDocumentController';
+import { PackageManager } from './base/packageManager';
+import { SymbolDatabase } from './base/symbolDatabase';
+import { ActorSymbolProvider } from './base/actorProvider';
 
 
 export function activate(context: vscode.ExtensionContext) {
+    const packageManager = new PackageManager(context.extensionPath);
+    const symbolDatabase = new SymbolDatabase();
+    symbolDatabase.registerProvider(new ActorSymbolProvider());
+
+    async function rebuildSymbols(): Promise<void> {
+        await packageManager.build();
+        await symbolDatabase.build(packageManager.getPackages());
+    }
+
+    rebuildSymbols();
+    context.subscriptions.push(
+        vscode.workspace.onDidChangeConfiguration(e => {
+            if (e.affectsConfiguration('zandronum-vscode.baseResources')) {
+                rebuildSymbols();
+            }
+        })
+    );
+
     const actionsData = getActions(context);
     const propertiesData = getProperties(context);
     const flagsData = getFlags(context);
     const expressionsData = getExpressions(context);
     const inheritanceData = getInheritance(context);
  
-    registerCompletionProvider(context, actionsData, propertiesData, flagsData, expressionsData, inheritanceData);
+    registerCompletionProvider(context, actionsData, propertiesData, flagsData, expressionsData, inheritanceData, symbolDatabase);
     registerSignatureHelp(context, actionsData);
     registerHoverProvider(context, actionsData);
     registerEnterCompleteCommand(context);

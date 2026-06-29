@@ -169,7 +169,7 @@
 			"patterns": [
 				{
 					"name": "constant.other.acs",
-					"match": "(?i)\\b[A-Z][A-Z0-9_]{2,}\\b"
+					"match": "\\b[A-Z][A-Za-z0-9_]{2,}\\b"
 				}
 			]
 		},

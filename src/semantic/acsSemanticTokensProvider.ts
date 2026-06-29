@@ -91,7 +91,7 @@ function scanLineDeclarations(
     }
 
     // Top-level / block variable declarations: int|str|bool|fixed ... ;
-    const varDeclRe = /\b(int|str|bool|fixed)\s+([^;]+);/gi;
+    const varDeclRe = /\b(int|str|bool|fixed)\s+([^;]+)(?:;|$)/gi;
     let m: RegExpExecArray | null;
     while ((m = varDeclRe.exec(effective)) !== null) {
         let tail = m[2];
@@ -389,25 +389,9 @@ class AcsSemanticTokensProvider implements vscode.DocumentSemanticTokensProvider
                     continue;
                 }
 
-                // Skip function calls/declarations — handled by TextMate grammar
                 const after = text.substring(afterIdx);
-                if (/^\s*\(/.test(after)) {
-                    continue;
-                }
 
-                // 1. Local variable declaration
-                const userDecls = userVars.get(word);
-                if (userDecls !== undefined) {
-                    const isDecl = userDecls.includes(line);
-                    builder.push(
-                        line, wm.index, word.length,
-                        0,
-                        isDecl ? 1 : 0
-                    );
-                    continue;
-                }
-
-                // 2. Local #define constant
+                // 1. Local #define constant — may be used as script identifier
                 const constDecls = userConsts.get(word);
                 if (constDecls !== undefined) {
                     const isDecl = constDecls.includes(line);
@@ -419,17 +403,7 @@ class AcsSemanticTokensProvider implements vscode.DocumentSemanticTokensProvider
                     continue;
                 }
 
-                // 3. Cross-file variable (from included files)
-                if (crossVars.has(word)) {
-                    builder.push(
-                        line, wm.index, word.length,
-                        0,
-                        0
-                    );
-                    continue;
-                }
-
-                // 4. Cross-file #define constant (from included files)
+                // 2. Cross-file #define constant (from included files)
                 if (crossConsts.has(word)) {
                     builder.push(
                         line, wm.index, word.length,
@@ -439,13 +413,41 @@ class AcsSemanticTokensProvider implements vscode.DocumentSemanticTokensProvider
                     continue;
                 }
 
-                // 5. Built-in constants
+                // 3. Built-in constants
                 if (this.builtInConsts.has(word)) {
                     builder.push(
                         line, wm.index, word.length,
                         1,
                         2
                     );
+                    continue;
+                }
+
+                // Skip function calls/declarations — handled by TextMate grammar
+                if (/^\s*\(/.test(after)) {
+                    continue;
+                }
+
+                // 4. Local variable declaration
+                const userDecls = userVars.get(word);
+                if (userDecls !== undefined) {
+                    const isDecl = userDecls.includes(line);
+                    builder.push(
+                        line, wm.index, word.length,
+                        0,
+                        isDecl ? 1 : 0
+                    );
+                    continue;
+                }
+
+                // 5. Cross-file variable (from included files)
+                if (crossVars.has(word)) {
+                    builder.push(
+                        line, wm.index, word.length,
+                        0,
+                        0
+                    );
+                    continue;
                 }
             }
         }

@@ -16,6 +16,7 @@ import { registerAcsSemanticTokens } from './semantic/acsSemanticTokensProvider'
 import { registerDefinitionProvider } from './language/decorate/definitionProvider';
 import { registerAcsDefinitionProvider } from './language/acs/definitionProvider';
 import { registerColorProvider } from './language/decorate/colorProvider';
+import { registerDecorateSymbolProvider } from './language/decorate/symbolProvider';
 import { registerSpriteOffsetEditor } from './editors/spriteOffsetEditorProvider';
 import { getTexturesKeywords } from './shared/dataLoader';
 import { TexturesParser } from './language/textures/texturesParser';
@@ -63,6 +64,7 @@ export function activate(context: vscode.ExtensionContext) {
     registerDecorateSemanticTokens(context);
     registerDefinitionProvider(context);
     registerColorProvider(context);
+    registerDecorateSymbolProvider(context);
 
     const acsFunctionsData = getAcsFunctions(context);
     const acsConstantsData = getAcsConstants(context);

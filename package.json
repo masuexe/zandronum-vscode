@@ -167,10 +167,6 @@
         "title": "Build PK3"
       },
       {
-        "command": "decorate.enterComplete",
-        "title": "Complete Sprite Frame"
-      },
-      {
         "command": "acs.compile",
         "title": "Compile ACS"
       },
@@ -185,13 +181,6 @@
       {
         "command": "textures.openEditor",
         "title": "Open Texture Editor"
-      }
-    ],
-    "keybindings": [
-      {
-        "command": "decorate.enterComplete",
-        "key": "Enter",
-        "when": "editorLangId == decorate"
       }
     ],
     "configuration": {

@@ -107,6 +107,19 @@
           "ANIMDEFS"
         ],
         "configuration": "./language-configuration.json"
+      },
+      {
+        "id": "sbarinfo",
+        "aliases": [
+          "SBARINFO"
+        ],
+        "filenames": [
+          "SBARINFO"
+        ],
+        "filenamePatterns": [
+          "SBARINFO.*"
+        ],
+        "configuration": "./language-configuration.json"
       }
     ],
     "grammars": [
@@ -149,6 +162,11 @@
         "language": "animdefs",
         "scopeName": "source.animdefs",
         "path": "./syntaxes/animdefs.tmLanguage.json"
+      },
+      {
+        "language": "sbarinfo",
+        "scopeName": "source.sbarinfo",
+        "path": "./syntaxes/sbarinfo.tmLanguage.json"
       }
     ],
     "snippets": [

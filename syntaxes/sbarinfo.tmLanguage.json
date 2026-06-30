@@ -1,0 +1,137 @@
+{
+    "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+    "name": "SBARINFO",
+    "patterns": [
+        { "include": "#comments" },
+        { "include": "#strings" },
+        { "include": "#statusbar-blocks" },
+        { "include": "#draw-commands" },
+        { "include": "#control-commands" },
+        { "include": "#block-keywords" },
+        { "include": "#constants" },
+        { "include": "#numbers" }
+    ],
+    "repository": {
+        "comments": {
+            "patterns": [
+                { "name": "comment.line.double-slash.sbarinfo", "match": "//.*$" },
+                { "name": "comment.block.sbarinfo", "begin": "/\\*", "end": "\\*/" }
+            ]
+        },
+        "strings": {
+            "patterns": [
+                {
+                    "name": "string.quoted.double.sbarinfo",
+                    "begin": "\"",
+                    "end": "\"",
+                    "patterns": [
+                        { "name": "constant.character.escape.color.sbarinfo", "match": "\\\\c(?:\\[[^\\]]*\\]|[A-Za-z-])" },
+                        { "name": "constant.character.escape.sbarinfo", "match": "\\\\." }
+                    ]
+                }
+            ]
+        },
+        "statusbar-blocks": {
+            "patterns": [
+                {
+                    "name": "meta.block.statusbar.sbarinfo",
+                    "begin": "(?i)^\\s*(statusbar)\\s+(normal|fullscreen|fullscreenoffsets)",
+                    "beginCaptures": {
+                        "1": { "name": "keyword.declaration.sbarinfo" },
+                        "2": { "name": "constant.language.statusbartype.sbarinfo" }
+                    },
+                    "end": "(?=^\\s*(statusbar)\\s+(normal|fullscreen|fullscreenoffsets))|^(?!\\s*\\})",
+                    "patterns": [
+                        { "include": "#comments" },
+                        { "include": "#strings" },
+                        { "include": "#gamemode-blocks" },
+                        { "include": "#conditional-blocks" },
+                        { "include": "#draw-commands" },
+                        { "include": "#control-commands" },
+                        { "include": "#block-keywords" },
+                        { "include": "#constants" },
+                        { "include": "#numbers" },
+                        { "include": "#braces" }
+                    ]
+                }
+            ]
+        },
+        "gamemode-blocks": {
+            "patterns": [
+                {
+                    "name": "meta.block.gamemode.sbarinfo",
+                    "begin": "(?i)\\b(gamemode)\\b",
+                    "beginCaptures": {
+                        "1": { "name": "keyword.declaration.sbarinfo" }
+                    },
+                    "end": "(?=\\})",
+                    "patterns": [
+                        { "include": "#comments" },
+                        { "include": "#strings" },
+                        { "include": "#draw-commands" },
+                        { "include": "#control-commands" },
+                        { "include": "#block-keywords" },
+                        { "include": "#constants" },
+                        { "include": "#numbers" }
+                    ]
+                }
+            ]
+        },
+        "conditional-blocks": {
+            "patterns": [
+                {
+                    "name": "meta.block.conditional.sbarinfo",
+                    "begin": "(?i)\\b(IsHealth|IsArmor|InInventory|HasWeaponPiece|PlayerClass|PlayerWeapon|PlayerArmor|NotHealth|NotArmor|NotInventory|NotWeaponPiece|NotPlayerClass|NotWeapon|NotArmor|Else)\\b",
+                    "beginCaptures": {
+                        "1": { "name": "keyword.control.conditional.sbarinfo" }
+                    },
+                    "end": "(?=\\})",
+                    "patterns": [
+                        { "include": "#comments" },
+                        { "include": "#strings" },
+                        { "include": "#draw-commands" },
+                        { "include": "#control-commands" },
+                        { "include": "#block-keywords" },
+                        { "include": "#constants" },
+                        { "include": "#numbers" }
+                    ]
+                }
+            ]
+        },
+        "draw-commands": {
+            "patterns": [
+                { "match": "(?i)\\b(drawimage|drawmugshot|drawnumber|drawbar|drawswitchableimage|drawstring|drawgem|drawshader|drawkeybar|drawselectedinventory|drawinventorybar)\\b", "name": "support.function.draw.sbarinfo" }
+            ]
+        },
+        "control-commands": {
+            "patterns": [
+                { "match": "(?i)\\b(alpha|armor|ammo|ammo1|ammo2|base|bottom|center|centerbottom|completborder|createpopup|createsmademargin|dontusesizedefaultfontcolor|forcescaled|fullscreen|fullscreenoffsets|height|horizontal|interpolatehealth|lowhealth|lowhealthvalue|lowerhealthcap|monospaceimages|nobar|nointerpolatehealth|nointerpolatearmor|onpause|popup|range|row|rows|resolution|showpopup|spacing|stretchtoscreen|top|usesmedmargin|vertical|weaponammo|weaponicon|webdings)\\b", "name": "keyword.control.sbarinfo" }
+            ]
+        },
+        "block-keywords": {
+            "patterns": [
+                { "match": "(?i)\\b(statusbar|gamemode)\\b", "name": "keyword.declaration.sbarinfo" }
+            ]
+        },
+        "constants": {
+            "patterns": [
+                { "match": "(?i)\\b(normal|fullscreen|fullscreenoffsets)\\b", "name": "constant.language.statusbartype.sbarinfo" },
+                { "match": "(?i)\\b(mugshot|default|hidden|indexfont|newline|string|int|smallfont|bigfont|confont|interpolate|not_in_both|in_both|overlay|left|right|none)\\b", "name": "constant.language.sbarinfo" }
+            ]
+        },
+        "numbers": {
+            "patterns": [
+                { "match": "-?\\b[0-9]+\\.[0-9]*\\b", "name": "constant.numeric.float.sbarinfo" },
+                { "match": "-?\\b[0-9]+\\b", "name": "constant.numeric.integer.sbarinfo" },
+                { "match": "\\b0x[0-9a-fA-F]+\\b", "name": "constant.numeric.hex.sbarinfo" }
+            ]
+        },
+        "braces": {
+            "patterns": [
+                { "match": "\\{", "name": "punctuation.section.block.begin.sbarinfo" },
+                { "match": "\\}", "name": "punctuation.section.block.end.sbarinfo" }
+            ]
+        }
+    },
+    "scopeName": "source.sbarinfo"
+}

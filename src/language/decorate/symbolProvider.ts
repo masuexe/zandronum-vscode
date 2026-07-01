@@ -101,22 +101,38 @@ export function registerDecorateSymbolProvider(context: vscode.ExtensionContext)
                         nameRange
                     );
 
+                    const labelLines: number[] = [];
                     for (let l = actor.startLine + 1; l < actor.endLine; l++) {
                         const text = document.lineAt(l).text;
                         const lm = LABEL_RE.exec(text);
                         if (!lm) {
                             continue;
                         }
-
                         const label = lm[1];
                         if (EXCLUDED_LABELS.has(label.toLowerCase())) {
                             continue;
                         }
+                        labelLines.push(l);
+                    }
 
+                    for (let i = 0; i < labelLines.length; i++) {
+                        const l = labelLines[i];
+                        const text = document.lineAt(l).text;
+                        const lm = LABEL_RE.exec(text)!;
+                        const label = lm[1];
                         const labelChar = text.indexOf(label);
+
+                        const nextLine = (i + 1 < labelLines.length)
+                            ? labelLines[i + 1] - 1
+                            : actor.endLine - 1;
+
                         const labelRange = new vscode.Range(
                             l, labelChar,
                             l, labelChar + label.length
+                        );
+                        const spanRange = new vscode.Range(
+                            l, 0,
+                            nextLine, document.lineAt(nextLine).text.length
                         );
 
                         actorSymbol.children.push(
@@ -124,7 +140,7 @@ export function registerDecorateSymbolProvider(context: vscode.ExtensionContext)
                                 label,
                                 '',
                                 vscode.SymbolKind.Event,
-                                labelRange,
+                                spanRange,
                                 labelRange
                             )
                         );

@@ -14,6 +14,7 @@
     "onLanguage:acs",
     "onLanguage:sndinfo",
     "onLanguage:textures",
+    "onLanguage:cvarinfo",
     "onCustomEditor:zandronum.spriteOffsetEditor"
   ],
   "main": "./out/extension.js",
@@ -120,6 +121,19 @@
           "SBARINFO.*"
         ],
         "configuration": "./language-configuration.json"
+      },
+      {
+        "id": "cvarinfo",
+        "aliases": [
+          "CVARINFO"
+        ],
+        "filenames": [
+          "CVARINFO"
+        ],
+        "filenamePatterns": [
+          "CVARINFO.*"
+        ],
+        "configuration": "./language-configuration.json"
       }
     ],
     "grammars": [
@@ -167,6 +181,11 @@
         "language": "sbarinfo",
         "scopeName": "source.sbarinfo",
         "path": "./syntaxes/sbarinfo.tmLanguage.json"
+      },
+      {
+        "language": "cvarinfo",
+        "scopeName": "source.cvarinfo",
+        "path": "./syntaxes/cvarinfo.tmLanguage.json"
       }
     ],
     "snippets": [

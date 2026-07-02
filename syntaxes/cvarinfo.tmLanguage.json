@@ -1,0 +1,68 @@
+{
+    "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+    "name": "CVARINFO",
+    "patterns": [
+        { "include": "#comments" },
+        { "include": "#strings" },
+        { "include": "#color-values" },
+        { "include": "#boolean-values" },
+        { "include": "#scope-and-type" },
+        { "include": "#variable-names" },
+        { "include": "#numbers" },
+        { "include": "#operators" }
+    ],
+    "repository": {
+        "comments": {
+            "patterns": [
+                { "name": "comment.line.double-slash.cvarinfo", "match": "//.*$" },
+                { "name": "comment.block.cvarinfo", "begin": "/\\*", "end": "\\*/" }
+            ]
+        },
+        "strings": {
+            "patterns": [
+                {
+                    "name": "string.quoted.double.cvarinfo",
+                    "begin": "\"",
+                    "end": "\"",
+                    "patterns": [
+                        { "name": "constant.character.escape.cvarinfo", "match": "\\\\." }
+                    ]
+                }
+            ]
+        },
+        "color-values": {
+            "patterns": [
+                { "name": "constant.language.color.cvarinfo", "match": "(?<=\")\\s*[0-9a-fA-F]{6}\\s*(?=\")" }
+            ]
+        },
+        "boolean-values": {
+            "patterns": [
+                { "match": "\\b(true|false)\\b", "name": "constant.language.boolean.cvarinfo" }
+            ]
+        },
+        "scope-and-type": {
+            "patterns": [
+                { "match": "\\b(server|user)\\b", "name": "storage.modifier.scope.cvarinfo" },
+                { "match": "\\b(int|float|string|color|bool)\\b", "name": "storage.type.cvarinfo" }
+            ]
+        },
+        "variable-names": {
+            "patterns": [
+                { "match": "(?<=\\b(?:server|user)\\s+(?:int|float|string|color|bool)\\s+)[A-Za-z_][A-Za-z0-9_]*", "name": "variable.other.cvarinfo" }
+            ]
+        },
+        "numbers": {
+            "patterns": [
+                { "match": "-?\\b[0-9]+\\.[0-9]*\\b", "name": "constant.numeric.float.cvarinfo" },
+                { "match": "-?\\b[0-9]+\\b", "name": "constant.numeric.integer.cvarinfo" },
+                { "match": "\\b0x[0-9a-fA-F]+\\b", "name": "constant.numeric.hex.cvarinfo" }
+            ]
+        },
+        "operators": {
+            "patterns": [
+                { "match": "=|;", "name": "keyword.operator.assignment.cvarinfo" }
+            ]
+        }
+    },
+    "scopeName": "source.cvarinfo"
+}

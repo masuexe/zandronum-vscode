@@ -15,6 +15,7 @@ import { registerDecorateSemanticTokens } from './semantic/semanticTokensProvide
 import { registerAcsSemanticTokens } from './semantic/acsSemanticTokensProvider';
 import { registerDefinitionProvider } from './language/decorate/definitionProvider';
 import { registerAcsDefinitionProvider } from './language/acs/definitionProvider';
+import { registerAcsSymbolProvider } from './language/acs/symbolProvider';
 import { registerColorProvider } from './language/decorate/colorProvider';
 import { registerDecorateSymbolProvider } from './language/decorate/symbolProvider';
 import { registerSpriteOffsetEditor } from './editors/spriteOffsetEditorProvider';
@@ -73,6 +74,7 @@ export function activate(context: vscode.ExtensionContext) {
     registerAcsHoverProvider(context, acsFunctionsData);
     registerAcsSemanticTokens(context, acsConstantsData);
     registerAcsDefinitionProvider(context);
+    registerAcsSymbolProvider(context);
 
     const sndinfoCommandsData = getSndinfoCommands(context);
     registerSndinfoCompletionProvider(context, sndinfoCommandsData);

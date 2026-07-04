@@ -13,6 +13,7 @@ import { buildPK3 } from './tools/build';
 import { compileAcs, compileAllAndBuild } from './tools/compileAcs';
 import { registerDecorateSemanticTokens } from './semantic/semanticTokensProvider';
 import { registerAcsSemanticTokens } from './semantic/acsSemanticTokensProvider';
+import { WorkspaceIndex, defaultIncludeResolver } from './language/acs/compilationUnit';
 import { registerDefinitionProvider } from './language/decorate/definitionProvider';
 import { registerAcsDefinitionProvider } from './language/acs/definitionProvider';
 import { registerAcsSymbolProvider } from './language/acs/symbolProvider';
@@ -77,9 +78,22 @@ export function activate(context: vscode.ExtensionContext) {
     registerAcsCompletionProvider(context, acsFunctionsData, acsConstantsData);
     registerAcsSignatureHelp(context, acsFunctionsData);
     registerAcsHoverProvider(context, acsFunctionsData);
-    registerAcsSemanticTokens(context, acsConstantsData);
+    const workspaceRoot = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath ?? '';
+    const workspaceIndex = new WorkspaceIndex(
+        (name, dir) => defaultIncludeResolver(name, dir, workspaceRoot),
+        workspaceRoot
+    );
+    registerAcsSemanticTokens(context, acsConstantsData, workspaceIndex);
     registerAcsDefinitionProvider(context);
     registerAcsSymbolProvider(context);
+
+    context.subscriptions.push(
+        vscode.workspace.onDidSaveTextDocument((doc) => {
+            if (doc.languageId === 'acs') {
+                workspaceIndex.invalidate(doc.uri.fsPath);
+            }
+        })
+    );
 
     const sndinfoCommandsData = getSndinfoCommands(context);
     registerSndinfoCompletionProvider(context, sndinfoCommandsData);

@@ -55,6 +55,8 @@ function runConfig(config: RunConfig): void {
 
     const command = buildCommandLine(program, preArgs, postArgs, buildOutput);
 
+    const existing = vscode.window.terminals.find(t => t.name === 'Zandronum');
+    if (existing) { existing.dispose(); }
     const terminal = vscode.window.createTerminal('Zandronum');
     terminal.sendText(`& ${command}`);
     terminal.show();

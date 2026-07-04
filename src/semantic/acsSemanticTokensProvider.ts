@@ -173,7 +173,7 @@ class AcsSemanticTokensProvider implements vscode.DocumentSemanticTokensProvider
     private includeCache: Map<string, IncludeDeclarations> = new Map();
 
     constructor(constantsData: Record<string, AcsConstantData>) {
-        this.builtInConsts = new Set(Object.keys(constantsData));
+        this.builtInConsts = new Set(Object.keys(constantsData).map(k => k.toLowerCase()));
     }
 
     clearIncludeCache(): void {
@@ -242,7 +242,7 @@ class AcsSemanticTokensProvider implements vscode.DocumentSemanticTokensProvider
 
             scanLineDeclarations(
                 effective,
-                (name) => { result.consts.add(name); },
+                (name) => { result.consts.add(name.toLowerCase()); },
                 (includeName) => {
                     const resolved = resolveIncludePath(includeName, currentDir, workspaceRoot);
                     if (resolved) {
@@ -255,7 +255,7 @@ class AcsSemanticTokensProvider implements vscode.DocumentSemanticTokensProvider
                         }
                     }
                 },
-                (name) => { result.vars.add(name); }
+                (name) => { result.vars.add(name.toLowerCase()); }
             );
         }
 
@@ -293,17 +293,19 @@ class AcsSemanticTokensProvider implements vscode.DocumentSemanticTokensProvider
             scanLineDeclarations(
                 effective,
                 (name) => {
-                    const arr = userConsts.get(name) || [];
+                    const key = name.toLowerCase();
+                    const arr = userConsts.get(key) || [];
                     arr.push(line);
-                    userConsts.set(name, arr);
+                    userConsts.set(key, arr);
                 },
                 (includePath) => {
                     localIncludes.push(includePath);
                 },
                 (name) => {
-                    const arr = userVars.get(name) || [];
+                    const key = name.toLowerCase();
+                    const arr = userVars.get(key) || [];
                     arr.push(line);
-                    userVars.set(name, arr);
+                    userVars.set(key, arr);
                 }
             );
         }
@@ -391,8 +393,10 @@ class AcsSemanticTokensProvider implements vscode.DocumentSemanticTokensProvider
 
                 const after = text.substring(afterIdx);
 
+                const wordLower = word.toLowerCase();
+
                 // 1. Local #define constant — may be used as script identifier
-                const constDecls = userConsts.get(word);
+                const constDecls = userConsts.get(wordLower);
                 if (constDecls !== undefined) {
                     const isDecl = constDecls.includes(line);
                     builder.push(
@@ -404,7 +408,7 @@ class AcsSemanticTokensProvider implements vscode.DocumentSemanticTokensProvider
                 }
 
                 // 2. Cross-file #define constant (from included files)
-                if (crossConsts.has(word)) {
+                if (crossConsts.has(wordLower)) {
                     builder.push(
                         line, wm.index, word.length,
                         1,
@@ -414,7 +418,7 @@ class AcsSemanticTokensProvider implements vscode.DocumentSemanticTokensProvider
                 }
 
                 // 3. Built-in constants
-                if (this.builtInConsts.has(word)) {
+                if (this.builtInConsts.has(wordLower)) {
                     builder.push(
                         line, wm.index, word.length,
                         1,
@@ -429,7 +433,7 @@ class AcsSemanticTokensProvider implements vscode.DocumentSemanticTokensProvider
                 }
 
                 // 4. Local variable declaration
-                const userDecls = userVars.get(word);
+                const userDecls = userVars.get(wordLower);
                 if (userDecls !== undefined) {
                     const isDecl = userDecls.includes(line);
                     builder.push(
@@ -441,7 +445,7 @@ class AcsSemanticTokensProvider implements vscode.DocumentSemanticTokensProvider
                 }
 
                 // 5. Cross-file variable (from included files)
-                if (crossVars.has(word)) {
+                if (crossVars.has(wordLower)) {
                     builder.push(
                         line, wm.index, word.length,
                         0,

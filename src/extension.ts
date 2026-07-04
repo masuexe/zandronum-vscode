@@ -32,9 +32,14 @@ import { TextureEditorRegistry } from './language/textures/textureDocumentContro
 import { PackageManager } from './base/packageManager';
 import { SymbolDatabase } from './base/symbolDatabase';
 import { ActorSymbolProvider } from './base/actorProvider';
+import { runZandronum } from './run/launchProvider';
 
 
 export function activate(context: vscode.ExtensionContext) {
+    context.subscriptions.push(
+        vscode.commands.registerCommand('zandronum.run', runZandronum)
+    );
+
     const packageManager = new PackageManager(context.extensionPath);
     const symbolDatabase = new SymbolDatabase();
     symbolDatabase.registerProvider(new ActorSymbolProvider());

@@ -15,6 +15,7 @@
     "onLanguage:sndinfo",
     "onLanguage:textures",
     "onLanguage:cvarinfo",
+    "onDebug:zandronum",
     "onCustomEditor:zandronum.spriteOffsetEditor"
   ],
   "main": "./out/extension.js",
@@ -216,6 +217,10 @@
         "title": "Edit Sprite Offset"
       },
       {
+        "command": "zandronum.run",
+        "title": "Run Zandronum"
+      },
+      {
         "command": "textures.openEditor",
         "title": "Open Texture Editor"
       }
@@ -232,6 +237,11 @@
           "type": "string",
           "default": "",
           "description": "Additional include directories for ACC (-i), separated by semicolons."
+        },
+        "zandronum-vscode.zandronumPath": {
+          "type": "string",
+          "default": "",
+          "description": "Path to the Zandronum executable. Leave empty to use 'zandronum' from system PATH."
         },
         "zandronum-vscode.pk3Root": {
           "type": "string",

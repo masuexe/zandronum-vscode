@@ -1,8 +1,7 @@
 import * as vscode from 'vscode';
 import { CompletionSource, CompletionContext, SourceDependencies } from './Source';
 import { makeFunctionItem, makeConstantItem, makeEnumItem } from '../completionItemFactory';
-import { buildSnippetString } from '../../../../shared/snippetBuilder';
-import { ActionData } from '../../../../shared/dataLoader';
+import { formatCompletionDetail } from '../../../../shared/signatureBuilder';
 
 export class BuiltinApiSource implements CompletionSource {
     canProvide(context: CompletionContext): boolean {
@@ -38,10 +37,15 @@ export class BuiltinApiSource implements CompletionSource {
         const matches = deps.functionRepository.findByPrefix(context.wordPrefix);
         const items: vscode.CompletionItem[] = [];
         for (const { name, data } of matches) {
-            items.push(makeFunctionItem(
-                name,
-                buildSnippetString(name, data.params as any)
-            ));
+            const params = Array.isArray(data.params)
+                ? data.params.filter(p => typeof p === 'object') as any[]
+                : [];
+            const item = makeFunctionItem(name, formatCompletionDetail(params));
+            item.command = {
+                title: 'Trigger Parameter Hints',
+                command: 'editor.action.triggerParameterHints'
+            };
+            items.push(item);
         }
         return items;
     }

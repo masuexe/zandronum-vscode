@@ -17,6 +17,18 @@ export function buildSignatureLabel(functionName: string, params?: ParamData[]):
     return buildSignature(functionName, params);
 }
 
+export function formatCompletionDetail(params?: ParamData[]): string {
+    if (!Array.isArray(params) || params.length === 0) {
+        return '()';
+    }
+
+    const paramStrings = params
+        .filter(p => typeof p === 'object')
+        .map(p => p.optional ? `[${p.name}: ${p.type}]` : `${p.name}: ${p.type}`);
+
+    return `(${paramStrings.join(', ')})`;
+}
+
 export function buildParamLabel(param: ParamData): string {
     const base = param.optional
         ? `[${param.name}: ${param.type}]`

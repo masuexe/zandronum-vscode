@@ -1,4 +1,5 @@
 import * as vscode from 'vscode';
+import { scanLineDeclarations } from './scanner';
 
 const SCRIPT_RE = /^\s*script\s+("[^"]*"|\d+|[A-Za-z_]\w*)(?:\s+(\w+))?/i;
 const FUNCTION_RE = /^\s*function\s+(?:\w+\s+)?([A-Za-z_]\w+)\s*\(/i;
@@ -40,6 +41,7 @@ export function registerAcsSymbolProvider(context: vscode.ExtensionContext) {
             {
                 provideDocumentSymbols(document, token) {
                     const symbols: vscode.DocumentSymbol[] = [];
+                    let braceDepth = 0;
 
                     for (let line = 0; line < document.lineCount; line++) {
                         if (token.isCancellationRequested) {
@@ -47,6 +49,12 @@ export function registerAcsSymbolProvider(context: vscode.ExtensionContext) {
                         }
 
                         const text = document.lineAt(line).text;
+
+                        for (const ch of text) {
+                            if (ch === '{') braceDepth++;
+                            else if (ch === '}') braceDepth--;
+                            if (braceDepth < 0) braceDepth = 0;
+                        }
 
                         const fnMatch = FUNCTION_RE.exec(text);
                         if (fnMatch) {
@@ -103,7 +111,43 @@ export function registerAcsSymbolProvider(context: vscode.ExtensionContext) {
                                 fullRange,
                                 nameRange
                             ));
+                            continue;
                         }
+
+                        // Global scope declarations only
+                        if (braceDepth !== 0) {
+                            continue;
+                        }
+
+                        const lineCommentIdx = text.indexOf('//');
+                        const effective = lineCommentIdx >= 0
+                            ? text.substring(0, lineCommentIdx)
+                            : text;
+
+                        scanLineDeclarations(
+                            effective,
+                            (name) => {
+                                const nameIdx = text.indexOf(name);
+                                symbols.push(new vscode.DocumentSymbol(
+                                    name,
+                                    'constant',
+                                    vscode.SymbolKind.Constant,
+                                    new vscode.Range(line, nameIdx, line, nameIdx + name.length),
+                                    new vscode.Range(line, nameIdx, line, nameIdx + name.length)
+                                ));
+                            },
+                            () => {},
+                            (name) => {
+                                const nameIdx = text.indexOf(name);
+                                symbols.push(new vscode.DocumentSymbol(
+                                    name,
+                                    'variable',
+                                    vscode.SymbolKind.Variable,
+                                    new vscode.Range(line, nameIdx, line, nameIdx + name.length),
+                                    new vscode.Range(line, nameIdx, line, nameIdx + name.length)
+                                ));
+                            }
+                        );
                     }
 
                     return symbols;

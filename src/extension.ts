@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import { getActions, getProperties, getFlags, getExpressions, getInheritance, getAcsFunctions, getAcsConstants, getSndinfoCommands } from './shared/dataLoader';
 import { registerCompletionProvider } from './language/decorate/completionProvider';
-import { registerAcsCompletionProvider } from './language/acs/completionProvider';
+import { registerAcsCompletionProvider } from './language/acs/completion/completionProvider';
 import { registerAcsSignatureHelp } from './language/acs/signatureProvider';
 import { registerAcsHoverProvider } from './language/acs/hoverProvider';
 import { registerSndinfoCompletionProvider } from './language/sndinfo/completionProvider';
@@ -75,14 +75,14 @@ export function activate(context: vscode.ExtensionContext) {
 
     const acsFunctionsData = getAcsFunctions(context);
     const acsConstantsData = getAcsConstants(context);
-    registerAcsCompletionProvider(context, acsFunctionsData, acsConstantsData);
-    registerAcsSignatureHelp(context, acsFunctionsData);
-    registerAcsHoverProvider(context, acsFunctionsData);
     const workspaceRoot = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath ?? '';
     const workspaceIndex = new WorkspaceIndex(
         (name, dir) => defaultIncludeResolver(name, dir, workspaceRoot),
         workspaceRoot
     );
+    registerAcsCompletionProvider(context, acsFunctionsData, acsConstantsData, workspaceIndex);
+    registerAcsSignatureHelp(context, acsFunctionsData);
+    registerAcsHoverProvider(context, acsFunctionsData);
     registerAcsSemanticTokens(context, acsConstantsData, workspaceIndex);
     registerAcsDefinitionProvider(context);
     registerAcsSymbolProvider(context);

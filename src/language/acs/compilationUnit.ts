@@ -409,6 +409,28 @@ export class WorkspaceIndex {
             }
         }
     }
+
+    async getVisibleSymbols(filePath: string): Promise<{
+        variables: ReadonlyArray<{ name: string; detail: string }>;
+        constants: ReadonlyArray<{ name: string; detail: string }>;
+    }> {
+        const cus = await this.getCompilationUnits(filePath);
+        const cu = selectCompilationUnit(filePath, cus);
+        if (!cu) return { variables: [], constants: [] };
+
+        const resolved = path.resolve(filePath);
+        const all = cu.symbolTable.all();
+        return {
+            variables: all.filter(s => s.kind === 'variable').map(s => ({
+                name: s.name,
+                detail: 'Variable' + (s.containerFile !== resolved ? ' (included)' : ''),
+            })),
+            constants: all.filter(s => s.kind === 'constant').map(s => ({
+                name: s.name,
+                detail: 'Constant (#define)' + (s.containerFile !== resolved ? ' (included)' : ''),
+            })),
+        };
+    }
 }
 
 // ── CU selection strategy ──

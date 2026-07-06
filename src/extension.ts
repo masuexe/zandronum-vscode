@@ -10,7 +10,7 @@ import { registerSndinfoHoverProvider } from './language/sndinfo/hoverProvider';
 import { registerSignatureHelp } from './language/decorate/signatureProvider';
 import { registerHoverProvider } from './language/decorate/hoverProvider';
 import { buildPK3 } from './tools/build';
-import { compileAcs, compileAllAndBuild } from './tools/compileAcs';
+import { compileAcs, compileAllAndBuild, compileCurrentAndBuild } from './tools/compileAcs';
 import { registerDecorateSemanticTokens } from './semantic/semanticTokensProvider';
 import { registerAcsSemanticTokens } from './semantic/acsSemanticTokensProvider';
 import { WorkspaceIndex, defaultIncludeResolver } from './language/acs/compilationUnit';
@@ -162,6 +162,12 @@ export function activate(context: vscode.ExtensionContext) {
         compileAllAndBuild
     );
     context.subscriptions.push(compileAllCmd);
+
+    const compileCurrentCmd = vscode.commands.registerCommand(
+        'acs.compileCurrentAndBuild',
+        compileCurrentAndBuild
+    );
+    context.subscriptions.push(compileCurrentCmd);
 }
 
 

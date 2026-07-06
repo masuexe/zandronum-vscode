@@ -213,6 +213,10 @@
         "title": "Compile All ACS and Build PK3"
       },
       {
+        "command": "acs.compileCurrentAndBuild",
+        "title": "Compile Current ACS and Build PK3"
+      },
+      {
         "command": "zandronum.editSpriteOffset",
         "title": "Edit Sprite Offset"
       },

@@ -383,6 +383,37 @@ function findLibraryAcsFiles(workspaceRoot: string): string[] {
     return files;
 }
 
+export async function compileCurrentAndBuild() {
+    const editor = vscode.window.activeTextEditor;
+    if (!editor || editor.document.languageId !== 'acs') {
+        vscode.window.showWarningMessage('Open an ACS file to compile.');
+        return;
+    }
+
+    const srcFile = editor.document.uri.fsPath;
+    if (editor.document.isDirty) {
+        await editor.document.save();
+    }
+
+    const workspaceRoot = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath;
+    if (!workspaceRoot) {
+        vscode.window.showErrorMessage('No workspace folder opened.');
+        return;
+    }
+
+    diagnosticCollection.clear();
+
+    const ok = await compileSingleFile(srcFile, workspaceRoot);
+    if (ok) {
+        vscode.window.showInformationMessage(
+            `Compiled ${path.basename(srcFile, path.extname(srcFile))}.o. Building PK3...`
+        );
+        await buildPK3();
+    } else {
+        vscode.window.showErrorMessage('Compilation failed. Check the Problems panel.');
+    }
+}
+
 export async function compileAllAndBuild() {
     const workspaceRoot = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath;
     if (!workspaceRoot) {

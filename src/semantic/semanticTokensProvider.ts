@@ -68,16 +68,18 @@ class DecorateSemanticTokensProvider implements vscode.DocumentSemanticTokensPro
                 if (blockEnd < 0) inBlockComment = true;
             }
 
-            let m = /\bvar\s+int\s+(user_\w+)\b/i.exec(effective);
-            if (m) {
+            let m: RegExpExecArray | null;
+
+            const varRe = /\bvar\s+int\s+(user_\w+)\b/gi;
+            while ((m = varRe.exec(effective)) !== null) {
                 const name = m[1].toLowerCase();
                 const arr = userVars.get(name) || [];
                 arr.push(line);
                 userVars.set(name, arr);
             }
 
-            m = /\bconst\s+int\s+(\w+)\b/i.exec(effective);
-            if (m) {
+            const constRe = /\bconst\s+int\s+(\w+)\b/gi;
+            while ((m = constRe.exec(effective)) !== null) {
                 const name = m[1].toLowerCase();
                 const arr = constVars.get(name) || [];
                 arr.push(line);

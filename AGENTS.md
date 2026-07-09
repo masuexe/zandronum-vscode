@@ -284,11 +284,35 @@ syntaxes/           TextMate grammars
 snippets/           VSCode snippets
 media/              Webview assets (JS, CSS for custom editors)
 src/language/       Language-related providers
+src/language/textures/  TEXTURES language + visual texture editor
 src/tools/          Build/compile utilities
 src/tools/png/      PNG parsing tools (reusable outside editors)
 src/editors/        Custom editors (sprite offset, etc.)
 src/editors/providers/  Format-specific SpriteImageProvider implementations
 ```
+
+---
+
+# Texture Editor
+
+## Architecture
+
+The TEXTURES visual editor is a **WebviewPanel** (not a CustomEditorProvider) opened beside a TEXTURES text document via `textures.openEditor`.
+
+**Layer separation:**
+- `src/language/textures/texturesParser.ts` — structural parse of definitions, patches, texture/patch properties + editable ranges
+- `src/language/textures/textureDocumentModel.ts` — resource resolution, WorkspaceEdit writers (move/props/CRUD)
+- `src/language/textures/textureDocumentController.ts` — document sync, panel messages, registry lifecycle
+- `src/language/textures/textureEditorPanel.ts` — WebviewPanel host + view DTOs
+- `media/textureEditor.js` / `.css` — canvas preview, guides, inspector UI
+
+**Key behaviors (SLADE-aligned):**
+- Offset Type guides: None / Sprite (floor + origin cross) / HUD (centered 320×200 screen; Offset from screen top-left; crosshair + status-bar guide at y=168)
+- Texture Size, Offset, XScale/YScale editing (inverse scale: 2 = half size)
+- Patch X/Y, FlipX/Y, Rotate (0/90/180/270), Alpha, UseOffsets (PNG grAb via `src/tools/png/`)
+- Translation preview via PLAYPAL nearest-index remap (`src/tools/translation.ts` + webview)
+- Multi-patch add / remove / reorder / duplicate
+- Document text is source of truth; undo via VS Code document undo
 
 ---
 

@@ -45,7 +45,8 @@ const TEXTURES_DEF_RE = /^\s*(Texture|WallTexture|Flat|Sprite|Graphic)\s+(?:opti
 export class ResourceIndex {
     private readonly pk3Root: string;
     private index = new Map<string, ResourceMetadata[]>();
-    private watcher: vscode.FileSystemWatcher | undefined;
+    private imageWatcher: vscode.FileSystemWatcher | undefined;
+    private texturesWatcher: vscode.FileSystemWatcher | undefined;
     private buildPromise: Promise<void> | undefined;
 
     constructor(pk3Root: string = 'src') {
@@ -67,8 +68,21 @@ export class ResourceIndex {
         return entries.reduce((best, cur) => cur.priority > best.priority ? cur : best);
     }
 
+    /** Basenames of indexed image resources (png/jpeg), sorted. */
+    listImageNames(): string[] {
+        const names: string[] = [];
+        for (const [name, entries] of this.index) {
+            if (entries.some(e => e.type === ResourceType.Png || e.type === ResourceType.Jpeg)) {
+                names.push(name);
+            }
+        }
+        names.sort();
+        return names;
+    }
+
     dispose(): void {
-        this.watcher?.dispose();
+        this.imageWatcher?.dispose();
+        this.texturesWatcher?.dispose();
         this.index.clear();
     }
 
@@ -82,9 +96,32 @@ export class ResourceIndex {
         for (const uri of texturesFiles) {
             await this.scanTexturesFile(uri);
         }
-        this.watcher = vscode.workspace.createFileSystemWatcher('**/*.{png,jpg,jpeg}');
-        this.watcher.onDidCreate(uri => this.addFile(uri));
-        this.watcher.onDidDelete(uri => this.removeFile(uri));
+        this.imageWatcher?.dispose();
+        this.texturesWatcher?.dispose();
+        this.imageWatcher = vscode.workspace.createFileSystemWatcher('**/*.{png,jpg,jpeg}');
+        this.imageWatcher.onDidCreate(uri => this.addFile(uri));
+        this.imageWatcher.onDidDelete(uri => this.removeFile(uri));
+        this.texturesWatcher = vscode.workspace.createFileSystemWatcher('**/TEXTURES*');
+        this.texturesWatcher.onDidCreate(uri => { void this.scanTexturesFile(uri); });
+        this.texturesWatcher.onDidChange(uri => {
+            this.removeDefinitionsFrom(uri);
+            void this.scanTexturesFile(uri);
+        });
+        this.texturesWatcher.onDidDelete(uri => this.removeDefinitionsFrom(uri));
+    }
+
+    private removeDefinitionsFrom(uri: vscode.Uri): void {
+        const uriStr = uri.toString();
+        for (const [name, entries] of this.index) {
+            const filtered = entries.filter(
+                e => !(e.type === ResourceType.TextureDefinition && e.uri.toString() === uriStr)
+            );
+            if (filtered.length === 0) {
+                this.index.delete(name);
+            } else if (filtered.length !== entries.length) {
+                this.index.set(name, filtered);
+            }
+        }
     }
 
     private async scanTexturesFile(uri: vscode.Uri): Promise<void> {

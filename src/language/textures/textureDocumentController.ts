@@ -1,18 +1,26 @@
 import * as vscode from 'vscode';
 import { TexturesParser, TexturesNode, TexturesNodeKind } from './texturesParser';
 import { ResourceIndex } from './resourceIndex';
-import { TextureDocumentModel } from './textureDocumentModel';
+import { TextureDocumentModel, PatchPropUpdate, TexturePropUpdate } from './textureDocumentModel';
 import { SelectionModel } from './selectionModel';
-import { TextureEditorPanel, TextureViewData, PatchViewData } from './textureEditorPanel';
+import { TextureEditorPanel, TextureViewData } from './textureEditorPanel';
+import { loadPlaypal } from '../../tools/playpalReader';
 
 function buildTextureViewData(node: TexturesNode, modelVersion: number): TextureViewData {
+    const offsetX = node.texProps.OffsetX ?? 0;
+    const offsetY = node.texProps.OffsetY ?? 0;
     return {
         name: node.name,
         width: node.defData?.width ?? 0,
         height: node.defData?.height ?? 0,
         textureType: node.type,
-        originX: 0,
-        originY: 0,
+        offsetX,
+        offsetY,
+        xScale: node.texProps.XScale ?? 1,
+        yScale: node.texProps.YScale ?? 1,
+        worldPanning: !!node.texProps.WorldPanning,
+        noDecals: !!node.texProps.NoDecals,
+        nullTexture: !!node.texProps.NullTexture,
         revision: modelVersion,
         patches: node.children.map(child => ({
             id: child.id,
@@ -35,6 +43,7 @@ export class TextureDocumentController {
     readonly selection: SelectionModel;
     private panel: TextureEditorPanel | undefined;
     private readonly disposables: vscode.Disposable[] = [];
+    readonly documentUri: string;
 
     constructor(
         document: vscode.TextDocument,
@@ -42,6 +51,7 @@ export class TextureDocumentController {
         resourceIndex: ResourceIndex,
         private readonly extensionContext: vscode.ExtensionContext
     ) {
+        this.documentUri = document.uri.toString();
         this.resourceIndex = resourceIndex;
         this.model = new TextureDocumentModel(document, parser, resourceIndex);
         this.selection = new SelectionModel();
@@ -112,35 +122,123 @@ export class TextureDocumentController {
 
         const node = this.model.getNodeAtPosition(pos);
         if (node && node.kind === TexturesNodeKind.Patch) {
+            this.selection.selectedPatchId = node.id;
             this.panel.sendHighlightPatch(node.id);
         } else {
             this.panel.sendHighlightPatch(null);
         }
     }
 
-    private onPanelMessage(msg: any): void {
+    private async onPanelMessage(msg: any): Promise<void> {
         switch (msg.type) {
             case 'ready':
+                await this.sendPalette();
                 this.sendInit();
                 break;
             case 'selectTexture':
                 this.selection.selectedTextureName = msg.name;
                 this.sendCurrentTexture();
                 break;
-            case 'movePatch':
-                this.model.applyPatchMove(msg.patchId, msg.x, msg.y, msg.modelVersion);
+            case 'movePatch': {
+                const ok = await this.model.applyPatchMove(msg.patchId, msg.x, msg.y, msg.modelVersion);
+                this.panel?.sendEditResult(ok, ok ? undefined : 'version conflict or invalid patch');
                 break;
+            }
+            case 'moveTextureOffset': {
+                const name = this.selection.selectedTextureName;
+                if (!name) { break; }
+                const ok = await this.model.applyTextureOffset(name, msg.offsetX, msg.offsetY, msg.modelVersion);
+                this.panel?.sendEditResult(ok, ok ? undefined : 'version conflict');
+                break;
+            }
+            case 'updateTextureProps': {
+                const name = this.selection.selectedTextureName;
+                if (!name) { break; }
+                const props: TexturePropUpdate = msg.props ?? {};
+                const ok = await this.model.applyTextureProps(name, props, msg.modelVersion);
+                this.panel?.sendEditResult(ok, ok ? undefined : 'version conflict');
+                break;
+            }
+            case 'updatePatchProps': {
+                const props: PatchPropUpdate = msg.props ?? {};
+                const ok = await this.model.applyPatchProps(msg.patchId, props, msg.modelVersion);
+                this.panel?.sendEditResult(ok, ok ? undefined : 'version conflict or invalid patch');
+                break;
+            }
+            case 'addPatch':
+                await this.handleAddPatch(msg.modelVersion);
+                break;
+            case 'removePatch': {
+                const ok = await this.model.removePatch(msg.patchId, msg.modelVersion);
+                this.panel?.sendEditResult(ok, ok ? undefined : 'version conflict');
+                break;
+            }
+            case 'reorderPatch': {
+                const ok = await this.model.reorderPatch(msg.patchId, msg.direction, msg.modelVersion);
+                this.panel?.sendEditResult(ok, ok ? undefined : 'cannot reorder');
+                break;
+            }
+            case 'duplicatePatch': {
+                const ok = await this.model.duplicatePatch(msg.patchId, msg.modelVersion);
+                this.panel?.sendEditResult(ok, ok ? undefined : 'version conflict');
+                break;
+            }
             case 'resolveResource':
-                this.handleResolveResource(msg.resourceId);
+                await this.handleResolveResource(msg.resourceId);
                 break;
             case 'selectPatch':
+                // Selection stays in the visual editor only; do not jump to source.
                 this.selection.selectedPatchId = msg.patchId;
-                this.revealNode(msg.patchId, false);
                 break;
             case 'revealSource':
                 this.revealNode(msg.patchId, true);
                 break;
+            case 'requestImageNames':
+                this.panel?.sendImageNames(this.model.listImageNames());
+                break;
         }
+    }
+
+    private async handleAddPatch(modelVersion: number): Promise<void> {
+        const name = this.selection.selectedTextureName;
+        if (!name) { return; }
+
+        const images = this.model.listImageNames();
+        const items: vscode.QuickPickItem[] = [
+            ...images.map(n => ({ label: n })),
+            { label: '$(edit) Enter name…', description: 'Type a custom patch name' }
+        ];
+        const picked = await vscode.window.showQuickPick(items, {
+            placeHolder: 'Select patch graphic'
+        });
+        if (!picked) { return; }
+
+        let patchName = picked.label;
+        if (picked.label.startsWith('$(edit)')) {
+            const typed = await vscode.window.showInputBox({
+                prompt: 'Patch name',
+                validateInput: v => v.trim() ? undefined : 'Name required'
+            });
+            if (!typed) { return; }
+            patchName = typed.trim();
+        }
+
+        const ok = await this.model.addPatch(name, patchName, modelVersion);
+        this.panel?.sendEditResult(ok, ok ? undefined : 'version conflict');
+    }
+
+    private async sendPalette(): Promise<void> {
+        if (!this.panel) { return; }
+        const palette = await loadPlaypal();
+        if (!palette) {
+            this.panel.sendPalette(null);
+            return;
+        }
+        const rgb: number[] = [];
+        for (const c of palette) {
+            rgb.push(c.r, c.g, c.b);
+        }
+        this.panel.sendPalette(rgb);
     }
 
     private sendInit(): void {
@@ -173,7 +271,8 @@ export class TextureDocumentController {
             resolved.width,
             resolved.height,
             resolved.resourceType,
-            resolved.subPatches
+            resolved.subPatches,
+            resolved.grabOffset
         );
     }
 
@@ -195,6 +294,18 @@ export class TextureDocumentController {
 
 export class TextureEditorRegistry {
     private readonly controllers = new Map<string, TextureDocumentController>();
+    private readonly closeDisposable: vscode.Disposable;
+
+    constructor() {
+        this.closeDisposable = vscode.workspace.onDidCloseTextDocument(doc => {
+            const key = doc.uri.toString();
+            const controller = this.controllers.get(key);
+            if (controller) {
+                controller.dispose();
+                this.controllers.delete(key);
+            }
+        });
+    }
 
     open(
         document: vscode.TextDocument,
@@ -217,6 +328,7 @@ export class TextureEditorRegistry {
     }
 
     dispose(): void {
+        this.closeDisposable.dispose();
         for (const c of this.controllers.values()) {
             c.dispose();
         }

@@ -138,6 +138,21 @@ html, body {
     display: flex; gap: 2px; flex-wrap: wrap; flex: 1;
 }
 
+#inspector .axis-actions {
+    display: flex; gap: 8px; flex: 1; align-items: center;
+}
+
+#inspector .axis-opt {
+    display: flex; align-items: center; gap: 3px;
+    font-size: 11px;
+    cursor: pointer;
+    opacity: 0.9;
+}
+
+#inspector .axis-opt input {
+    margin: 0;
+}
+
 #inspector .field-row {
     display: flex;
     align-items: center;

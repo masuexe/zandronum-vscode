@@ -918,49 +918,74 @@ export class TextureDocumentModel {
 
     /**
      * Duplicate a patch mirrored about the texture center axis, toggling FlipX/FlipY.
-     * axis 'h' = vertical symmetry line (mirror left/right); 'v' = horizontal (mirror up/down).
+     * @deprecated Prefer symmetryPatch({ mode: 'copy', ref: 'texture' }).
      */
     async mirrorPatch(
         patchId: string,
         axis: 'h' | 'v',
         expectedVersion: number
     ): Promise<boolean> {
+        return this.symmetryPatch(patchId, {
+            direction: axis,
+            ref: 'texture',
+            mode: 'copy',
+            offsetType: 'none'
+        }, expectedVersion);
+    }
+
+    /**
+     * Reflect or mirror-copy a patch about texture mid or screen mid.
+     * - texture mid: x = width/2, y = height/2
+     * - screen mid (sprite): (OffsetX, OffsetY)
+     * - screen mid (hud): (OffsetX+160, OffsetY+100)
+     */
+    async symmetryPatch(
+        patchId: string,
+        opts: {
+            direction: 'h' | 'v';
+            ref: 'texture' | 'screen';
+            mode: 'reflect' | 'copy';
+            offsetType: 'none' | 'sprite' | 'hud';
+        },
+        expectedVersion: number
+    ): Promise<boolean> {
         if (expectedVersion !== this.version) { return false; }
+        if (opts.ref === 'screen' && opts.offsetType === 'none') { return false; }
+
         const node = this.parser.getNodeById(patchId);
         const parent = node?.parent;
         const defData = parent?.defData;
         if (!node || !parent || !defData) { return false; }
 
-        const texW = defData.width;
-        const texH = defData.height;
-        const oldX = node.patchData?.x ?? 0;
-        const oldY = node.patchData?.y ?? 0;
+        const computed = this.computePatchSymmetry(node, parent, opts.direction, opts.ref, opts.offsetType);
+        if (!computed) { return false; }
 
-        const size = this.getResourceSize(`patch:${node.name}`);
-        let effW = size?.width ?? 32;
-        let effH = size?.height ?? 32;
-        const rot = typeof node.patchProps.Rotate === 'number' ? node.patchProps.Rotate : 0;
-        if (Math.abs(rot) % 180 === 90) {
-            const tmp = effW;
-            effW = effH;
-            effH = tmp;
+        if (opts.mode === 'reflect') {
+            const props: PatchPropUpdate = {};
+            if (opts.direction === 'h') {
+                props.x = computed.newX;
+                props.FlipX = computed.flipX;
+            } else {
+                props.y = computed.newY;
+                props.FlipY = computed.flipY;
+            }
+            return this.applyPatchProps(patchId, props, expectedVersion);
         }
 
-        let newX = oldX;
-        let newY = oldY;
+        // Mirror copy — insert a new patch
         const nextProps: PatchProperties = { ...node.patchProps };
-        if (axis === 'h') {
-            newX = Math.round(texW - oldX - effW);
-            if (nextProps.FlipX) { delete nextProps.FlipX; } else { nextProps.FlipX = true; }
+        if (opts.direction === 'h') {
+            if (computed.flipX) { nextProps.FlipX = true; } else { delete nextProps.FlipX; }
         } else {
-            newY = Math.round(texH - oldY - effH);
-            if (nextProps.FlipY) { delete nextProps.FlipY; } else { nextProps.FlipY = true; }
+            if (computed.flipY) { nextProps.FlipY = true; } else { delete nextProps.FlipY; }
         }
 
         const keyword = node.type || 'Patch';
         const namePart = this.document.getText(node.nameRange);
         const parentInline = this.isInlineDefinition(parent);
         const block = this.formatPatchPropertyBlock(nextProps, parentInline);
+        const newX = computed.newX;
+        const newY = computed.newY;
 
         let patchText: string;
         if (parentInline) {
@@ -974,6 +999,110 @@ export class TextureDocumentModel {
         const edit = new vscode.WorkspaceEdit();
         this.insertPatchIntoDefinition(edit, parent, patchText);
         return vscode.workspace.applyEdit(edit);
+    }
+
+    /**
+     * Reflect every patch about the screen mid (sprite/HUD). Offset stays put so the
+     * on-screen flip is exactly about the reference midline (changing Offset would double-move).
+     */
+    async reflectTextureAboutScreen(
+        textureName: string,
+        direction: 'h' | 'v',
+        offsetType: 'sprite' | 'hud',
+        expectedVersion: number
+    ): Promise<boolean> {
+        if (expectedVersion !== this.version) { return false; }
+        const node = this.getTextureByName(textureName);
+        if (!node || !node.defData) { return false; }
+
+        const edit = new vscode.WorkspaceEdit();
+        const uri = this.document.uri;
+
+        for (const child of node.children) {
+            const computed = this.computePatchSymmetry(child, node, direction, 'screen', offsetType);
+            if (!computed) { continue; }
+            if (direction === 'h') {
+                if (child.xRange) {
+                    edit.replace(uri, child.xRange, String(computed.newX));
+                }
+                const flipProps: PatchPropUpdate = { FlipX: computed.flipX };
+                const ok = this.rewritePatchProperties(edit, child, flipProps);
+                if (!ok) { return false; }
+            } else {
+                if (child.yRange) {
+                    edit.replace(uri, child.yRange, String(computed.newY));
+                }
+                const flipProps: PatchPropUpdate = { FlipY: computed.flipY };
+                const ok = this.rewritePatchProperties(edit, child, flipProps);
+                if (!ok) { return false; }
+            }
+        }
+
+        return vscode.workspace.applyEdit(edit);
+    }
+
+    private getPatchEffectiveSize(node: TexturesNode): { w: number; h: number } {
+        const size = this.getResourceSize(`patch:${node.name}`);
+        let w = size?.width ?? 32;
+        let h = size?.height ?? 32;
+        const rot = typeof node.patchProps.Rotate === 'number' ? node.patchProps.Rotate : 0;
+        if (Math.abs(rot) % 180 === 90) {
+            return { w: h, h: w };
+        }
+        return { w, h };
+    }
+
+    /** Screen / texture symmetry axis in texture coordinates. */
+    private getSymmetryAxis(
+        def: TexturesNode,
+        direction: 'h' | 'v',
+        ref: 'texture' | 'screen',
+        offsetType: 'none' | 'sprite' | 'hud'
+    ): number | null {
+        const defData = def.defData;
+        if (!defData) { return null; }
+        if (ref === 'texture') {
+            return direction === 'h' ? defData.width / 2 : defData.height / 2;
+        }
+        const ox = def.texProps.OffsetX ?? 0;
+        const oy = def.texProps.OffsetY ?? 0;
+        if (offsetType === 'sprite') {
+            return direction === 'h' ? ox : oy;
+        }
+        if (offsetType === 'hud') {
+            // HUD screen center in texture space
+            return direction === 'h' ? ox + 160 : oy + 100;
+        }
+        return null;
+    }
+
+    private computePatchSymmetry(
+        node: TexturesNode,
+        parent: TexturesNode,
+        direction: 'h' | 'v',
+        ref: 'texture' | 'screen',
+        offsetType: 'none' | 'sprite' | 'hud'
+    ): { newX: number; newY: number; flipX: boolean; flipY: boolean } | null {
+        const axis = this.getSymmetryAxis(parent, direction, ref, offsetType);
+        if (axis === null) { return null; }
+        const oldX = node.patchData?.x ?? 0;
+        const oldY = node.patchData?.y ?? 0;
+        const { w: effW, h: effH } = this.getPatchEffectiveSize(node);
+        const hasFlipX = !!node.patchProps.FlipX;
+        const hasFlipY = !!node.patchProps.FlipY;
+
+        let newX = oldX;
+        let newY = oldY;
+        let flipX = hasFlipX;
+        let flipY = hasFlipY;
+        if (direction === 'h') {
+            newX = Math.round(2 * axis - oldX - effW);
+            flipX = !hasFlipX;
+        } else {
+            newY = Math.round(2 * axis - oldY - effH);
+            flipY = !hasFlipY;
+        }
+        return { newX, newY, flipX, flipY };
     }
 
     private getNodeText(node: TexturesNode): string {

@@ -811,6 +811,7 @@
             if (offsetType === 'hud') {
                 fitZoom();
             }
+            updateSymmetryAxisUi();
             renderBase();
             renderOverlay();
         });
@@ -861,11 +862,65 @@
         for (const mode of ['left', 'centerx', 'right', 'top', 'centery', 'bottom']) {
             document.getElementById(`btn-align-${mode}`).disabled = disabled;
         }
-        for (const id of ['btn-patch-mirror-h', 'btn-patch-mirror-v', 'btn-patch-remove', 'btn-patch-up', 'btn-patch-down', 'btn-patch-dup']) {
+        for (const id of ['btn-patch-remove', 'btn-patch-up', 'btn-patch-down', 'btn-patch-dup',
+            'btn-patch-reflect-h', 'btn-patch-reflect-v', 'btn-patch-copy-h', 'btn-patch-copy-v']) {
             const el = document.getElementById(id);
             if (el) { el.disabled = disabled; }
         }
+        updateSymmetryAxisUi();
         suppressInspectorEvents = false;
+    }
+
+    function screenAxisAvailable() {
+        return offsetType === 'sprite' || offsetType === 'hud';
+    }
+
+    function getSymmetryRef() {
+        const screen = document.getElementById('sym-axis-screen');
+        if (screen && screen.checked && screenAxisAvailable()) { return 'screen'; }
+        return 'texture';
+    }
+
+    function updateSymmetryAxisUi() {
+        const screenRadio = document.getElementById('sym-axis-screen');
+        const texRadio = document.getElementById('sym-axis-texture');
+        const canScreen = screenAxisAvailable();
+        if (screenRadio) {
+            screenRadio.disabled = !canScreen;
+            if (!canScreen && screenRadio.checked && texRadio) {
+                texRadio.checked = true;
+            }
+        }
+        const texReflectDisabled = !currentTexture || !canScreen;
+        for (const id of ['btn-tex-reflect-h', 'btn-tex-reflect-v']) {
+            const el = document.getElementById(id);
+            if (el) { el.disabled = texReflectDisabled; }
+        }
+    }
+
+    function postSymmetryPatch(direction, mode) {
+        if (!currentTexture || !selectedPatchId) { return; }
+        const ref = getSymmetryRef();
+        if (ref === 'screen' && !screenAxisAvailable()) { return; }
+        vscode.postMessage({
+            type: 'symmetryPatch',
+            patchId: selectedPatchId,
+            direction,
+            ref,
+            mode,
+            offsetType,
+            modelVersion: currentTexture.revision
+        });
+    }
+
+    function postReflectTexture(direction) {
+        if (!currentTexture || !screenAxisAvailable()) { return; }
+        vscode.postMessage({
+            type: 'reflectTexture',
+            direction,
+            offsetType,
+            modelVersion: currentTexture.revision
+        });
     }
 
     function postTextureProps(props) {
@@ -960,23 +1015,23 @@
                 modelVersion: currentTexture.revision
             });
         });
-        document.getElementById('btn-patch-mirror-h').addEventListener('click', () => {
-            if (!currentTexture || !selectedPatchId) { return; }
-            vscode.postMessage({
-                type: 'mirrorPatch',
-                patchId: selectedPatchId,
-                axis: 'h',
-                modelVersion: currentTexture.revision
-            });
+        document.getElementById('btn-patch-reflect-h').addEventListener('click', () => {
+            postSymmetryPatch('h', 'reflect');
         });
-        document.getElementById('btn-patch-mirror-v').addEventListener('click', () => {
-            if (!currentTexture || !selectedPatchId) { return; }
-            vscode.postMessage({
-                type: 'mirrorPatch',
-                patchId: selectedPatchId,
-                axis: 'v',
-                modelVersion: currentTexture.revision
-            });
+        document.getElementById('btn-patch-reflect-v').addEventListener('click', () => {
+            postSymmetryPatch('v', 'reflect');
+        });
+        document.getElementById('btn-patch-copy-h').addEventListener('click', () => {
+            postSymmetryPatch('h', 'copy');
+        });
+        document.getElementById('btn-patch-copy-v').addEventListener('click', () => {
+            postSymmetryPatch('v', 'copy');
+        });
+        document.getElementById('btn-tex-reflect-h').addEventListener('click', () => {
+            postReflectTexture('h');
+        });
+        document.getElementById('btn-tex-reflect-v').addEventListener('click', () => {
+            postReflectTexture('v');
         });
 
         const align = (mode) => {
@@ -987,6 +1042,7 @@
         for (const mode of ['left', 'centerx', 'right', 'top', 'centery', 'bottom']) {
             align(mode);
         }
+        updateSymmetryAxisUi();
     }
 
     /** Effective patch size in texture units (Rotate 90/270 swaps). */

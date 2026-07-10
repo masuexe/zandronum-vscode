@@ -198,9 +198,39 @@ export class TextureDocumentController {
                 break;
             }
             case 'mirrorPatch': {
-                const axis = msg.axis === 'v' ? 'v' : 'h';
-                const ok = await this.model.mirrorPatch(msg.patchId, axis, msg.modelVersion);
+                // Back-compat: texture mid + mirror copy
+                const direction = msg.axis === 'v' ? 'v' : 'h';
+                const ok = await this.model.symmetryPatch(msg.patchId, {
+                    direction,
+                    ref: 'texture',
+                    mode: 'copy',
+                    offsetType: 'none'
+                }, msg.modelVersion);
                 this.panel?.sendEditResult(ok, ok ? undefined : 'version conflict or invalid patch');
+                break;
+            }
+            case 'symmetryPatch': {
+                const direction = msg.direction === 'v' ? 'v' : 'h';
+                const ref = msg.ref === 'screen' ? 'screen' : 'texture';
+                const mode = msg.mode === 'reflect' ? 'reflect' : 'copy';
+                const offsetType = msg.offsetType === 'sprite' || msg.offsetType === 'hud'
+                    ? msg.offsetType
+                    : 'none';
+                const ok = await this.model.symmetryPatch(msg.patchId, {
+                    direction, ref, mode, offsetType
+                }, msg.modelVersion);
+                this.panel?.sendEditResult(ok, ok ? undefined : 'version conflict or invalid symmetry');
+                break;
+            }
+            case 'reflectTexture': {
+                const name = this.selection.selectedTextureName;
+                if (!name) { break; }
+                const direction = msg.direction === 'v' ? 'v' : 'h';
+                const offsetType = msg.offsetType === 'hud' ? 'hud' : 'sprite';
+                const ok = await this.model.reflectTextureAboutScreen(
+                    name, direction, offsetType, msg.modelVersion
+                );
+                this.panel?.sendEditResult(ok, ok ? undefined : 'version conflict or invalid reflect');
                 break;
             }
             case 'resolveResource':

@@ -86,6 +86,13 @@ export class TextureEditorPanel {
                 <div class="field-row"><label>Offset Y</label><input type="number" id="tex-offy" step="1"></div>
                 <div class="field-row"><label>XScale</label><input type="number" id="tex-xscale" step="0.1" min="0.01"></div>
                 <div class="field-row"><label>YScale</label><input type="number" id="tex-yscale" step="0.1" min="0.01"></div>
+                <div class="field-row align-row">
+                    <label title="Reflect all patches about screen mid (Sprite/HUD)">Reflect</label>
+                    <span class="align-actions">
+                        <button type="button" id="btn-tex-reflect-h" title="Reflect texture about screen vertical mid">↔</button>
+                        <button type="button" id="btn-tex-reflect-v" title="Reflect texture about screen horizontal mid">↕</button>
+                    </span>
+                </div>
             </div>
             <div class="section">
                 <div class="section-title">
@@ -96,8 +103,6 @@ export class TextureEditorPanel {
                         <button type="button" id="btn-patch-up" title="Move up">↑</button>
                         <button type="button" id="btn-patch-down" title="Move down">↓</button>
                         <button type="button" id="btn-patch-dup" title="Duplicate">⧉</button>
-                        <button type="button" id="btn-patch-mirror-h" title="Mirror horizontal">↔</button>
-                        <button type="button" id="btn-patch-mirror-v" title="Mirror vertical">↕</button>
                     </span>
                 </div>
                 <div id="patch-list"></div>
@@ -111,11 +116,31 @@ export class TextureEditorPanel {
                     <label>Align</label>
                     <span class="align-actions">
                         <button type="button" id="btn-align-left" title="Align left">L</button>
-                        <button type="button" id="btn-align-centerx" title="Center horizontally">↔</button>
+                        <button type="button" id="btn-align-centerx" title="Center horizontally">C</button>
                         <button type="button" id="btn-align-right" title="Align right">R</button>
                         <button type="button" id="btn-align-top" title="Align top">T</button>
-                        <button type="button" id="btn-align-centery" title="Center vertically">↕</button>
+                        <button type="button" id="btn-align-centery" title="Center vertically">M</button>
                         <button type="button" id="btn-align-bottom" title="Align bottom">B</button>
+                    </span>
+                </div>
+                <div class="field-row"><label>Axis</label>
+                    <span class="axis-actions">
+                        <label class="axis-opt" title="Texture canvas mid"><input type="radio" name="sym-axis" id="sym-axis-texture" value="texture" checked> Tex</label>
+                        <label class="axis-opt" title="Screen mid (requires Sprite/HUD Offset Type)"><input type="radio" name="sym-axis" id="sym-axis-screen" value="screen"> Scr</label>
+                    </span>
+                </div>
+                <div class="field-row align-row">
+                    <label title="Reflect in place about axis">Reflect</label>
+                    <span class="align-actions">
+                        <button type="button" id="btn-patch-reflect-h" title="Reflect horizontal (about vertical mid)">↔</button>
+                        <button type="button" id="btn-patch-reflect-v" title="Reflect vertical (about horizontal mid)">↕</button>
+                    </span>
+                </div>
+                <div class="field-row align-row">
+                    <label title="Duplicate mirrored about axis">Copy</label>
+                    <span class="align-actions">
+                        <button type="button" id="btn-patch-copy-h" title="Mirror copy horizontal">↔</button>
+                        <button type="button" id="btn-patch-copy-v" title="Mirror copy vertical">↕</button>
                     </span>
                 </div>
                 <div class="field-row"><label>Flip X</label><input type="checkbox" id="patch-flipx"></div>

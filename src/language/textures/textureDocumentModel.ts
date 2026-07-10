@@ -1,8 +1,9 @@
 import * as vscode from 'vscode';
 import * as fs from 'fs';
 import { TexturesParser, TexturesNode, TexturesContext, TexturesParseDiagnostic, PatchProperties } from './texturesParser';
-import { ResourceIndex, ResourceType } from './resourceIndex';
+import { ResourceIndex, ResourceType, ResourceMetadata } from './resourceIndex';
 import { readGrabOffset } from '../../tools/png/pngGrabChunk';
+import { readPngSize } from '../../tools/png/pngChunkReader';
 
 export interface CompositeSubPatch {
     uri: string | null;
@@ -114,8 +115,29 @@ export class TextureDocumentModel {
             return { width: localDef.defData.width, height: localDef.defData.height };
         }
         const meta = this.resourceIndex.resolve(parts[0], parts[1]);
-        if (!meta || meta.width === undefined || meta.height === undefined) { return null; }
+        if (!meta) { return null; }
+        this.ensureMetaImageSize(meta);
+        if (meta.width === undefined || meta.height === undefined) { return null; }
         return { width: meta.width, height: meta.height };
+    }
+
+    /**
+     * Lazily read PNG IHDR into ResourceMetadata and cache on the index entry.
+     * Index build intentionally skips sizes for startup speed.
+     */
+    private ensureMetaImageSize(meta: ResourceMetadata): void {
+        if (meta.width !== undefined && meta.height !== undefined) { return; }
+        if (meta.type !== ResourceType.Png) { return; }
+        try {
+            if (meta.uri.scheme === 'file' && fs.existsSync(meta.uri.fsPath)) {
+                const data = new Uint8Array(fs.readFileSync(meta.uri.fsPath));
+                const size = readPngSize(data);
+                if (size) {
+                    meta.width = size.width;
+                    meta.height = size.height;
+                }
+            }
+        } catch { /* ignore */ }
     }
 
     resolveResourceFull(resourceId: string, webview: vscode.Webview, visited?: Set<string>): ResolvedResource {
@@ -162,6 +184,7 @@ export class TextureDocumentModel {
             };
         }
 
+        this.ensureMetaImageSize(meta);
         const uriStr = webview.asWebviewUri(meta.uri).toString();
         const grab = this.readGrabForUri(meta.uri);
         return {

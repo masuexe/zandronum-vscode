@@ -1,12 +1,7 @@
 import * as vscode from 'vscode';
 import { SpriteImageProvider, SpriteImageInfo, SpriteOffset } from '../spriteImage';
-import { findChunk } from '../../tools/png/pngChunkReader';
+import { findChunk, readPngSize } from '../../tools/png/pngChunkReader';
 import { readGrabOffset, writeGrabOffset } from '../../tools/png/pngGrabChunk';
-
-function readUint32BE(data: Uint8Array, offset: number): number {
-    return ((data[offset] << 24) | (data[offset + 1] << 16) |
-            (data[offset + 2] << 8) | data[offset + 3]) >>> 0;
-}
 
 export class PngSpriteProvider implements SpriteImageProvider {
     private data: Uint8Array;
@@ -20,12 +15,12 @@ export class PngSpriteProvider implements SpriteImageProvider {
         this.data = data;
         this.fileUri = fileUri;
 
-        const ihdr = findChunk(data, 'IHDR');
-        if (!ihdr || ihdr.data.length < 8) {
+        const size = readPngSize(data);
+        if (!size) {
             throw new Error('Invalid PNG: missing or corrupted IHDR');
         }
-        this.width = readUint32BE(ihdr.data, 0);
-        this.height = readUint32BE(ihdr.data, 4);
+        this.width = size.width;
+        this.height = size.height;
 
         const grab = readGrabOffset(data);
         this.hasOffsetData = grab !== null;

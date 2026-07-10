@@ -54,6 +54,16 @@ export function findChunk(data: Uint8Array, type: string): PngChunk | null {
     return chunks.find(c => c.type === type) || null;
 }
 
+/** Read width/height from PNG IHDR. Returns null if not a valid PNG. */
+export function readPngSize(data: Uint8Array): { width: number; height: number } | null {
+    const ihdr = findChunk(data, 'IHDR');
+    if (!ihdr || ihdr.data.length < 8) { return null; }
+    return {
+        width: readUint32BE(ihdr.data, 0),
+        height: readUint32BE(ihdr.data, 4)
+    };
+}
+
 export function buildChunkBytes(type: string, chunkData: Uint8Array): Uint8Array {
     const total = 12 + chunkData.length;
     const result = new Uint8Array(total);

@@ -258,12 +258,13 @@
             viewport.style.cursor = 'grab';
             return;
         }
-        if (hitTest(mx, my)) {
-            viewport.style.cursor = 'grab';
+        // Border strip wins over patches so overflow patches don't block resize.
+        const edge = hitTestTextureBorder(mx, my);
+        if (edge) {
+            viewport.style.cursor = resizeCursorForEdge(edge);
             return;
         }
-        const edge = hitTestTextureBorder(mx, my);
-        viewport.style.cursor = edge ? resizeCursorForEdge(edge) : 'grab';
+        viewport.style.cursor = 'grab';
     }
 
     /** Viewport center in canvas CSS pixels (pan applied). */
@@ -1018,35 +1019,36 @@
             const rect = viewport.getBoundingClientRect();
             const mx = e.clientX - rect.left;
             const my = e.clientY - rect.top;
-            const hit = hitTest(mx, my);
-            if (hit) {
-                selectedPatchId = hit.id;
-                dragging = true;
-                dragPatchId = hit.id;
+            // Priority: border resize > patch drag > empty offset drag
+            const edge = hitTestTextureBorder(mx, my);
+            if (edge && currentTexture) {
+                selectedPatchId = null;
+                draggingResize = true;
+                resizeEdge = edge;
                 dragStartMouseX = e.clientX;
                 dragStartMouseY = e.clientY;
-                dragStartPatchX = hit.x;
-                dragStartPatchY = hit.y;
-                dragCurrentX = hit.x;
-                dragCurrentY = hit.y;
+                dragStartW = currentTexture.width;
+                dragStartH = currentTexture.height;
+                dragCurrentW = dragStartW;
+                dragCurrentH = dragStartH;
+                viewport.style.cursor = resizeCursorForEdge(edge);
                 viewport.classList.add('dragging');
-                vscode.postMessage({ type: 'selectPatch', patchId: hit.id });
                 buildPatchList();
                 syncInspector();
             } else {
-                const edge = hitTestTextureBorder(mx, my);
-                if (edge && currentTexture) {
-                    selectedPatchId = null;
-                    draggingResize = true;
-                    resizeEdge = edge;
+                const hit = hitTest(mx, my);
+                if (hit) {
+                    selectedPatchId = hit.id;
+                    dragging = true;
+                    dragPatchId = hit.id;
                     dragStartMouseX = e.clientX;
                     dragStartMouseY = e.clientY;
-                    dragStartW = currentTexture.width;
-                    dragStartH = currentTexture.height;
-                    dragCurrentW = dragStartW;
-                    dragCurrentH = dragStartH;
-                    viewport.style.cursor = resizeCursorForEdge(edge);
+                    dragStartPatchX = hit.x;
+                    dragStartPatchY = hit.y;
+                    dragCurrentX = hit.x;
+                    dragCurrentY = hit.y;
                     viewport.classList.add('dragging');
+                    vscode.postMessage({ type: 'selectPatch', patchId: hit.id });
                     buildPatchList();
                     syncInspector();
                 } else {

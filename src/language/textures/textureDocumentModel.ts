@@ -813,6 +813,36 @@ export class TextureDocumentModel {
         return new vscode.Position(endLine, endText.length);
     }
 
+    /** True when the texture definition is a compact one-liner. */
+    private isInlineDefinition(def: TexturesNode): boolean {
+        return def.range.start.line === def.range.end.line;
+    }
+
+    /**
+     * Insert patch source text inside the parent definition (before closing `}`).
+     * Inline defs stay on one line; multiline defs get a tab-indented new line.
+     */
+    private insertPatchIntoDefinition(
+        edit: vscode.WorkspaceEdit,
+        parent: TexturesNode,
+        patchSourceText: string
+    ): void {
+        const insertPos = this.findPatchInsertPosition(parent);
+        let text = patchSourceText.trim();
+        if (this.isInlineDefinition(parent)) {
+            // e.g. `...{ Patch A,0,0{...} Patch B,1,0{...}}`
+            text = ' ' + text;
+        } else {
+            if (!/^[ \t]/.test(text)) {
+                text = '\t' + text;
+            }
+            if (!text.endsWith('\n')) {
+                text += '\n';
+            }
+        }
+        edit.insert(this.document.uri, insertPos, text);
+    }
+
     async removePatch(patchId: string, expectedVersion: number): Promise<boolean> {
         if (expectedVersion !== this.version) { return false; }
         const node = this.parser.getNodeById(patchId);
@@ -871,7 +901,8 @@ export class TextureDocumentModel {
         const node = this.parser.getNodeById(patchId);
         if (!node || !node.parent) { return false; }
 
-        let text = this.getNodeText(node);
+        // Use exact patch span (not full line) so inline defs don't clone the whole sprite line
+        let text = this.document.getText(node.range);
         // Offset +8,+8 like SLADE
         const x = (node.patchData?.x ?? 0) + 8;
         const y = (node.patchData?.y ?? 0) + 8;
@@ -881,10 +912,7 @@ export class TextureDocumentModel {
         );
 
         const edit = new vscode.WorkspaceEdit();
-        const insertPos = new vscode.Position(node.range.end.line + 1, 0);
-        // Ensure trailing newline
-        const insertText = text.endsWith('\n') ? text : text + '\n';
-        edit.insert(this.document.uri, insertPos, insertText);
+        this.insertPatchIntoDefinition(edit, node.parent, text);
         return vscode.workspace.applyEdit(edit);
     }
 
@@ -899,10 +927,12 @@ export class TextureDocumentModel {
     ): Promise<boolean> {
         if (expectedVersion !== this.version) { return false; }
         const node = this.parser.getNodeById(patchId);
-        if (!node || !node.parent?.defData) { return false; }
+        const parent = node?.parent;
+        const defData = parent?.defData;
+        if (!node || !parent || !defData) { return false; }
 
-        const texW = node.parent.defData.width;
-        const texH = node.parent.defData.height;
+        const texW = defData.width;
+        const texH = defData.height;
         const oldX = node.patchData?.x ?? 0;
         const oldY = node.patchData?.y ?? 0;
 
@@ -929,24 +959,20 @@ export class TextureDocumentModel {
 
         const keyword = node.type || 'Patch';
         const namePart = this.document.getText(node.nameRange);
-        const orig = this.getNodeText(node);
-        const inline = node.range.start.line === node.range.end.line;
-        const block = this.formatPatchPropertyBlock(nextProps, inline);
-        const indentMatch = orig.match(/^[ \t]*/);
-        const indent = indentMatch ? indentMatch[0] : '\t';
+        const parentInline = this.isInlineDefinition(parent);
+        const block = this.formatPatchPropertyBlock(nextProps, parentInline);
 
-        let insertText: string;
-        if (inline) {
-            insertText = `${indent}${keyword} ${namePart}, ${newX}, ${newY}${block}\n`;
+        let patchText: string;
+        if (parentInline) {
+            patchText = `${keyword} ${namePart}, ${newX}, ${newY}${block}`;
         } else if (block.length > 0) {
-            insertText = `${indent}${keyword} ${namePart}, ${newX}, ${newY}\n${indent}${block}\n`;
+            patchText = `${keyword} ${namePart}, ${newX}, ${newY}\n\t${block}`;
         } else {
-            insertText = `${indent}${keyword} ${namePart}, ${newX}, ${newY}\n`;
+            patchText = `${keyword} ${namePart}, ${newX}, ${newY}`;
         }
 
         const edit = new vscode.WorkspaceEdit();
-        const insertPos = new vscode.Position(node.range.end.line + 1, 0);
-        edit.insert(this.document.uri, insertPos, insertText);
+        this.insertPatchIntoDefinition(edit, parent, patchText);
         return vscode.workspace.applyEdit(edit);
     }
 

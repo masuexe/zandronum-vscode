@@ -96,6 +96,8 @@ export class TextureEditorPanel {
                         <button type="button" id="btn-patch-up" title="Move up">↑</button>
                         <button type="button" id="btn-patch-down" title="Move down">↓</button>
                         <button type="button" id="btn-patch-dup" title="Duplicate">⧉</button>
+                        <button type="button" id="btn-patch-mirror-h" title="Mirror horizontal">↔</button>
+                        <button type="button" id="btn-patch-mirror-v" title="Mirror vertical">↕</button>
                     </span>
                 </div>
                 <div id="patch-list"></div>
@@ -105,6 +107,17 @@ export class TextureEditorPanel {
                 <div class="field-row"><label>Name</label><span id="patch-name">—</span></div>
                 <div class="field-row"><label>X</label><input type="number" id="patch-x" step="1"></div>
                 <div class="field-row"><label>Y</label><input type="number" id="patch-y" step="1"></div>
+                <div class="field-row align-row">
+                    <label>Align</label>
+                    <span class="align-actions">
+                        <button type="button" id="btn-align-left" title="Align left">L</button>
+                        <button type="button" id="btn-align-centerx" title="Center horizontally">↔</button>
+                        <button type="button" id="btn-align-right" title="Align right">R</button>
+                        <button type="button" id="btn-align-top" title="Align top">T</button>
+                        <button type="button" id="btn-align-centery" title="Center vertically">↕</button>
+                        <button type="button" id="btn-align-bottom" title="Align bottom">B</button>
+                    </span>
+                </div>
                 <div class="field-row"><label>Flip X</label><input type="checkbox" id="patch-flipx"></div>
                 <div class="field-row"><label>Flip Y</label><input type="checkbox" id="patch-flipy"></div>
                 <div class="field-row"><label>Rotate</label>

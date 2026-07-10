@@ -109,10 +109,11 @@ html, body {
 }
 
 #inspector .patch-actions {
-    display: flex; gap: 2px;
+    display: flex; gap: 2px; flex-wrap: wrap; justify-content: flex-end;
 }
 
-#inspector .patch-actions button {
+#inspector .patch-actions button,
+#inspector .align-actions button {
     padding: 0 5px;
     font-size: 12px;
     line-height: 18px;
@@ -122,8 +123,19 @@ html, body {
     cursor: pointer;
 }
 
-#inspector .patch-actions button:hover {
+#inspector .patch-actions button:hover,
+#inspector .align-actions button:hover {
     background: var(--vscode-button-secondaryHoverBackground);
+}
+
+#inspector .patch-actions button:disabled,
+#inspector .align-actions button:disabled {
+    opacity: 0.45;
+    cursor: default;
+}
+
+#inspector .align-actions {
+    display: flex; gap: 2px; flex-wrap: wrap; flex: 1;
 }
 
 #inspector .field-row {

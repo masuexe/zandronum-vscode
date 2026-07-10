@@ -183,6 +183,12 @@ export class TextureDocumentController {
                 this.panel?.sendEditResult(ok, ok ? undefined : 'version conflict');
                 break;
             }
+            case 'mirrorPatch': {
+                const axis = msg.axis === 'v' ? 'v' : 'h';
+                const ok = await this.model.mirrorPatch(msg.patchId, axis, msg.modelVersion);
+                this.panel?.sendEditResult(ok, ok ? undefined : 'version conflict or invalid patch');
+                break;
+            }
             case 'resolveResource':
                 await this.handleResolveResource(msg.resourceId);
                 break;

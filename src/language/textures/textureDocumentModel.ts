@@ -830,6 +830,68 @@ export class TextureDocumentModel {
         return vscode.workspace.applyEdit(edit);
     }
 
+    /**
+     * Duplicate a patch mirrored about the texture center axis, toggling FlipX/FlipY.
+     * axis 'h' = vertical symmetry line (mirror left/right); 'v' = horizontal (mirror up/down).
+     */
+    async mirrorPatch(
+        patchId: string,
+        axis: 'h' | 'v',
+        expectedVersion: number
+    ): Promise<boolean> {
+        if (expectedVersion !== this.version) { return false; }
+        const node = this.parser.getNodeById(patchId);
+        if (!node || !node.parent?.defData) { return false; }
+
+        const texW = node.parent.defData.width;
+        const texH = node.parent.defData.height;
+        const oldX = node.patchData?.x ?? 0;
+        const oldY = node.patchData?.y ?? 0;
+
+        const size = this.getResourceSize(`patch:${node.name}`);
+        let effW = size?.width ?? 32;
+        let effH = size?.height ?? 32;
+        const rot = typeof node.patchProps.Rotate === 'number' ? node.patchProps.Rotate : 0;
+        if (Math.abs(rot) % 180 === 90) {
+            const tmp = effW;
+            effW = effH;
+            effH = tmp;
+        }
+
+        let newX = oldX;
+        let newY = oldY;
+        const nextProps: PatchProperties = { ...node.patchProps };
+        if (axis === 'h') {
+            newX = Math.round(texW - oldX - effW);
+            if (nextProps.FlipX) { delete nextProps.FlipX; } else { nextProps.FlipX = true; }
+        } else {
+            newY = Math.round(texH - oldY - effH);
+            if (nextProps.FlipY) { delete nextProps.FlipY; } else { nextProps.FlipY = true; }
+        }
+
+        const keyword = node.type || 'Patch';
+        const namePart = this.document.getText(node.nameRange);
+        const orig = this.getNodeText(node);
+        const inline = node.range.start.line === node.range.end.line;
+        const block = this.formatPatchPropertyBlock(nextProps, inline);
+        const indentMatch = orig.match(/^[ \t]*/);
+        const indent = indentMatch ? indentMatch[0] : '\t';
+
+        let insertText: string;
+        if (inline) {
+            insertText = `${indent}${keyword} ${namePart}, ${newX}, ${newY}${block}\n`;
+        } else if (block.length > 0) {
+            insertText = `${indent}${keyword} ${namePart}, ${newX}, ${newY}\n${indent}${block}\n`;
+        } else {
+            insertText = `${indent}${keyword} ${namePart}, ${newX}, ${newY}\n`;
+        }
+
+        const edit = new vscode.WorkspaceEdit();
+        const insertPos = new vscode.Position(node.range.end.line + 1, 0);
+        edit.insert(this.document.uri, insertPos, insertText);
+        return vscode.workspace.applyEdit(edit);
+    }
+
     private getNodeText(node: TexturesNode): string {
         return this.document.getText(this.nodeFullRange(node));
     }

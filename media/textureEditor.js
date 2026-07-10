@@ -27,6 +27,9 @@
     let dragging = false;
     let panning = false;
     let draggingOffset = false;
+    let draggingResize = false;
+    /** @type {'e'|'s'|'se'|null} */
+    let resizeEdge = null;
     let dragPatchId = null;
     let dragStartMouseX = 0;
     let dragStartMouseY = 0;
@@ -38,6 +41,10 @@
     let dragStartOffsetY = 0;
     let dragCurrentOffsetX = 0;
     let dragCurrentOffsetY = 0;
+    let dragStartW = 0;
+    let dragStartH = 0;
+    let dragCurrentW = 0;
+    let dragCurrentH = 0;
     let lastMouseX = 0;
     let lastMouseY = 0;
     let suppressInspectorEvents = false;
@@ -195,10 +202,17 @@
         canvasH = rect.height;
     }
 
+    function getLogicalSize() {
+        if (!currentTexture) { return { w: 0, h: 0 }; }
+        if (draggingResize) {
+            return { w: dragCurrentW, h: dragCurrentH };
+        }
+        return { w: currentTexture.width, h: currentTexture.height };
+    }
+
     function getDisplaySize() {
         if (!currentTexture) { return { w: 0, h: 0 }; }
-        let w = currentTexture.width;
-        let h = currentTexture.height;
+        let { w, h } = getLogicalSize();
         if (applyScale) {
             const xs = currentTexture.xScale || 1;
             const ys = currentTexture.yScale || 1;
@@ -206,6 +220,50 @@
             h = h / ys;
         }
         return { w, h };
+    }
+
+    /**
+     * Hit-test texture border for resize (right / bottom / SE corner only).
+     * @returns {'e'|'s'|'se'|null}
+     */
+    function hitTestTextureBorder(mouseX, mouseY) {
+        if (!currentTexture) { return null; }
+        const origin = getOrigin();
+        const { w, h } = getDisplaySize();
+        const tw = w * zoom;
+        const th = h * zoom;
+        const left = origin.x;
+        const top = origin.y;
+        const right = left + tw;
+        const bottom = top + th;
+        const tol = Math.max(4, 6);
+        const nearRight = Math.abs(mouseX - right) <= tol && mouseY >= top - tol && mouseY <= bottom + tol;
+        const nearBottom = Math.abs(mouseY - bottom) <= tol && mouseX >= left - tol && mouseX <= right + tol;
+        if (nearRight && nearBottom) { return 'se'; }
+        if (nearRight) { return 'e'; }
+        if (nearBottom) { return 's'; }
+        return null;
+    }
+
+    function resizeCursorForEdge(edge) {
+        if (edge === 'e') { return 'ew-resize'; }
+        if (edge === 's') { return 'ns-resize'; }
+        if (edge === 'se') { return 'nwse-resize'; }
+        return '';
+    }
+
+    function updateViewportCursor(mx, my) {
+        if (dragging || draggingOffset || draggingResize || panning) { return; }
+        if (!currentTexture) {
+            viewport.style.cursor = 'grab';
+            return;
+        }
+        if (hitTest(mx, my)) {
+            viewport.style.cursor = 'grab';
+            return;
+        }
+        const edge = hitTestTextureBorder(mx, my);
+        viewport.style.cursor = edge ? resizeCursorForEdge(edge) : 'grab';
     }
 
     /** Viewport center in canvas CSS pixels (pan applied). */
@@ -403,6 +461,15 @@
             if (patch) {
                 drawPatch(overlayCtx, { ...patch, x: dragCurrentX, y: dragCurrentY }, getOrigin(), true);
             }
+        }
+
+        if (draggingResize) {
+            const { w, h } = getDisplaySize();
+            overlayCtx.strokeStyle = 'rgba(0, 180, 255, 0.95)';
+            overlayCtx.lineWidth = 2;
+            overlayCtx.setLineDash([6, 4]);
+            overlayCtx.strokeRect(origin.x, origin.y, w * zoom, h * zoom);
+            overlayCtx.setLineDash([]);
         }
     }
 
@@ -726,8 +793,8 @@
         if (!currentTexture) { return; }
         suppressInspectorEvents = true;
         document.getElementById('tex-type').textContent = currentTexture.textureType || '—';
-        document.getElementById('tex-width').value = currentTexture.width;
-        document.getElementById('tex-height').value = currentTexture.height;
+        document.getElementById('tex-width').value = draggingResize ? dragCurrentW : currentTexture.width;
+        document.getElementById('tex-height').value = draggingResize ? dragCurrentH : currentTexture.height;
         document.getElementById('tex-offx').value = draggingOffset ? dragCurrentOffsetX : currentTexture.offsetX;
         document.getElementById('tex-offy').value = draggingOffset ? dragCurrentOffsetY : currentTexture.offsetY;
         document.getElementById('tex-xscale').value = currentTexture.xScale;
@@ -748,6 +815,13 @@
         const disabled = !patch;
         for (const id of ['patch-x', 'patch-y', 'patch-flipx', 'patch-flipy', 'patch-rotate', 'patch-alpha', 'patch-useoffsets']) {
             document.getElementById(id).disabled = disabled;
+        }
+        for (const mode of ['left', 'centerx', 'right', 'top', 'centery', 'bottom']) {
+            document.getElementById(`btn-align-${mode}`).disabled = disabled;
+        }
+        for (const id of ['btn-patch-mirror-h', 'btn-patch-mirror-v', 'btn-patch-remove', 'btn-patch-up', 'btn-patch-down', 'btn-patch-dup']) {
+            const el = document.getElementById(id);
+            if (el) { el.disabled = disabled; }
         }
         suppressInspectorEvents = false;
     }
@@ -844,6 +918,67 @@
                 modelVersion: currentTexture.revision
             });
         });
+        document.getElementById('btn-patch-mirror-h').addEventListener('click', () => {
+            if (!currentTexture || !selectedPatchId) { return; }
+            vscode.postMessage({
+                type: 'mirrorPatch',
+                patchId: selectedPatchId,
+                axis: 'h',
+                modelVersion: currentTexture.revision
+            });
+        });
+        document.getElementById('btn-patch-mirror-v').addEventListener('click', () => {
+            if (!currentTexture || !selectedPatchId) { return; }
+            vscode.postMessage({
+                type: 'mirrorPatch',
+                patchId: selectedPatchId,
+                axis: 'v',
+                modelVersion: currentTexture.revision
+            });
+        });
+
+        const align = (mode) => {
+            document.getElementById(`btn-align-${mode}`).addEventListener('click', () => {
+                alignSelectedPatch(mode);
+            });
+        };
+        for (const mode of ['left', 'centerx', 'right', 'top', 'centery', 'bottom']) {
+            align(mode);
+        }
+    }
+
+    /** Effective patch size in texture units (Rotate 90/270 swaps). */
+    function getPatchEffectiveSize(patch) {
+        const res = resourceCache.get(patch.resourceId);
+        return getResourceDimensions(res, patch);
+    }
+
+    function alignSelectedPatch(mode) {
+        if (!currentTexture || !selectedPatchId) { return; }
+        const patch = currentTexture.patches.find(p => p.id === selectedPatchId);
+        if (!patch) { return; }
+        const { w: effW, h: effH } = getPatchEffectiveSize(patch);
+        const texW = currentTexture.width;
+        const texH = currentTexture.height;
+        let x = patch.x;
+        let y = patch.y;
+        switch (mode) {
+            case 'left': x = 0; break;
+            case 'centerx': x = Math.round((texW - effW) / 2); break;
+            case 'right': x = texW - effW; break;
+            case 'top': y = 0; break;
+            case 'centery': y = Math.round((texH - effH) / 2); break;
+            case 'bottom': y = texH - effH; break;
+            default: return;
+        }
+        if (x === patch.x && y === patch.y) { return; }
+        vscode.postMessage({
+            type: 'movePatch',
+            patchId: selectedPatchId,
+            x,
+            y,
+            modelVersion: currentTexture.revision
+        });
     }
 
     function updateInfoBar() {
@@ -862,8 +997,10 @@
         }
         const ox = draggingOffset ? dragCurrentOffsetX : currentTexture.offsetX;
         const oy = draggingOffset ? dragCurrentOffsetY : currentTexture.offsetY;
+        const tw = draggingResize ? dragCurrentW : currentTexture.width;
+        const th = draggingResize ? dragCurrentH : currentTexture.height;
         infoBar.innerHTML =
-            `<span><span class="label">Texture:</span> ${currentTexture.name} ${currentTexture.width}\u00d7${currentTexture.height}</span>` +
+            `<span><span class="label">Texture:</span> ${currentTexture.name} ${tw}\u00d7${th}</span>` +
             `<span><span class="label">Offset:</span> ${ox}, ${oy}</span>` +
             `<span><span class="label">Scale:</span> ${currentTexture.xScale}, ${currentTexture.yScale}</span>` +
             `<span><span class="label">Zoom:</span> ${Math.round(zoom * 100)}%</span>` +
@@ -897,18 +1034,35 @@
                 buildPatchList();
                 syncInspector();
             } else {
-                // Drag empty area → texture offset
-                selectedPatchId = null;
-                draggingOffset = true;
-                dragStartMouseX = e.clientX;
-                dragStartMouseY = e.clientY;
-                dragStartOffsetX = currentTexture ? currentTexture.offsetX : 0;
-                dragStartOffsetY = currentTexture ? currentTexture.offsetY : 0;
-                dragCurrentOffsetX = dragStartOffsetX;
-                dragCurrentOffsetY = dragStartOffsetY;
-                viewport.classList.add('dragging');
-                buildPatchList();
-                syncInspector();
+                const edge = hitTestTextureBorder(mx, my);
+                if (edge && currentTexture) {
+                    selectedPatchId = null;
+                    draggingResize = true;
+                    resizeEdge = edge;
+                    dragStartMouseX = e.clientX;
+                    dragStartMouseY = e.clientY;
+                    dragStartW = currentTexture.width;
+                    dragStartH = currentTexture.height;
+                    dragCurrentW = dragStartW;
+                    dragCurrentH = dragStartH;
+                    viewport.style.cursor = resizeCursorForEdge(edge);
+                    viewport.classList.add('dragging');
+                    buildPatchList();
+                    syncInspector();
+                } else {
+                    // Drag empty area → texture offset
+                    selectedPatchId = null;
+                    draggingOffset = true;
+                    dragStartMouseX = e.clientX;
+                    dragStartMouseY = e.clientY;
+                    dragStartOffsetX = currentTexture ? currentTexture.offsetX : 0;
+                    dragStartOffsetY = currentTexture ? currentTexture.offsetY : 0;
+                    dragCurrentOffsetX = dragStartOffsetX;
+                    dragCurrentOffsetY = dragStartOffsetY;
+                    viewport.classList.add('dragging');
+                    buildPatchList();
+                    syncInspector();
+                }
             }
             renderOverlay();
             updateInfoBar();
@@ -916,6 +1070,10 @@
     });
 
     window.addEventListener('mousemove', (e) => {
+        const rect = viewport.getBoundingClientRect();
+        const mx = e.clientX - rect.left;
+        const my = e.clientY - rect.top;
+
         if (panning) {
             panX += e.clientX - lastMouseX;
             panY += e.clientY - lastMouseY;
@@ -933,6 +1091,25 @@
             syncInspector();
             renderOverlay();
             updateInfoBar();
+        } else if (draggingResize && currentTexture && resizeEdge) {
+            const dx = e.clientX - dragStartMouseX;
+            const dy = e.clientY - dragStartMouseY;
+            const scaleX = applyScale ? 1 / (currentTexture.xScale || 1) : 1;
+            const scaleY = applyScale ? 1 / (currentTexture.yScale || 1) : 1;
+            let w = dragStartW;
+            let h = dragStartH;
+            if (resizeEdge === 'e' || resizeEdge === 'se') {
+                w = Math.max(1, Math.round(dragStartW + dx / (zoom * scaleX)));
+            }
+            if (resizeEdge === 's' || resizeEdge === 'se') {
+                h = Math.max(1, Math.round(dragStartH + dy / (zoom * scaleY)));
+            }
+            dragCurrentW = w;
+            dragCurrentH = h;
+            syncInspector();
+            renderBase();
+            renderOverlay();
+            updateInfoBar();
         } else if (draggingOffset && currentTexture) {
             // Dragging outside: SLADE moves the virtual image; offset changes opposite to mouse
             const dx = e.clientX - dragStartMouseX;
@@ -943,6 +1120,8 @@
             renderBase();
             renderOverlay();
             updateInfoBar();
+        } else {
+            updateViewportCursor(mx, my);
         }
     });
 
@@ -968,11 +1147,19 @@
                 });
             }
         }
+        if (draggingResize && currentTexture) {
+            if (dragCurrentW !== dragStartW || dragCurrentH !== dragStartH) {
+                postTextureProps({ width: dragCurrentW, height: dragCurrentH });
+            }
+        }
         dragging = false;
         panning = false;
         draggingOffset = false;
+        draggingResize = false;
+        resizeEdge = null;
         dragPatchId = null;
         viewport.classList.remove('dragging');
+        viewport.style.cursor = 'grab';
     });
 
     viewport.addEventListener('dblclick', (e) => {

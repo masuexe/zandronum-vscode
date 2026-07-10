@@ -848,16 +848,31 @@ export class TextureDocumentModel {
         const node = this.parser.getNodeById(patchId);
         if (!node) { return false; }
 
-        const edit = new vscode.WorkspaceEdit();
-        const start = node.range.start.line;
-        let end = node.range.end.line;
-        // Include trailing newline
-        if (end + 1 < this.document.lineCount) {
-            edit.delete(this.document.uri, new vscode.Range(start, 0, end + 1, 0));
-        } else {
-            const text = this.document.lineAt(end).text;
-            edit.delete(this.document.uri, new vscode.Range(start, 0, end, text.length));
+        // Delete only the patch span — never the whole line from column 0.
+        // Inline one-liners share a line with the texture header; full-line delete
+        // would wipe the entire definition.
+        let start = node.range.start;
+        let end = node.range.end;
+
+        // Drop one leading space/tab so " Patch A Patch B" stays tidy
+        if (start.character > 0) {
+            const lineText = this.document.lineAt(start.line).text;
+            const prev = lineText[start.character - 1];
+            if (prev === ' ' || prev === '\t') {
+                start = new vscode.Position(start.line, start.character - 1);
+            }
         }
+
+        // Multiline patches that own whole lines: include trailing newline
+        const endLineText = this.document.lineAt(end.line).text;
+        const startsAtLineBegin = node.range.start.character === 0;
+        const endsAtOrPastLineEnd = end.character >= endLineText.length;
+        if (startsAtLineBegin && endsAtOrPastLineEnd && end.line + 1 < this.document.lineCount) {
+            end = new vscode.Position(end.line + 1, 0);
+        }
+
+        const edit = new vscode.WorkspaceEdit();
+        edit.delete(this.document.uri, new vscode.Range(start, end));
         return vscode.workspace.applyEdit(edit);
     }
 

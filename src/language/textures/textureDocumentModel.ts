@@ -468,6 +468,56 @@ export class TextureDocumentModel {
     }
 
     /**
+     * Shrink/expand the texture canvas to the axis-aligned bounding box of all patches.
+     * Shifts patches so the bbox origin is (0,0) and adjusts Offset so on-screen content stays put.
+     */
+    async trimTextureToPatches(
+        textureName: string,
+        expectedVersion: number
+    ): Promise<boolean> {
+        if (expectedVersion !== this.version) { return false; }
+        const node = this.getTextureByName(textureName);
+        if (!node || !node.defData) { return false; }
+        if (node.children.length === 0) { return false; }
+
+        let minX = Infinity;
+        let minY = Infinity;
+        let maxX = -Infinity;
+        let maxY = -Infinity;
+
+        for (const child of node.children) {
+            const x = child.patchData?.x ?? 0;
+            const y = child.patchData?.y ?? 0;
+            const { w, h } = this.getPatchEffectiveSize(child);
+            minX = Math.min(minX, x);
+            minY = Math.min(minY, y);
+            maxX = Math.max(maxX, x + w);
+            maxY = Math.max(maxY, y + h);
+        }
+
+        if (!Number.isFinite(minX) || !Number.isFinite(minY)) { return false; }
+
+        const width = Math.max(1, Math.round(maxX - minX));
+        const height = Math.max(1, Math.round(maxY - minY));
+        const patchDx = -Math.round(minX);
+        const patchDy = -Math.round(minY);
+
+        const curOx = node.texProps.OffsetX ?? 0;
+        const curOy = node.texProps.OffsetY ?? 0;
+        const needsShift = patchDx !== 0 || patchDy !== 0;
+
+        return this.resizeTexture(textureName, {
+            width,
+            height,
+            patchDx,
+            patchDy,
+            ...(needsShift
+                ? { offsetX: curOx + patchDx, offsetY: curOy + patchDy }
+                : {})
+        }, expectedVersion);
+    }
+
+    /**
      * Rewrite Offset / XScale / YScale for a definition.
      * Handles compact one-line forms and cleans duplicate orphan lines.
      */

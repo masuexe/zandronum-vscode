@@ -173,6 +173,13 @@ export class TextureDocumentController {
                 this.panel?.sendEditResult(ok, ok ? undefined : 'version conflict or invalid resize');
                 break;
             }
+            case 'trimTexture': {
+                const name = this.selection.selectedTextureName;
+                if (!name) { break; }
+                const ok = await this.model.trimTextureToPatches(name, msg.modelVersion);
+                this.panel?.sendEditResult(ok, ok ? undefined : 'version conflict or nothing to trim');
+                break;
+            }
             case 'updatePatchProps': {
                 const props: PatchPropUpdate = msg.props ?? {};
                 const ok = await this.model.applyPatchProps(msg.patchId, props, msg.modelVersion);

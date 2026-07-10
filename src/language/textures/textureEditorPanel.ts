@@ -87,6 +87,12 @@ export class TextureEditorPanel {
                 <div class="field-row"><label>XScale</label><input type="number" id="tex-xscale" step="0.1" min="0.01"></div>
                 <div class="field-row"><label>YScale</label><input type="number" id="tex-yscale" step="0.1" min="0.01"></div>
                 <div class="field-row align-row">
+                    <label title="Fit canvas to all patches">Trim</label>
+                    <span class="align-actions">
+                        <button type="button" id="btn-tex-trim" title="Trim width/height to cover all patches">Fit</button>
+                    </span>
+                </div>
+                <div class="field-row align-row">
                     <label title="Reflect all patches about screen mid (Sprite/HUD)">Reflect</label>
                     <span class="align-actions">
                         <button type="button" id="btn-tex-reflect-h" title="Reflect texture about screen vertical mid">↔</button>

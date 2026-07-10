@@ -896,6 +896,18 @@
             const el = document.getElementById(id);
             if (el) { el.disabled = texReflectDisabled; }
         }
+        const trimBtn = document.getElementById('btn-tex-trim');
+        if (trimBtn) {
+            trimBtn.disabled = !currentTexture || currentTexture.patches.length === 0;
+        }
+    }
+
+    function postTrimTexture() {
+        if (!currentTexture || currentTexture.patches.length === 0) { return; }
+        vscode.postMessage({
+            type: 'trimTexture',
+            modelVersion: currentTexture.revision
+        });
     }
 
     function postSymmetryPatch(direction, mode) {
@@ -1032,6 +1044,9 @@
         });
         document.getElementById('btn-tex-reflect-v').addEventListener('click', () => {
             postReflectTexture('v');
+        });
+        document.getElementById('btn-tex-trim').addEventListener('click', () => {
+            postTrimTexture();
         });
 
         const align = (mode) => {

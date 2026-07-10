@@ -159,6 +159,20 @@ export class TextureDocumentController {
                 this.panel?.sendEditResult(ok, ok ? undefined : 'version conflict');
                 break;
             }
+            case 'resizeTexture': {
+                const name = this.selection.selectedTextureName;
+                if (!name) { break; }
+                const ok = await this.model.resizeTexture(name, {
+                    width: msg.width,
+                    height: msg.height,
+                    offsetX: msg.offsetX,
+                    offsetY: msg.offsetY,
+                    patchDx: msg.patchDx,
+                    patchDy: msg.patchDy
+                }, msg.modelVersion);
+                this.panel?.sendEditResult(ok, ok ? undefined : 'version conflict or invalid resize');
+                break;
+            }
             case 'updatePatchProps': {
                 const props: PatchPropUpdate = msg.props ?? {};
                 const ok = await this.model.applyPatchProps(msg.patchId, props, msg.modelVersion);

@@ -387,6 +387,64 @@ export class TextureDocumentModel {
     }
 
     /**
+     * Atomically resize a texture: update W/H, optionally shift all patches and Offset.
+     * Used by border-drag resize (left/top edges shift content to keep it visually fixed).
+     */
+    async resizeTexture(
+        textureName: string,
+        opts: {
+            width: number;
+            height: number;
+            offsetX?: number;
+            offsetY?: number;
+            patchDx?: number;
+            patchDy?: number;
+        },
+        expectedVersion: number
+    ): Promise<boolean> {
+        if (expectedVersion !== this.version) { return false; }
+        const node = this.getTextureByName(textureName);
+        if (!node || !node.defData) { return false; }
+
+        const width = Math.max(1, Math.round(opts.width));
+        const height = Math.max(1, Math.round(opts.height));
+        const dx = Math.round(opts.patchDx ?? 0);
+        const dy = Math.round(opts.patchDy ?? 0);
+
+        const edit = new vscode.WorkspaceEdit();
+        const uri = this.document.uri;
+
+        if (node.texPropRanges.width) {
+            edit.replace(uri, node.texPropRanges.width, String(width));
+        }
+        if (node.texPropRanges.height) {
+            edit.replace(uri, node.texPropRanges.height, String(height));
+        }
+
+        if (dx !== 0 || dy !== 0) {
+            for (const child of node.children) {
+                if (dx !== 0 && child.xRange && child.patchData) {
+                    edit.replace(uri, child.xRange, String(Math.round(child.patchData.x + dx)));
+                }
+                if (dy !== 0 && child.yRange && child.patchData) {
+                    edit.replace(uri, child.yRange, String(Math.round(child.patchData.y + dy)));
+                }
+            }
+        }
+
+        const needsOffset = opts.offsetX !== undefined || opts.offsetY !== undefined;
+        if (needsOffset) {
+            const ok = this.rewriteTextureProperties(edit, node, {
+                offsetX: opts.offsetX,
+                offsetY: opts.offsetY
+            });
+            if (!ok) { return false; }
+        }
+
+        return vscode.workspace.applyEdit(edit);
+    }
+
+    /**
      * Rewrite Offset / XScale / YScale for a definition.
      * Handles compact one-line forms and cleans duplicate orphan lines.
      */

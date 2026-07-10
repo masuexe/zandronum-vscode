@@ -28,7 +28,7 @@
     let panning = false;
     let draggingOffset = false;
     let draggingResize = false;
-    /** @type {'e'|'s'|'se'|null} */
+    /** @type {'n'|'s'|'e'|'w'|'ne'|'nw'|'se'|'sw'|null} */
     let resizeEdge = null;
     let dragPatchId = null;
     let dragStartMouseX = 0;
@@ -45,6 +45,9 @@
     let dragStartH = 0;
     let dragCurrentW = 0;
     let dragCurrentH = 0;
+    /** Patch shift during left/top resize preview (and commit). */
+    let dragPatchDx = 0;
+    let dragPatchDy = 0;
     let lastMouseX = 0;
     let lastMouseY = 0;
     let suppressInspectorEvents = false;
@@ -223,8 +226,8 @@
     }
 
     /**
-     * Hit-test texture border for resize (right / bottom / SE corner only).
-     * @returns {'e'|'s'|'se'|null}
+     * Hit-test texture border for resize (all 8 edges/corners).
+     * @returns {'n'|'s'|'e'|'w'|'ne'|'nw'|'se'|'sw'|null}
      */
     function hitTestTextureBorder(mouseX, mouseY) {
         if (!currentTexture) { return null; }
@@ -237,19 +240,58 @@
         const right = left + tw;
         const bottom = top + th;
         const tol = Math.max(4, 6);
+        const nearLeft = Math.abs(mouseX - left) <= tol && mouseY >= top - tol && mouseY <= bottom + tol;
         const nearRight = Math.abs(mouseX - right) <= tol && mouseY >= top - tol && mouseY <= bottom + tol;
+        const nearTop = Math.abs(mouseY - top) <= tol && mouseX >= left - tol && mouseX <= right + tol;
         const nearBottom = Math.abs(mouseY - bottom) <= tol && mouseX >= left - tol && mouseX <= right + tol;
+        if (nearLeft && nearTop) { return 'nw'; }
+        if (nearRight && nearTop) { return 'ne'; }
+        if (nearLeft && nearBottom) { return 'sw'; }
         if (nearRight && nearBottom) { return 'se'; }
+        if (nearLeft) { return 'w'; }
         if (nearRight) { return 'e'; }
+        if (nearTop) { return 'n'; }
         if (nearBottom) { return 's'; }
         return null;
     }
 
     function resizeCursorForEdge(edge) {
-        if (edge === 'e') { return 'ew-resize'; }
-        if (edge === 's') { return 'ns-resize'; }
-        if (edge === 'se') { return 'nwse-resize'; }
+        if (edge === 'e' || edge === 'w') { return 'ew-resize'; }
+        if (edge === 'n' || edge === 's') { return 'ns-resize'; }
+        if (edge === 'se' || edge === 'nw') { return 'nwse-resize'; }
+        if (edge === 'ne' || edge === 'sw') { return 'nesw-resize'; }
         return '';
+    }
+
+    function resizeAffectsWest(edge) {
+        return edge === 'w' || edge === 'nw' || edge === 'sw';
+    }
+
+    function resizeAffectsEast(edge) {
+        return edge === 'e' || edge === 'ne' || edge === 'se';
+    }
+
+    function resizeAffectsNorth(edge) {
+        return edge === 'n' || edge === 'ne' || edge === 'nw';
+    }
+
+    function resizeAffectsSouth(edge) {
+        return edge === 's' || edge === 'se' || edge === 'sw';
+    }
+
+    /** Preview patch x/y including left/top resize shift. */
+    function previewPatchXY(patch) {
+        let x = patch.x;
+        let y = patch.y;
+        if (draggingResize) {
+            x += dragPatchDx;
+            y += dragPatchDy;
+        }
+        if (patch.id === dragPatchId) {
+            x = dragCurrentX;
+            y = dragCurrentY;
+        }
+        return { x, y };
     }
 
     function updateViewportCursor(mx, my) {
@@ -278,8 +320,9 @@
      * - HUD: Offset from the centered 320×200 screen top-left (SLADE)
      */
     function getOrigin() {
-        const ox = currentTexture ? (draggingOffset ? dragCurrentOffsetX : currentTexture.offsetX) : 0;
-        const oy = currentTexture ? (draggingOffset ? dragCurrentOffsetY : currentTexture.offsetY) : 0;
+        const useDragOffset = draggingOffset || draggingResize;
+        const ox = currentTexture ? (useDragOffset ? dragCurrentOffsetX : currentTexture.offsetX) : 0;
+        const oy = currentTexture ? (useDragOffset ? dragCurrentOffsetY : currentTexture.offsetY) : 0;
         const center = getViewportCenter();
         if (offsetType === 'hud') {
             const frame = getHudFrameRect();
@@ -320,8 +363,7 @@
         }
 
         for (const patch of currentTexture.patches) {
-            const px = patch.id === dragPatchId ? dragCurrentX : patch.x;
-            const py = patch.id === dragPatchId ? dragCurrentY : patch.y;
+            const { x: px, y: py } = previewPatchXY(patch);
             drawPatch(baseCtx, { ...patch, x: px, y: py }, origin, false);
         }
 
@@ -441,8 +483,7 @@
             const isHighlighted = patch.id === highlightedPatchId;
             if (!isSelected && !isHighlighted) { continue; }
 
-            const px = patch.id === dragPatchId ? dragCurrentX : patch.x;
-            const py = patch.id === dragPatchId ? dragCurrentY : patch.y;
+            const { x: px, y: py } = previewPatchXY(patch);
             const res = resourceCache.get(patch.resourceId);
             const { w: rpw, h: rph } = getResourceDimensions(res, patch);
             const scaleX = applyScale ? 1 / (currentTexture.xScale || 1) : 1;
@@ -796,8 +837,8 @@
         document.getElementById('tex-type').textContent = currentTexture.textureType || '—';
         document.getElementById('tex-width').value = draggingResize ? dragCurrentW : currentTexture.width;
         document.getElementById('tex-height').value = draggingResize ? dragCurrentH : currentTexture.height;
-        document.getElementById('tex-offx').value = draggingOffset ? dragCurrentOffsetX : currentTexture.offsetX;
-        document.getElementById('tex-offy').value = draggingOffset ? dragCurrentOffsetY : currentTexture.offsetY;
+        document.getElementById('tex-offx').value = (draggingOffset || draggingResize) ? dragCurrentOffsetX : currentTexture.offsetX;
+        document.getElementById('tex-offy').value = (draggingOffset || draggingResize) ? dragCurrentOffsetY : currentTexture.offsetY;
         document.getElementById('tex-xscale').value = currentTexture.xScale;
         document.getElementById('tex-yscale').value = currentTexture.yScale;
 
@@ -805,8 +846,8 @@
             ? currentTexture.patches.find(p => p.id === selectedPatchId)
             : null;
         document.getElementById('patch-name').textContent = patch ? patch.name : '—';
-        document.getElementById('patch-x').value = patch ? (patch.id === dragPatchId ? dragCurrentX : patch.x) : '';
-        document.getElementById('patch-y').value = patch ? (patch.id === dragPatchId ? dragCurrentY : patch.y) : '';
+        document.getElementById('patch-x').value = patch ? previewPatchXY(patch).x : '';
+        document.getElementById('patch-y').value = patch ? previewPatchXY(patch).y : '';
         document.getElementById('patch-flipx').checked = patch ? !!getProp(patch.props, 'FlipX', false) : false;
         document.getElementById('patch-flipy').checked = patch ? !!getProp(patch.props, 'FlipY', false) : false;
         document.getElementById('patch-rotate').value = String(patch ? (getProp(patch.props, 'Rotate', 0) || 0) : 0);
@@ -991,13 +1032,12 @@
                 const res = resourceCache.get(p.resourceId);
                 const w = res?.state === 'ready' ? res.width : '?';
                 const h = res?.state === 'ready' ? res.height : '?';
-                const x = p.id === dragPatchId ? dragCurrentX : p.x;
-                const y = p.id === dragPatchId ? dragCurrentY : p.y;
+                const { x, y } = previewPatchXY(p);
                 patchInfo = `<span><span class="label">Patch:</span> ${p.name} (${x}, ${y}) ${w}\u00d7${h}</span>`;
             }
         }
-        const ox = draggingOffset ? dragCurrentOffsetX : currentTexture.offsetX;
-        const oy = draggingOffset ? dragCurrentOffsetY : currentTexture.offsetY;
+        const ox = (draggingOffset || draggingResize) ? dragCurrentOffsetX : currentTexture.offsetX;
+        const oy = (draggingOffset || draggingResize) ? dragCurrentOffsetY : currentTexture.offsetY;
         const tw = draggingResize ? dragCurrentW : currentTexture.width;
         const th = draggingResize ? dragCurrentH : currentTexture.height;
         infoBar.innerHTML =
@@ -1031,6 +1071,12 @@
                 dragStartH = currentTexture.height;
                 dragCurrentW = dragStartW;
                 dragCurrentH = dragStartH;
+                dragPatchDx = 0;
+                dragPatchDy = 0;
+                dragStartOffsetX = currentTexture.offsetX;
+                dragStartOffsetY = currentTexture.offsetY;
+                dragCurrentOffsetX = dragStartOffsetX;
+                dragCurrentOffsetY = dragStartOffsetY;
                 viewport.style.cursor = resizeCursorForEdge(edge);
                 viewport.classList.add('dragging');
                 buildPatchList();
@@ -1098,16 +1144,27 @@
             const dy = e.clientY - dragStartMouseY;
             const scaleX = applyScale ? 1 / (currentTexture.xScale || 1) : 1;
             const scaleY = applyScale ? 1 / (currentTexture.yScale || 1) : 1;
+            const dTexX = dx / (zoom * scaleX);
+            const dTexY = dy / (zoom * scaleY);
             let w = dragStartW;
             let h = dragStartH;
-            if (resizeEdge === 'e' || resizeEdge === 'se') {
-                w = Math.max(1, Math.round(dragStartW + dx / (zoom * scaleX)));
+            if (resizeAffectsEast(resizeEdge)) {
+                w = Math.max(1, Math.round(dragStartW + dTexX));
+            } else if (resizeAffectsWest(resizeEdge)) {
+                w = Math.max(1, Math.round(dragStartW - dTexX));
             }
-            if (resizeEdge === 's' || resizeEdge === 'se') {
-                h = Math.max(1, Math.round(dragStartH + dy / (zoom * scaleY)));
+            if (resizeAffectsSouth(resizeEdge)) {
+                h = Math.max(1, Math.round(dragStartH + dTexY));
+            } else if (resizeAffectsNorth(resizeEdge)) {
+                h = Math.max(1, Math.round(dragStartH - dTexY));
             }
             dragCurrentW = w;
             dragCurrentH = h;
+            // Left/top: shift patches + offset so content stays visually fixed
+            dragPatchDx = resizeAffectsWest(resizeEdge) ? (w - dragStartW) : 0;
+            dragPatchDy = resizeAffectsNorth(resizeEdge) ? (h - dragStartH) : 0;
+            dragCurrentOffsetX = dragStartOffsetX + dragPatchDx;
+            dragCurrentOffsetY = dragStartOffsetY + dragPatchDy;
             syncInspector();
             renderBase();
             renderOverlay();
@@ -1150,8 +1207,21 @@
             }
         }
         if (draggingResize && currentTexture) {
-            if (dragCurrentW !== dragStartW || dragCurrentH !== dragStartH) {
-                postTextureProps({ width: dragCurrentW, height: dragCurrentH });
+            if (dragCurrentW !== dragStartW || dragCurrentH !== dragStartH ||
+                dragPatchDx !== 0 || dragPatchDy !== 0) {
+                const payload = {
+                    type: 'resizeTexture',
+                    width: dragCurrentW,
+                    height: dragCurrentH,
+                    patchDx: dragPatchDx,
+                    patchDy: dragPatchDy,
+                    modelVersion: currentTexture.revision
+                };
+                if (dragPatchDx !== 0 || dragPatchDy !== 0) {
+                    payload.offsetX = dragCurrentOffsetX;
+                    payload.offsetY = dragCurrentOffsetY;
+                }
+                vscode.postMessage(payload);
             }
         }
         dragging = false;
@@ -1160,6 +1230,8 @@
         draggingResize = false;
         resizeEdge = null;
         dragPatchId = null;
+        dragPatchDx = 0;
+        dragPatchDy = 0;
         viewport.classList.remove('dragging');
         viewport.style.cursor = 'grab';
     });

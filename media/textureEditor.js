@@ -104,6 +104,41 @@
         return ranges;
     }
 
+    /** Parse desaturated translations: fromStart:fromEnd=%[r1,g1,b1]:[r2,g2,b2] (floats 0–2). */
+    function parseDesatRanges(raw) {
+        const ranges = [];
+        if (!raw) { return ranges; }
+        const quoted = [...String(raw).matchAll(/"([^"]*)"/g)].map(m => m[1]);
+        const parts = quoted.length > 0 ? quoted : [String(raw)];
+        const desatRe = /(\d+)\s*:\s*(\d+)\s*=\s*%\s*\[\s*([^\]]+)\]\s*:\s*\[\s*([^\]]+)\]/g;
+        const tripRe = /(-?\d+(?:\.\d+)?)\s*,\s*(-?\d+(?:\.\d+)?)\s*,\s*(-?\d+(?:\.\d+)?)/;
+        for (const part of parts) {
+            desatRe.lastIndex = 0;
+            let m;
+            while ((m = desatRe.exec(part)) !== null) {
+                const t1 = tripRe.exec(m[3]);
+                const t2 = tripRe.exec(m[4]);
+                if (!t1 || !t2) { continue; }
+                ranges.push({
+                    fromStart: clampByte(parseInt(m[1], 10)),
+                    fromEnd: clampByte(parseInt(m[2], 10)),
+                    r1: clampFloat2(parseFloat(t1[1])),
+                    g1: clampFloat2(parseFloat(t1[2])),
+                    b1: clampFloat2(parseFloat(t1[3])),
+                    r2: clampFloat2(parseFloat(t2[1])),
+                    g2: clampFloat2(parseFloat(t2[2])),
+                    b2: clampFloat2(parseFloat(t2[3]))
+                });
+            }
+        }
+        return ranges;
+    }
+
+    function clampFloat2(n) {
+        if (!Number.isFinite(n)) { return 0; }
+        return Math.max(0, Math.min(2, n));
+    }
+
     function buildRemapTable(ranges) {
         const table = new Uint8Array(256);
         for (let i = 0; i < 256; i++) { table[i] = i; }
@@ -122,6 +157,37 @@
             }
         }
         return table;
+    }
+
+    /**
+     * Build per-index RGB overrides for desaturated translations (ZDoom AddDesaturation).
+     * Returns Float32Array length 256*3, or null if no desat ranges. NaN = no override.
+     */
+    function buildDesatRgbTable(desatRanges) {
+        if (!playpal || !desatRanges || desatRanges.length === 0) { return null; }
+        const out = new Float32Array(256 * 3);
+        out.fill(NaN);
+        for (const r of desatRanges) {
+            let r1 = r.r1, g1 = r.g1, b1 = r.b1;
+            let r2 = r.r2, g2 = r.g2, b2 = r.b2;
+            let start = r.fromStart, end = r.fromEnd;
+            if (start > end) {
+                const ts = start; start = end; end = ts;
+                const tr = r1; r1 = r2; r2 = tr;
+                const tg = g1; g1 = g2; g2 = tg;
+                const tb = b1; b1 = b2; b2 = tb;
+            }
+            r2 -= r1; g2 -= g1; b2 -= b1;
+            r1 *= 255; g1 *= 255; b1 *= 255;
+            for (let c = start; c <= end; c++) {
+                const pal = playpal[c];
+                const intensity = (pal.r * 77 + pal.g * 143 + pal.b * 37) / 256.0;
+                out[c * 3] = Math.min(255, (r1 + intensity * r2) | 0);
+                out[c * 3 + 1] = Math.min(255, (g1 + intensity * g2) | 0);
+                out[c * 3 + 2] = Math.min(255, (b1 + intensity * b2) | 0);
+            }
+        }
+        return out;
     }
 
     function nearestPaletteIndex(r, g, b) {
@@ -149,8 +215,10 @@
     async function applyTranslationToBitmap(bitmap, translation) {
         if (!translation || !playpal || !bitmap) { return bitmap; }
         const ranges = parseTranslationRanges(translation);
-        if (ranges.length === 0) { return bitmap; }
-        const table = buildRemapTable(ranges);
+        const desatRanges = parseDesatRanges(translation);
+        if (ranges.length === 0 && desatRanges.length === 0) { return bitmap; }
+        const table = ranges.length > 0 ? buildRemapTable(ranges) : null;
+        const desatRgb = buildDesatRgbTable(desatRanges);
 
         const w = bitmap.width;
         const h = bitmap.height;
@@ -162,6 +230,13 @@
         for (let i = 0; i < data.length; i += 4) {
             if (data[i + 3] === 0) { continue; }
             const srcIdx = nearestPaletteIndex(data[i], data[i + 1], data[i + 2]);
+            if (desatRgb && !Number.isNaN(desatRgb[srcIdx * 3])) {
+                data[i] = desatRgb[srcIdx * 3];
+                data[i + 1] = desatRgb[srcIdx * 3 + 1];
+                data[i + 2] = desatRgb[srcIdx * 3 + 2];
+                continue;
+            }
+            if (!table) { continue; }
             const dstIdx = table[srcIdx];
             if (dstIdx === srcIdx) { continue; }
             const c = playpal[dstIdx];

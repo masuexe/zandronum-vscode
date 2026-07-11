@@ -6,6 +6,58 @@ const QUOTED_STRING_RE = /"([^"]*)"/g;
 const PALETTE_IDX_RE = /\b(\d{1,3})\b/g;
 const RGB_BRACKET_RE = /(%?)\[(\d+(?:\.\d+)?)\s*,\s*(\d+(?:\.\d+)?)\s*,\s*(\d+(?:\.\d+)?)\s*\]/g;
 
+/** True when match is inside a desaturated translation (`=%[...]:[...]`). Both RGB triplets are floats 0.0–2.0. */
+function isDesatFloatContext(strContent: string, matchIndex: number): boolean {
+    return strContent.lastIndexOf('%', matchIndex) >= 0;
+}
+
+function clamp01(n: number): number {
+    return Math.max(0, Math.min(1, n));
+}
+
+function clampFloat2(n: number): number {
+    return Math.max(0, Math.min(2, n));
+}
+
+function formatDesatFloat(n: number): string {
+    return String(+n.toFixed(4));
+}
+
+function parseRgbBracket(rangeText: string): { hasPercent: boolean; r: number; g: number; b: number } | null {
+    const m = /^(%?)\[\s*(\d+(?:\.\d+)?)\s*,\s*(\d+(?:\.\d+)?)\s*,\s*(\d+(?:\.\d+)?)\s*\]$/.exec(rangeText.trim());
+    if (!m) { return null; }
+    return {
+        hasPercent: m[1] === '%',
+        r: parseFloat(m[2]),
+        g: parseFloat(m[3]),
+        b: parseFloat(m[4])
+    };
+}
+
+/** VS Code Color is 0–1; ZDoom desat floats are 0–2. Linear map both ways. */
+function desatFloatToColorChannel(v: number): number {
+    return clamp01(v / 2);
+}
+
+function colorChannelToDesatFloat(c: number): number {
+    return clampFloat2(c * 2);
+}
+
+function colorMatchesDesatFloats(color: vscode.Color, r: number, g: number, b: number): boolean {
+    const eps = 0.002;
+    return Math.abs(color.red - desatFloatToColorChannel(r)) < eps
+        && Math.abs(color.green - desatFloatToColorChannel(g)) < eps
+        && Math.abs(color.blue - desatFloatToColorChannel(b)) < eps;
+}
+
+function colorToDesatFloats(color: vscode.Color): { r: number; g: number; b: number } {
+    return {
+        r: colorChannelToDesatFloat(color.red),
+        g: colorChannelToDesatFloat(color.green),
+        b: colorChannelToDesatFloat(color.blue)
+    };
+}
+
 function findNearestPaletteIndex(color: vscode.Color, palette: RgbColor[]): number {
     let best = 0;
     let bestDist = Infinity;
@@ -51,15 +103,18 @@ export function registerTexturesColorProvider(context: vscode.ExtensionContext) 
                         let rgbMatch: RegExpExecArray | null;
                         const rgbRanges: [number, number][] = [];
                         while ((rgbMatch = RGB_BRACKET_RE.exec(strContent)) !== null) {
-                            const isFloat = rgbMatch[1] === '%';
+                            const hasPercentPrefix = rgbMatch[1] === '%';
+                            const floatMode = hasPercentPrefix || isDesatFloatContext(strContent, rgbMatch.index);
                             const rv = parseFloat(rgbMatch[2]);
                             const gv = parseFloat(rgbMatch[3]);
                             const bv = parseFloat(rgbMatch[4]);
                             let r: number, g: number, b: number;
-                            if (isFloat) {
-                                r = Math.min(rv, 1.0);
-                                g = Math.min(gv, 1.0);
-                                b = Math.min(bv, 1.0);
+                            if (floatMode) {
+                                // ZDoom desat floats 0–2 ↔ VS Code Color 0–1 via /2 (full range round-trip)
+                                if (rv < 0 || rv > 2 || gv < 0 || gv > 2 || bv < 0 || bv > 2) { continue; }
+                                r = desatFloatToColorChannel(rv);
+                                g = desatFloatToColorChannel(gv);
+                                b = desatFloatToColorChannel(bv);
                             } else {
                                 if (rv > 255 || gv > 255 || bv > 255) { continue; }
                                 r = rv / 255;
@@ -111,12 +166,28 @@ export function registerTexturesColorProvider(context: vscode.ExtensionContext) 
             async provideColorPresentations(color, ctx) {
                 const palette = await loadPlaypal();
                 const rangeText = ctx.document.getText(ctx.range);
+                const lineText = ctx.document.lineAt(ctx.range.start.line).text;
+                const quoteStart = lineText.lastIndexOf('"', ctx.range.start.character);
+                const quoteEnd = lineText.indexOf('"', ctx.range.end.character);
+                const quoted = quoteStart >= 0 && quoteEnd > quoteStart
+                    ? lineText.substring(quoteStart + 1, quoteEnd)
+                    : lineText;
+                const idxInQuoted = quoteStart >= 0
+                    ? ctx.range.start.character - quoteStart - 1
+                    : ctx.range.start.character;
+                const floatMode = isDesatFloatContext(quoted, Math.max(0, idxInQuoted));
 
-                if (/^%\[/.test(rangeText)) {
-                    const rf = +(color.red.toFixed(3));
-                    const gf = +(color.green.toFixed(3));
-                    const bf = +(color.blue.toFixed(3));
-                    const label = `%[${rf},${gf},${bf}]`;
+                if (/^%\[/.test(rangeText) || (floatMode && /^\[/.test(rangeText))) {
+                    const parsed = parseRgbBracket(rangeText);
+                    const hasPct = /^%\[/.test(rangeText);
+                    let label: string;
+                    let mapped: { r: number; g: number; b: number };
+                    if (parsed && colorMatchesDesatFloats(color, parsed.r, parsed.g, parsed.b)) {
+                        mapped = { r: parsed.r, g: parsed.g, b: parsed.b };
+                    } else {
+                        mapped = colorToDesatFloats(color);
+                    }
+                    label = `${hasPct ? '%' : ''}[${formatDesatFloat(mapped.r)},${formatDesatFloat(mapped.g)},${formatDesatFloat(mapped.b)}]`;
                     const p = new vscode.ColorPresentation(label);
                     p.textEdit = vscode.TextEdit.replace(ctx.range, label);
                     return [p];

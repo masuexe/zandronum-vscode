@@ -90,7 +90,7 @@ export function registerColorProvider(context: vscode.ExtensionContext) {
                         const floatMode = isFloatContext(line.text, match.index);
 
                         if (floatMode) {
-                            if (r < 0 || r > 1 || g < 0 || g > 1 || b < 0 || b > 1) {
+                            if (r < 0 || r > 2 || g < 0 || g > 2 || b < 0 || b > 2) {
                                 continue;
                             }
                         } else {
@@ -105,7 +105,7 @@ export function registerColorProvider(context: vscode.ExtensionContext) {
                         const endPos = new vscode.Position(i, match.index + match[0].length);
                         const range = new vscode.Range(startPos, endPos);
                         const color = floatMode
-                            ? new vscode.Color(r, g, b, 1)
+                            ? new vscode.Color(Math.min(r / 2, 1), Math.min(g / 2, 1), Math.min(b / 2, 1), 1)
                             : new vscode.Color(r / 255, g / 255, b / 255, 1);
 
                         colors.push(new vscode.ColorInformation(range, color));
@@ -141,10 +141,23 @@ export function registerColorProvider(context: vscode.ExtensionContext) {
                 const floatMode = isFloatContext(lineText, context.range.start.character);
 
                 if (floatMode) {
-                    const rf = +(color.red.toFixed(3));
-                    const gf = +(color.green.toFixed(3));
-                    const bf = +(color.blue.toFixed(3));
-                    const label = `[${rf},${gf},${bf}]`;
+                    const m = /^\[\s*(\d+(?:\.\d+)?)\s*,\s*(\d+(?:\.\d+)?)\s*,\s*(\d+(?:\.\d+)?)\s*\]$/.exec(rangeText.trim());
+                    const orig = m
+                        ? { r: parseFloat(m[1]), g: parseFloat(m[2]), b: parseFloat(m[3]) }
+                        : null;
+                    const eps = 0.002;
+                    let fr: number, fg: number, fb: number;
+                    if (orig
+                        && Math.abs(color.red - Math.min(orig.r / 2, 1)) < eps
+                        && Math.abs(color.green - Math.min(orig.g / 2, 1)) < eps
+                        && Math.abs(color.blue - Math.min(orig.b / 2, 1)) < eps) {
+                        fr = orig.r; fg = orig.g; fb = orig.b;
+                    } else {
+                        fr = Math.max(0, Math.min(2, color.red * 2));
+                        fg = Math.max(0, Math.min(2, color.green * 2));
+                        fb = Math.max(0, Math.min(2, color.blue * 2));
+                    }
+                    const label = `[${+fr.toFixed(4)},${+fg.toFixed(4)},${+fb.toFixed(4)}]`;
                     const p1 = new vscode.ColorPresentation(label);
                     p1.textEdit = vscode.TextEdit.replace(context.range, label);
                     return [p1];

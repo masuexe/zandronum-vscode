@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { getActions, getProperties, getFlags, getExpressions, getInheritance, getAcsFunctions, getAcsConstants, getSndinfoCommands } from './shared/dataLoader';
+import { getActions, getProperties, getFlags, getExpressions, getInheritance, getAcsFunctions, getAcsConstants, getSndinfoCommands, getStateKeywords } from './shared/dataLoader';
 import { registerCompletionProvider } from './language/decorate/completionProvider';
 import { registerAcsCompletionProvider } from './language/acs/completion/completionProvider';
 import { registerAcsSignatureHelp } from './language/acs/signatureProvider';
@@ -30,6 +30,7 @@ import { registerTexturesColorProvider } from './language/textures/colorProvider
 import { getPk3Root } from './shared/pk3Root';
 import { ResourceIndex } from './language/textures/resourceIndex';
 import { TextureEditorRegistry } from './language/textures/textureDocumentController';
+import { registerOffsetPreview } from './language/decorate/offsetPreviewController';
 import { PackageManager } from './base/packageManager';
 import { SymbolDatabase } from './base/symbolDatabase';
 import { ActorSymbolProvider } from './base/actorProvider';
@@ -64,10 +65,11 @@ export function activate(context: vscode.ExtensionContext) {
     const flagsData = getFlags(context);
     const expressionsData = getExpressions(context);
     const inheritanceData = getInheritance(context);
+    const stateKeywordsData = getStateKeywords(context);
  
-    registerCompletionProvider(context, actionsData, propertiesData, flagsData, expressionsData, inheritanceData, symbolDatabase);
-    registerSignatureHelp(context, actionsData);
-    registerHoverProvider(context, actionsData);
+    registerCompletionProvider(context, actionsData, propertiesData, flagsData, expressionsData, inheritanceData, symbolDatabase, stateKeywordsData);
+    registerSignatureHelp(context, actionsData, stateKeywordsData);
+    registerHoverProvider(context, actionsData, stateKeywordsData);
     registerDecorateSemanticTokens(context);
     registerDefinitionProvider(context);
     registerColorProvider(context);
@@ -115,6 +117,8 @@ export function activate(context: vscode.ExtensionContext) {
 
     const textureEditorRegistry = new TextureEditorRegistry();
     context.subscriptions.push({ dispose: () => textureEditorRegistry.dispose() });
+
+    registerOffsetPreview(context, resourceIndex);
 
     context.subscriptions.push(
         vscode.commands.registerCommand('textures.openEditor', () => {

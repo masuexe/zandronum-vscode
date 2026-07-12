@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { ActionData, findActionCaseInsensitive } from '../../shared/dataLoader';
+import { ActionData, findActionCaseInsensitive, StateKeywordData, findStateKeywordCaseInsensitive } from '../../shared/dataLoader';
 
 function calculateActiveParameter(fullLine: string, cursorPosition: number, openParenIndex: number): number {
     const textInParens = fullLine.substring(openParenIndex + 1, cursorPosition);
@@ -48,7 +48,8 @@ function buildSignature(fnName: string, params?: any[]): string {
 
 export function registerSignatureHelp(
     context: vscode.ExtensionContext,
-    actionsData: Record<string, ActionData>
+    actionsData: Record<string, ActionData>,
+    stateKeywords?: Record<string, StateKeywordData>
 ) {
     const signatureProvider = vscode.languages.registerSignatureHelpProvider(
         [{ language: 'decorate' }],
@@ -94,19 +95,25 @@ export function registerSignatureHelp(
                 }
 
                 const functionName = textBeforeCursor.substring(fnNameStart, fnNameEnd + 1);
-                const actionData = findActionCaseInsensitive(actionsData, functionName);
 
-                if (!actionData) {
+                let data: ActionData | undefined;
+                if (stateKeywords) {
+                    data = findStateKeywordCaseInsensitive(stateKeywords, functionName);
+                }
+                if (!data) {
+                    data = findActionCaseInsensitive(actionsData, functionName);
+                }
+                if (!data) {
                     return null;
                 }
 
                 const signature = new vscode.SignatureInformation(
-                    actionData.signature || buildSignature(functionName, actionData.params),
-                    actionData.desc
+                    data.signature || buildSignature(functionName, data.params),
+                    data.desc
                 );
 
-                if (Array.isArray(actionData.params)) {
-                    signature.parameters = actionData.params
+                if (Array.isArray(data.params)) {
+                    signature.parameters = data.params
                         .filter((p: any) => typeof p === 'object')
                         .map((p: any) => {
                             const label = p.optional
@@ -114,7 +121,7 @@ export function registerSignatureHelp(
                                 : `${p.name}: ${p.type}`;
                             return new vscode.ParameterInformation(
                                 label,
-                                `Parameter: ${p.name} (${p.type})`
+                                p.desc || `Parameter: ${p.name} (${p.type})`
                             );
                         });
                 }

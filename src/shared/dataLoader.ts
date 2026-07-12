@@ -10,6 +10,7 @@ export interface ParamData {
     mode?: 'bitmask' | 'enum';
     enum?: Array<{ name: string; value: number }>;
     variadic?: boolean;
+    desc?: string;
 }
 
 export interface ActionData {
@@ -85,6 +86,24 @@ export function getExpressions(context: vscode.ExtensionContext): Record<string,
 
 export function getInheritance(context: vscode.ExtensionContext): Record<string, InheritanceData> {
     return loadDataJson<InheritanceData>(context, 'inheritance.json');
+}
+
+export type StateKeywordData = ActionData;
+
+export function getStateKeywords(context: vscode.ExtensionContext): Record<string, StateKeywordData> {
+    return loadDataJson<StateKeywordData>(context, 'stateKeywords.json');
+}
+
+export function findStateKeywordCaseInsensitive(
+    keywords: Record<string, StateKeywordData>,
+    name: string
+): StateKeywordData | undefined {
+    if (keywords[name]) return keywords[name];
+    const lower = name.toLowerCase();
+    for (const key of Object.keys(keywords)) {
+        if (key.toLowerCase() === lower) return keywords[key];
+    }
+    return undefined;
 }
 
 function loadAcsDataJson<T>(context: vscode.ExtensionContext, filename: string): Record<string, T> {

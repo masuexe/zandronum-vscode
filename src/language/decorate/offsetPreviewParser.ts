@@ -1,0 +1,266 @@
+/**
+ * Parse DECORATE state lines for weapon Offset(x, y) preview.
+ *
+ * Offset semantics (ZDoom / Zandronum):
+ * - Default weapon layer position is (0, 32)
+ * - Offset(0, 0) means "keep previous", not reset
+ * - Positive X = right; larger Y = lower on screen
+ */
+
+export const WEAPON_OFFSET_DEFAULT_X = 0;
+export const WEAPON_OFFSET_DEFAULT_Y = 32;
+
+export interface WeaponOffset {
+    x: number;
+    y: number;
+}
+
+export interface OffsetStateFrame {
+    line: number;
+    sprite: string;
+    frame: string;
+    duration: string;
+    /** Raw Offset(x,y) if present on this line. */
+    declaredOffset: WeaponOffset | null;
+    /** True when Offset(0, 0) — keep previous. */
+    offsetIsKeep: boolean;
+    /** Effective HUD offset after applying keep-previous rules. */
+    effectiveOffset: WeaponOffset;
+    hasOffsetKeyword: boolean;
+    rest: string;
+}
+
+export interface OffsetSequence {
+    label: string;
+    labelLine: number;
+    /** All sprite state frames in the label (with effective offsets). */
+    frames: OffsetStateFrame[];
+    /** Indices into `frames` for the consecutive Offset run containing `activeFrameIndex`. */
+    sequenceIndices: number[];
+    /** Index into `frames` for the active line. */
+    activeFrameIndex: number;
+}
+
+const LABEL_RE = /^\s*([A-Za-z_][A-Za-z0-9_]*)\s*:/;
+const STATE_LINE_RE =
+    /^\s*([A-Za-z0-9_\[\]\\]{1,8})\s+([A-Za-z0-9\[\]\\]+)\s+(-?\d+|[Rr][Aa][Nn][Dd][Oo][Mm]\s*\([^)]*\))\s*(.*)$/;
+const OFFSET_RE = /\bOffset\s*\(\s*(-?\d+)\s*,\s*(-?\d+)\s*\)/i;
+const FLOW_RE = /^\s*(goto|loop|stop|wait|fail)\b/i;
+const STATES_RE = /^\s*States\b/i;
+const ACTOR_RE = /^\s*Actor\b/i;
+
+function stripComment(line: string): string {
+    const idx = line.indexOf('//');
+    return idx >= 0 ? line.substring(0, idx) : line;
+}
+
+function isKeepOffset(o: WeaponOffset): boolean {
+    return o.x === 0 && o.y === 0;
+}
+
+/**
+ * Find the state label that owns `lineNumber`, scanning upward for `Label:`.
+ */
+export function findLabelAtLine(lines: string[], lineNumber: number): { name: string; line: number } | null {
+    for (let i = lineNumber; i >= 0; i--) {
+        const text = stripComment(lines[i]);
+        if (FLOW_RE.test(text)) {
+            continue;
+        }
+        if (STATES_RE.test(text) || ACTOR_RE.test(text)) {
+            break;
+        }
+        const m = LABEL_RE.exec(text);
+        if (m) {
+            return { name: m[1], line: i };
+        }
+        // Stop if we left the actor braces awkwardly — still OK to keep scanning
+    }
+    return null;
+}
+
+/**
+ * Collect sprite state frames from a label until the next label / flow / States end.
+ */
+export function parseLabelFrames(lines: string[], labelLine: number): OffsetStateFrame[] {
+    const raw: Omit<OffsetStateFrame, 'effectiveOffset'>[] = [];
+
+    for (let i = labelLine + 1; i < lines.length; i++) {
+        const text = stripComment(lines[i]);
+        const trimmed = text.trim();
+        if (!trimmed) {
+            continue;
+        }
+        if (LABEL_RE.test(text) || FLOW_RE.test(text) || STATES_RE.test(text) || ACTOR_RE.test(text)) {
+            break;
+        }
+        if (trimmed === '{' || trimmed === '}') {
+            if (trimmed === '}') {
+                break;
+            }
+            continue;
+        }
+
+        const m = STATE_LINE_RE.exec(text);
+        if (!m) {
+            continue;
+        }
+
+        const sprite = m[1];
+        const frame = m[2];
+        const duration = m[3];
+        const rest = m[4] ?? '';
+        const om = OFFSET_RE.exec(rest);
+        let declaredOffset: WeaponOffset | null = null;
+        let offsetIsKeep = false;
+        let hasOffsetKeyword = false;
+
+        if (om) {
+            hasOffsetKeyword = true;
+            declaredOffset = { x: parseInt(om[1], 10), y: parseInt(om[2], 10) };
+            offsetIsKeep = isKeepOffset(declaredOffset);
+        }
+
+        raw.push({
+            line: i,
+            sprite,
+            frame,
+            duration,
+            declaredOffset,
+            offsetIsKeep,
+            hasOffsetKeyword,
+            rest
+        });
+    }
+
+    let current: WeaponOffset = {
+        x: WEAPON_OFFSET_DEFAULT_X,
+        y: WEAPON_OFFSET_DEFAULT_Y
+    };
+
+    const frames: OffsetStateFrame[] = [];
+    for (const f of raw) {
+        if (f.hasOffsetKeyword && f.declaredOffset && !f.offsetIsKeep) {
+            current = { ...f.declaredOffset };
+        }
+        // Offset(0,0) or no Offset → keep `current`
+        frames.push({
+            ...f,
+            effectiveOffset: { ...current }
+        });
+    }
+
+    return frames;
+}
+
+/**
+ * Maximal consecutive run of frames with Offset keyword that includes `frameIndex`.
+ */
+export function consecutiveOffsetRun(frames: OffsetStateFrame[], frameIndex: number): number[] {
+    if (frameIndex < 0 || frameIndex >= frames.length) {
+        return [];
+    }
+    if (!frames[frameIndex].hasOffsetKeyword) {
+        return [frameIndex];
+    }
+
+    let start = frameIndex;
+    while (start > 0 && frames[start - 1].hasOffsetKeyword) {
+        start--;
+    }
+    let end = frameIndex;
+    while (end + 1 < frames.length && frames[end + 1].hasOffsetKeyword) {
+        end++;
+    }
+
+    const indices: number[] = [];
+    for (let i = start; i <= end; i++) {
+        indices.push(i);
+    }
+    return indices;
+}
+
+/**
+ * Build an OffsetSequence for the document line under the cursor.
+ * Returns null if no state frame / label context is found.
+ */
+export function buildOffsetSequence(documentText: string, lineNumber: number): OffsetSequence | null {
+    const lines = documentText.split(/\r?\n/);
+    if (lineNumber < 0 || lineNumber >= lines.length) {
+        return null;
+    }
+
+    const label = findLabelAtLine(lines, lineNumber);
+    if (!label) {
+        return null;
+    }
+
+    const frames = parseLabelFrames(lines, label.line);
+    if (frames.length === 0) {
+        return null;
+    }
+
+    let activeFrameIndex = frames.findIndex(f => f.line === lineNumber);
+    if (activeFrameIndex < 0) {
+        // Nearest frame at or before the cursor within the label
+        activeFrameIndex = -1;
+        for (let i = 0; i < frames.length; i++) {
+            if (frames[i].line <= lineNumber) {
+                activeFrameIndex = i;
+            } else {
+                break;
+            }
+        }
+        if (activeFrameIndex < 0) {
+            activeFrameIndex = 0;
+        }
+    }
+
+    const sequenceIndices = consecutiveOffsetRun(frames, activeFrameIndex);
+
+    return {
+        label: label.name,
+        labelLine: label.line,
+        frames,
+        sequenceIndices,
+        activeFrameIndex
+    };
+}
+
+/** True if the line text contains an Offset(...) state keyword. */
+export function lineHasOffsetKeyword(lineText: string): boolean {
+    return OFFSET_RE.test(stripComment(lineText));
+}
+
+/**
+ * Candidate Doom sprite lump basenames for sprite+frame (rotation variants).
+ * ResourceIndex keys are lowercased basenames without extension.
+ */
+export function spriteResourceCandidates(sprite: string, frameLetters: string): string[] {
+    const spr = sprite.toLowerCase();
+    const candidates: string[] = [];
+    const seen = new Set<string>();
+
+    const add = (name: string) => {
+        if (!seen.has(name)) {
+            seen.add(name);
+            candidates.push(name);
+        }
+    };
+
+    // Multi-frame letters (e.g. "AB") → try each letter, prefer first
+    const letters = frameLetters.length > 0 ? frameLetters.split('') : ['a'];
+    for (const letter of letters) {
+        const fr = letter.toLowerCase();
+        // Common: SPRT A0 / SPRTA0
+        for (const rot of ['0', '1', '2', '3', '4', '5', '6', '7', '8']) {
+            add(`${spr}${fr}${rot}`);
+        }
+        add(`${spr}${fr}`);
+        // Rare: no rotation digit
+        add(`${spr}${fr}0`);
+    }
+    add(spr);
+
+    return candidates;
+}

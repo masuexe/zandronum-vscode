@@ -1,0 +1,30 @@
+{
+  "Offset": {
+    "desc": "Gives the state a sprite offset for HUD / weapon sprites. Offset(0, 0) keeps the previous offset (does not reset). Default ready position is (0, 32).",
+    "params": [
+      { "name": "x", "type": "int", "optional": true, "desc": "Horizontal offset. Positive = right, negative = left. Default 0 (centered)." },
+      { "name": "y", "type": "int", "optional": true, "desc": "Vertical offset. Larger = lower on screen. Default ready Y is 32." }
+    ]
+  },
+  "Bright": {
+    "desc": "Always renders the sprite at full brightness, ignoring sector light."
+  },
+  "Fast": {
+    "desc": "State duration is halved when the actor is in fast mode (e.g. nightmare)."
+  },
+  "Slow": {
+    "desc": "State duration is doubled when the actor is in slow mode."
+  },
+  "NoDelay": {
+    "desc": "Prevents the one-tic delay before the first action in Spawn. Only valid immediately after Spawn:."
+  },
+  "CanRaise": {
+    "desc": "Allows the actor to enter its Raise state from this state when resurrected."
+  },
+  "Light": {
+    "desc": "Attaches dynamic light(s) defined in GLDEFS to this state.",
+    "params": [
+      { "name": "lightname", "type": "str", "variadic": true, "desc": "GLDEFS light name(s)." }
+    ]
+  }
+}

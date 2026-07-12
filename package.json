@@ -227,6 +227,10 @@
       {
         "command": "textures.openEditor",
         "title": "Open Texture Editor"
+      },
+      {
+        "command": "decorate.previewOffset",
+        "title": "Preview Weapon Offset"
       }
     ],
     "configuration": {
@@ -295,6 +299,11 @@
           "command": "textures.openEditor",
           "when": "editorLangId == textures",
           "group": "textures"
+        },
+        {
+          "command": "decorate.previewOffset",
+          "when": "editorLangId == decorate",
+          "group": "decorate"
         }
       ]
     },

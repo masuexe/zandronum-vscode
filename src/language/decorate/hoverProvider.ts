@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { ActionData, findActionCaseInsensitive, ParamData } from '../../shared/dataLoader';
+import { ActionData, findActionCaseInsensitive, ParamData, StateKeywordData, findStateKeywordCaseInsensitive } from '../../shared/dataLoader';
 import { buildSignatureLabel, buildParamLabel } from '../../shared/signatureBuilder';
 
 function buildHoverContent(functionName: string, actionData: ActionData): vscode.MarkdownString {
@@ -34,6 +34,8 @@ function buildHoverContent(functionName: string, actionData: ActionData): vscode
                 param.enum.forEach((v: { name: string; value: number }) => {
                     md.appendMarkdown(`    - \`${v.name}\` = ${v.value}\n`);
                 });
+            } else if (param.desc) {
+                md.appendMarkdown(`  - ${param.desc}\n`);
             }
         });
     }
@@ -43,7 +45,8 @@ function buildHoverContent(functionName: string, actionData: ActionData): vscode
 
 export function registerHoverProvider(
     context: vscode.ExtensionContext,
-    actionsData: Record<string, ActionData>
+    actionsData: Record<string, ActionData>,
+    stateKeywords?: Record<string, StateKeywordData>
 ) {
     const provider = vscode.languages.registerHoverProvider(
         [{ language: 'decorate' }],
@@ -55,6 +58,14 @@ export function registerHoverProvider(
                 }
 
                 const word = document.getText(wordRange);
+
+                if (stateKeywords) {
+                    const keywordData = findStateKeywordCaseInsensitive(stateKeywords, word);
+                    if (keywordData) {
+                        return new vscode.Hover(buildHoverContent(word, keywordData));
+                    }
+                }
+
                 const actionData = findActionCaseInsensitive(actionsData, word);
                 if (!actionData) {
                     return null;

@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { ActionData, PropertyData, FlagData, ExpressionData, InheritanceData, findActionCaseInsensitive } from '../../shared/dataLoader';
+import { ActionData, PropertyData, FlagData, ExpressionData, InheritanceData, findActionCaseInsensitive, StateKeywordData } from '../../shared/dataLoader';
 import { SymbolDatabase } from '../../base/symbolDatabase';
 import { SymbolKind } from '../../base/types';
 
@@ -270,6 +270,34 @@ function provideActionItems(actionsData: Record<string, ActionData>, prefix: str
     return items;
 }
 
+function provideStateKeywordItems(
+    keywords: Record<string, StateKeywordData>,
+    prefix: string
+): vscode.CompletionItem[] {
+    const items: vscode.CompletionItem[] = [];
+
+    for (const [name, data] of Object.entries(keywords)) {
+        if (prefix && !name.toUpperCase().startsWith(prefix.toUpperCase())) {
+            continue;
+        }
+        const hasParams = Array.isArray(data.params) && data.params.length > 0;
+        const item = new vscode.CompletionItem(name, vscode.CompletionItemKind.Keyword);
+        item.detail = data.desc || 'DECORATE State Keyword';
+        if (hasParams) {
+            item.insertText = new vscode.SnippetString(`${name}($0)`);
+            item.command = {
+                title: 'Trigger Signature Help',
+                command: 'editor.action.triggerParameterHints'
+            };
+        } else {
+            item.insertText = name;
+        }
+        items.push(item);
+    }
+
+    return items;
+}
+
 function provideExpressionItems(expressionsData: Record<string, ExpressionData>, prefix: string): vscode.CompletionItem[] {
     const items: vscode.CompletionItem[] = [];
 
@@ -402,7 +430,8 @@ export function registerCompletionProvider(
     flagsData: Record<string, FlagData>,
     expressionsData: Record<string, ExpressionData>,
     inheritanceData: Record<string, InheritanceData>,
-    symbolDb?: SymbolDatabase
+    symbolDb?: SymbolDatabase,
+    stateKeywords?: Record<string, StateKeywordData>
 ) {
     const provider = vscode.languages.registerCompletionItemProvider(
         [{ language: 'decorate' }],
@@ -423,8 +452,13 @@ export function registerCompletionProvider(
                     case 'inherit':
                         return provideInheritanceItems(inheritanceData, symbolDb, wordPrefix);
 
-                    case 'state':
-                        return provideActionItems(actionsData, wordPrefix);
+                    case 'state': {
+                        const items = provideActionItems(actionsData, wordPrefix);
+                        if (stateKeywords) {
+                            items.push(...provideStateKeywordItems(stateKeywords, wordPrefix));
+                        }
+                        return items;
+                    }
 
                     case 'function': {
                         const callInfo = findCallInfo(document, position);

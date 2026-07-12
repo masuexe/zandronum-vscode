@@ -19,7 +19,7 @@ export function scanLineDeclarations(
         return;
     }
 
-    const defineRe = /#\s*define\s+([A-Za-z_][A-Za-z0-9_]*)/gi;
+    const defineRe = /#\s*(?:libdefine|define)\s+([A-Za-z_][A-Za-z0-9_]*)/gi;
     let defineMatch: RegExpExecArray | null;
     while ((defineMatch = defineRe.exec(effective)) !== null) {
         const name = defineMatch[1];

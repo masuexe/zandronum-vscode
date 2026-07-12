@@ -33,7 +33,7 @@
             "patterns": [
                 {
                     "name": "meta.command.sndinfo",
-                    "begin": "(?i)(?:^|\\s)(\\$(?:ambient|alias|archivepath|attenuation|edfoverride|ifdoom|ifheretic|ifhexen|ifstrife|limit|map|mididevice|pitchshift|pitchshiftrange|playercompat|playeralias|playersound|playersounddup|random|registered|rolloff|singular|volume))\\b",
+                    "begin": "(?i)(?:^|[^A-Za-z0-9_])(\\$(?:ambient|alias|archivepath|attenuation|edfoverride|ifdoom|ifheretic|ifhexen|ifstrife|limit|map|mididevice|pitchshift|pitchshiftrange|playercompat|playeralias|playersound|playersounddup|random|registered|rolloff|singular|volume))\\b",
                     "beginCaptures": { "1": { "name": "keyword.control.sndinfo" } },
                     "end": "$",
                     "patterns": [
@@ -51,7 +51,7 @@
             "patterns": [
                 {
                     "name": "meta.command.sndinfo",
-                    "begin": "(?i)(?:^|\\s)(\\$(?:musicalias|musicvolume))\\b",
+                    "begin": "(?i)(?:^|[^A-Za-z0-9_])(\\$(?:musicalias|musicvolume))\\b",
                     "beginCaptures": { "1": { "name": "keyword.control.sndinfo" } },
                     "end": "$",
                     "patterns": [

@@ -1,5 +1,6 @@
 import * as vscode from 'vscode';
 import { ResourceIndex } from '../textures/resourceIndex';
+import { loadPlaypal } from '../../tools/playpalReader';
 import {
     buildOffsetSequence,
     lineHasOffsetKeyword,
@@ -87,6 +88,7 @@ class OffsetPreviewController {
         switch (msg.type) {
             case 'ready':
                 this.webviewReady = true;
+                await this.sendPalette();
                 if (this.pendingLine !== null) {
                     this.syncToLine(this.pendingLine);
                     this.pendingLine = null;
@@ -150,6 +152,22 @@ class OffsetPreviewController {
         const frame = this.activeFrame();
         const line = frame?.line ?? this.sequence.frames[this.sequence.activeFrameIndex]?.line ?? 0;
         this.syncToLine(line);
+    }
+
+    private async sendPalette(): Promise<void> {
+        if (!this.panel) {
+            return;
+        }
+        const palette = await loadPlaypal();
+        if (!palette) {
+            this.panel.sendPalette(null);
+            return;
+        }
+        const rgb: number[] = [];
+        for (const c of palette) {
+            rgb.push(c.r, c.g, c.b);
+        }
+        this.panel.sendPalette(rgb);
     }
 
     private async sendCurrentView(): Promise<void> {

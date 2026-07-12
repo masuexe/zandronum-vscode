@@ -21,6 +21,9 @@
     /** @type {{ key: string, bitmap: ImageBitmap|HTMLImageElement, width: number, height: number } | null} */
     let spriteBitmap = null;
     let spriteLoadToken = 0;
+    /** PLAYPAL as [{r,g,b}, ...] length 256, or null. */
+    let playpal = null;
+    let pendingViewData = null;
 
     const canvas = document.getElementById('canvas');
     const ctx = canvas.getContext('2d');
@@ -116,6 +119,256 @@
         });
     }
 
+    function clampByte(n) {
+        return Math.max(0, Math.min(255, n | 0));
+    }
+
+    function clampFloat2(n) {
+        if (!Number.isFinite(n)) { return 0; }
+        return Math.max(0, Math.min(2, n));
+    }
+
+    /** Palette index remap: fromStart:fromEnd=toStart:toEnd */
+    function parseTranslationRanges(raw) {
+        const ranges = [];
+        if (!raw) { return ranges; }
+        const quoted = [...String(raw).matchAll(/"([^"]*)"/g)].map(m => m[1]);
+        const parts = quoted.length > 0 ? quoted : [String(raw)];
+        const rangeRe = /(\d+)\s*:\s*(\d+)\s*=\s*(?![%[])(\d+)\s*:\s*(\d+)/g;
+        for (const part of parts) {
+            if (/^(Inverse|Gold|Red|Green|Ice|Desaturate)\b/i.test(part.trim())) { continue; }
+            rangeRe.lastIndex = 0;
+            let m;
+            while ((m = rangeRe.exec(part)) !== null) {
+                ranges.push({
+                    fromStart: clampByte(parseInt(m[1], 10)),
+                    fromEnd: clampByte(parseInt(m[2], 10)),
+                    toStart: clampByte(parseInt(m[3], 10)),
+                    toEnd: clampByte(parseInt(m[4], 10))
+                });
+            }
+        }
+        return ranges;
+    }
+
+    /** Direct color: fromStart:fromEnd=[r1,g1,b1]:[r2,g2,b2] (0–255). */
+    function parseDirectRanges(raw) {
+        const ranges = [];
+        if (!raw) { return ranges; }
+        const quoted = [...String(raw).matchAll(/"([^"]*)"/g)].map(m => m[1]);
+        const parts = quoted.length > 0 ? quoted : [String(raw)];
+        const directRe = /(\d+)\s*:\s*(\d+)\s*=\s*(?!%)\[\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*\]\s*:\s*\[\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*\]/g;
+        for (const part of parts) {
+            directRe.lastIndex = 0;
+            let m;
+            while ((m = directRe.exec(part)) !== null) {
+                ranges.push({
+                    fromStart: clampByte(parseInt(m[1], 10)),
+                    fromEnd: clampByte(parseInt(m[2], 10)),
+                    r1: clampByte(parseInt(m[3], 10)),
+                    g1: clampByte(parseInt(m[4], 10)),
+                    b1: clampByte(parseInt(m[5], 10)),
+                    r2: clampByte(parseInt(m[6], 10)),
+                    g2: clampByte(parseInt(m[7], 10)),
+                    b2: clampByte(parseInt(m[8], 10))
+                });
+            }
+        }
+        return ranges;
+    }
+
+    /** Desaturated: fromStart:fromEnd=%[r1,g1,b1]:[r2,g2,b2] (floats 0–2). */
+    function parseDesatRanges(raw) {
+        const ranges = [];
+        if (!raw) { return ranges; }
+        const quoted = [...String(raw).matchAll(/"([^"]*)"/g)].map(m => m[1]);
+        const parts = quoted.length > 0 ? quoted : [String(raw)];
+        const desatRe = /(\d+)\s*:\s*(\d+)\s*=\s*%\s*\[\s*([^\]]+)\]\s*:\s*\[\s*([^\]]+)\]/g;
+        const tripRe = /(-?\d+(?:\.\d+)?)\s*,\s*(-?\d+(?:\.\d+)?)\s*,\s*(-?\d+(?:\.\d+)?)/;
+        for (const part of parts) {
+            desatRe.lastIndex = 0;
+            let m;
+            while ((m = desatRe.exec(part)) !== null) {
+                const t1 = tripRe.exec(m[3]);
+                const t2 = tripRe.exec(m[4]);
+                if (!t1 || !t2) { continue; }
+                ranges.push({
+                    fromStart: clampByte(parseInt(m[1], 10)),
+                    fromEnd: clampByte(parseInt(m[2], 10)),
+                    r1: clampFloat2(parseFloat(t1[1])),
+                    g1: clampFloat2(parseFloat(t1[2])),
+                    b1: clampFloat2(parseFloat(t1[3])),
+                    r2: clampFloat2(parseFloat(t2[1])),
+                    g2: clampFloat2(parseFloat(t2[2])),
+                    b2: clampFloat2(parseFloat(t2[3]))
+                });
+            }
+        }
+        return ranges;
+    }
+
+    function buildRemapTable(ranges) {
+        const table = new Uint8Array(256);
+        for (let i = 0; i < 256; i++) { table[i] = i; }
+        for (const r of ranges) {
+            const fromLo = Math.min(r.fromStart, r.fromEnd);
+            const fromHi = Math.max(r.fromStart, r.fromEnd);
+            const fromSpan = fromHi - fromLo;
+            const toSpan = r.toEnd - r.toStart;
+            for (let i = fromLo; i <= fromHi; i++) {
+                if (fromSpan === 0) {
+                    table[i] = r.toStart;
+                } else {
+                    const t = (i - fromLo) / fromSpan;
+                    table[i] = clampByte(Math.round(r.toStart + t * toSpan));
+                }
+            }
+        }
+        return table;
+    }
+
+    function applyDirectToRgbTable(out, ranges) {
+        for (const r of ranges) {
+            let start = r.fromStart, end = r.fromEnd;
+            let rr = r.r1, gg = r.g1, bb = r.b1;
+            let rs, gs, bs;
+            if (start > end) {
+                const ts = start; start = end; end = ts;
+                rr = r.r2; gg = r.g2; bb = r.b2;
+                rs = r.r1 - r.r2; gs = r.g1 - r.g2; bs = r.b1 - r.b2;
+            } else {
+                rs = r.r2 - r.r1; gs = r.g2 - r.g1; bs = r.b2 - r.b1;
+            }
+            if (start === end) {
+                out[start * 3] = rr;
+                out[start * 3 + 1] = gg;
+                out[start * 3 + 2] = bb;
+            } else {
+                rs /= (end - start);
+                gs /= (end - start);
+                bs /= (end - start);
+                for (let i = start; i <= end; i++) {
+                    out[i * 3] = rr | 0;
+                    out[i * 3 + 1] = gg | 0;
+                    out[i * 3 + 2] = bb | 0;
+                    rr += rs; gg += gs; bb += bs;
+                }
+            }
+        }
+    }
+
+    function buildRgbOverrideTable(directRanges, desatRanges) {
+        const hasDirect = directRanges && directRanges.length > 0;
+        const hasDesat = desatRanges && desatRanges.length > 0;
+        if (!playpal || (!hasDirect && !hasDesat)) { return null; }
+        const out = new Float32Array(256 * 3);
+        out.fill(NaN);
+        if (hasDirect) {
+            applyDirectToRgbTable(out, directRanges);
+        }
+        if (hasDesat) {
+            for (const r of desatRanges) {
+                let r1 = r.r1, g1 = r.g1, b1 = r.b1;
+                let r2 = r.r2, g2 = r.g2, b2 = r.b2;
+                let start = r.fromStart, end = r.fromEnd;
+                if (start > end) {
+                    const ts = start; start = end; end = ts;
+                    const tr = r1; r1 = r2; r2 = tr;
+                    const tg = g1; g1 = g2; g2 = tg;
+                    const tb = b1; b1 = b2; b2 = tb;
+                }
+                r2 -= r1; g2 -= g1; b2 -= b1;
+                r1 *= 255; g1 *= 255; b1 *= 255;
+                for (let c = start; c <= end; c++) {
+                    const pal = playpal[c];
+                    const intensity = (pal.r * 77 + pal.g * 143 + pal.b * 37) / 256.0;
+                    out[c * 3] = Math.min(255, (r1 + intensity * r2) | 0);
+                    out[c * 3 + 1] = Math.min(255, (g1 + intensity * g2) | 0);
+                    out[c * 3 + 2] = Math.min(255, (b1 + intensity * b2) | 0);
+                }
+            }
+        }
+        return out;
+    }
+
+    function nearestPaletteIndex(r, g, b) {
+        if (!playpal) { return 0; }
+        let best = 0;
+        let bestDist = Infinity;
+        for (let i = 0; i < playpal.length; i++) {
+            const dr = r - playpal[i].r;
+            const dg = g - playpal[i].g;
+            const db = b - playpal[i].b;
+            const dist = dr * dr + dg * dg + db * db;
+            if (dist < bestDist) {
+                bestDist = dist;
+                best = i;
+                if (dist === 0) { break; }
+            }
+        }
+        return best;
+    }
+
+    function translationNeedsPlaypal(raw) {
+        if (!raw) { return false; }
+        const ranges = parseTranslationRanges(raw);
+        const direct = parseDirectRanges(raw);
+        const desat = parseDesatRanges(raw);
+        return ranges.length > 0 || direct.length > 0 || desat.length > 0;
+    }
+
+    function subPatchesHaveTranslation(subPatches) {
+        if (!subPatches) { return false; }
+        for (const sp of subPatches) {
+            if (sp.translation && translationNeedsPlaypal(sp.translation)) { return true; }
+            if (sp.children && subPatchesHaveTranslation(sp.children)) { return true; }
+        }
+        return false;
+    }
+
+    /**
+     * Apply TEXTURES Translation (palette remap, Direct =[rgb], Desaturate =%[rgb]).
+     * Same algorithm as the Texture Editor webview.
+     */
+    async function applyTranslationToBitmap(bitmap, translation) {
+        if (!translation || !playpal || !bitmap) { return bitmap; }
+        const ranges = parseTranslationRanges(translation);
+        const directRanges = parseDirectRanges(translation);
+        const desatRanges = parseDesatRanges(translation);
+        if (ranges.length === 0 && directRanges.length === 0 && desatRanges.length === 0) {
+            return bitmap;
+        }
+        const table = ranges.length > 0 ? buildRemapTable(ranges) : null;
+        const rgbOverride = buildRgbOverrideTable(directRanges, desatRanges);
+
+        const w = bitmap.width || bitmap.naturalWidth;
+        const h = bitmap.height || bitmap.naturalHeight;
+        const canvas = new OffscreenCanvas(w, h);
+        const tctx = canvas.getContext('2d', { willReadFrequently: true });
+        tctx.drawImage(bitmap, 0, 0);
+        const imageData = tctx.getImageData(0, 0, w, h);
+        const data = imageData.data;
+        for (let i = 0; i < data.length; i += 4) {
+            if (data[i + 3] === 0) { continue; }
+            const srcIdx = nearestPaletteIndex(data[i], data[i + 1], data[i + 2]);
+            if (rgbOverride && !Number.isNaN(rgbOverride[srcIdx * 3])) {
+                data[i] = rgbOverride[srcIdx * 3];
+                data[i + 1] = rgbOverride[srcIdx * 3 + 1];
+                data[i + 2] = rgbOverride[srcIdx * 3 + 2];
+                continue;
+            }
+            if (!table) { continue; }
+            const dstIdx = table[srcIdx];
+            if (dstIdx === srcIdx) { continue; }
+            const c = playpal[dstIdx];
+            data[i] = c.r;
+            data[i + 1] = c.g;
+            data[i + 2] = c.b;
+        }
+        tctx.putImageData(imageData, 0, 0);
+        return canvas.transferToImageBitmap();
+    }
+
     async function drawSubPatch(octx, sp) {
         let bmp = null;
         let closeBmp = false;
@@ -131,11 +384,19 @@
             bmp = nested.transferToImageBitmap();
             closeBmp = true;
         } else if (sp.uri) {
-            // Prefer <img> (allowed by img-src) — avoid fetch under strict CSP
             bmp = await loadImageElement(sp.uri);
             closeBmp = false;
         } else {
             return;
+        }
+
+        if (sp.translation && playpal) {
+            const translated = await applyTranslationToBitmap(bmp, sp.translation);
+            if (translated !== bmp) {
+                if (closeBmp && bmp.close) { bmp.close(); }
+                bmp = translated;
+                closeBmp = true;
+            }
         }
 
         const pw = bmp.width || bmp.naturalWidth;
@@ -157,6 +418,9 @@
     async function compositePatches(width, height, subPatches) {
         if (!subPatches || subPatches.length === 0) {
             throw new Error('TEXTURES definition has no drawable patches');
+        }
+        if (subPatchesHaveTranslation(subPatches) && !playpal) {
+            throw new Error('Translation needs PLAYPAL (set zandronum-vscode.playpalPath)');
         }
         const offscreen = new OffscreenCanvas(Math.max(1, width), Math.max(1, height));
         const octx = offscreen.getContext('2d');
@@ -262,7 +526,11 @@
         if (frame.missingResource) {
             status.textContent = `Missing sprite for ${frame.sprite} ${frame.frame} (tried ${frame.sprite}${frame.frame}0, TEXTURES, …)`;
         } else if (frame.composite) {
-            status.textContent = `TEXTURES ${frame.resolvedName}  Offset(${frame.offsetX}, ${frame.offsetY})`;
+            const hasTr = subPatchesHaveTranslation(frame.composite.subPatches);
+            const trNote = hasTr
+                ? (playpal ? ' + Translation' : ' (Translation needs PLAYPAL)')
+                : '';
+            status.textContent = `TEXTURES ${frame.resolvedName}${trNote}  Offset(${frame.offsetX}, ${frame.offsetY})`;
         } else {
             status.textContent = `${frame.resolvedName || (frame.sprite + frame.frame)}  Offset(${frame.offsetX}, ${frame.offsetY})`;
         }
@@ -381,12 +649,15 @@
 
     function applyView(data) {
         viewData = data;
+        pendingViewData = data;
         activeIndex = data.activeIndex || 0;
         scrub.min = '0';
         scrub.max = String(Math.max(0, (data.frames?.length || 1) - 1));
         scrub.value = String(activeIndex);
 
         const frame = activeFrame();
+        // Invalidate cache so Translation re-applies when PLAYPAL arrives
+        spriteBitmap = null;
         void ensureSprite(frame);
         queueRender();
     }
@@ -458,6 +729,26 @@
         const msg = event.data;
         if (msg.type === 'update') {
             applyView(msg.data);
+        } else if (msg.type === 'palette') {
+            if (msg.rgb && msg.rgb.length >= 768) {
+                playpal = [];
+                for (let i = 0; i + 2 < msg.rgb.length; i += 3) {
+                    playpal.push({
+                        r: msg.rgb[i],
+                        g: msg.rgb[i + 1],
+                        b: msg.rgb[i + 2]
+                    });
+                }
+            } else {
+                playpal = null;
+            }
+            // Re-composite with Translation once PLAYPAL is available
+            spriteBitmap = null;
+            if (pendingViewData) {
+                viewData = pendingViewData;
+                void ensureSprite(activeFrame());
+            }
+            queueRender();
         }
     });
 

@@ -142,4 +142,8 @@ export class OffsetPreviewPanel {
     sendView(data: OffsetPreviewViewData): void {
         this.postMessage({ type: 'update', data });
     }
+
+    sendPalette(rgb: number[] | null): void {
+        this.postMessage({ type: 'palette', rgb });
+    }
 }

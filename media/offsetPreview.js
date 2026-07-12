@@ -32,6 +32,15 @@
     const scrub = document.getElementById('scrub');
 
     let panning = false;
+    let draggingOffset = false;
+    let dragStartMouseX = 0;
+    let dragStartMouseY = 0;
+    let dragStartOffsetX = 0;
+    let dragStartOffsetY = 0;
+    let dragCurrentOffsetX = 0;
+    let dragCurrentOffsetY = 0;
+    /** @type {{ x: number, y: number } | null} Live offsets after mouse-up until document refresh. */
+    let optimisticOffset = null;
     let lastMouseX = 0;
     let lastMouseY = 0;
     let canvasW = 0;
@@ -126,6 +135,87 @@
         }
         const i = Math.max(0, Math.min(activeIndex, viewData.frames.length - 1));
         return viewData.frames[i];
+    }
+
+    /** Frame used for drawing/inspector — applies live drag offsets when dragging. */
+    function displayFrame() {
+        const frame = activeFrame();
+        if (!frame) {
+            return null;
+        }
+        if (draggingOffset) {
+            return {
+                ...frame,
+                offsetX: dragCurrentOffsetX,
+                offsetY: dragCurrentOffsetY,
+                declaredOffsetX: dragCurrentOffsetX,
+                declaredOffsetY: dragCurrentOffsetY,
+                offsetIsKeep: false
+            };
+        }
+        if (optimisticOffset) {
+            return {
+                ...frame,
+                offsetX: optimisticOffset.x,
+                offsetY: optimisticOffset.y,
+                declaredOffsetX: optimisticOffset.x,
+                declaredOffsetY: optimisticOffset.y,
+                offsetIsKeep: false
+            };
+        }
+        return frame;
+    }
+
+    function canEditOffset(frame) {
+        return !!(frame && frame.hasOffsetKeyword && !frame.offsetIsKeep && !frame.missingResource);
+    }
+
+    function spriteScreenRect(origin, frame) {
+        if (!spriteBitmap || !frame) {
+            return null;
+        }
+        return {
+            x: origin.x + (CENTER_X + frame.offsetX - frame.grabX) * zoom,
+            y: origin.y + (frame.offsetY - frame.grabY) * zoom,
+            w: spriteBitmap.width * zoom,
+            h: spriteBitmap.height * zoom
+        };
+    }
+
+    function hitTestSprite(clientX, clientY) {
+        const frame = displayFrame();
+        if (!canEditOffset(activeFrame()) || !spriteBitmap) {
+            return false;
+        }
+        const rect = canvas.getBoundingClientRect();
+        const mx = clientX - rect.left;
+        const my = clientY - rect.top;
+        const origin = hudOrigin();
+        const r = spriteScreenRect(origin, frame);
+        if (!r) {
+            return false;
+        }
+        return mx >= r.x && mx <= r.x + r.w && my >= r.y && my <= r.y + r.h;
+    }
+
+    function commitOffset(x, y) {
+        vscode.postMessage({ type: 'setOffset', x: Math.round(x), y: Math.round(y) });
+    }
+
+    function nudgeOffset(dx, dy) {
+        const frame = activeFrame();
+        if (!canEditOffset(frame)) {
+            if (frame && frame.offsetIsKeep) {
+                status.textContent = 'Offset(0, 0) means keep previous — change it in DECORATE first if you want an absolute offset.';
+            }
+            return;
+        }
+        const base = displayFrame() || frame;
+        const x = Math.round(base.offsetX + dx);
+        const y = Math.round(base.offsetY + dy);
+        optimisticOffset = { x, y };
+        commitOffset(x, y);
+        queueRender();
     }
 
     function frameCacheKey(frame) {
@@ -707,13 +797,13 @@
         if (!spriteBitmap || frame.missingResource) {
             return;
         }
-        const drawX = origin.x + (CENTER_X + frame.offsetX - frame.grabX) * zoom;
-        const drawY = origin.y + (frame.offsetY - frame.grabY) * zoom;
-        const w = spriteBitmap.width * zoom;
-        const h = spriteBitmap.height * zoom;
+        const r = spriteScreenRect(origin, frame);
+        if (!r) {
+            return;
+        }
 
         ctx.imageSmoothingEnabled = false;
-        ctx.drawImage(spriteBitmap.bitmap, drawX, drawY, w, h);
+        ctx.drawImage(spriteBitmap.bitmap, r.x, r.y, r.w, r.h);
 
         const ox = origin.x + (CENTER_X + frame.offsetX) * zoom;
         const oy = origin.y + frame.offsetY * zoom;
@@ -743,7 +833,7 @@
         const origin = hudOrigin();
         drawHudFrame(origin);
 
-        const frame = activeFrame();
+        const frame = displayFrame();
         updateInspector(frame);
         if (frame) {
             drawSprite(origin, frame);
@@ -759,6 +849,11 @@
     }
 
     function applyView(data) {
+        if (draggingOffset) {
+            pendingViewData = data;
+            return;
+        }
+        optimisticOffset = null;
         viewData = data;
         pendingViewData = data;
         activeIndex = data.activeIndex || 0;
@@ -773,6 +868,9 @@
     }
 
     function setScrub(index) {
+        if (draggingOffset) {
+            return;
+        }
         if (!viewData || !viewData.frames.length) {
             return;
         }
@@ -795,30 +893,96 @@
     });
 
     canvas.addEventListener('mousedown', (e) => {
-        if (e.button === 1 || e.button === 0 && (e.ctrlKey || e.metaKey)) {
+        if (e.button === 1 || (e.button === 0 && (e.ctrlKey || e.metaKey))) {
             panning = true;
-            canvas.style.cursor = 'grabbing';
+            canvas.classList.add('panning');
             lastMouseX = e.clientX;
             lastMouseY = e.clientY;
             e.preventDefault();
-        }
-    });
-    window.addEventListener('mousemove', (e) => {
-        if (!panning) {
             return;
         }
-        panX += e.clientX - lastMouseX;
-        panY += e.clientY - lastMouseY;
-        lastMouseX = e.clientX;
-        lastMouseY = e.clientY;
-        queueRender();
+        if (e.button !== 0) {
+            return;
+        }
+
+        const frame = activeFrame();
+        if (frame && frame.offsetIsKeep) {
+            status.textContent = 'Offset(0, 0) means keep previous — change it in DECORATE first if you want an absolute offset.';
+            return;
+        }
+        if (!canEditOffset(frame)) {
+            return;
+        }
+        if (!hitTestSprite(e.clientX, e.clientY)) {
+            return;
+        }
+
+        optimisticOffset = null;
+        draggingOffset = true;
+        dragStartMouseX = e.clientX;
+        dragStartMouseY = e.clientY;
+        dragStartOffsetX = frame.offsetX;
+        dragStartOffsetY = frame.offsetY;
+        dragCurrentOffsetX = frame.offsetX;
+        dragCurrentOffsetY = frame.offsetY;
+        canvas.classList.add('dragging');
+        e.preventDefault();
     });
+
+    canvas.addEventListener('mousemove', (e) => {
+        if (panning || draggingOffset) {
+            return;
+        }
+        if (hitTestSprite(e.clientX, e.clientY)) {
+            canvas.classList.add('over-sprite');
+        } else {
+            canvas.classList.remove('over-sprite');
+        }
+    });
+
+    window.addEventListener('mousemove', (e) => {
+        if (panning) {
+            panX += e.clientX - lastMouseX;
+            panY += e.clientY - lastMouseY;
+            lastMouseX = e.clientX;
+            lastMouseY = e.clientY;
+            queueRender();
+            return;
+        }
+        if (draggingOffset) {
+            // Drag sprite with mouse: right = +Offset X, down = +Offset Y
+            const dx = (e.clientX - dragStartMouseX) / zoom;
+            const dy = (e.clientY - dragStartMouseY) / zoom;
+            dragCurrentOffsetX = Math.round(dragStartOffsetX + dx);
+            dragCurrentOffsetY = Math.round(dragStartOffsetY + dy);
+            queueRender();
+        }
+    });
+
     window.addEventListener('mouseup', () => {
         if (panning) {
             panning = false;
-            canvas.style.cursor = '';
+            canvas.classList.remove('panning');
+        }
+        if (draggingOffset) {
+            const x = dragCurrentOffsetX;
+            const y = dragCurrentOffsetY;
+            const changed = x !== dragStartOffsetX || y !== dragStartOffsetY;
+            draggingOffset = false;
+            canvas.classList.remove('dragging');
+            if (changed) {
+                // Hold live position until document update arrives (avoids snap-back).
+                optimisticOffset = { x, y };
+                commitOffset(x, y);
+                queueRender();
+            } else if (pendingViewData) {
+                applyView(pendingViewData);
+            } else {
+                queueRender();
+            }
         }
     });
+
     canvas.addEventListener('wheel', (e) => {
         e.preventDefault();
         const factor = e.deltaY < 0 ? 1.1 : 1 / 1.1;
@@ -827,11 +991,15 @@
     }, { passive: false });
 
     window.addEventListener('keydown', (e) => {
-        if (e.key === 'ArrowLeft') {
-            setScrub(activeIndex - 1);
-            e.preventDefault();
-        } else if (e.key === 'ArrowRight') {
-            setScrub(activeIndex + 1);
+        if (e.key === 'ArrowLeft' || e.key === 'ArrowRight' || e.key === 'ArrowUp' || e.key === 'ArrowDown') {
+            const step = e.shiftKey ? 8 : 1;
+            let dx = 0;
+            let dy = 0;
+            if (e.key === 'ArrowLeft') { dx = -step; }
+            if (e.key === 'ArrowRight') { dx = step; }
+            if (e.key === 'ArrowUp') { dy = -step; }
+            if (e.key === 'ArrowDown') { dy = step; }
+            nudgeOffset(dx, dy);
             e.preventDefault();
         }
     });
@@ -843,6 +1011,12 @@
         const msg = event.data;
         if (msg.type === 'update') {
             applyView(msg.data);
+        } else if (msg.type === 'editResult') {
+            if (!msg.ok && msg.reason) {
+                optimisticOffset = null;
+                status.textContent = msg.reason;
+                queueRender();
+            }
         } else if (msg.type === 'palette') {
             if (msg.rgb && msg.rgb.length >= 768) {
                 playpal = [];
@@ -857,7 +1031,7 @@
                 playpal = null;
             }
             releaseSpriteBitmap();
-            if (pendingViewData) {
+            if (pendingViewData && !draggingOffset) {
                 viewData = pendingViewData;
                 void ensureSprite(activeFrame());
             }

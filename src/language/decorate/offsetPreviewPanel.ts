@@ -102,7 +102,7 @@ export class OffsetPreviewPanel {
                 <div class="field-row"><label>Δ vs prev</label><span id="info-delta">—</span></div>
                 <div class="field-row"><label>Declared</label><span id="info-declared">—</span></div>
                 <div class="field-row"><label>grAb / origin</label><span id="info-grab">—</span></div>
-                <div class="hint">Preview only — edit Offset(x, y) in DECORATE (live refresh). Offset(0, 0) keeps the previous offset. Pan: Ctrl+drag. Wheel: zoom.</div>
+                <div class="hint">Drag sprite to edit Offset(x, y) (Undo works). Offset(0, 0) keep-lines are not draggable. Pan: Ctrl+drag. Arrows: ±1 (Shift ±8). Wheel: zoom.</div>
                 <div class="hint" id="info-playpal">PLAYPAL: —</div>
                 <div class="hint warn" id="info-warning" hidden></div>
             </div>

@@ -58,7 +58,12 @@ html, body {
     cursor: default;
 }
 
-#canvas.panning {
+#canvas.over-sprite {
+    cursor: grab;
+}
+
+#canvas.panning,
+#canvas.dragging {
     cursor: grabbing;
 }
 

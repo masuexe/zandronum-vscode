@@ -9,6 +9,7 @@ import {
 } from './offsetPreviewParser';
 import { OffsetPreviewPanel, OffsetPreviewFrameView, OffsetPreviewViewData } from './offsetPreviewPanel';
 import { resolveDecorateSprite } from './offsetSpriteResolver';
+import { applyOffsetEdit } from './offsetPreviewWriter';
 
 class OffsetPreviewController {
     private panel: OffsetPreviewPanel | undefined;
@@ -23,6 +24,8 @@ class OffsetPreviewController {
     /** Last opened/synced line — used to refresh after edits. */
     private anchorLine = 0;
     private openWarning: string | null = null;
+    /** True while applying a drag/nudge Offset edit so refresh stays on the scrubbed frame. */
+    private applyingOffsetEdit = false;
 
     constructor(
         private document: vscode.TextDocument,
@@ -147,6 +150,61 @@ class OffsetPreviewController {
                 }
                 break;
             }
+            case 'setOffset': {
+                await this.handleSetOffset(msg.x, msg.y);
+                break;
+            }
+        }
+    }
+
+    private async handleSetOffset(x: unknown, y: unknown): Promise<void> {
+        if (typeof x !== 'number' || typeof y !== 'number' || !Number.isFinite(x) || !Number.isFinite(y)) {
+            return;
+        }
+        const frame = this.activeFrame();
+        if (!frame) {
+            return;
+        }
+        if (!frame.hasOffsetKeyword) {
+            this.panel?.postMessage({
+                type: 'editResult',
+                ok: false,
+                reason: 'This frame has no Offset(...) to edit.'
+            });
+            return;
+        }
+        if (frame.offsetIsKeep) {
+            this.panel?.postMessage({
+                type: 'editResult',
+                ok: false,
+                reason: 'Offset(0, 0) means keep previous — change it in DECORATE first if you want an absolute offset.'
+            });
+            return;
+        }
+
+        const xi = Math.round(x);
+        const yi = Math.round(y);
+        if (frame.declaredOffset && frame.declaredOffset.x === xi && frame.declaredOffset.y === yi) {
+            return;
+        }
+
+        this.applyingOffsetEdit = true;
+        this.suppressSelectionSync = true;
+        this.anchorLine = frame.line;
+        try {
+            const ok = await applyOffsetEdit(this.document, frame.line, xi, yi);
+            if (!ok) {
+                this.panel?.postMessage({
+                    type: 'editResult',
+                    ok: false,
+                    reason: 'Could not find Offset(...) on this line.'
+                });
+            }
+        } finally {
+            setTimeout(() => {
+                this.applyingOffsetEdit = false;
+                this.suppressSelectionSync = false;
+            }, 150);
         }
     }
 
@@ -191,6 +249,11 @@ class OffsetPreviewController {
     }
 
     private refreshFromDocument(): void {
+        // During drag/nudge write-back, stay on the scrubbed frame line
+        if (this.applyingOffsetEdit) {
+            this.syncToLine(this.anchorLine, false);
+            return;
+        }
         // Prefer the active editor cursor so inserts/deletes don't use a stale line index
         const editor = vscode.window.visibleTextEditors.find(
             e => e.document.uri.toString() === this.document.uri.toString()

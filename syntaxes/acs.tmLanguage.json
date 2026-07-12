@@ -54,7 +54,7 @@
 					"match": "(?i)^\\s*#\\s*(?:include|undef|import|library|ifdef|ifndef|else|endif|pragma|wadauthor)\\b"
 				},
 				{
-					"match": "(?i)^\\s*(#\\s*define)\\s+([A-Za-z_][A-Za-z0-9_]*)",
+					"match": "(?i)(#\\s*define)\\s+([A-Za-z_][A-Za-z0-9_]*)",
 					"captures": {
 						"1": { "name": "keyword.control.preprocessor.acs" },
 						"2": { "name": "entity.name.constant.preprocessor.acs" }

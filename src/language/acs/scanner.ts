@@ -19,8 +19,9 @@ export function scanLineDeclarations(
         return;
     }
 
-    const defineMatch = /^\s*#\s*define\s+([A-Za-z_][A-Za-z0-9_]*)/i.exec(effective);
-    if (defineMatch) {
+    const defineRe = /#\s*define\s+([A-Za-z_][A-Za-z0-9_]*)/gi;
+    let defineMatch: RegExpExecArray | null;
+    while ((defineMatch = defineRe.exec(effective)) !== null) {
         const name = defineMatch[1];
         if (!ACS_KEYWORDS.has(name.toLowerCase())) {
             onDefine(name);

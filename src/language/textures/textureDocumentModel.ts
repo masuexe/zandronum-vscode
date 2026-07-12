@@ -162,7 +162,12 @@ export class TextureDocumentModel {
                 width: localDef.defData.width,
                 height: localDef.defData.height,
                 resourceType: 'composite',
-                subPatches
+                subPatches,
+                // TEXTURES Offset on Sprite/Graphic defs acts like PNG grAb
+                grabOffset: {
+                    x: localDef.texProps.OffsetX ?? 0,
+                    y: localDef.texProps.OffsetY ?? 0
+                }
             };
         }
 
@@ -215,7 +220,11 @@ export class TextureDocumentModel {
                     width: def.defData.width,
                     height: def.defData.height,
                     resourceType: 'composite',
-                    subPatches
+                    subPatches,
+                    grabOffset: {
+                        x: def.texProps.OffsetX ?? 0,
+                        y: def.texProps.OffsetY ?? 0
+                    }
                 };
             }
             if (uri.scheme === 'file' && fs.existsSync(uri.fsPath)) {
@@ -268,7 +277,11 @@ export class TextureDocumentModel {
             width: def.defData.width,
             height: def.defData.height,
             resourceType: 'composite',
-            subPatches
+            subPatches,
+            grabOffset: {
+                x: def.texProps.OffsetX ?? 0,
+                y: def.texProps.OffsetY ?? 0
+            }
         };
     }
 

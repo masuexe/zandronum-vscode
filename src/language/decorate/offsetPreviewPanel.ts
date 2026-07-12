@@ -12,10 +12,17 @@ export interface OffsetPreviewFrameView {
     declaredOffsetY: number | null;
     offsetIsKeep: boolean;
     imageUri: string | null;
+    /** TEXTURES composite (patches already resolved to webview URIs). */
+    composite: {
+        width: number;
+        height: number;
+        subPatches: unknown[];
+    } | null;
     grabX: number;
     grabY: number;
     hasGrab: boolean;
     missingResource: boolean;
+    resolvedName: string | null;
 }
 
 export interface OffsetPreviewViewData {
@@ -62,7 +69,7 @@ export class OffsetPreviewPanel {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src ${this.panel.webview.cspSource}; script-src ${this.panel.webview.cspSource}; img-src ${this.panel.webview.cspSource} data: blob:;">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src ${this.panel.webview.cspSource}; script-src ${this.panel.webview.cspSource}; img-src ${this.panel.webview.cspSource} data: blob:; connect-src ${this.panel.webview.cspSource};">
     <link rel="stylesheet" href="${styleUri}">
 </head>
 <body>

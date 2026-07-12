@@ -1,15 +1,13 @@
 import * as vscode from 'vscode';
-import * as fs from 'fs';
-import { ResourceIndex, ResourceType } from '../textures/resourceIndex';
-import { readGrabOffset } from '../../tools/png/pngGrabChunk';
+import { ResourceIndex } from '../textures/resourceIndex';
 import {
     buildOffsetSequence,
     lineHasOffsetKeyword,
-    spriteResourceCandidates,
     OffsetSequence,
     OffsetStateFrame
 } from './offsetPreviewParser';
 import { OffsetPreviewPanel, OffsetPreviewFrameView, OffsetPreviewViewData } from './offsetPreviewPanel';
+import { resolveDecorateSprite } from './offsetSpriteResolver';
 
 class OffsetPreviewController {
     private panel: OffsetPreviewPanel | undefined;
@@ -154,40 +152,6 @@ class OffsetPreviewController {
         this.syncToLine(line);
     }
 
-    private resolveSprite(
-        sprite: string,
-        frameLetters: string
-    ): { uri: vscode.Uri; grabX: number; grabY: number; hasGrab: boolean } | null {
-        const candidates = spriteResourceCandidates(sprite, frameLetters);
-        for (const name of candidates) {
-            const meta = this.resourceIndex.resolve('sprite', name);
-            if (!meta) {
-                continue;
-            }
-            if (meta.type !== ResourceType.Png && meta.type !== ResourceType.Jpeg) {
-                continue;
-            }
-            let grabX = 0;
-            let grabY = 0;
-            let hasGrab = false;
-            if (meta.type === ResourceType.Png) {
-                try {
-                    const data = new Uint8Array(fs.readFileSync(meta.uri.fsPath));
-                    const grab = readGrabOffset(data);
-                    if (grab) {
-                        grabX = grab.x;
-                        grabY = grab.y;
-                        hasGrab = true;
-                    }
-                } catch {
-                    // ignore
-                }
-            }
-            return { uri: meta.uri, grabX, grabY, hasGrab };
-        }
-        return null;
-    }
-
     private async sendCurrentView(): Promise<void> {
         if (!this.panel || !this.sequence || !this.webviewReady) {
             return;
@@ -196,10 +160,12 @@ class OffsetPreviewController {
 
         const seqFrames = this.sequence.sequenceIndices.map(i => this.sequence!.frames[i]);
         const viewFrames: OffsetPreviewFrameView[] = seqFrames.map(f => {
-            const resolved = this.resolveSprite(f.sprite, f.frame);
-            const imageUri = resolved
-                ? this.panel!.webview.asWebviewUri(resolved.uri).toString()
-                : null;
+            const resolved = resolveDecorateSprite(
+                this.resourceIndex,
+                this.panel!.webview,
+                f.sprite,
+                f.frame
+            );
             return {
                 line: f.line,
                 sprite: f.sprite,
@@ -210,11 +176,19 @@ class OffsetPreviewController {
                 declaredOffsetX: f.declaredOffset?.x ?? null,
                 declaredOffsetY: f.declaredOffset?.y ?? null,
                 offsetIsKeep: f.offsetIsKeep,
-                imageUri,
+                imageUri: resolved?.imageUri ?? null,
+                composite: resolved?.resourceType === 'composite'
+                    ? {
+                        width: resolved.width,
+                        height: resolved.height,
+                        subPatches: resolved.subPatches ?? []
+                    }
+                    : null,
                 grabX: resolved?.grabX ?? 0,
                 grabY: resolved?.grabY ?? 0,
                 hasGrab: resolved?.hasGrab ?? false,
-                missingResource: !resolved
+                missingResource: !resolved,
+                resolvedName: resolved?.resolvedName ?? null
             };
         });
 

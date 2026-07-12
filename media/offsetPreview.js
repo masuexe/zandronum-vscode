@@ -17,9 +17,10 @@
     let background = 'dark';
     let viewData = null;
     let activeIndex = 0;
-    let img = null;
-    let imgUri = null;
-    let imgLoaded = false;
+
+    /** @type {{ key: string, bitmap: ImageBitmap|HTMLImageElement, width: number, height: number } | null} */
+    let spriteBitmap = null;
+    let spriteLoadToken = 0;
 
     const canvas = document.getElementById('canvas');
     const ctx = canvas.getContext('2d');
@@ -92,28 +93,130 @@
         return viewData.frames[i];
     }
 
-    function ensureImage(uri) {
-        if (!uri) {
-            img = null;
-            imgUri = null;
-            imgLoaded = false;
+    function frameCacheKey(frame) {
+        if (!frame || frame.missingResource) {
+            return null;
+        }
+        if (frame.imageUri) {
+            return 'img:' + frame.imageUri;
+        }
+        if (frame.composite) {
+            return 'cmp:' + (frame.resolvedName || '') + ':' + frame.composite.width + 'x' + frame.composite.height
+                + ':' + JSON.stringify(frame.composite.subPatches);
+        }
+        return null;
+    }
+
+    function loadImageElement(uri) {
+        return new Promise((resolve, reject) => {
+            const image = new Image();
+            image.onload = () => resolve(image);
+            image.onerror = () => reject(new Error('Failed to load ' + uri));
+            image.src = uri;
+        });
+    }
+
+    async function drawSubPatch(octx, sp) {
+        let bmp = null;
+        let closeBmp = false;
+
+        if (sp.children && sp.children.length > 0) {
+            const cw = Math.max(1, sp.width | 0);
+            const ch = Math.max(1, sp.height | 0);
+            const nested = new OffscreenCanvas(cw, ch);
+            const nctx = nested.getContext('2d');
+            for (const child of sp.children) {
+                await drawSubPatch(nctx, child);
+            }
+            bmp = nested.transferToImageBitmap();
+            closeBmp = true;
+        } else if (sp.uri) {
+            // Prefer <img> (allowed by img-src) — avoid fetch under strict CSP
+            bmp = await loadImageElement(sp.uri);
+            closeBmp = false;
+        } else {
             return;
         }
-        if (uri === imgUri && img) {
+
+        const pw = bmp.width || bmp.naturalWidth;
+        const ph = bmp.height || bmp.naturalHeight;
+        octx.save();
+        const rotDeg = sp.rotate ?? 0;
+        const swapped = Math.abs(rotDeg) % 180 === 90;
+        const cx = sp.x + (swapped ? ph : pw) / 2;
+        const cy = sp.y + (swapped ? pw : ph) / 2;
+        octx.translate(cx, cy);
+        if (rotDeg) { octx.rotate(rotDeg * Math.PI / 180); }
+        if (sp.flipX || sp.flipY) { octx.scale(sp.flipX ? -1 : 1, sp.flipY ? -1 : 1); }
+        octx.globalAlpha = sp.alpha ?? 1;
+        octx.drawImage(bmp, -pw / 2, -ph / 2, pw, ph);
+        octx.restore();
+        if (closeBmp && bmp.close) { bmp.close(); }
+    }
+
+    async function compositePatches(width, height, subPatches) {
+        if (!subPatches || subPatches.length === 0) {
+            throw new Error('TEXTURES definition has no drawable patches');
+        }
+        const offscreen = new OffscreenCanvas(Math.max(1, width), Math.max(1, height));
+        const octx = offscreen.getContext('2d');
+        for (const sp of subPatches) {
+            await drawSubPatch(octx, sp);
+        }
+        return offscreen.transferToImageBitmap();
+    }
+
+    async function ensureSprite(frame) {
+        const key = frameCacheKey(frame);
+        if (!key) {
+            spriteBitmap = null;
             return;
         }
-        imgUri = uri;
-        imgLoaded = false;
-        img = new Image();
-        img.onload = () => {
-            imgLoaded = true;
-            queueRender();
-        };
-        img.onerror = () => {
-            imgLoaded = false;
-            queueRender();
-        };
-        img.src = uri;
+        if (spriteBitmap && spriteBitmap.key === key) {
+            return;
+        }
+
+        const token = ++spriteLoadToken;
+        spriteBitmap = null;
+
+        try {
+            let bitmap = null;
+            let width = 0;
+            let height = 0;
+
+            if (frame.imageUri) {
+                const image = await loadImageElement(frame.imageUri);
+                bitmap = image;
+                width = image.naturalWidth;
+                height = image.naturalHeight;
+            } else if (frame.composite && frame.composite.subPatches && frame.composite.subPatches.length > 0) {
+                bitmap = await compositePatches(
+                    frame.composite.width,
+                    frame.composite.height,
+                    frame.composite.subPatches
+                );
+                width = frame.composite.width;
+                height = frame.composite.height;
+            } else if (frame.composite) {
+                throw new Error('TEXTURES ' + (frame.resolvedName || '') + ' has no patches');
+            }
+
+            if (token !== spriteLoadToken) {
+                if (bitmap && bitmap.close) { bitmap.close(); }
+                return;
+            }
+
+            if (bitmap) {
+                spriteBitmap = { key, bitmap, width, height };
+            }
+        } catch (err) {
+            console.warn('Offset preview sprite load failed', err);
+            if (token === spriteLoadToken) {
+                spriteBitmap = null;
+                status.textContent = String(err && err.message ? err.message : err);
+            }
+        }
+        queueRender();
     }
 
     function updateInspector(frame) {
@@ -133,7 +236,9 @@
         }
 
         el('info-label').textContent = viewData.label || '—';
-        el('info-sprite').textContent = frame.sprite;
+        el('info-sprite').textContent = frame.resolvedName
+            ? `${frame.sprite} ${frame.frame} → ${frame.resolvedName}`
+            : `${frame.sprite} ${frame.frame}`;
         el('info-frame').textContent = frame.frame;
         el('info-duration').textContent = String(frame.duration);
         el('info-line').textContent = String(frame.line + 1);
@@ -150,14 +255,16 @@
 
         el('info-grab').textContent = frame.hasGrab
             ? `(${frame.grabX}, ${frame.grabY})`
-            : '(none → 0, 0)';
+            : `(${frame.grabX}, ${frame.grabY})`;
 
         el('info-seq').textContent = `${activeIndex + 1} / ${viewData.frames.length}`;
 
         if (frame.missingResource) {
-            status.textContent = `Missing sprite resource for ${frame.sprite}${frame.frame}*`;
+            status.textContent = `Missing sprite for ${frame.sprite} ${frame.frame} (tried ${frame.sprite}${frame.frame}0, TEXTURES, …)`;
+        } else if (frame.composite) {
+            status.textContent = `TEXTURES ${frame.resolvedName}  Offset(${frame.offsetX}, ${frame.offsetY})`;
         } else {
-            status.textContent = `${frame.sprite} ${frame.frame}  Offset(${frame.offsetX}, ${frame.offsetY})`;
+            status.textContent = `${frame.resolvedName || (frame.sprite + frame.frame)}  Offset(${frame.offsetX}, ${frame.offsetY})`;
         }
     }
 
@@ -190,7 +297,6 @@
         ctx.strokeRect(origin.x, origin.y, w, h);
         ctx.setLineDash([]);
 
-        // Status bar guide at y=168
         const statusY = origin.y + HUD_STATUS_BAR_Y * zoom;
         ctx.strokeStyle = 'rgba(120, 160, 220, 0.55)';
         ctx.beginPath();
@@ -198,7 +304,6 @@
         ctx.lineTo(origin.x + w, statusY);
         ctx.stroke();
 
-        // Center vertical + weapon rest Y=32
         const cx = origin.x + CENTER_X * zoom;
         const restY = origin.y + 32 * zoom;
         ctx.strokeStyle = 'rgba(255, 200, 80, 0.45)';
@@ -209,7 +314,6 @@
         ctx.lineTo(origin.x + w, restY);
         ctx.stroke();
 
-        // Crosshair at (160, 32) — default weapon attach
         ctx.strokeStyle = 'rgba(255, 220, 100, 0.9)';
         ctx.beginPath();
         ctx.moveTo(cx - 6, restY);
@@ -221,21 +325,17 @@
     }
 
     function drawSprite(origin, frame) {
-        if (!img || !imgLoaded || frame.missingResource) {
+        if (!spriteBitmap || frame.missingResource) {
             return;
         }
-        // ZDoom weapon PSprite placement on 320×200:
-        //   screenX = 160 + offsetX - grabX
-        //   screenY = offsetY - grabY
         const drawX = origin.x + (CENTER_X + frame.offsetX - frame.grabX) * zoom;
         const drawY = origin.y + (frame.offsetY - frame.grabY) * zoom;
-        const w = img.naturalWidth * zoom;
-        const h = img.naturalHeight * zoom;
+        const w = spriteBitmap.width * zoom;
+        const h = spriteBitmap.height * zoom;
 
         ctx.imageSmoothingEnabled = false;
-        ctx.drawImage(img, drawX, drawY, w, h);
+        ctx.drawImage(spriteBitmap.bitmap, drawX, drawY, w, h);
 
-        // Origin marker on sprite (grab point → HUD attach)
         const ox = origin.x + (CENTER_X + frame.offsetX) * zoom;
         const oy = origin.y + frame.offsetY * zoom;
         ctx.strokeStyle = 'rgba(255, 80, 80, 0.95)';
@@ -287,7 +387,7 @@
         scrub.value = String(activeIndex);
 
         const frame = activeFrame();
-        ensureImage(frame?.imageUri || null);
+        void ensureSprite(frame);
         queueRender();
     }
 
@@ -298,7 +398,7 @@
         activeIndex = Math.max(0, Math.min(index, viewData.frames.length - 1));
         scrub.value = String(activeIndex);
         const frame = activeFrame();
-        ensureImage(frame?.imageUri || null);
+        void ensureSprite(frame);
         vscode.postMessage({ type: 'scrub', index: activeIndex });
         queueRender();
     }

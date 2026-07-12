@@ -8,8 +8,10 @@ export function registerEnterCompleteCommand(context: vscode.ExtensionContext) {
             const line = textEditor.document.lineAt(position.line);
             const lineText = line.text;
 
-            // 检查行是否以 sprite name frame tics 开头
-            const match = lineText.match(/^(\s*)(\w+)\s+([A-Za-z0-9])\s+(\d+)(\s+|$)/);
+            // sprite frame duration — fixed tics or random(min, max)
+            const match = lineText.match(
+                /^(\s*)(\w+)\s+([A-Za-z0-9])\s+(-?\d+|random\s*\(\s*-?\d+\s*,\s*-?\d+\s*\))(\s+|$)/i
+            );
 
             if (match) {
                 const indent = match[1];

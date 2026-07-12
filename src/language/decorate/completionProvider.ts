@@ -1,6 +1,5 @@
 import * as vscode from 'vscode';
 import { ActionData, PropertyData, FlagData, ExpressionData, InheritanceData, findActionCaseInsensitive } from '../../shared/dataLoader';
-import { buildSnippetString } from '../../shared/snippetBuilder';
 import { SymbolDatabase } from '../../base/symbolDatabase';
 import { SymbolKind } from '../../base/types';
 
@@ -260,7 +259,7 @@ function provideActionItems(actionsData: Record<string, ActionData>, prefix: str
         }
         const item = new vscode.CompletionItem(fn, vscode.CompletionItemKind.Function);
         item.detail = data.desc || "DECORATE Action Function";
-        item.insertText = buildSnippetString(fn, data.params as any);
+        item.insertText = new vscode.SnippetString(`${fn}($0)`);
         item.command = {
             title: 'Trigger Signature Help',
             command: 'editor.action.triggerParameterHints'

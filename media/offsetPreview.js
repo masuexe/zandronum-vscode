@@ -65,7 +65,8 @@
             render();
         }));
         toolbar.appendChild(createSeparator());
-        toolbar.appendChild(createButton('Fit', () => { fitZoom(); render(); }));
+        toolbar.appendChild(createButton('Fit HUD', () => { fitZoom(); render(); }));
+        toolbar.appendChild(createButton('Fit Sprite', () => { fitSprite(); render(); }));
         toolbar.appendChild(createButton('1:1', () => { zoom = 1; panX = 0; panY = 0; render(); }));
         toolbar.appendChild(createButton('2×', () => { zoom = 2; panX = 0; panY = 0; render(); }));
     }
@@ -79,6 +80,37 @@
         ));
         panX = 0;
         panY = 0;
+    }
+
+    /** Zoom/pan so the current weapon sprite stays visible in the viewport. */
+    function fitSprite() {
+        const frame = activeFrame();
+        if (!frame || !spriteBitmap) {
+            fitZoom();
+            return;
+        }
+        const w = spriteBitmap.width;
+        const h = spriteBitmap.height;
+        const left = CENTER_X + frame.offsetX - frame.grabX;
+        const top = frame.offsetY - frame.grabY;
+        const right = left + w;
+        const bottom = top + h;
+        const pad = 24;
+        const spanW = Math.max(HUD_W, right - left) + pad * 2;
+        const spanH = Math.max(HUD_H, bottom - top) + pad * 2;
+        const margin = 40;
+        zoom = Math.max(0.25, Math.min(
+            (canvasW - margin) / spanW,
+            (canvasH - margin) / spanH,
+            8
+        ));
+        // Center the HUD box, then shift so sprite midpoint is nearer viewport center
+        const hudOx = canvasW / 2 - (HUD_W * zoom) / 2;
+        const hudOy = canvasH / 2 - (HUD_H * zoom) / 2;
+        const spriteMidX = hudOx + ((left + right) / 2) * zoom;
+        const spriteMidY = hudOy + ((top + bottom) / 2) * zoom;
+        panX = canvasW / 2 - spriteMidX;
+        panY = canvasH / 2 - spriteMidY;
     }
 
     function hudOrigin() {
@@ -369,6 +401,32 @@
         return canvas.transferToImageBitmap();
     }
 
+    function releaseSpriteBitmap() {
+        if (spriteBitmap && spriteBitmap.bitmap && spriteBitmap.bitmap.close) {
+            try { spriteBitmap.bitmap.close(); } catch (_) { /* ignore */ }
+        }
+        spriteBitmap = null;
+    }
+
+    function namedTranslationOnly(raw) {
+        if (!raw) { return false; }
+        const hasNamed = /\b(Inverse|Gold|Red|Green|Ice|Desaturate)\b/i.test(String(raw));
+        if (!hasNamed) { return false; }
+        return !translationNeedsPlaypal(raw);
+    }
+
+    function collectTranslationWarnings(subPatches, out) {
+        if (!subPatches) { return; }
+        for (const sp of subPatches) {
+            if (sp.translation && namedTranslationOnly(sp.translation)) {
+                out.add('Named Translation (Gold/Inverse/…) not expanded — colors may be wrong');
+            }
+            if (sp.children) {
+                collectTranslationWarnings(sp.children, out);
+            }
+        }
+    }
+
     async function drawSubPatch(octx, sp) {
         let bmp = null;
         let closeBmp = false;
@@ -390,7 +448,7 @@
             return;
         }
 
-        if (sp.translation && playpal) {
+        if (sp.translation && playpal && translationNeedsPlaypal(sp.translation)) {
             const translated = await applyTranslationToBitmap(bmp, sp.translation);
             if (translated !== bmp) {
                 if (closeBmp && bmp.close) { bmp.close(); }
@@ -419,9 +477,7 @@
         if (!subPatches || subPatches.length === 0) {
             throw new Error('TEXTURES definition has no drawable patches');
         }
-        if (subPatchesHaveTranslation(subPatches) && !playpal) {
-            throw new Error('Translation needs PLAYPAL (set zandronum-vscode.playpalPath)');
-        }
+        // Soft PLAYPAL: compose untranslated if palette missing (Texture Editor style)
         const offscreen = new OffscreenCanvas(Math.max(1, width), Math.max(1, height));
         const octx = offscreen.getContext('2d');
         for (const sp of subPatches) {
@@ -433,7 +489,7 @@
     async function ensureSprite(frame) {
         const key = frameCacheKey(frame);
         if (!key) {
-            spriteBitmap = null;
+            releaseSpriteBitmap();
             return;
         }
         if (spriteBitmap && spriteBitmap.key === key) {
@@ -441,7 +497,7 @@
         }
 
         const token = ++spriteLoadToken;
-        spriteBitmap = null;
+        releaseSpriteBitmap();
 
         try {
             let bitmap = null;
@@ -476,14 +532,27 @@
         } catch (err) {
             console.warn('Offset preview sprite load failed', err);
             if (token === spriteLoadToken) {
-                spriteBitmap = null;
+                releaseSpriteBitmap();
                 status.textContent = String(err && err.message ? err.message : err);
             }
         }
         queueRender();
     }
 
+    function updatePlaypalHint() {
+        const node = el('info-playpal');
+        if (!node) { return; }
+        if (playpal) {
+            node.textContent = 'PLAYPAL: loaded (' + playpal.length + ' colors)';
+            node.classList.remove('warn');
+        } else {
+            node.textContent = 'PLAYPAL: missing — set zandronum-vscode.playpalPath or add a PLAYPAL lump (needed for Translation preview)';
+            node.classList.add('warn');
+        }
+    }
+
     function updateInspector(frame) {
+        const warnEl = el('info-warning');
         if (!frame) {
             el('info-label').textContent = viewData?.label || '—';
             el('info-sprite').textContent = '—';
@@ -492,10 +561,21 @@
             el('info-line').textContent = '—';
             el('info-ox').textContent = '—';
             el('info-oy').textContent = '—';
+            el('info-delta').textContent = '—';
             el('info-declared').textContent = '—';
             el('info-grab').textContent = '—';
             el('info-seq').textContent = '—';
-            status.textContent = 'No Offset frame selected';
+            if (warnEl) {
+                if (viewData && viewData.warning) {
+                    warnEl.hidden = false;
+                    warnEl.textContent = viewData.warning;
+                } else {
+                    warnEl.hidden = true;
+                    warnEl.textContent = '';
+                }
+            }
+            updatePlaypalHint();
+            status.textContent = viewData?.warning || 'No Offset frame selected';
             return;
         }
 
@@ -509,6 +589,14 @@
         el('info-ox').textContent = String(frame.offsetX);
         el('info-oy').textContent = String(frame.offsetY);
 
+        if (frame.deltaX !== null && frame.deltaY !== null) {
+            const sx = frame.deltaX > 0 ? '+' : '';
+            const sy = frame.deltaY > 0 ? '+' : '';
+            el('info-delta').textContent = `${sx}${frame.deltaX}, ${sy}${frame.deltaY}`;
+        } else {
+            el('info-delta').textContent = '(first)';
+        }
+
         if (frame.offsetIsKeep) {
             el('info-declared').textContent = 'Offset(0, 0) keep';
         } else if (frame.declaredOffsetX !== null && frame.declaredOffsetY !== null) {
@@ -519,16 +607,39 @@
 
         el('info-grab').textContent = frame.hasGrab
             ? `(${frame.grabX}, ${frame.grabY})`
-            : `(${frame.grabX}, ${frame.grabY})`;
+            : '(none → 0, 0)';
 
         el('info-seq').textContent = `${activeIndex + 1} / ${viewData.frames.length}`;
+
+        const warnParts = [];
+        if (viewData.warning) {
+            warnParts.push(viewData.warning);
+        }
+        if (frame.composite) {
+            const named = new Set();
+            collectTranslationWarnings(frame.composite.subPatches, named);
+            for (const w of named) { warnParts.push(w); }
+            if (subPatchesHaveTranslation(frame.composite.subPatches) && !playpal) {
+                warnParts.push('Translation present but PLAYPAL missing — showing untranslated colors');
+            }
+        }
+        if (warnEl) {
+            if (warnParts.length > 0) {
+                warnEl.hidden = false;
+                warnEl.textContent = warnParts.join(' · ');
+            } else {
+                warnEl.hidden = true;
+                warnEl.textContent = '';
+            }
+        }
+        updatePlaypalHint();
 
         if (frame.missingResource) {
             status.textContent = `Missing sprite for ${frame.sprite} ${frame.frame} (tried ${frame.sprite}${frame.frame}0, TEXTURES, …)`;
         } else if (frame.composite) {
             const hasTr = subPatchesHaveTranslation(frame.composite.subPatches);
             const trNote = hasTr
-                ? (playpal ? ' + Translation' : ' (Translation needs PLAYPAL)')
+                ? (playpal ? ' + Translation' : ' (untranslated — no PLAYPAL)')
                 : '';
             status.textContent = `TEXTURES ${frame.resolvedName}${trNote}  Offset(${frame.offsetX}, ${frame.offsetY})`;
         } else {
@@ -656,8 +767,7 @@
         scrub.value = String(activeIndex);
 
         const frame = activeFrame();
-        // Invalidate cache so Translation re-applies when PLAYPAL arrives
-        spriteBitmap = null;
+        releaseSpriteBitmap();
         void ensureSprite(frame);
         queueRender();
     }
@@ -687,6 +797,7 @@
     canvas.addEventListener('mousedown', (e) => {
         if (e.button === 1 || e.button === 0 && (e.ctrlKey || e.metaKey)) {
             panning = true;
+            canvas.style.cursor = 'grabbing';
             lastMouseX = e.clientX;
             lastMouseY = e.clientY;
             e.preventDefault();
@@ -703,7 +814,10 @@
         queueRender();
     });
     window.addEventListener('mouseup', () => {
-        panning = false;
+        if (panning) {
+            panning = false;
+            canvas.style.cursor = '';
+        }
     });
     canvas.addEventListener('wheel', (e) => {
         e.preventDefault();
@@ -742,17 +856,18 @@
             } else {
                 playpal = null;
             }
-            // Re-composite with Translation once PLAYPAL is available
-            spriteBitmap = null;
+            releaseSpriteBitmap();
             if (pendingViewData) {
                 viewData = pendingViewData;
                 void ensureSprite(activeFrame());
             }
+            updatePlaypalHint();
             queueRender();
         }
     });
 
     buildToolbar();
     fitZoom();
+    updatePlaypalHint();
     vscode.postMessage({ type: 'ready' });
 })();

@@ -96,8 +96,7 @@ export function resolveDecorateSprite(
                 height: resolved.height,
                 grabX: grab?.x ?? 0,
                 grabY: grab?.y ?? 0,
-                // TEXTURES Offset is the sprite origin (grAb equivalent)
-                hasGrab: true,
+                hasGrab: !!grab,
                 subPatches: patches,
                 resolvedName: name
             };

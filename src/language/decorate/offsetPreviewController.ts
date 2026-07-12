@@ -19,6 +19,10 @@ class OffsetPreviewController {
     private suppressSelectionSync = false;
     private webviewReady = false;
     private pendingLine: number | null = null;
+    private viewGeneration = 0;
+    /** Last opened/synced line — used to refresh after edits. */
+    private anchorLine = 0;
+    private openWarning: string | null = null;
 
     constructor(
         private document: vscode.TextDocument,
@@ -27,10 +31,14 @@ class OffsetPreviewController {
     ) {
         this.disposables.push(
             vscode.workspace.onDidChangeTextDocument(e => {
-                if (e.document.uri.toString() === this.document.uri.toString()) {
-                    this.document = e.document;
-                    this.refreshFromDocument();
+                if (e.document.uri.toString() !== this.document.uri.toString()) {
+                    return;
                 }
+                this.document = e.document;
+                if (!this.panel) {
+                    return;
+                }
+                this.refreshFromDocument();
             })
         );
 
@@ -39,17 +47,17 @@ class OffsetPreviewController {
                 if (this.suppressSelectionSync) {
                     return;
                 }
-                if (e.textEditor.document.uri.toString() !== this.document.uri.toString()) {
+                if (!this.panel) {
                     return;
                 }
-                if (!this.panel) {
+                if (e.textEditor.document.uri.toString() !== this.document.uri.toString()) {
                     return;
                 }
                 const line = e.selections[0]?.active.line;
                 if (line === undefined) {
                     return;
                 }
-                this.syncToLine(line);
+                this.syncToLine(line, false);
             })
         );
     }
@@ -59,9 +67,16 @@ class OffsetPreviewController {
     }
 
     open(line: number): void {
+        const lineText = line >= 0 && line < this.document.lineCount
+            ? this.document.lineAt(line).text
+            : '';
+        this.openWarning = lineHasOffsetKeyword(lineText)
+            ? null
+            : 'Cursor is not on an Offset(...) line — showing nearest state frame. Use CodeLens on an Offset line for a full scrub sequence.';
+
         if (this.panel) {
             this.panel.reveal();
-            this.syncToLine(line);
+            this.syncToLine(line, true);
             return;
         }
 
@@ -74,14 +89,17 @@ class OffsetPreviewController {
         this.panel.onDidDispose(() => {
             this.panel = undefined;
             this.webviewReady = false;
+            this.sequence = null;
         });
     }
 
     dispose(): void {
         this.panel?.dispose();
+        this.panel = undefined;
         for (const d of this.disposables) {
             d.dispose();
         }
+        this.disposables.length = 0;
     }
 
     private async onPanelMessage(msg: any): Promise<void> {
@@ -90,7 +108,7 @@ class OffsetPreviewController {
                 this.webviewReady = true;
                 await this.sendPalette();
                 if (this.pendingLine !== null) {
-                    this.syncToLine(this.pendingLine);
+                    this.syncToLine(this.pendingLine, true);
                     this.pendingLine = null;
                 } else {
                     await this.sendCurrentView();
@@ -99,6 +117,10 @@ class OffsetPreviewController {
             case 'scrub': {
                 const idx = typeof msg.index === 'number' ? msg.index : 0;
                 this.scrubIndex = idx;
+                const frame = this.activeFrame();
+                if (frame) {
+                    this.anchorLine = frame.line;
+                }
                 await this.sendCurrentView();
                 break;
             }
@@ -108,18 +130,21 @@ class OffsetPreviewController {
                     break;
                 }
                 this.suppressSelectionSync = true;
-                const editor = await vscode.window.showTextDocument(this.document, {
-                    viewColumn: vscode.ViewColumn.One,
-                    preserveFocus: false,
-                    selection: new vscode.Range(frame.line, 0, frame.line, 0)
-                });
-                editor.revealRange(
-                    new vscode.Range(frame.line, 0, frame.line, 0),
-                    vscode.TextEditorRevealType.InCenter
-                );
-                setTimeout(() => {
-                    this.suppressSelectionSync = false;
-                }, 100);
+                try {
+                    const editor = await vscode.window.showTextDocument(this.document, {
+                        viewColumn: vscode.ViewColumn.One,
+                        preserveFocus: false,
+                        selection: new vscode.Range(frame.line, 0, frame.line, 0)
+                    });
+                    editor.revealRange(
+                        new vscode.Range(frame.line, 0, frame.line, 0),
+                        vscode.TextEditorRevealType.InCenter
+                    );
+                } finally {
+                    setTimeout(() => {
+                        this.suppressSelectionSync = false;
+                    }, 200);
+                }
                 break;
             }
         }
@@ -134,24 +159,44 @@ class OffsetPreviewController {
         return this.sequence.frames[frameIdx] ?? null;
     }
 
-    private syncToLine(line: number): void {
+    /**
+     * @param fromOpen When true, keep openWarning; otherwise clear it on normal cursor sync.
+     */
+    private syncToLine(line: number, fromOpen: boolean): void {
+        this.anchorLine = line;
+        if (!fromOpen) {
+            this.openWarning = null;
+        }
+
         const seq = buildOffsetSequence(this.document.getText(), line);
         if (!seq) {
+            this.sequence = null;
+            this.scrubIndex = 0;
+            void this.sendEmptyView(
+                'No DECORATE state frame at this location. Place the cursor on a sprite state line inside a label.'
+            );
             return;
         }
+
         this.sequence = seq;
         const posInSeq = seq.sequenceIndices.indexOf(seq.activeFrameIndex);
         this.scrubIndex = posInSeq >= 0 ? posInSeq : 0;
+
+        const active = seq.frames[seq.activeFrameIndex];
+        if (active) {
+            this.anchorLine = active.line;
+        }
+
         void this.sendCurrentView();
     }
 
     private refreshFromDocument(): void {
-        if (!this.sequence) {
-            return;
-        }
-        const frame = this.activeFrame();
-        const line = frame?.line ?? this.sequence.frames[this.sequence.activeFrameIndex]?.line ?? 0;
-        this.syncToLine(line);
+        // Prefer the active editor cursor so inserts/deletes don't use a stale line index
+        const editor = vscode.window.visibleTextEditors.find(
+            e => e.document.uri.toString() === this.document.uri.toString()
+        );
+        const line = editor?.selection.active.line ?? this.anchorLine;
+        this.syncToLine(line, false);
     }
 
     private async sendPalette(): Promise<void> {
@@ -170,20 +215,53 @@ class OffsetPreviewController {
         this.panel.sendPalette(rgb);
     }
 
-    private async sendCurrentView(): Promise<void> {
-        if (!this.panel || !this.sequence || !this.webviewReady) {
+    private async sendEmptyView(warning: string): Promise<void> {
+        if (!this.panel || !this.webviewReady) {
             return;
         }
+        const generation = ++this.viewGeneration;
+        const data: OffsetPreviewViewData = {
+            label: '',
+            sequenceIndex: 0,
+            sequenceLength: 0,
+            frames: [],
+            activeIndex: 0,
+            warning,
+            playpalStatus: 'unknown'
+        };
+        if (generation !== this.viewGeneration) {
+            return;
+        }
+        this.panel.setTitle('Offset Preview');
+        this.panel.sendView(data);
+    }
+
+    private async sendCurrentView(): Promise<void> {
+        if (!this.panel || !this.webviewReady) {
+            return;
+        }
+        if (!this.sequence) {
+            await this.sendEmptyView(
+                this.openWarning ?? 'No Offset sequence available.'
+            );
+            return;
+        }
+
+        const generation = ++this.viewGeneration;
         await this.resourceIndex.whenReady();
+        if (generation !== this.viewGeneration || !this.panel || !this.sequence) {
+            return;
+        }
 
         const seqFrames = this.sequence.sequenceIndices.map(i => this.sequence!.frames[i]);
-        const viewFrames: OffsetPreviewFrameView[] = seqFrames.map(f => {
+        const viewFrames: OffsetPreviewFrameView[] = seqFrames.map((f, i) => {
             const resolved = resolveDecorateSprite(
                 this.resourceIndex,
                 this.panel!.webview,
                 f.sprite,
                 f.frame
             );
+            const prev = i > 0 ? seqFrames[i - 1] : null;
             return {
                 line: f.line,
                 sprite: f.sprite,
@@ -191,9 +269,12 @@ class OffsetPreviewController {
                 duration: f.duration,
                 offsetX: f.effectiveOffset.x,
                 offsetY: f.effectiveOffset.y,
+                deltaX: prev ? f.effectiveOffset.x - prev.effectiveOffset.x : null,
+                deltaY: prev ? f.effectiveOffset.y - prev.effectiveOffset.y : null,
                 declaredOffsetX: f.declaredOffset?.x ?? null,
                 declaredOffsetY: f.declaredOffset?.y ?? null,
                 offsetIsKeep: f.offsetIsKeep,
+                hasOffsetKeyword: f.hasOffsetKeyword,
                 imageUri: resolved?.imageUri ?? null,
                 composite: resolved?.resourceType === 'composite'
                     ? {
@@ -210,12 +291,23 @@ class OffsetPreviewController {
             };
         });
 
+        if (generation !== this.viewGeneration || !this.panel) {
+            return;
+        }
+
+        let warning = this.openWarning;
+        if (!warning && viewFrames.length === 1 && !viewFrames[0].hasOffsetKeyword) {
+            warning = 'Single non-Offset frame in scrubber. Move to an Offset(...) line (or use CodeLens) for a consecutive Offset sequence.';
+        }
+
         const data: OffsetPreviewViewData = {
             label: this.sequence.label,
             sequenceIndex: this.scrubIndex,
             sequenceLength: viewFrames.length,
             frames: viewFrames,
-            activeIndex: Math.max(0, Math.min(this.scrubIndex, viewFrames.length - 1))
+            activeIndex: Math.max(0, Math.min(this.scrubIndex, viewFrames.length - 1)),
+            warning,
+            playpalStatus: 'unknown'
         };
 
         this.panel.setTitle(`Offset: ${this.sequence.label}`);
@@ -225,8 +317,18 @@ class OffsetPreviewController {
 
 export class OffsetPreviewRegistry {
     private readonly controllers = new Map<string, OffsetPreviewController>();
+    private readonly closeDisposable: vscode.Disposable;
 
-    constructor(private readonly resourceIndex: ResourceIndex) {}
+    constructor(private readonly resourceIndex: ResourceIndex) {
+        this.closeDisposable = vscode.workspace.onDidCloseTextDocument(doc => {
+            const key = doc.uri.toString();
+            const controller = this.controllers.get(key);
+            if (controller) {
+                controller.dispose();
+                this.controllers.delete(key);
+            }
+        });
+    }
 
     open(
         document: vscode.TextDocument,
@@ -243,6 +345,7 @@ export class OffsetPreviewRegistry {
     }
 
     dispose(): void {
+        this.closeDisposable.dispose();
         for (const c of this.controllers.values()) {
             c.dispose();
         }

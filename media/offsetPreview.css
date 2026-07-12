@@ -55,7 +55,16 @@ html, body {
     display: block;
     width: 100%;
     height: 100%;
-    cursor: grab;
+    cursor: default;
+}
+
+#canvas.panning {
+    cursor: grabbing;
+}
+
+.hint.warn {
+    color: var(--vscode-editorWarning-foreground, #cca700);
+    opacity: 1;
 }
 
 #inspector {

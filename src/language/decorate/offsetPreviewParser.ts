@@ -260,7 +260,7 @@ export function spriteResourceCandidates(sprite: string, frameLetters: string): 
         // Rare: no rotation digit
         add(`${spr}${fr}0`);
     }
-    add(spr);
+    // Do not fall back to bare sprite name — that can match an unrelated TEXTURES/PNG entry.
 
     return candidates;
 }

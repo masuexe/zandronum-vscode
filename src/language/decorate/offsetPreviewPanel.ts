@@ -8,9 +8,13 @@ export interface OffsetPreviewFrameView {
     duration: string;
     offsetX: number;
     offsetY: number;
+    /** Delta vs previous frame in the scrub sequence (null for first). */
+    deltaX: number | null;
+    deltaY: number | null;
     declaredOffsetX: number | null;
     declaredOffsetY: number | null;
     offsetIsKeep: boolean;
+    hasOffsetKeyword: boolean;
     imageUri: string | null;
     /** TEXTURES composite (patches already resolved to webview URIs). */
     composite: {
@@ -32,6 +36,10 @@ export interface OffsetPreviewViewData {
     frames: OffsetPreviewFrameView[];
     /** Index into `frames` (sequence-local). */
     activeIndex: number;
+    /** User-facing warning (wrong-line open, missing context, etc.). */
+    warning?: string | null;
+    /** PLAYPAL load hint for the webview status strip. */
+    playpalStatus?: 'unknown' | 'loaded' | 'missing';
 }
 
 export class OffsetPreviewPanel {
@@ -91,9 +99,12 @@ export class OffsetPreviewPanel {
                 <div class="section-title">Offset</div>
                 <div class="field-row"><label>Effective X</label><span id="info-ox">—</span></div>
                 <div class="field-row"><label>Effective Y</label><span id="info-oy">—</span></div>
+                <div class="field-row"><label>Δ vs prev</label><span id="info-delta">—</span></div>
                 <div class="field-row"><label>Declared</label><span id="info-declared">—</span></div>
-                <div class="field-row"><label>grAb</label><span id="info-grab">—</span></div>
-                <div class="hint">Edit Offset(x, y) in DECORATE. Offset(0, 0) keeps the previous offset.</div>
+                <div class="field-row"><label>grAb / origin</label><span id="info-grab">—</span></div>
+                <div class="hint">Preview only — edit Offset(x, y) in DECORATE (live refresh). Offset(0, 0) keeps the previous offset. Pan: Ctrl+drag. Wheel: zoom.</div>
+                <div class="hint" id="info-playpal">PLAYPAL: —</div>
+                <div class="hint warn" id="info-warning" hidden></div>
             </div>
             <div class="section">
                 <div class="section-title">Sequence</div>

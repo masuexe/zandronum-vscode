@@ -50,6 +50,17 @@ export interface TexturePropUpdate {
 
 const VALID_ROTATIONS = new Set([0, 90, 180, 270]);
 
+/** TEXTURES Offset property → sprite origin (grAb equivalent). Null if Offset was not set. */
+function texturesOriginOffset(texProps: { OffsetX?: number; OffsetY?: number }): { x: number; y: number } | null {
+    if (texProps.OffsetX === undefined && texProps.OffsetY === undefined) {
+        return null;
+    }
+    return {
+        x: texProps.OffsetX ?? 0,
+        y: texProps.OffsetY ?? 0
+    };
+}
+
 export class TextureDocumentModel {
     readonly document: vscode.TextDocument;
     private readonly parser: TexturesParser;
@@ -164,10 +175,7 @@ export class TextureDocumentModel {
                 resourceType: 'composite',
                 subPatches,
                 // TEXTURES Offset on Sprite/Graphic defs acts like PNG grAb
-                grabOffset: {
-                    x: localDef.texProps.OffsetX ?? 0,
-                    y: localDef.texProps.OffsetY ?? 0
-                }
+                grabOffset: texturesOriginOffset(localDef.texProps)
             };
         }
 
@@ -221,10 +229,7 @@ export class TextureDocumentModel {
                     height: def.defData.height,
                     resourceType: 'composite',
                     subPatches,
-                    grabOffset: {
-                        x: def.texProps.OffsetX ?? 0,
-                        y: def.texProps.OffsetY ?? 0
-                    }
+                    grabOffset: texturesOriginOffset(def.texProps)
                 };
             }
             if (uri.scheme === 'file' && fs.existsSync(uri.fsPath)) {
@@ -278,10 +283,7 @@ export class TextureDocumentModel {
             height: def.defData.height,
             resourceType: 'composite',
             subPatches,
-            grabOffset: {
-                x: def.texProps.OffsetX ?? 0,
-                y: def.texProps.OffsetY ?? 0
-            }
+            grabOffset: texturesOriginOffset(def.texProps)
         };
     }
 

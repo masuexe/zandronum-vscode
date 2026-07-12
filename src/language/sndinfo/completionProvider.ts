@@ -24,7 +24,7 @@ function provideCommandItems(
 
         const item = new vscode.CompletionItem(name, vscode.CompletionItemKind.Function);
         item.detail = data.desc || 'SNDINFO command';
-        item.insertText = name.substring(1);
+        item.insertText = name;
         item.sortText = '0_' + name;
 
         items.push(item);

@@ -87,7 +87,8 @@
         if (!raw) { return ranges; }
         const quoted = [...String(raw).matchAll(/"([^"]*)"/g)].map(m => m[1]);
         const parts = quoted.length > 0 ? quoted : [String(raw)];
-        const rangeRe = /(\d+)\s*:\s*(\d+)\s*=\s*(\d+)\s*:\s*(\d+)/g;
+        // Palette index remap only (not =[rgb] or =%[rgb])
+        const rangeRe = /(\d+)\s*:\s*(\d+)\s*=\s*(?![%[])(\d+)\s*:\s*(\d+)/g;
         for (const part of parts) {
             if (/^(Inverse|Gold|Red|Green|Ice|Desaturate)\b/i.test(part.trim())) { continue; }
             rangeRe.lastIndex = 0;
@@ -98,6 +99,33 @@
                     fromEnd: clampByte(parseInt(m[2], 10)),
                     toStart: clampByte(parseInt(m[3], 10)),
                     toEnd: clampByte(parseInt(m[4], 10))
+                });
+            }
+        }
+        return ranges;
+    }
+
+    /** Direct color: fromStart:fromEnd=[r1,g1,b1]:[r2,g2,b2] (integers 0–255). */
+    function parseDirectRanges(raw) {
+        const ranges = [];
+        if (!raw) { return ranges; }
+        const quoted = [...String(raw).matchAll(/"([^"]*)"/g)].map(m => m[1]);
+        const parts = quoted.length > 0 ? quoted : [String(raw)];
+        // Negative lookahead: not desat (=%[)
+        const directRe = /(\d+)\s*:\s*(\d+)\s*=\s*(?!%)\[\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*\]\s*:\s*\[\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*\]/g;
+        for (const part of parts) {
+            directRe.lastIndex = 0;
+            let m;
+            while ((m = directRe.exec(part)) !== null) {
+                ranges.push({
+                    fromStart: clampByte(parseInt(m[1], 10)),
+                    fromEnd: clampByte(parseInt(m[2], 10)),
+                    r1: clampByte(parseInt(m[3], 10)),
+                    g1: clampByte(parseInt(m[4], 10)),
+                    b1: clampByte(parseInt(m[5], 10)),
+                    r2: clampByte(parseInt(m[6], 10)),
+                    g2: clampByte(parseInt(m[7], 10)),
+                    b2: clampByte(parseInt(m[8], 10))
                 });
             }
         }
@@ -159,32 +187,70 @@
         return table;
     }
 
-    /**
-     * Build per-index RGB overrides for desaturated translations (ZDoom AddDesaturation).
-     * Returns Float32Array length 256*3, or null if no desat ranges. NaN = no override.
-     */
-    function buildDesatRgbTable(desatRanges) {
-        if (!playpal || !desatRanges || desatRanges.length === 0) { return null; }
-        const out = new Float32Array(256 * 3);
-        out.fill(NaN);
-        for (const r of desatRanges) {
-            let r1 = r.r1, g1 = r.g1, b1 = r.b1;
-            let r2 = r.r2, g2 = r.g2, b2 = r.b2;
+    /** ZDoom AddColorRange: lerp RGB by palette index across [start,end]. Writes into out (NaN = unset). */
+    function applyDirectToRgbTable(out, ranges) {
+        for (const r of ranges) {
             let start = r.fromStart, end = r.fromEnd;
+            let rr = r.r1, gg = r.g1, bb = r.b1;
+            let rs, gs, bs;
             if (start > end) {
                 const ts = start; start = end; end = ts;
-                const tr = r1; r1 = r2; r2 = tr;
-                const tg = g1; g1 = g2; g2 = tg;
-                const tb = b1; b1 = b2; b2 = tb;
+                rr = r.r2; gg = r.g2; bb = r.b2;
+                rs = r.r1 - r.r2; gs = r.g1 - r.g2; bs = r.b1 - r.b2;
+            } else {
+                rs = r.r2 - r.r1; gs = r.g2 - r.g1; bs = r.b2 - r.b1;
             }
-            r2 -= r1; g2 -= g1; b2 -= b1;
-            r1 *= 255; g1 *= 255; b1 *= 255;
-            for (let c = start; c <= end; c++) {
-                const pal = playpal[c];
-                const intensity = (pal.r * 77 + pal.g * 143 + pal.b * 37) / 256.0;
-                out[c * 3] = Math.min(255, (r1 + intensity * r2) | 0);
-                out[c * 3 + 1] = Math.min(255, (g1 + intensity * g2) | 0);
-                out[c * 3 + 2] = Math.min(255, (b1 + intensity * b2) | 0);
+            if (start === end) {
+                out[start * 3] = rr;
+                out[start * 3 + 1] = gg;
+                out[start * 3 + 2] = bb;
+            } else {
+                rs /= (end - start);
+                gs /= (end - start);
+                bs /= (end - start);
+                for (let i = start; i <= end; i++) {
+                    out[i * 3] = rr | 0;
+                    out[i * 3 + 1] = gg | 0;
+                    out[i * 3 + 2] = bb | 0;
+                    rr += rs; gg += gs; bb += bs;
+                }
+            }
+        }
+    }
+
+    /**
+     * Build per-index RGB overrides for direct + desaturated translations.
+     * Returns Float32Array length 256*3, or null if empty. NaN = no override.
+     */
+    function buildRgbOverrideTable(directRanges, desatRanges) {
+        const hasDirect = directRanges && directRanges.length > 0;
+        const hasDesat = desatRanges && desatRanges.length > 0;
+        if (!playpal || (!hasDirect && !hasDesat)) { return null; }
+        const out = new Float32Array(256 * 3);
+        out.fill(NaN);
+        if (hasDirect) {
+            applyDirectToRgbTable(out, directRanges);
+        }
+        if (hasDesat) {
+            for (const r of desatRanges) {
+                let r1 = r.r1, g1 = r.g1, b1 = r.b1;
+                let r2 = r.r2, g2 = r.g2, b2 = r.b2;
+                let start = r.fromStart, end = r.fromEnd;
+                if (start > end) {
+                    const ts = start; start = end; end = ts;
+                    const tr = r1; r1 = r2; r2 = tr;
+                    const tg = g1; g1 = g2; g2 = tg;
+                    const tb = b1; b1 = b2; b2 = tb;
+                }
+                r2 -= r1; g2 -= g1; b2 -= b1;
+                r1 *= 255; g1 *= 255; b1 *= 255;
+                for (let c = start; c <= end; c++) {
+                    const pal = playpal[c];
+                    const intensity = (pal.r * 77 + pal.g * 143 + pal.b * 37) / 256.0;
+                    out[c * 3] = Math.min(255, (r1 + intensity * r2) | 0);
+                    out[c * 3 + 1] = Math.min(255, (g1 + intensity * g2) | 0);
+                    out[c * 3 + 2] = Math.min(255, (b1 + intensity * b2) | 0);
+                }
             }
         }
         return out;
@@ -215,10 +281,11 @@
     async function applyTranslationToBitmap(bitmap, translation) {
         if (!translation || !playpal || !bitmap) { return bitmap; }
         const ranges = parseTranslationRanges(translation);
+        const directRanges = parseDirectRanges(translation);
         const desatRanges = parseDesatRanges(translation);
-        if (ranges.length === 0 && desatRanges.length === 0) { return bitmap; }
+        if (ranges.length === 0 && directRanges.length === 0 && desatRanges.length === 0) { return bitmap; }
         const table = ranges.length > 0 ? buildRemapTable(ranges) : null;
-        const desatRgb = buildDesatRgbTable(desatRanges);
+        const rgbOverride = buildRgbOverrideTable(directRanges, desatRanges);
 
         const w = bitmap.width;
         const h = bitmap.height;
@@ -230,10 +297,10 @@
         for (let i = 0; i < data.length; i += 4) {
             if (data[i + 3] === 0) { continue; }
             const srcIdx = nearestPaletteIndex(data[i], data[i + 1], data[i + 2]);
-            if (desatRgb && !Number.isNaN(desatRgb[srcIdx * 3])) {
-                data[i] = desatRgb[srcIdx * 3];
-                data[i + 1] = desatRgb[srcIdx * 3 + 1];
-                data[i + 2] = desatRgb[srcIdx * 3 + 2];
+            if (rgbOverride && !Number.isNaN(rgbOverride[srcIdx * 3])) {
+                data[i] = rgbOverride[srcIdx * 3];
+                data[i + 1] = rgbOverride[srcIdx * 3 + 1];
+                data[i + 2] = rgbOverride[srcIdx * 3 + 2];
                 continue;
             }
             if (!table) { continue; }

@@ -3,9 +3,10 @@
     const vscode = acquireVsCodeApi();
 
     // Weapon HUD: 320×200 screen. Weapon layer Offset(x,y) with default (0, 32).
-    // Sprite screen position (ZDoom PSprite-style):
-    //   drawX = 160 + offsetX - grabX
-    //   drawY = offsetY - grabY
+    // Sprite screen position (ZDoom / Zandronum PSprite — matches r_things / r_playersprite):
+    //   tx = (sx - 160) - leftOffset;  x1 = 160 + tx  →  drawX = sx - leftOffset
+    //   drawY = sy - topOffset
+    // (Do NOT use 160+sx-leftOffset; that double-counts the center and shifts wide sprites right.)
     const HUD_W = 320;
     const HUD_H = 200;
     const HUD_STATUS_BAR_Y = 168;
@@ -105,7 +106,7 @@
         }
         const w = spriteBitmap.width;
         const h = spriteBitmap.height;
-        const left = CENTER_X + frame.offsetX - frame.grabX;
+        const left = frame.offsetX - frame.grabX;
         const top = frame.offsetY - frame.grabY;
         const right = left + w;
         const bottom = top + h;
@@ -180,7 +181,7 @@
             return null;
         }
         return {
-            x: origin.x + (CENTER_X + frame.offsetX - frame.grabX) * zoom,
+            x: origin.x + (frame.offsetX - frame.grabX) * zoom,
             y: origin.y + (frame.offsetY - frame.grabY) * zoom,
             w: spriteBitmap.width * zoom,
             h: spriteBitmap.height * zoom
@@ -915,7 +916,8 @@
         ctx.imageSmoothingEnabled = false;
         ctx.drawImage(spriteBitmap.bitmap, r.x, r.y, r.w, r.h);
 
-        const ox = origin.x + (CENTER_X + frame.offsetX) * zoom;
+        // PSprite origin on HUD (engine: at (sx, sy))
+        const ox = origin.x + frame.offsetX * zoom;
         const oy = origin.y + frame.offsetY * zoom;
         ctx.strokeStyle = 'rgba(255, 80, 80, 0.95)';
         ctx.lineWidth = 1;

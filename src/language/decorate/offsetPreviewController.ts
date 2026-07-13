@@ -9,7 +9,7 @@ import {
 } from './offsetPreviewParser';
 import { OffsetPreviewPanel, OffsetPreviewFrameView, OffsetPreviewViewData } from './offsetPreviewPanel';
 import { resolveDecorateSprite } from './offsetSpriteResolver';
-import { applyOffsetEdit } from './offsetPreviewWriter';
+import { applyOffsetEdit, encodeOffsetWriteback } from './offsetPreviewWriter';
 
 class OffsetPreviewController {
     private panel: OffsetPreviewPanel | undefined;
@@ -26,6 +26,8 @@ class OffsetPreviewController {
     private openWarning: string | null = null;
     /** True while applying a drag/nudge Offset edit so refresh stays on the scrubbed frame. */
     private applyingOffsetEdit = false;
+    /** True while the webview is actively dragging the sprite (freeze selection sync). */
+    private webviewDragging = false;
 
     constructor(
         private document: vscode.TextDocument,
@@ -47,7 +49,7 @@ class OffsetPreviewController {
 
         this.disposables.push(
             vscode.window.onDidChangeTextEditorSelection(e => {
-                if (this.suppressSelectionSync) {
+                if (this.suppressSelectionSync || this.webviewDragging) {
                     return;
                 }
                 if (!this.panel) {
@@ -154,6 +156,21 @@ class OffsetPreviewController {
                 await this.handleSetOffset(msg.x, msg.y);
                 break;
             }
+            case 'dragStart': {
+                this.webviewDragging = true;
+                this.suppressSelectionSync = true;
+                break;
+            }
+            case 'dragEnd': {
+                this.webviewDragging = false;
+                // Keep suppress briefly so mouse-up selection changes do not steal scrub
+                setTimeout(() => {
+                    if (!this.webviewDragging && !this.applyingOffsetEdit) {
+                        this.suppressSelectionSync = false;
+                    }
+                }, 150);
+                break;
+            }
         }
     }
 
@@ -182,9 +199,21 @@ class OffsetPreviewController {
             return;
         }
 
-        const xi = Math.round(x);
-        const yi = Math.round(y);
-        if (frame.declaredOffset && frame.declaredOffset.x === xi && frame.declaredOffset.y === yi) {
+        const encoded = encodeOffsetWriteback(
+            frame.declaredOffset,
+            frame.keepX,
+            frame.keepY,
+            x,
+            y,
+            frame.effectiveOffset.x,
+            frame.effectiveOffset.y
+        );
+
+        if (
+            frame.declaredOffset &&
+            frame.declaredOffset.x === encoded.x &&
+            frame.declaredOffset.y === encoded.y
+        ) {
             return;
         }
 
@@ -192,7 +221,7 @@ class OffsetPreviewController {
         this.suppressSelectionSync = true;
         this.anchorLine = frame.line;
         try {
-            const ok = await applyOffsetEdit(this.document, frame.line, xi, yi);
+            const ok = await applyOffsetEdit(this.document, frame.line, encoded.x, encoded.y);
             if (!ok) {
                 this.panel?.postMessage({
                     type: 'editResult',
@@ -203,7 +232,9 @@ class OffsetPreviewController {
         } finally {
             setTimeout(() => {
                 this.applyingOffsetEdit = false;
-                this.suppressSelectionSync = false;
+                if (!this.webviewDragging) {
+                    this.suppressSelectionSync = false;
+                }
             }, 150);
         }
     }
@@ -249,8 +280,8 @@ class OffsetPreviewController {
     }
 
     private refreshFromDocument(): void {
-        // During drag/nudge write-back, stay on the scrubbed frame line
-        if (this.applyingOffsetEdit) {
+        // During drag/nudge write-back or live drag, stay on the scrubbed frame line
+        if (this.applyingOffsetEdit || this.webviewDragging) {
             this.syncToLine(this.anchorLine, false);
             return;
         }
@@ -336,7 +367,10 @@ class OffsetPreviewController {
                 deltaY: prev ? f.effectiveOffset.y - prev.effectiveOffset.y : null,
                 declaredOffsetX: f.declaredOffset?.x ?? null,
                 declaredOffsetY: f.declaredOffset?.y ?? null,
+                keepX: f.keepX,
+                keepY: f.keepY,
                 offsetIsKeep: f.offsetIsKeep,
+                resetsToWeaponReady: f.resetsToWeaponReady,
                 hasOffsetKeyword: f.hasOffsetKeyword,
                 imageUri: resolved?.imageUri ?? null,
                 composite: resolved?.resourceType === 'composite'
@@ -359,8 +393,8 @@ class OffsetPreviewController {
         }
 
         let warning = this.openWarning;
-        if (!warning && viewFrames.length === 1 && !viewFrames[0].hasOffsetKeyword) {
-            warning = 'Single non-Offset frame in scrubber. Move to an Offset(...) line (or use CodeLens) for a consecutive Offset sequence.';
+        if (!warning && viewFrames.length === 1 && !viewFrames[0].hasOffsetKeyword && !viewFrames[0].resetsToWeaponReady) {
+            warning = 'Single non-Offset frame in scrubber. Move to an Offset(...) / A_WeaponReady line (or use CodeLens) for a consecutive sequence.';
         }
 
         const data: OffsetPreviewViewData = {

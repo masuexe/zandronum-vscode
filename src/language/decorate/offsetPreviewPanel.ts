@@ -13,7 +13,10 @@ export interface OffsetPreviewFrameView {
     deltaY: number | null;
     declaredOffsetX: number | null;
     declaredOffsetY: number | null;
+    keepX: boolean;
+    keepY: boolean;
     offsetIsKeep: boolean;
+    resetsToWeaponReady: boolean;
     hasOffsetKeyword: boolean;
     imageUri: string | null;
     /** TEXTURES composite (patches already resolved to webview URIs). */
@@ -102,7 +105,7 @@ export class OffsetPreviewPanel {
                 <div class="field-row"><label>Δ vs prev</label><span id="info-delta">—</span></div>
                 <div class="field-row"><label>Declared</label><span id="info-declared">—</span></div>
                 <div class="field-row"><label>grAb / origin</label><span id="info-grab">—</span></div>
-                <div class="hint">Drag sprite to edit Offset(x, y) (Undo works). Offset(0, 0) keep-lines are not draggable. Pan: Ctrl+drag. Arrows: ±1 (Shift ±8). Wheel: zoom.</div>
+                <div class="hint">Drag sprite to edit Offset (Undo works). Offset(0,0) keep-both is not draggable; Offset(0,y)/Offset(x,0) keep one axis. A_WeaponReady resets to (0,32). Play uses duration tics. Pan: Ctrl+drag. Arrows: ±1 (Shift ±8). Space: play/pause.</div>
                 <div class="hint" id="info-playpal">PLAYPAL: —</div>
                 <div class="hint warn" id="info-warning" hidden></div>
             </div>
@@ -111,6 +114,7 @@ export class OffsetPreviewPanel {
                 <div class="field-row"><label>Index</label><span id="info-seq">—</span></div>
                 <input type="range" id="scrub" min="0" max="0" value="0" step="1">
                 <div class="scrub-actions">
+                    <button type="button" id="btn-play" title="Play / Pause (Space)">▶ Play</button>
                     <button type="button" id="btn-prev" title="Previous">◀</button>
                     <button type="button" id="btn-next" title="Next">▶</button>
                     <button type="button" id="btn-reveal" title="Reveal in editor">Reveal</button>

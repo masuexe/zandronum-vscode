@@ -47,6 +47,11 @@
     let canvasH = 0;
     let renderQueued = false;
 
+    /** Autoplay (35 tics/sec). */
+    let playing = false;
+    let playTimer = null;
+    const TIC_MS = 1000 / 35;
+
     function el(id) {
         return document.getElementById(id);
     }
@@ -199,6 +204,7 @@
     }
 
     function commitOffset(x, y) {
+        stopPlayback();
         vscode.postMessage({ type: 'setOffset', x: Math.round(x), y: Math.round(y) });
     }
 
@@ -210,12 +216,101 @@
             }
             return;
         }
+        stopPlayback();
         const base = displayFrame() || frame;
         const x = Math.round(base.offsetX + dx);
         const y = Math.round(base.offsetY + dy);
         optimisticOffset = { x, y };
         commitOffset(x, y);
         queueRender();
+    }
+
+    function parseDurationTics(duration) {
+        if (duration == null) {
+            return 1;
+        }
+        const s = String(duration).trim();
+        const n = parseInt(s, 10);
+        if (/^-?\d+$/.test(s) && Number.isFinite(n)) {
+            return n <= 0 ? 1 : n;
+        }
+        const rm = /^random\s*\(\s*(-?\d+)\s*,\s*(-?\d+)\s*\)$/i.exec(s);
+        if (rm) {
+            const a = parseInt(rm[1], 10);
+            const b = parseInt(rm[2], 10);
+            const mid = Math.floor((a + b) / 2);
+            return mid <= 0 ? 1 : mid;
+        }
+        return 1;
+    }
+
+    function updatePlayButton() {
+        const btn = el('btn-play');
+        if (!btn) {
+            return;
+        }
+        btn.textContent = playing ? '❚❚ Pause' : '▶ Play';
+        btn.title = playing ? 'Pause (Space)' : 'Play (Space)';
+    }
+
+    function stopPlayback() {
+        playing = false;
+        if (playTimer !== null) {
+            clearTimeout(playTimer);
+            playTimer = null;
+        }
+        updatePlayButton();
+    }
+
+    function scheduleNextFrame() {
+        if (!playing) {
+            return;
+        }
+        if (playTimer !== null) {
+            clearTimeout(playTimer);
+            playTimer = null;
+        }
+        const frame = activeFrame();
+        if (!frame || !viewData || !viewData.frames.length) {
+            stopPlayback();
+            return;
+        }
+        const tics = parseDurationTics(frame.duration);
+        playTimer = setTimeout(() => {
+            playTimer = null;
+            if (!playing || !viewData || !viewData.frames.length) {
+                return;
+            }
+            const next = (activeIndex + 1) % viewData.frames.length;
+            // Prefetch next-next while advancing
+            const prefetchIdx = (next + 1) % viewData.frames.length;
+            void ensureSprite(viewData.frames[prefetchIdx]);
+            setScrub(next, true);
+            scheduleNextFrame();
+        }, tics * TIC_MS);
+    }
+
+    function startPlayback() {
+        if (!viewData || !viewData.frames || viewData.frames.length < 1) {
+            return;
+        }
+        if (draggingOffset) {
+            return;
+        }
+        playing = true;
+        updatePlayButton();
+        // Prefetch upcoming frame
+        const prefetchIdx = (activeIndex + 1) % viewData.frames.length;
+        void ensureSprite(viewData.frames[prefetchIdx]);
+        scheduleNextFrame();
+    }
+
+    function togglePlayback() {
+        if (playing) {
+            stopPlayback();
+        } else {
+            startPlayback();
+        }
     }
 
     function frameCacheKey(frame) {
@@ -688,11 +783,22 @@
         }
 
         if (frame.offsetIsKeep) {
-            el('info-declared').textContent = 'Offset(0, 0) keep';
+            el('info-declared').textContent = 'Offset(0, 0) keep-both';
         } else if (frame.declaredOffsetX !== null && frame.declaredOffsetY !== null) {
-            el('info-declared').textContent = `Offset(${frame.declaredOffsetX}, ${frame.declaredOffsetY})`;
+            let label = `Offset(${frame.declaredOffsetX}, ${frame.declaredOffsetY})`;
+            if (frame.keepX && !frame.keepY) {
+                label += ' keep-X';
+            } else if (frame.keepY && !frame.keepX) {
+                label += ' keep-Y';
+            }
+            el('info-declared').textContent = label;
         } else {
             el('info-declared').textContent = '(inherited)';
+        }
+
+        if (frame.resetsToWeaponReady) {
+            const base = el('info-declared').textContent;
+            el('info-declared').textContent = (base === '(inherited)' ? '' : base + ' · ') + 'A_WeaponReady → (0, 32)';
         }
 
         el('info-grab').textContent = frame.hasGrab
@@ -724,6 +830,10 @@
         }
         updatePlaypalHint();
 
+        let statusExtra = '';
+        if (frame.resetsToWeaponReady) {
+            statusExtra = '  [A_WeaponReady → (0,32)]';
+        }
         if (frame.missingResource) {
             status.textContent = `Missing sprite for ${frame.sprite} ${frame.frame} (tried ${frame.sprite}${frame.frame}0, TEXTURES, …)`;
         } else if (frame.composite) {
@@ -731,9 +841,9 @@
             const trNote = hasTr
                 ? (playpal ? ' + Translation' : ' (untranslated — no PLAYPAL)')
                 : '';
-            status.textContent = `TEXTURES ${frame.resolvedName}${trNote}  Offset(${frame.offsetX}, ${frame.offsetY})`;
+            status.textContent = `TEXTURES ${frame.resolvedName}${trNote}  Offset(${frame.offsetX}, ${frame.offsetY})${statusExtra}`;
         } else {
-            status.textContent = `${frame.resolvedName || (frame.sprite + frame.frame)}  Offset(${frame.offsetX}, ${frame.offsetY})`;
+            status.textContent = `${frame.resolvedName || (frame.sprite + frame.frame)}  Offset(${frame.offsetX}, ${frame.offsetY})${statusExtra}`;
         }
     }
 
@@ -861,15 +971,26 @@
         scrub.max = String(Math.max(0, (data.frames?.length || 1) - 1));
         scrub.value = String(activeIndex);
 
+        if (!data.frames || data.frames.length === 0) {
+            stopPlayback();
+        }
+
         const frame = activeFrame();
         releaseSpriteBitmap();
         void ensureSprite(frame);
         queueRender();
     }
 
-    function setScrub(index) {
+    /**
+     * @param {number} index
+     * @param {boolean} [fromPlayback] When true, do not stop playback.
+     */
+    function setScrub(index, fromPlayback) {
         if (draggingOffset) {
             return;
+        }
+        if (!fromPlayback) {
+            stopPlayback();
         }
         if (!viewData || !viewData.frames.length) {
             return;
@@ -886,6 +1007,7 @@
         setScrub(parseInt(scrub.value, 10) || 0);
     });
 
+    el('btn-play').addEventListener('click', () => togglePlayback());
     el('btn-prev').addEventListener('click', () => setScrub(activeIndex - 1));
     el('btn-next').addEventListener('click', () => setScrub(activeIndex + 1));
     el('btn-reveal').addEventListener('click', () => {
@@ -917,6 +1039,7 @@
             return;
         }
 
+        stopPlayback();
         optimisticOffset = null;
         draggingOffset = true;
         dragStartMouseX = e.clientX;
@@ -926,6 +1049,7 @@
         dragCurrentOffsetX = frame.offsetX;
         dragCurrentOffsetY = frame.offsetY;
         canvas.classList.add('dragging');
+        vscode.postMessage({ type: 'dragStart' });
         e.preventDefault();
     });
 
@@ -970,6 +1094,7 @@
             const changed = x !== dragStartOffsetX || y !== dragStartOffsetY;
             draggingOffset = false;
             canvas.classList.remove('dragging');
+            vscode.postMessage({ type: 'dragEnd' });
             if (changed) {
                 // Hold live position until document update arrives (avoids snap-back).
                 optimisticOffset = { x, y };
@@ -991,6 +1116,11 @@
     }, { passive: false });
 
     window.addEventListener('keydown', (e) => {
+        if (e.key === ' ' || e.code === 'Space') {
+            e.preventDefault();
+            togglePlayback();
+            return;
+        }
         if (e.key === 'ArrowLeft' || e.key === 'ArrowRight' || e.key === 'ArrowUp' || e.key === 'ArrowDown') {
             const step = e.shiftKey ? 8 : 1;
             let dx = 0;
@@ -1043,5 +1173,6 @@
     buildToolbar();
     fitZoom();
     updatePlaypalHint();
+    updatePlayButton();
     vscode.postMessage({ type: 'ready' });
 })();

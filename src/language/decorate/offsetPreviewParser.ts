@@ -3,7 +3,9 @@
  *
  * Offset semantics (ZDoom / Zandronum):
  * - Default weapon layer position is (0, 32)
- * - Offset(0, 0) means "keep previous", not reset
+ * - Offset(0, 0) means "keep previous" on both axes
+ * - Offset(0, y) / Offset(x, 0): zero on one axis keeps that axis; non-zero applies
+ * - A_WeaponReady resets the weapon layer to (0, 32)
  * - Positive X = right; larger Y = lower on screen
  */
 
@@ -22,9 +24,15 @@ export interface OffsetStateFrame {
     duration: string;
     /** Raw Offset(x,y) if present on this line. */
     declaredOffset: WeaponOffset | null;
-    /** True when Offset(0, 0) — keep previous. */
+    /** Declared X is 0 → keep previous effective X (true for Offset(0,0) and Offset(0,y)). */
+    keepX: boolean;
+    /** Declared Y is 0 → keep previous effective Y (true for Offset(0,0) and Offset(x,0)). */
+    keepY: boolean;
+    /** True when Offset(0, 0) — keep both axes. */
     offsetIsKeep: boolean;
-    /** Effective HUD offset after applying keep-previous rules. */
+    /** Line calls A_WeaponReady (resets to (0, 32) after Offset apply). */
+    resetsToWeaponReady: boolean;
+    /** Effective HUD offset after keep / WeaponReady rules. */
     effectiveOffset: WeaponOffset;
     hasOffsetKeyword: boolean;
     rest: string;
@@ -35,7 +43,7 @@ export interface OffsetSequence {
     labelLine: number;
     /** All sprite state frames in the label (with effective offsets). */
     frames: OffsetStateFrame[];
-    /** Indices into `frames` for the consecutive Offset run containing `activeFrameIndex`. */
+    /** Indices into `frames` for the consecutive offset-affecting run containing `activeFrameIndex`. */
     sequenceIndices: number[];
     /** Index into `frames` for the active line. */
     activeFrameIndex: number;
@@ -45,6 +53,7 @@ const LABEL_RE = /^\s*([A-Za-z_][A-Za-z0-9_]*)\s*:/;
 const STATE_LINE_RE =
     /^\s*([A-Za-z0-9_\[\]\\]{1,8})\s+([A-Za-z0-9\[\]\\]+)\s+(-?\d+|[Rr][Aa][Nn][Dd][Oo][Mm]\s*\([^)]*\))\s*(.*)$/;
 const OFFSET_RE = /\bOffset\s*\(\s*(-?\d+)\s*,\s*(-?\d+)\s*\)/i;
+const WEAPON_READY_RE = /\bA_WeaponReady\b/i;
 const FLOW_RE = /^\s*(goto|loop|stop|wait|fail)\b/i;
 const STATES_RE = /^\s*States\b/i;
 const ACTOR_RE = /^\s*Actor\b/i;
@@ -54,8 +63,8 @@ function stripComment(line: string): string {
     return idx >= 0 ? line.substring(0, idx) : line;
 }
 
-function isKeepOffset(o: WeaponOffset): boolean {
-    return o.x === 0 && o.y === 0;
+function isOffsetAffecting(f: Pick<OffsetStateFrame, 'hasOffsetKeyword' | 'resetsToWeaponReady'>): boolean {
+    return f.hasOffsetKeyword || f.resetsToWeaponReady;
 }
 
 /**
@@ -74,7 +83,6 @@ export function findLabelAtLine(lines: string[], lineNumber: number): { name: st
         if (m) {
             return { name: m[1], line: i };
         }
-        // Stop if we left the actor braces awkwardly — still OK to keep scanning
     }
     return null;
 }
@@ -112,13 +120,17 @@ export function parseLabelFrames(lines: string[], labelLine: number): OffsetStat
         const rest = m[4] ?? '';
         const om = OFFSET_RE.exec(rest);
         let declaredOffset: WeaponOffset | null = null;
+        let keepX = false;
+        let keepY = false;
         let offsetIsKeep = false;
         let hasOffsetKeyword = false;
 
         if (om) {
             hasOffsetKeyword = true;
             declaredOffset = { x: parseInt(om[1], 10), y: parseInt(om[2], 10) };
-            offsetIsKeep = isKeepOffset(declaredOffset);
+            keepX = declaredOffset.x === 0;
+            keepY = declaredOffset.y === 0;
+            offsetIsKeep = keepX && keepY;
         }
 
         raw.push({
@@ -127,7 +139,10 @@ export function parseLabelFrames(lines: string[], labelLine: number): OffsetStat
             frame,
             duration,
             declaredOffset,
+            keepX,
+            keepY,
             offsetIsKeep,
+            resetsToWeaponReady: WEAPON_READY_RE.test(rest),
             hasOffsetKeyword,
             rest
         });
@@ -140,10 +155,24 @@ export function parseLabelFrames(lines: string[], labelLine: number): OffsetStat
 
     const frames: OffsetStateFrame[] = [];
     for (const f of raw) {
-        if (f.hasOffsetKeyword && f.declaredOffset && !f.offsetIsKeep) {
-            current = { ...f.declaredOffset };
+        if (f.hasOffsetKeyword && f.declaredOffset) {
+            const d = f.declaredOffset;
+            if (!(d.x === 0 && d.y === 0)) {
+                if (d.x !== 0) {
+                    current.x = d.x;
+                }
+                if (d.y !== 0) {
+                    current.y = d.y;
+                }
+            }
+            // Offset(0,0): keep both axes (no change to current)
         }
-        // Offset(0,0) or no Offset → keep `current`
+        if (f.resetsToWeaponReady) {
+            current = {
+                x: WEAPON_OFFSET_DEFAULT_X,
+                y: WEAPON_OFFSET_DEFAULT_Y
+            };
+        }
         frames.push({
             ...f,
             effectiveOffset: { ...current }
@@ -154,22 +183,22 @@ export function parseLabelFrames(lines: string[], labelLine: number): OffsetStat
 }
 
 /**
- * Maximal consecutive run of frames with Offset keyword that includes `frameIndex`.
+ * Maximal consecutive run of Offset and/or A_WeaponReady frames that includes `frameIndex`.
  */
 export function consecutiveOffsetRun(frames: OffsetStateFrame[], frameIndex: number): number[] {
     if (frameIndex < 0 || frameIndex >= frames.length) {
         return [];
     }
-    if (!frames[frameIndex].hasOffsetKeyword) {
+    if (!isOffsetAffecting(frames[frameIndex])) {
         return [frameIndex];
     }
 
     let start = frameIndex;
-    while (start > 0 && frames[start - 1].hasOffsetKeyword) {
+    while (start > 0 && isOffsetAffecting(frames[start - 1])) {
         start--;
     }
     let end = frameIndex;
-    while (end + 1 < frames.length && frames[end + 1].hasOffsetKeyword) {
+    while (end + 1 < frames.length && isOffsetAffecting(frames[end + 1])) {
         end++;
     }
 

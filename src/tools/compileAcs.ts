@@ -414,11 +414,12 @@ export async function compileCurrentAndBuild() {
     }
 }
 
-export async function compileAllAndBuild() {
+/** @returns true when all ACS libraries compiled and PK3 build succeeded */
+export async function compileAllAndBuild(): Promise<boolean> {
     const workspaceRoot = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath;
     if (!workspaceRoot) {
         vscode.window.showErrorMessage('No workspace folder opened.');
-        return;
+        return false;
     }
 
     diagnosticCollection.clear();
@@ -426,7 +427,7 @@ export async function compileAllAndBuild() {
     const loadAcsEntries = parseLoadAcs(workspaceRoot);
     if (loadAcsEntries.length === 0) {
         vscode.window.showWarningMessage(`No LOADACS entries found in ${getPk3Root()}/loadacs.`);
-        return;
+        return false;
     }
 
     const acsFiles = findLibraryAcsFiles(workspaceRoot);
@@ -434,7 +435,7 @@ export async function compileAllAndBuild() {
         vscode.window.showWarningMessage(
             `No matching ACS library files found in ${getPk3Root()}/acs_source/ for LOADACS entries.`
         );
-        return;
+        return false;
     }
 
     let totalCompiled = 0;
@@ -452,11 +453,10 @@ export async function compileAllAndBuild() {
     if (totalErrors > 0) {
         const msg = `Compiled ${totalCompiled}, ${totalErrors} failed. Fix errors before building.`;
         vscode.window.showErrorMessage(msg);
-        return;
+        return false;
     }
 
     vscode.window.showInformationMessage(`All ${totalCompiled} compiled successfully. Building PK3...`);
 
-    // All compiled, now build PK3
-    await buildPK3();
+    return await buildPK3();
 }

@@ -1,7 +1,8 @@
 import * as vscode from 'vscode';
-import * as path from 'path';
 import { resolveVariables, parseArgs } from '../shared/variables';
 import { getBuildOutputPath } from '../shared/buildOutput';
+import { buildPK3 } from '../tools/build';
+import { compileAllAndBuild } from '../tools/compileAcs';
 
 interface RunConfig {
     name: string;
@@ -81,4 +82,18 @@ export async function runZandronum(): Promise<void> {
     );
     const config = configs.find(c => c.name === picked);
     if (config) { runConfig(config); }
+}
+
+/** Build PK3, then launch Zandronum only if the build succeeded. */
+export async function buildAndRunZandronum(): Promise<void> {
+    const ok = await buildPK3();
+    if (!ok) { return; }
+    await runZandronum();
+}
+
+/** Compile all ACS libraries, build PK3, then launch only on full success. */
+export async function compileAllBuildAndRunZandronum(): Promise<void> {
+    const ok = await compileAllAndBuild();
+    if (!ok) { return; }
+    await runZandronum();
 }

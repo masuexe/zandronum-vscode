@@ -34,12 +34,18 @@ import { registerOffsetPreview } from './language/decorate/offsetPreviewControll
 import { PackageManager } from './base/packageManager';
 import { SymbolDatabase } from './base/symbolDatabase';
 import { ActorSymbolProvider } from './base/actorProvider';
-import { runZandronum } from './run/launchProvider';
+import {
+    runZandronum,
+    buildAndRunZandronum,
+    compileAllBuildAndRunZandronum,
+} from './run/launchProvider';
 
 
 export function activate(context: vscode.ExtensionContext) {
     context.subscriptions.push(
-        vscode.commands.registerCommand('zandronum.run', runZandronum)
+        vscode.commands.registerCommand('zandronum.run', runZandronum),
+        vscode.commands.registerCommand('zandronum.buildAndRun', buildAndRunZandronum),
+        vscode.commands.registerCommand('acs.compileAllBuildAndRun', compileAllBuildAndRunZandronum),
     );
 
     const packageManager = new PackageManager(context.extensionPath);

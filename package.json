@@ -225,6 +225,14 @@
         "title": "Run Zandronum"
       },
       {
+        "command": "zandronum.buildAndRun",
+        "title": "Build and Run Zandronum"
+      },
+      {
+        "command": "acs.compileAllBuildAndRun",
+        "title": "Compile All ACS, Build and Run"
+      },
+      {
         "command": "textures.openEditor",
         "title": "Open Texture Editor"
       },

@@ -7,13 +7,14 @@ import { getPk3Root } from '../shared/pk3Root';
 let currentGen = 0;
 let isBuilding = false;
 
-export async function buildPK3(): Promise<void> {
+/** @returns true when a fresh PK3 was written successfully */
+export async function buildPK3(): Promise<boolean> {
     const gen = ++currentGen;
 
     const workspaceFolders = vscode.workspace.workspaceFolders;
     if (!workspaceFolders) {
         vscode.window.showErrorMessage('Build failed: no workspace opened');
-        return;
+        return false;
     }
 
     const pk3Root = getPk3Root();
@@ -24,11 +25,11 @@ export async function buildPK3(): Promise<void> {
         vscode.window.showErrorMessage(
             `Build failed: ${pk3Root}/ directory not found in workspace root`
         );
-        return;
+        return false;
     }
 
     if (isBuilding) {
-        return;
+        return false;
     }
 
     isBuilding = true;
@@ -36,11 +37,13 @@ export async function buildPK3(): Promise<void> {
 
     try {
         await doBuild(srcPath, outPath);
-        if (gen !== currentGen) { return; }
+        if (gen !== currentGen) { return false; }
         vscode.window.showInformationMessage('Build complete: out/build.pk3');
+        return true;
     } catch (err) {
         const message = err instanceof Error ? err.message : String(err);
         vscode.window.showErrorMessage(`Build failed: ${message}`);
+        return false;
     } finally {
         isBuilding = false;
         if (gen !== currentGen) {

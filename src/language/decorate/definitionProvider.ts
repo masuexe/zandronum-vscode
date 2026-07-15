@@ -5,6 +5,7 @@ import { extractScriptRef, findScriptDefinition } from '../acs/definitionProvide
 import { SymbolDatabase } from '../../base/symbolDatabase';
 import { SymbolKind, ActorSymbol } from '../../base/types';
 import { locationFromSymbol } from '../../base/symbolLocation';
+import { getPk3Root } from '../../shared/pk3Root';
 
 export function registerDefinitionProvider(
     context: vscode.ExtensionContext,
@@ -146,8 +147,18 @@ async function findActorInWorkspace(
     excludeUri: vscode.Uri,
     token: vscode.CancellationToken
 ): Promise<vscode.Location | undefined> {
-    const decFiles = await vscode.workspace.findFiles('**/*.{dec,decorate}');
-    const namedFiles = await vscode.workspace.findFiles('**/DECORATE');
+    const workspaceFolders = vscode.workspace.workspaceFolders;
+    if (!workspaceFolders) {
+        return undefined;
+    }
+
+    const pk3RootUri = vscode.Uri.joinPath(workspaceFolders[0].uri, getPk3Root());
+    const decFiles = await vscode.workspace.findFiles(
+        new vscode.RelativePattern(pk3RootUri, '**/*.{dec,decorate}')
+    );
+    const namedFiles = await vscode.workspace.findFiles(
+        new vscode.RelativePattern(pk3RootUri, '**/DECORATE{,.txt}')
+    );
     const allUris = [...decFiles, ...namedFiles];
 
     const re = new RegExp(`\\bactor\\s+(${escapeRegex(className)})\\b`, 'i');

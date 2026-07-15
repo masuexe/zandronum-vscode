@@ -210,17 +210,7 @@ export async function findScriptDefinition(
     const isNumbered = /^\d+$/.test(scriptRef);
 
     const srcDir = vscode.Uri.joinPath(workspaceRoot, getPk3Root());
-    const srcResult = await searchForScript(srcDir, scriptRef, isNumbered, token);
-    if (srcResult) {
-        return srcResult;
-    }
-
-    const wsResult = await searchForScript(workspaceRoot, scriptRef, isNumbered, token);
-    if (wsResult) {
-        return wsResult;
-    }
-
-    return undefined;
+    return searchForScript(srcDir, scriptRef, isNumbered, token);
 }
 
 async function searchForScript(

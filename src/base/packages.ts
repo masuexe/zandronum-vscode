@@ -3,6 +3,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { unzip } from 'fflate';
 import { PackageEntry, PackageSource } from './types';
+import { getPk3Root } from '../shared/pk3Root';
 
 /** Normalize archive/entry paths to forward-slash, no leading slash. */
 export function normalizeEntryPath(entryPath: string): string {
@@ -83,9 +84,12 @@ export class WorkspacePackage implements PackageSource {
         const workspaceFolders = vscode.workspace.workspaceFolders;
         if (!workspaceFolders) { return []; }
 
+        // Only index the PK3 content root — not the rest of the workspace.
+        // Base resources are loaded separately via PackageManager.
+        const pk3RootUri = vscode.Uri.joinPath(workspaceFolders[0].uri, getPk3Root());
         const pattern = new vscode.RelativePattern(
-            workspaceFolders[0],
-            `**/{DECORATE,*.dec,*.decorate,*.acs,SCRIPTS,SNDINFO,TEXTURES,LANGUAGE,*.lm}`
+            pk3RootUri,
+            `**/{DECORATE,DECORATE.txt,*.dec,*.decorate,*.acs,SCRIPTS,SNDINFO,TEXTURES,LANGUAGE,*.lm}`
         );
         const uris = await vscode.workspace.findFiles(pattern);
         return uris.map(uri => ({

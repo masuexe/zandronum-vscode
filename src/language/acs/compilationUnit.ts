@@ -258,7 +258,16 @@ export class LibraryIndex {
     private async discover(): Promise<void> {
         if (this.roots !== null) return;
 
-        const files = await vscode.workspace.findFiles('**/*.acs');
+        const folder = vscode.workspace.workspaceFolders?.[0];
+        if (!folder) {
+            this.roots = [];
+            return;
+        }
+
+        const pk3RootUri = vscode.Uri.joinPath(folder.uri, getPk3Root());
+        const files = await vscode.workspace.findFiles(
+            new vscode.RelativePattern(pk3RootUri, '**/*.acs')
+        );
         this.roots = [];
 
         for (const uri of files) {

@@ -4,6 +4,7 @@ import { loadPlaypal } from '../../tools/playpalReader';
 import {
     buildOffsetSequence,
     lineHasOffsetKeyword,
+    offsetCodeLensLines,
     OffsetSequence,
     OffsetStateFrame
 } from './offsetPreviewParser';
@@ -479,17 +480,17 @@ export function registerOffsetPreview(
             {
                 provideCodeLenses(document) {
                     const lenses: vscode.CodeLens[] = [];
-                    for (let i = 0; i < document.lineCount; i++) {
-                        const text = document.lineAt(i).text;
-                        if (!lineHasOffsetKeyword(text)) {
+                    for (const line of offsetCodeLensLines(document.getText())) {
+                        if (line < 0 || line >= document.lineCount) {
                             continue;
                         }
-                        const range = new vscode.Range(i, 0, i, text.length);
+                        const text = document.lineAt(line).text;
+                        const range = new vscode.Range(line, 0, line, text.length);
                         lenses.push(
                             new vscode.CodeLens(range, {
                                 title: 'Preview Offset',
                                 command: 'decorate.previewOffsetAtLine',
-                                arguments: [document.uri, i]
+                                arguments: [document.uri, line]
                             })
                         );
                     }

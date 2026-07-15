@@ -262,6 +262,46 @@ export function lineHasOffsetKeyword(lineText: string): boolean {
 }
 
 /**
+ * Document line numbers that should show a Preview Offset CodeLens:
+ * the first Offset(...) line in each consecutive offset-affecting run
+ * (Offset and/or A_WeaponReady), per state label.
+ */
+export function offsetCodeLensLines(documentText: string): number[] {
+    const lines = documentText.split(/\r?\n/);
+    const result: number[] = [];
+    const seen = new Set<number>();
+
+    for (let i = 0; i < lines.length; i++) {
+        const text = stripComment(lines[i]);
+        if (!LABEL_RE.test(text)) {
+            continue;
+        }
+
+        const frames = parseLabelFrames(lines, i);
+        let fi = 0;
+        while (fi < frames.length) {
+            if (!isOffsetAffecting(frames[fi])) {
+                fi++;
+                continue;
+            }
+            let firstOffsetLine: number | null = null;
+            while (fi < frames.length && isOffsetAffecting(frames[fi])) {
+                if (frames[fi].hasOffsetKeyword && firstOffsetLine === null) {
+                    firstOffsetLine = frames[fi].line;
+                }
+                fi++;
+            }
+            if (firstOffsetLine !== null && !seen.has(firstOffsetLine)) {
+                seen.add(firstOffsetLine);
+                result.push(firstOffsetLine);
+            }
+        }
+    }
+
+    return result;
+}
+
+/**
  * Candidate Doom sprite lump basenames for sprite+frame (rotation variants).
  * ResourceIndex keys are lowercased basenames without extension.
  */

@@ -1,6 +1,11 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
+import * as fs from 'fs';
 import { getPk3Root } from '../../shared/pk3Root';
+import { SymbolDatabase } from '../../base/symbolDatabase';
+import { SymbolKind } from '../../base/types';
+import { locationFromSymbol } from '../../base/symbolLocation';
+import { getBaseAcsIncludeDirs } from '../../base/baseAcsIncludes';
 
 const SCRIPT_EXEC_FUNCTIONS = new Set([
     'acs_execute', 'acs_executealways',
@@ -53,7 +58,40 @@ async function resolveIncludeLocation(
         return new vscode.Location(wsFiles[0], new vscode.Position(0, 0));
     }
 
+    // Base-resource extract / folder include dirs
+    for (const dir of getBaseAcsIncludeDirs()) {
+        const found = findInDir(dir, includePath) ?? findInDir(dir, includeBase);
+        if (found) {
+            return new vscode.Location(vscode.Uri.file(found), new vscode.Position(0, 0));
+        }
+    }
+
     return undefined;
+}
+
+function findInDir(dir: string, targetName: string): string | null {
+    const direct = path.resolve(dir, targetName);
+    if (fs.existsSync(direct)) { return direct; }
+    return findFileRecursiveLocal(dir, path.basename(targetName));
+}
+
+function findFileRecursiveLocal(dir: string, targetName: string): string | null {
+    let entries: fs.Dirent[];
+    try { entries = fs.readdirSync(dir, { withFileTypes: true }); }
+    catch { return null; }
+
+    const targetLower = targetName.toLowerCase();
+    for (const entry of entries) {
+        if (entry.name.startsWith('.') || entry.name === 'node_modules') continue;
+        const full = path.join(dir, entry.name);
+        if (entry.isDirectory()) {
+            const found = findFileRecursiveLocal(full, targetName);
+            if (found) return found;
+        } else if (entry.isFile() && entry.name.toLowerCase() === targetLower) {
+            return full;
+        }
+    }
+    return null;
 }
 
 export function extractScriptRef(
@@ -238,7 +276,10 @@ function escapeRegex(str: string): string {
     return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
-export function registerAcsDefinitionProvider(context: vscode.ExtensionContext) {
+export function registerAcsDefinitionProvider(
+    context: vscode.ExtensionContext,
+    symbolDb?: SymbolDatabase
+) {
     const provider = vscode.languages.registerDefinitionProvider(
         [{ language: 'acs' }],
         {
@@ -257,6 +298,21 @@ export function registerAcsDefinitionProvider(context: vscode.ExtensionContext) 
                 const scriptRef = extractScriptRef(lineText, position.character);
                 if (scriptRef !== null) {
                     return findScriptDefinition(scriptRef, document.uri, token);
+                }
+
+                if (symbolDb) {
+                    const wordRange = document.getWordRangeAtPosition(position, /[A-Za-z0-9_]+/);
+                    if (wordRange) {
+                        const word = document.getText(wordRange);
+                        const fn = symbolDb.query(SymbolKind.AcsFunction, word);
+                        if (fn && fn.packageId !== 'builtin') {
+                            return locationFromSymbol(fn);
+                        }
+                        const c = symbolDb.query(SymbolKind.AcsConstant, word);
+                        if (c && c.packageId !== 'builtin') {
+                            return locationFromSymbol(c);
+                        }
+                    }
                 }
 
                 return undefined;

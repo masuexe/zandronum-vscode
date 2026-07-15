@@ -3,6 +3,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { scanLineDeclarations } from './scanner';
 import { getPk3Root } from '../../shared/pk3Root';
+import { getBaseAcsIncludeDirs } from '../../base/baseAcsIncludes';
 
 export type SymbolKind = 'variable' | 'constant' | 'function' | 'script';
 
@@ -233,6 +234,14 @@ export function defaultIncludeResolver(
 
     const wsFound = findFileRecursive(workspaceRoot, includeName);
     if (wsFound) return wsFound;
+
+    // Base resource ACS dirs (folders + extracted PK3)
+    for (const dir of getBaseAcsIncludeDirs()) {
+        const direct = path.resolve(dir, includeName);
+        if (fs.existsSync(direct)) return direct;
+        const found = findFileRecursive(dir, path.basename(includeName));
+        if (found) return found;
+    }
 
     return null;
 }

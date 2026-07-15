@@ -239,6 +239,14 @@
       {
         "command": "decorate.previewOffset",
         "title": "Preview Weapon Offset"
+      },
+      {
+        "command": "zandronum.addBaseResource",
+        "title": "Add Base Resource"
+      },
+      {
+        "command": "zandronum.refreshBaseResources",
+        "title": "Refresh Base Resources"
       }
     ],
     "configuration": {
@@ -268,7 +276,7 @@
           "type": "array",
           "items": { "type": "string" },
           "default": [],
-          "description": "Base resource paths for external symbol resolution. Can be PK3 files (.pk3/.zip), directories, or absolute paths. Later entries override earlier ones from a symbol perspective."
+          "description": "Read-only base resource paths loaded before the workspace for symbol resolution. Supports .pk3/.zip archives and directories. Later entries override earlier ones; workspace always wins. .wad and .pk7 are not supported yet."
         },
         "zandronum-vscode.accOutputDir": {
           "type": "string",

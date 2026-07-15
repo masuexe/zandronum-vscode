@@ -6,21 +6,27 @@ import { CompletionSource, SourceDependencies } from './completionSources/Source
 import { LanguageKeywordSource } from './completionSources/languageKeywordSource';
 import { BuiltinApiSource } from './completionSources/builtinApiSource';
 import { WorkspaceSymbolSource } from './completionSources/workspaceSymbolSource';
+import { BaseAcsSymbolSource } from './completionSources/baseAcsSymbolSource';
 import { createFunctionRepository } from './repositories/functionRepository';
 import { createConstantRepository } from './repositories/constantRepository';
-
-const sources: CompletionSource[] = [
-    new LanguageKeywordSource(),
-    new BuiltinApiSource(),
-    new WorkspaceSymbolSource(),
-];
+import { SymbolDatabase } from '../../../base/symbolDatabase';
 
 export function registerAcsCompletionProvider(
     context: vscode.ExtensionContext,
     functionsData: Record<string, ActionData>,
     constantsData: Record<string, AcsConstantData>,
     workspaceIndex: WorkspaceIndex,
+    symbolDb?: SymbolDatabase,
 ) {
+    const sources: CompletionSource[] = [
+        new LanguageKeywordSource(),
+        new BuiltinApiSource(),
+        new WorkspaceSymbolSource(),
+    ];
+    if (symbolDb) {
+        sources.push(new BaseAcsSymbolSource(symbolDb));
+    }
+
     const deps: SourceDependencies = {
         functionRepository: createFunctionRepository(functionsData),
         constantRepository: createConstantRepository(constantsData),

@@ -4,6 +4,7 @@ import * as path from 'path';
 import * as fs from 'fs';
 import { buildPK3 } from './build';
 import { getPk3Root } from '../shared/pk3Root';
+import { getBaseAcsIncludeDirs } from '../base/baseAcsIncludes';
 
 function getAccPath(): string {
     const config = vscode.workspace.getConfiguration('zandronum-vscode');
@@ -123,6 +124,16 @@ function resolveIncludePaths(workspaceRoot: string, srcFile: string): string[] {
     for (const p of getUserIncludePaths()) {
         const resolved = path.isAbsolute(p) ? p : path.join(workspaceRoot, p);
         paths.push(resolved);
+    }
+
+    // 7. Base-resource ACS dirs (extracted PK3 + folder packages)
+    for (const d of getBaseAcsIncludeDirs()) {
+        paths.push(d);
+        const subdirs = new Set<string>();
+        collectSubdirs(d, subdirs);
+        for (const sub of subdirs) {
+            paths.push(sub);
+        }
     }
 
     return [...new Set(paths)];

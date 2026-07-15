@@ -416,7 +416,10 @@ function provideInheritanceItems(
 
     if (symbolDb) {
         for (const sym of symbolDb.queryAll(SymbolKind.Actor)) {
-            addItem(sym.name, `Base Resource: ${sym.source}`);
+            const detail = sym.packageId === 'workspace'
+                ? `Workspace: ${sym.entryPath}`
+                : `Base: ${sym.source}`;
+            addItem(sym.name, detail);
         }
     }
 

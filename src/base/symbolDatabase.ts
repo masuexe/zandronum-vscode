@@ -1,4 +1,3 @@
-import * as vscode from 'vscode';
 import { SymbolKind, SymbolEntry, PackageSource } from './types';
 
 export interface SymbolProvider {
@@ -8,6 +7,7 @@ export interface SymbolProvider {
 }
 
 export class SymbolDatabase {
+    /** kind → lowerName → SymbolEntry */
     private data = new Map<SymbolKind, Map<string, SymbolEntry>>();
     private providers: SymbolProvider[] = [];
 
@@ -27,7 +27,12 @@ export class SymbolDatabase {
                     if (content.length === 0) { continue; }
                     const symbols = provider.parse(entry.path, content);
                     for (const sym of symbols) {
-                        this.add(sym);
+                        this.add({
+                            ...sym,
+                            packageId: pkg.id,
+                            source: pkg.label,
+                            entryPath: entry.path,
+                        });
                     }
                 }
             }
@@ -37,11 +42,7 @@ export class SymbolDatabase {
     query<T extends SymbolEntry>(kind: SymbolKind, name: string): T | undefined {
         const kindMap = this.data.get(kind);
         if (!kindMap) { return undefined; }
-        const lower = name.toLowerCase();
-        for (const [key, value] of kindMap) {
-            if (key.toLowerCase() === lower) { return value as T; }
-        }
-        return undefined;
+        return kindMap.get(name.toLowerCase()) as T | undefined;
     }
 
     queryAll(kind: SymbolKind): SymbolEntry[] {
@@ -52,12 +53,11 @@ export class SymbolDatabase {
 
     search(kind: SymbolKind, prefix: string): SymbolEntry[] {
         const kindMap = this.data.get(kind);
-        if (!kindMap) { return [];
-        }
+        if (!kindMap) { return []; }
         const lower = prefix.toLowerCase();
         const results: SymbolEntry[] = [];
         for (const [key, value] of kindMap) {
-            if (key.toLowerCase().startsWith(lower)) {
+            if (key.startsWith(lower)) {
                 results.push(value);
             }
         }
@@ -70,6 +70,7 @@ export class SymbolDatabase {
             kindMap = new Map();
             this.data.set(sym.kind, kindMap);
         }
-        kindMap.set(sym.name, sym);
+        // Later packages override earlier (caller iterates in priority order)
+        kindMap.set(sym.name.toLowerCase(), sym);
     }
 }

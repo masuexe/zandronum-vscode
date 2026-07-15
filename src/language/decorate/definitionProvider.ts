@@ -2,11 +2,21 @@ import * as vscode from 'vscode';
 import * as path from 'path';
 import * as fs from 'fs';
 import { extractScriptRef, findScriptDefinition } from '../acs/definitionProvider';
+import { SymbolDatabase } from '../../base/symbolDatabase';
+import { SymbolKind, ActorSymbol } from '../../base/types';
+import { locationFromSymbol } from '../../base/symbolLocation';
 
-export function registerDefinitionProvider(context: vscode.ExtensionContext) {
+export function registerDefinitionProvider(
+    context: vscode.ExtensionContext,
+    symbolDb?: SymbolDatabase
+) {
     const defProvider = vscode.languages.registerDefinitionProvider(
         [{ language: 'decorate' }],
-        { provideDefinition }
+        {
+            provideDefinition(document, position, token) {
+                return provideDefinition(document, position, token, symbolDb);
+            }
+        }
     );
     context.subscriptions.push(defProvider);
 }
@@ -14,7 +24,8 @@ export function registerDefinitionProvider(context: vscode.ExtensionContext) {
 async function provideDefinition(
     document: vscode.TextDocument,
     position: vscode.Position,
-    token: vscode.CancellationToken
+    token: vscode.CancellationToken,
+    symbolDb?: SymbolDatabase
 ): Promise<vscode.Definition | undefined> {
     const lineText = document.lineAt(position.line).text;
 
@@ -44,6 +55,13 @@ async function provideDefinition(
 
     if (token.isCancellationRequested) {
         return undefined;
+    }
+
+    if (symbolDb) {
+        const sym = symbolDb.query<ActorSymbol>(SymbolKind.Actor, className);
+        if (sym && sym.packageId !== 'builtin') {
+            return locationFromSymbol(sym);
+        }
     }
 
     return await findActorInWorkspace(className, document.uri, token);

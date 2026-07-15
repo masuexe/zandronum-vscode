@@ -4,8 +4,28 @@ import * as path from 'path';
 import { unzip } from 'fflate';
 import { PackageEntry, PackageSource } from './types';
 
+/** Normalize archive/entry paths to forward-slash, no leading slash. */
+export function normalizeEntryPath(entryPath: string): string {
+    return entryPath.replace(/\\/g, '/').replace(/^\/+/, '');
+}
+
+function findEntryKey(map: Map<string, Uint8Array>, entryPath: string): string | undefined {
+    const normalized = normalizeEntryPath(entryPath);
+    if (map.has(normalized)) {
+        return normalized;
+    }
+    const lower = normalized.toLowerCase();
+    for (const key of map.keys()) {
+        if (key.toLowerCase() === lower) {
+            return key;
+        }
+    }
+    return undefined;
+}
+
 export class BuiltinPackage implements PackageSource {
     readonly priority: number;
+    readonly label = 'builtin';
 
     constructor(
         readonly id: string,
@@ -43,6 +63,7 @@ export class BuiltinPackage implements PackageSource {
 
 export class WorkspacePackage implements PackageSource {
     readonly id = 'workspace';
+    readonly label = 'workspace';
     readonly priority: number;
 
     constructor(priority: number) {
@@ -59,7 +80,7 @@ export class WorkspacePackage implements PackageSource {
         );
         const uris = await vscode.workspace.findFiles(pattern);
         return uris.map(uri => ({
-            path: vscode.workspace.asRelativePath(uri),
+            path: normalizeEntryPath(vscode.workspace.asRelativePath(uri)),
             size: 0
         }));
     }
@@ -74,6 +95,7 @@ export class WorkspacePackage implements PackageSource {
 
 export class FolderPackage implements PackageSource {
     readonly priority: number;
+    readonly label: string;
 
     constructor(
         readonly id: string,
@@ -81,6 +103,11 @@ export class FolderPackage implements PackageSource {
         private readonly rootPath: string
     ) {
         this.priority = priority;
+        this.label = path.basename(rootPath) || rootPath;
+    }
+
+    getRootPath(): string {
+        return this.rootPath;
     }
 
     async getEntries(): Promise<PackageEntry[]> {
@@ -98,7 +125,7 @@ export class FolderPackage implements PackageSource {
                 }
                 const stat = await fs.promises.stat(fullPath);
                 return [{
-                    path: path.relative(base, fullPath).replace(/\\/g, '/'),
+                    path: normalizeEntryPath(path.relative(base, fullPath)),
                     size: stat.size
                 }];
             })
@@ -107,14 +134,17 @@ export class FolderPackage implements PackageSource {
     }
 
     async openEntry(entryPath: string): Promise<Uint8Array> {
-        const fp = path.join(this.rootPath, entryPath);
+        const fp = path.join(this.rootPath, normalizeEntryPath(entryPath));
         return fs.promises.readFile(fp);
     }
 }
 
 export class ZipPackage implements PackageSource {
     readonly priority: number;
-    private data: Uint8Array | undefined;
+    readonly label: string;
+    private rawData: Uint8Array | undefined;
+    private entryMap: Map<string, Uint8Array> | undefined;
+    private loadError: string | undefined;
 
     constructor(
         readonly id: string,
@@ -122,40 +152,74 @@ export class ZipPackage implements PackageSource {
         private readonly filePath: string
     ) {
         this.priority = priority;
+        this.label = path.basename(filePath);
     }
 
-    private async load(): Promise<Uint8Array> {
-        if (!this.data) {
-            this.data = await fs.promises.readFile(this.filePath);
+    getFilePath(): string {
+        return this.filePath;
+    }
+
+    getLoadError(): string | undefined {
+        return this.loadError;
+    }
+
+    private async ensureEntryMap(): Promise<Map<string, Uint8Array>> {
+        if (this.entryMap) {
+            return this.entryMap;
         }
-        return this.data;
+        if (!fs.existsSync(this.filePath)) {
+            this.loadError = `File not found: ${this.filePath}`;
+            this.entryMap = new Map();
+            return this.entryMap;
+        }
+
+        if (!this.rawData) {
+            this.rawData = await fs.promises.readFile(this.filePath);
+        }
+
+        const buf = this.rawData;
+        this.entryMap = await new Promise<Map<string, Uint8Array>>((resolve) => {
+            unzip(buf, (err, data) => {
+                const map = new Map<string, Uint8Array>();
+                if (err) {
+                    this.loadError = `Failed to read PK3/ZIP (${this.label}): ${err.message}`;
+                    resolve(map);
+                    return;
+                }
+                for (const [p, d] of Object.entries(data)) {
+                    const key = normalizeEntryPath(p);
+                    if (!key || key.endsWith('/')) { continue; }
+                    map.set(key, d);
+                }
+                resolve(map);
+            });
+        });
+
+        return this.entryMap;
     }
 
     async getEntries(): Promise<PackageEntry[]> {
-        if (!fs.existsSync(this.filePath)) { return []; }
-        const buf = await this.load();
-        return new Promise((resolve) => {
-            unzip(buf, (err, data) => {
-                if (err) { resolve([]); return; }
-                const entries: PackageEntry[] = [];
-                for (const [p, d] of Object.entries(data)) {
-                    entries.push({ path: p, size: d.length });
-                }
-                resolve(entries);
-            });
-        });
+        const map = await this.ensureEntryMap();
+        const entries: PackageEntry[] = [];
+        for (const [p, d] of map) {
+            entries.push({ path: p, size: d.length });
+        }
+        return entries;
     }
 
     async openEntry(entryPath: string): Promise<Uint8Array> {
-        const buf = await this.load();
-        return new Promise((resolve) => {
-            unzip(buf, (err, data) => {
-                if (err || !data[entryPath]) {
-                    resolve(new Uint8Array());
-                    return;
-                }
-                resolve(data[entryPath]);
-            });
-        });
+        const map = await this.ensureEntryMap();
+        const key = findEntryKey(map, entryPath);
+        if (!key) {
+            return new Uint8Array();
+        }
+        return map.get(key)!;
+    }
+
+    /** Invalidate cached unzip (e.g. after file watcher fires). */
+    invalidate(): void {
+        this.rawData = undefined;
+        this.entryMap = undefined;
+        this.loadError = undefined;
     }
 }

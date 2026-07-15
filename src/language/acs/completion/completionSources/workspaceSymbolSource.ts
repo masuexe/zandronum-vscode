@@ -9,7 +9,7 @@ export class WorkspaceSymbolSource implements CompletionSource {
     }
 
     async provide(context: CompletionContext, deps: SourceDependencies): Promise<vscode.CompletionItem[]> {
-        const symbols = await deps.visibleSymbolProvider.getVisibleSymbols('');
+        const symbols = await deps.visibleSymbolProvider.getVisibleSymbols(context.filePath);
         const items: vscode.CompletionItem[] = [];
         const lower = context.wordPrefix.toLowerCase();
 

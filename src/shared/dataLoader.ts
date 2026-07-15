@@ -88,6 +88,18 @@ export function getInheritance(context: vscode.ExtensionContext): Record<string,
     return loadDataJson<InheritanceData>(context, 'inheritance.json');
 }
 
+export function findInheritanceCaseInsensitive(
+    inheritanceData: Record<string, InheritanceData>,
+    name: string
+): InheritanceData | undefined {
+    if (inheritanceData[name]) return inheritanceData[name];
+    const lower = name.toLowerCase();
+    for (const key of Object.keys(inheritanceData)) {
+        if (key.toLowerCase() === lower) return inheritanceData[key];
+    }
+    return undefined;
+}
+
 export type StateKeywordData = ActionData;
 
 export function getStateKeywords(context: vscode.ExtensionContext): Record<string, StateKeywordData> {

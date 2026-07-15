@@ -1,6 +1,9 @@
 import * as vscode from 'vscode';
-import { ActionData, findActionCaseInsensitive, ParamData, StateKeywordData, findStateKeywordCaseInsensitive } from '../../shared/dataLoader';
+import { ActionData, findActionCaseInsensitive, ParamData, StateKeywordData, findStateKeywordCaseInsensitive, InheritanceData, findInheritanceCaseInsensitive } from '../../shared/dataLoader';
 import { buildSignatureLabel, buildParamLabel } from '../../shared/signatureBuilder';
+import { SymbolDatabase } from '../../base/symbolDatabase';
+import { SymbolKind, ActorSymbol } from '../../base/types';
+import { symbolSourceDetail } from '../../base/symbolLocation';
 
 function buildHoverContent(functionName: string, actionData: ActionData): vscode.MarkdownString {
     const md = new vscode.MarkdownString();
@@ -43,10 +46,45 @@ function buildHoverContent(functionName: string, actionData: ActionData): vscode
     return md;
 }
 
+function buildActorHover(
+    name: string,
+    actor: ActorSymbol | undefined,
+    builtin: InheritanceData | undefined
+): vscode.MarkdownString {
+    const md = new vscode.MarkdownString();
+    md.isTrusted = true;
+
+    if (actor) {
+        const parent = actor.parentClass ? ` : ${actor.parentClass}` : '';
+        md.appendCodeblock(`actor ${actor.name}${parent}`, 'decorate');
+        md.appendMarkdown(`\n\n**Source:** ${symbolSourceDetail(actor)}`);
+        if (actor.entryPath) {
+            md.appendMarkdown(`\n\n\`${actor.entryPath}\``);
+        }
+        return md;
+    }
+
+    if (builtin) {
+        md.appendCodeblock(`actor ${name}`, 'decorate');
+        if (builtin.category) {
+            md.appendMarkdown(`\n\n**Category:** ${builtin.category}`);
+        } else {
+            md.appendMarkdown('\n\nBuilt-in Actor');
+        }
+        if (builtin.desc) {
+            md.appendMarkdown(`\n\n${builtin.desc}`);
+        }
+    }
+
+    return md;
+}
+
 export function registerHoverProvider(
     context: vscode.ExtensionContext,
     actionsData: Record<string, ActionData>,
-    stateKeywords?: Record<string, StateKeywordData>
+    stateKeywords?: Record<string, StateKeywordData>,
+    symbolDb?: SymbolDatabase,
+    inheritanceData?: Record<string, InheritanceData>
 ) {
     const provider = vscode.languages.registerHoverProvider(
         [{ language: 'decorate' }],
@@ -67,12 +105,19 @@ export function registerHoverProvider(
                 }
 
                 const actionData = findActionCaseInsensitive(actionsData, word);
-                if (!actionData) {
-                    return null;
+                if (actionData) {
+                    return new vscode.Hover(buildHoverContent(word, actionData));
                 }
 
-                const md = buildHoverContent(word, actionData);
-                return new vscode.Hover(md);
+                const actor = symbolDb?.query<ActorSymbol>(SymbolKind.Actor, word);
+                const builtin = inheritanceData
+                    ? findInheritanceCaseInsensitive(inheritanceData, word)
+                    : undefined;
+                if (actor || builtin) {
+                    return new vscode.Hover(buildActorHover(word, actor, builtin));
+                }
+
+                return null;
             }
         }
     );

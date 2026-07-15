@@ -1,6 +1,9 @@
 import * as vscode from 'vscode';
 import { ActionData, findActionCaseInsensitive, ParamData } from '../../shared/dataLoader';
 import { buildSignatureLabel, buildParamLabel } from '../../shared/signatureBuilder';
+import { SymbolDatabase } from '../../base/symbolDatabase';
+import { SymbolKind } from '../../base/types';
+import { symbolSourceDetail } from '../../base/symbolLocation';
 
 function buildHoverContent(functionName: string, functionData: ActionData): vscode.MarkdownString {
     const md = new vscode.MarkdownString();
@@ -43,7 +46,8 @@ function buildHoverContent(functionName: string, functionData: ActionData): vsco
 
 export function registerAcsHoverProvider(
     context: vscode.ExtensionContext,
-    functionsData: Record<string, ActionData>
+    functionsData: Record<string, ActionData>,
+    symbolDb?: SymbolDatabase
 ) {
     const provider = vscode.languages.registerHoverProvider(
         [{ language: 'acs' }],
@@ -56,12 +60,34 @@ export function registerAcsHoverProvider(
 
                 const word = document.getText(wordRange);
                 const functionData = findActionCaseInsensitive(functionsData, word);
-                if (!functionData) {
-                    return null;
+                if (functionData) {
+                    return new vscode.Hover(buildHoverContent(word, functionData));
                 }
 
-                const md = buildHoverContent(word, functionData);
-                return new vscode.Hover(md);
+                if (symbolDb) {
+                    const fn = symbolDb.query(SymbolKind.AcsFunction, word);
+                    if (fn) {
+                        const md = new vscode.MarkdownString();
+                        md.appendCodeblock(`function ${fn.name}(...)`, 'acs');
+                        md.appendMarkdown(`\n\n**Source:** ${symbolSourceDetail(fn)}`);
+                        if (fn.entryPath) {
+                            md.appendMarkdown(`\n\n\`${fn.entryPath}\``);
+                        }
+                        return new vscode.Hover(md);
+                    }
+                    const c = symbolDb.query(SymbolKind.AcsConstant, word);
+                    if (c) {
+                        const md = new vscode.MarkdownString();
+                        md.appendCodeblock(`#define ${c.name}`, 'acs');
+                        md.appendMarkdown(`\n\n**Source:** ${symbolSourceDetail(c)}`);
+                        if (c.entryPath) {
+                            md.appendMarkdown(`\n\n\`${c.entryPath}\``);
+                        }
+                        return new vscode.Hover(md);
+                    }
+                }
+
+                return null;
             }
         }
     );

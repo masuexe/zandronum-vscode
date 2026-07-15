@@ -10,6 +10,7 @@ export interface CompletionContext {
     insideInclude: boolean;
     wordPrefix: string;
     braceDepth: number;
+    filePath: string;
 }
 
 export function buildCompletionContext(
@@ -154,5 +155,6 @@ export function buildCompletionContext(
         insideInclude,
         wordPrefix: prefix,
         braceDepth: depthBefore,
+        filePath: document.uri.fsPath,
     };
 }

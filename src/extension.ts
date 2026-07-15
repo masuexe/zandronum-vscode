@@ -1,4 +1,5 @@
 import * as vscode from 'vscode';
+import * as path from 'path';
 import { getActions, getProperties, getFlags, getExpressions, getInheritance, getAcsFunctions, getAcsConstants, getSndinfoCommands, getStateKeywords } from './shared/dataLoader';
 import { registerCompletionProvider } from './language/decorate/completionProvider';
 import { registerAcsCompletionProvider } from './language/acs/completion/completionProvider';
@@ -34,6 +35,16 @@ import { registerOffsetPreview } from './language/decorate/offsetPreviewControll
 import { PackageManager } from './base/packageManager';
 import { SymbolDatabase } from './base/symbolDatabase';
 import { ActorSymbolProvider } from './base/actorProvider';
+import { AcsSymbolProvider } from './base/acsProvider';
+import { extractBaseAcsSources } from './base/extractBaseAcs';
+import { setBaseAcsIncludeDirs } from './base/baseAcsIncludes';
+import {
+    BASE_RESOURCE_SCHEME,
+    BaseResourceContentProvider,
+} from './base/baseResourceUri';
+import { reportBaseResourceWarnings, getBaseResourceOutput } from './base/diagnostics';
+import { ZipPackage } from './base/packages';
+import { SymbolKind } from './base/types';
 import {
     runZandronum,
     buildAndRunZandronum,
@@ -51,18 +62,125 @@ export function activate(context: vscode.ExtensionContext) {
     const packageManager = new PackageManager(context.extensionPath);
     const symbolDatabase = new SymbolDatabase();
     symbolDatabase.registerProvider(new ActorSymbolProvider());
+    symbolDatabase.registerProvider(new AcsSymbolProvider());
 
-    async function rebuildSymbols(): Promise<void> {
-        await packageManager.build();
-        await symbolDatabase.build(packageManager.getPackages());
+    const contentProvider = new BaseResourceContentProvider(packageManager);
+    context.subscriptions.push(
+        vscode.workspace.registerTextDocumentContentProvider(BASE_RESOURCE_SCHEME, contentProvider),
+        contentProvider
+    );
+
+    context.subscriptions.push(
+        vscode.workspace.onDidOpenTextDocument(async (doc) => {
+            if (doc.uri.scheme !== BASE_RESOURCE_SCHEME) { return; }
+            const name = path.basename(doc.uri.path).toLowerCase();
+            let lang: string | undefined;
+            if (name === 'decorate' || name.endsWith('.dec') || name.endsWith('.decorate')) {
+                lang = 'decorate';
+            } else if (name.endsWith('.acs') || name === 'scripts') {
+                lang = 'acs';
+            }
+            if (lang && doc.languageId !== lang) {
+                await vscode.languages.setTextDocumentLanguage(doc, lang);
+            }
+        })
+    );
+
+    const extractRoot = context.storageUri
+        ? path.join(context.storageUri.fsPath, 'baseAcs')
+        : path.join(context.globalStorageUri.fsPath, 'baseAcs');
+
+    let rebuildGeneration = 0;
+    let saveRebuildTimer: ReturnType<typeof setTimeout> | undefined;
+    let lastWarningKey = '';
+
+    async function rebuildSymbols(options?: { notifyWarnings?: boolean }): Promise<void> {
+        const generation = ++rebuildGeneration;
+        try {
+            await packageManager.build();
+            if (generation !== rebuildGeneration) { return; }
+
+            await symbolDatabase.build(packageManager.getPackages());
+            if (generation !== rebuildGeneration) { return; }
+
+            const includeDirs = await extractBaseAcsSources(
+                packageManager.getPackages(),
+                extractRoot
+            );
+            if (generation !== rebuildGeneration) { return; }
+            setBaseAcsIncludeDirs(includeDirs);
+
+            const warnings = [
+                ...packageManager.getWarnings(),
+                ...packageManager.collectZipErrors(),
+            ];
+            const warningKey = warnings.map(w => `${w.path}|${w.message}`).join('\n');
+            const notify = options?.notifyWarnings !== false && warningKey !== lastWarningKey;
+            lastWarningKey = warningKey;
+            reportBaseResourceWarnings(warnings, { notify });
+            contentProvider.invalidateAll();
+
+            const actors = symbolDatabase.queryAll(SymbolKind.Actor).length;
+            const consts = symbolDatabase.queryAll(SymbolKind.AcsConstant).length;
+            getBaseResourceOutput().appendLine(
+                `[${new Date().toISOString()}] Indexed packages=${packageManager.getPackages().length} ` +
+                `actors=${actors} acsConstants=${consts}`
+            );
+        } catch (err) {
+            getBaseResourceOutput().appendLine(`Base resource rebuild failed: ${err}`);
+            vscode.window.showErrorMessage(`Base resource rebuild failed: ${String(err)}`);
+        }
     }
 
-    rebuildSymbols();
+    void rebuildSymbols({ notifyWarnings: true });
+
     context.subscriptions.push(
         vscode.workspace.onDidChangeConfiguration(e => {
             if (e.affectsConfiguration('zandronum-vscode.baseResources')) {
-                rebuildSymbols();
+                lastWarningKey = '';
+                void rebuildSymbols({ notifyWarnings: true });
             }
+        })
+    );
+
+    context.subscriptions.push(
+        vscode.commands.registerCommand('zandronum.addBaseResource', async () => {
+            const uris = await vscode.window.showOpenDialog({
+                canSelectFiles: true,
+                canSelectFolders: true,
+                canSelectMany: true,
+                filters: {
+                    'PK3 / ZIP': ['pk3', 'zip'],
+                    'All': ['*']
+                },
+                openLabel: 'Add Base Resource'
+            });
+            if (!uris || uris.length === 0) { return; }
+
+            const config = vscode.workspace.getConfiguration('zandronum-vscode');
+            const current: string[] = config.get('baseResources') ?? [];
+            const workspaceRoot = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath;
+            const next = [...current];
+            for (const uri of uris) {
+                let p = uri.fsPath;
+                if (workspaceRoot && p.toLowerCase().startsWith(workspaceRoot.toLowerCase() + path.sep)) {
+                    p = path.relative(workspaceRoot, p).replace(/\\/g, '/');
+                }
+                if (!next.includes(p)) {
+                    next.push(p);
+                }
+            }
+            await config.update('baseResources', next, vscode.ConfigurationTarget.Workspace);
+            vscode.window.showInformationMessage(`Added ${uris.length} base resource(s).`);
+        }),
+        vscode.commands.registerCommand('zandronum.refreshBaseResources', async () => {
+            for (const pkg of packageManager.getPackages()) {
+                if (pkg instanceof ZipPackage) {
+                    pkg.invalidate();
+                }
+            }
+            await rebuildSymbols({ notifyWarnings: true });
+            vscode.window.showInformationMessage('Base resources refreshed.');
         })
     );
 
@@ -72,12 +190,12 @@ export function activate(context: vscode.ExtensionContext) {
     const expressionsData = getExpressions(context);
     const inheritanceData = getInheritance(context);
     const stateKeywordsData = getStateKeywords(context);
- 
+
     registerCompletionProvider(context, actionsData, propertiesData, flagsData, expressionsData, inheritanceData, symbolDatabase, stateKeywordsData);
     registerSignatureHelp(context, actionsData, stateKeywordsData);
-    registerHoverProvider(context, actionsData, stateKeywordsData);
+    registerHoverProvider(context, actionsData, stateKeywordsData, symbolDatabase, inheritanceData);
     registerDecorateSemanticTokens(context);
-    registerDefinitionProvider(context);
+    registerDefinitionProvider(context, symbolDatabase);
     registerColorProvider(context);
     registerDecorateSymbolProvider(context);
 
@@ -88,17 +206,23 @@ export function activate(context: vscode.ExtensionContext) {
         (name, dir) => defaultIncludeResolver(name, dir, workspaceRoot),
         workspaceRoot
     );
-    registerAcsCompletionProvider(context, acsFunctionsData, acsConstantsData, workspaceIndex);
+    registerAcsCompletionProvider(context, acsFunctionsData, acsConstantsData, workspaceIndex, symbolDatabase);
     registerAcsSignatureHelp(context, acsFunctionsData);
-    registerAcsHoverProvider(context, acsFunctionsData);
+    registerAcsHoverProvider(context, acsFunctionsData, symbolDatabase);
     registerAcsSemanticTokens(context, acsConstantsData, workspaceIndex);
-    registerAcsDefinitionProvider(context);
+    registerAcsDefinitionProvider(context, symbolDatabase);
     registerAcsSymbolProvider(context);
 
     context.subscriptions.push(
         vscode.workspace.onDidSaveTextDocument((doc) => {
             if (doc.languageId === 'acs') {
                 workspaceIndex.invalidate(doc.uri.fsPath);
+            }
+            if (doc.languageId === 'decorate' || doc.languageId === 'acs') {
+                if (saveRebuildTimer) { clearTimeout(saveRebuildTimer); }
+                saveRebuildTimer = setTimeout(() => {
+                    void rebuildSymbols({ notifyWarnings: false });
+                }, 400);
             }
         })
     );
@@ -107,7 +231,6 @@ export function activate(context: vscode.ExtensionContext) {
     registerSndinfoCompletionProvider(context, sndinfoCommandsData);
     registerSndinfoSignatureHelp(context, sndinfoCommandsData);
     registerSndinfoHoverProvider(context, sndinfoCommandsData);
-
 
     const texturesData = getTexturesKeywords(context);
     const texturesParser = new TexturesParser();
@@ -155,30 +278,10 @@ export function activate(context: vscode.ExtensionContext) {
 
     registerSpriteOffsetEditor(context);
 
-    const buildCmd = vscode.commands.registerCommand(
-        'decorate.buildPK3',
-        buildPK3
+    context.subscriptions.push(
+        vscode.commands.registerCommand('decorate.buildPK3', buildPK3),
+        vscode.commands.registerCommand('acs.compile', compileAcs),
+        vscode.commands.registerCommand('acs.compileAllAndBuild', compileAllAndBuild),
+        vscode.commands.registerCommand('acs.compileCurrentAndBuild', compileCurrentAndBuild),
     );
-    context.subscriptions.push(buildCmd);
-
-    const compileAcsCmd = vscode.commands.registerCommand(
-        'acs.compile',
-        compileAcs
-    );
-    context.subscriptions.push(compileAcsCmd);
-
-    const compileAllCmd = vscode.commands.registerCommand(
-        'acs.compileAllAndBuild',
-        compileAllAndBuild
-    );
-    context.subscriptions.push(compileAllCmd);
-
-    const compileCurrentCmd = vscode.commands.registerCommand(
-        'acs.compileCurrentAndBuild',
-        compileCurrentAndBuild
-    );
-    context.subscriptions.push(compileCurrentCmd);
 }
-
-
-

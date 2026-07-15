@@ -727,19 +727,27 @@
             }
         }
 
-        const pw = bmp.width * zoom * scaleX;
-        const ph = bmp.height * zoom * scaleY;
+        // Logical texture size (Flip/Rotate pivot). Expanded composites keep ink in
+        // contentOrigin-shifted bitmaps so nested OOB patches are not clipped away.
+        const logicalW = (res.width || bmp.width) * zoom * scaleX;
+        const logicalH = (res.height || bmp.height) * zoom * scaleY;
+        const ox = (res.contentOrigin?.x ?? 0) * zoom * scaleX;
+        const oy = (res.contentOrigin?.y ?? 0) * zoom * scaleY;
+        const bw = bmp.width * zoom * scaleX;
+        const bh = bmp.height * zoom * scaleY;
 
         // Outside tint when showOutside and patch extends beyond bounds
         const outside = showOutside && (
-            ex < 0 || ey < 0 || ex + bmp.width > currentTexture.width || ey + bmp.height > currentTexture.height
+            ex < 0 || ey < 0
+            || ex + (res.width || bmp.width) > currentTexture.width
+            || ey + (res.height || bmp.height) > currentTexture.height
         );
 
         ctx.save();
         const rotDeg = getProp(patch.props, 'Rotate', 0);
         const swapped = Math.abs(rotDeg) % 180 === 90;
-        const cx = sx + (swapped ? ph : pw) / 2;
-        const cy = sy + (swapped ? pw : ph) / 2;
+        const cx = sx + (swapped ? logicalH : logicalW) / 2;
+        const cy = sy + (swapped ? logicalW : logicalH) / 2;
         ctx.translate(cx, cy);
         const rot = rotDeg * Math.PI / 180;
         if (rot) { ctx.rotate(rot); }
@@ -748,11 +756,12 @@
         if (flipX === -1 || flipY === -1) { ctx.scale(flipX, flipY); }
         ctx.globalAlpha = ghost ? 0.55 : getProp(patch.props, 'Alpha', 1);
         ctx.imageSmoothingEnabled = zoom < 1;
-        ctx.drawImage(bmp, -pw / 2, -ph / 2, pw, ph);
+        // Bitmap TL relative to logical center (contentOrigin shifts OOB ink)
+        ctx.drawImage(bmp, ox - logicalW / 2, oy - logicalH / 2, bw, bh);
         if (outside && !ghost) {
             ctx.globalCompositeOperation = 'source-atop';
             ctx.fillStyle = 'rgba(255, 60, 60, 0.25)';
-            ctx.fillRect(-pw / 2, -ph / 2, pw, ph);
+            ctx.fillRect(ox - logicalW / 2, oy - logicalH / 2, bw, bh);
         }
         ctx.restore();
     }
@@ -1582,12 +1591,13 @@
                 return;
             }
             try {
-                const bitmap = await compositePatches(msg.width, msg.height, msg.subPatches);
+                const composed = await compositePatches(msg.width, msg.height, msg.subPatches);
                 resourceCache.set(msg.resourceId, {
                     state: 'ready',
-                    bitmap,
+                    bitmap: composed.bitmap,
                     width: msg.width,
                     height: msg.height,
+                    contentOrigin: composed.contentOrigin,
                     grabOffset: null,
                     _wasComposite: true
                 });
@@ -1629,30 +1639,98 @@
     }
 
     /**
-     * Draw one sub-patch onto a parent context.
-     * Composite wrappers (children in local coords) are rasterized to an offscreen
-     * of (sp.width×sp.height), then Flip/Rotate/Alpha/Translation are applied when
-     * placing that bitmap — matching ZDoom/SLADE nested TEXTURES behavior.
+     * Nested TEXTURES often place child patches outside the declared canvas
+     * (e.g. Patch at -164 on a 116-wide sprite) so sprite Offsets chain correctly.
+     * Rasterize into an expanded canvas and return contentOrigin so Flip/Rotate
+     * still pivot on the logical width×height box.
      */
+    function patchLocalBounds(sp) {
+        const lw = Math.max(1, sp.width | 0);
+        const lh = Math.max(1, sp.height | 0);
+        let minX = 0;
+        let minY = 0;
+        let maxX = lw;
+        let maxY = lh;
+        if (sp.children && sp.children.length > 0) {
+            const cb = computeCompositeBounds(lw, lh, sp.children);
+            minX = cb.minX;
+            minY = cb.minY;
+            maxX = cb.maxX;
+            maxY = cb.maxY;
+        }
+        // Flip about logical center remaps the ink AABB (size unchanged for own-box flips
+        // of content that equals the logical box; needed when ink extends past logical).
+        let x0 = minX;
+        let x1 = maxX;
+        let y0 = minY;
+        let y1 = maxY;
+        if (sp.flipX) {
+            const a = lw - x1;
+            const b = lw - x0;
+            x0 = a;
+            x1 = b;
+        }
+        if (sp.flipY) {
+            const a = lh - y1;
+            const b = lh - y0;
+            y0 = a;
+            y1 = b;
+        }
+        const rotDeg = sp.rotate ?? 0;
+        if (Math.abs(rotDeg) % 180 === 90) {
+            // After 90° about logical center, map corners into parent-local AABB.
+            const corners = [
+                [x0, y0], [x1, y0], [x0, y1], [x1, y1]
+            ].map(([x, y]) => {
+                const dx = x - lw / 2;
+                const dy = y - lh / 2;
+                // 90° CCW: (-dy, dx) — sign matches canvas rotate()
+                return [lw / 2 - dy, lh / 2 + dx];
+            });
+            x0 = Math.min(...corners.map(c => c[0]));
+            x1 = Math.max(...corners.map(c => c[0]));
+            y0 = Math.min(...corners.map(c => c[1]));
+            y1 = Math.max(...corners.map(c => c[1]));
+        }
+        return { x0, y0, x1, y1, lw, lh };
+    }
+
+    function computeCompositeBounds(width, height, subPatches) {
+        let minX = 0;
+        let minY = 0;
+        let maxX = Math.max(1, width | 0);
+        let maxY = Math.max(1, height | 0);
+        for (const sp of subPatches) {
+            const { x0, y0, x1, y1 } = patchLocalBounds(sp);
+            minX = Math.min(minX, sp.x + x0);
+            minY = Math.min(minY, sp.y + y0);
+            maxX = Math.max(maxX, sp.x + x1);
+            maxY = Math.max(maxY, sp.y + y1);
+        }
+        return { minX, minY, maxX, maxY };
+    }
+
     async function drawSubPatch(octx, sp) {
         let bmp = null;
         let closeBmp = false;
+        let contentOriginX = 0;
+        let contentOriginY = 0;
+        let logicalW = Math.max(1, sp.width | 0);
+        let logicalH = Math.max(1, sp.height | 0);
 
         if (sp.children && sp.children.length > 0) {
-            const cw = Math.max(1, sp.width | 0);
-            const ch = Math.max(1, sp.height | 0);
-            const nested = new OffscreenCanvas(cw, ch);
-            const nctx = nested.getContext('2d');
-            for (const child of sp.children) {
-                await drawSubPatch(nctx, child);
-            }
-            bmp = nested.transferToImageBitmap();
+            const composed = await rasterizeComposite(logicalW, logicalH, sp.children);
+            bmp = composed.bitmap;
             closeBmp = true;
+            contentOriginX = composed.contentOrigin.x;
+            contentOriginY = composed.contentOrigin.y;
         } else if (sp.uri) {
             const resp = await fetch(sp.uri);
             const blob = await resp.blob();
             bmp = await createImageBitmap(blob);
             closeBmp = true;
+            logicalW = bmp.width;
+            logicalH = bmp.height;
         } else {
             return;
         }
@@ -1666,29 +1744,46 @@
             }
         }
 
-        const pw = bmp.width;
-        const ph = bmp.height;
         octx.save();
         const rotDeg = sp.rotate ?? 0;
         const swapped = Math.abs(rotDeg) % 180 === 90;
-        const cx = sp.x + (swapped ? ph : pw) / 2;
-        const cy = sp.y + (swapped ? pw : ph) / 2;
+        const cx = sp.x + (swapped ? logicalH : logicalW) / 2;
+        const cy = sp.y + (swapped ? logicalW : logicalH) / 2;
         octx.translate(cx, cy);
         if (rotDeg) { octx.rotate(rotDeg * Math.PI / 180); }
         if (sp.flipX || sp.flipY) { octx.scale(sp.flipX ? -1 : 1, sp.flipY ? -1 : 1); }
         octx.globalAlpha = sp.alpha ?? 1;
-        octx.drawImage(bmp, -pw / 2, -ph / 2, pw, ph);
+        octx.drawImage(
+            bmp,
+            contentOriginX - logicalW / 2,
+            contentOriginY - logicalH / 2,
+            bmp.width,
+            bmp.height
+        );
         octx.restore();
         if (closeBmp) { bmp.close(); }
     }
 
-    async function compositePatches(width, height, subPatches) {
-        const offscreen = new OffscreenCanvas(width, height);
+    async function rasterizeComposite(width, height, subPatches) {
+        const bounds = computeCompositeBounds(width, height, subPatches);
+        const bw = Math.max(1, Math.ceil(bounds.maxX - bounds.minX));
+        const bh = Math.max(1, Math.ceil(bounds.maxY - bounds.minY));
+        const offscreen = new OffscreenCanvas(bw, bh);
         const octx = offscreen.getContext('2d');
+        octx.translate(-bounds.minX, -bounds.minY);
         for (const sp of subPatches) {
             await drawSubPatch(octx, sp);
         }
-        return offscreen.transferToImageBitmap();
+        return {
+            bitmap: offscreen.transferToImageBitmap(),
+            contentOrigin: { x: bounds.minX, y: bounds.minY },
+            logicalW: Math.max(1, width | 0),
+            logicalH: Math.max(1, height | 0)
+        };
+    }
+
+    async function compositePatches(width, height, subPatches) {
+        return rasterizeComposite(width, height, subPatches);
     }
 
     wireInspector();

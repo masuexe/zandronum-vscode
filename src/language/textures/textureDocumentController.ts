@@ -44,6 +44,10 @@ export class TextureDocumentController {
     private panel: TextureEditorPanel | undefined;
     private readonly disposables: vscode.Disposable[] = [];
     readonly documentUri: string;
+    /** True once the webview posts `ready` (scripts loaded). */
+    private webviewReady = false;
+    private readyWatchTimer: ReturnType<typeof setTimeout> | undefined;
+    private suppressingDisposeHandler = false;
 
     constructor(
         document: vscode.TextDocument,
@@ -77,25 +81,86 @@ export class TextureDocumentController {
     openEditor(textureName: string): void {
         this.selection.selectedTextureName = textureName;
 
-        if (this.panel) {
+        if (this.panel && this.webviewReady) {
             this.panel.reveal();
             this.sendCurrentTexture();
             return;
         }
 
-        this.panel = new TextureEditorPanel(
-            this.extensionContext,
-            msg => this.onPanelMessage(msg)
-        );
+        // User clicked again while previous panel never became ready — recreate once
+        if (this.panel && !this.webviewReady) {
+            this.disposePanelForRetry();
+        }
+
+        this.createTextureEditorPanel(textureName);
+    }
+
+    private createTextureEditorPanel(textureName: string): void {
+        this.webviewReady = false;
+
+        try {
+            this.panel = new TextureEditorPanel(
+                this.extensionContext,
+                msg => this.onPanelMessage(msg)
+            );
+        } catch (err) {
+            void vscode.window.showErrorMessage(
+                `Failed to open Texture Editor: ${err instanceof Error ? err.message : String(err)}`
+            );
+            return;
+        }
 
         this.panel.setTitle(`Texture: ${textureName}`);
-
         this.panel.onDidDispose(() => {
+            if (this.suppressingDisposeHandler) { return; }
+            this.clearReadyWatch();
             this.panel = undefined;
+            this.webviewReady = false;
         });
+
+        this.armReadyWatch(textureName);
+    }
+
+    private armReadyWatch(textureName: string): void {
+        this.clearReadyWatch();
+        // After clearing Cursor Service Worker cache, first load can be slow — never auto-dispose.
+        this.readyWatchTimer = setTimeout(() => {
+            this.readyWatchTimer = undefined;
+            if (this.webviewReady || !this.panel) { return; }
+            void vscode.window.showWarningMessage(
+                'Texture Editor webview has not finished loading. If it stays blank, run Developer: Reload Window, then open the editor again.',
+                'Reload Window'
+            ).then(choice => {
+                if (choice === 'Reload Window') {
+                    void vscode.commands.executeCommand('workbench.action.reloadWindow');
+                }
+            });
+        }, 8000);
+    }
+
+    private clearReadyWatch(): void {
+        if (this.readyWatchTimer !== undefined) {
+            clearTimeout(this.readyWatchTimer);
+            this.readyWatchTimer = undefined;
+        }
+    }
+
+    private disposePanelForRetry(): void {
+        this.clearReadyWatch();
+        const p = this.panel;
+        this.panel = undefined;
+        this.webviewReady = false;
+        if (!p) { return; }
+        this.suppressingDisposeHandler = true;
+        try {
+            p.dispose();
+        } finally {
+            this.suppressingDisposeHandler = false;
+        }
     }
 
     dispose(): void {
+        this.clearReadyWatch();
         this.panel?.dispose();
         this.selection.dispose();
         for (const d of this.disposables) { d.dispose(); }
@@ -132,6 +197,8 @@ export class TextureDocumentController {
     private async onPanelMessage(msg: any): Promise<void> {
         switch (msg.type) {
             case 'ready':
+                this.webviewReady = true;
+                this.clearReadyWatch();
                 await this.sendPalette();
                 this.sendInit();
                 break;

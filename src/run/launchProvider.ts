@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import { resolveVariables, parseArgs } from '../shared/variables';
 import { getBuildOutputPath } from '../shared/buildOutput';
-import { buildPK3 } from '../tools/build';
+import { buildPK3, buildProject } from '../tools/build';
 import { compileAllAndBuild } from '../tools/compileAcs';
 
 interface RunConfig {
@@ -84,14 +84,21 @@ export async function runZandronum(): Promise<void> {
     if (config) { runConfig(config); }
 }
 
-/** Build PK3, then launch Zandronum only if the build succeeded. */
+/** Build Project (ACS if configured + PK3), then launch only on success. */
+export async function runProject(): Promise<void> {
+    const ok = await buildProject();
+    if (!ok) { return; }
+    await runZandronum();
+}
+
+/** @deprecated Prefer Run Project. Packages PK3 only (no ACS), then launches. */
 export async function buildAndRunZandronum(): Promise<void> {
     const ok = await buildPK3();
     if (!ok) { return; }
     await runZandronum();
 }
 
-/** Compile all ACS libraries, build PK3, then launch only on full success. */
+/** @deprecated Prefer Run Project. Kept for keybindings. */
 export async function compileAllBuildAndRunZandronum(): Promise<void> {
     const ok = await compileAllAndBuild();
     if (!ok) { return; }

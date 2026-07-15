@@ -201,12 +201,23 @@
     ],
     "commands": [
       {
-        "command": "decorate.buildPK3",
-        "title": "Build PK3"
+        "command": "acs.compile",
+        "title": "Compile Current ACS",
+        "category": "Zandronum"
       },
       {
-        "command": "acs.compile",
-        "title": "Compile ACS"
+        "command": "zandronum.buildProject",
+        "title": "Build Project",
+        "category": "Zandronum"
+      },
+      {
+        "command": "zandronum.runProject",
+        "title": "Run Project",
+        "category": "Zandronum"
+      },
+      {
+        "command": "decorate.buildPK3",
+        "title": "Build PK3"
       },
       {
         "command": "acs.compileAllAndBuild",
@@ -215,10 +226,6 @@
       {
         "command": "acs.compileCurrentAndBuild",
         "title": "Compile Current ACS and Build PK3"
-      },
-      {
-        "command": "zandronum.editSpriteOffset",
-        "title": "Edit Sprite Offset"
       },
       {
         "command": "zandronum.run",
@@ -231,6 +238,10 @@
       {
         "command": "acs.compileAllBuildAndRun",
         "title": "Compile All ACS, Build and Run"
+      },
+      {
+        "command": "zandronum.editSpriteOffset",
+        "title": "Edit Sprite Offset"
       },
       {
         "command": "textures.openEditor",
@@ -303,6 +314,32 @@
       }
     ],
     "menus": {
+      "commandPalette": [
+        {
+          "command": "decorate.buildPK3",
+          "when": "false"
+        },
+        {
+          "command": "acs.compileAllAndBuild",
+          "when": "false"
+        },
+        {
+          "command": "acs.compileCurrentAndBuild",
+          "when": "false"
+        },
+        {
+          "command": "zandronum.run",
+          "when": "false"
+        },
+        {
+          "command": "zandronum.buildAndRun",
+          "when": "false"
+        },
+        {
+          "command": "acs.compileAllBuildAndRun",
+          "when": "false"
+        }
+      ],
       "explorer/context": [
         {
           "command": "zandronum.editSpriteOffset",

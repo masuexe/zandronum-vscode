@@ -1,15 +1,35 @@
 import * as assert from 'assert';
-
-// You can import and use all API from the 'vscode' module
-// as well as import your extension to test it
 import * as vscode from 'vscode';
-// import * as myExtension from '../../extension';
 
 suite('Extension Test Suite', () => {
-	vscode.window.showInformationMessage('Start all tests.');
+	test('registers primary project workflow commands', async () => {
+		const ext = vscode.extensions.all.find(
+			(e) => e.packageJSON?.name === 'zandronum-vscode'
+		);
+		assert.ok(ext, 'zandronum-vscode extension should be present');
+		await ext.activate();
 
-	test('Sample test', () => {
-		assert.strictEqual(-1, [1, 2, 3].indexOf(5));
-		assert.strictEqual(-1, [1, 2, 3].indexOf(0));
+		const commands = await vscode.commands.getCommands(true);
+		for (const id of [
+			'acs.compile',
+			'zandronum.buildProject',
+			'zandronum.runProject',
+		]) {
+			assert.ok(commands.includes(id), `missing primary command: ${id}`);
+		}
+	});
+
+	test('keeps legacy build/run aliases registered', async () => {
+		const commands = await vscode.commands.getCommands(true);
+		for (const id of [
+			'decorate.buildPK3',
+			'acs.compileAllAndBuild',
+			'acs.compileCurrentAndBuild',
+			'zandronum.run',
+			'zandronum.buildAndRun',
+			'acs.compileAllBuildAndRun',
+		]) {
+			assert.ok(commands.includes(id), `missing legacy command: ${id}`);
+		}
 	});
 });

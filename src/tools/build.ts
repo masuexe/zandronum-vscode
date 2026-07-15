@@ -52,6 +52,20 @@ export async function buildPK3(): Promise<boolean> {
     }
 }
 
+/**
+ * Project build: compile LOADACS libraries when configured, then package PK3.
+ * Skips ACS when LOADACS is absent; stops without packaging on compile failure.
+ */
+export async function buildProject(): Promise<boolean> {
+    // Dynamic import avoids a static cycle with compileAcs → buildPK3.
+    const { compileLoadAcsLibraries } = await import('./compileAcs.js');
+    const result = await compileLoadAcsLibraries({ quietNotConfigured: true });
+    if (result === 'failure') {
+        return false;
+    }
+    return buildPK3();
+}
+
 interface FileEntry {
     archiveName: string;
     diskPath: string;

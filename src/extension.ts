@@ -10,7 +10,7 @@ import { registerSndinfoSignatureHelp } from './language/sndinfo/signatureProvid
 import { registerSndinfoHoverProvider } from './language/sndinfo/hoverProvider';
 import { registerSignatureHelp } from './language/decorate/signatureProvider';
 import { registerHoverProvider } from './language/decorate/hoverProvider';
-import { buildPK3 } from './tools/build';
+import { buildPK3, buildProject } from './tools/build';
 import { compileAcs, compileAllAndBuild, compileCurrentAndBuild } from './tools/compileAcs';
 import { registerDecorateSemanticTokens } from './semantic/semanticTokensProvider';
 import { registerAcsSemanticTokens } from './semantic/acsSemanticTokensProvider';
@@ -47,6 +47,7 @@ import { ZipPackage } from './base/packages';
 import { SymbolKind } from './base/types';
 import {
     runZandronum,
+    runProject,
     buildAndRunZandronum,
     compileAllBuildAndRunZandronum,
 } from './run/launchProvider';
@@ -54,6 +55,14 @@ import {
 
 export function activate(context: vscode.ExtensionContext) {
     context.subscriptions.push(
+        // Primary project workflow (Command Palette)
+        vscode.commands.registerCommand('acs.compile', compileAcs),
+        vscode.commands.registerCommand('zandronum.buildProject', buildProject),
+        vscode.commands.registerCommand('zandronum.runProject', runProject),
+        // Legacy aliases — still executable, hidden from Command Palette
+        vscode.commands.registerCommand('decorate.buildPK3', buildPK3),
+        vscode.commands.registerCommand('acs.compileAllAndBuild', compileAllAndBuild),
+        vscode.commands.registerCommand('acs.compileCurrentAndBuild', compileCurrentAndBuild),
         vscode.commands.registerCommand('zandronum.run', runZandronum),
         vscode.commands.registerCommand('zandronum.buildAndRun', buildAndRunZandronum),
         vscode.commands.registerCommand('acs.compileAllBuildAndRun', compileAllBuildAndRunZandronum),
@@ -277,11 +286,4 @@ export function activate(context: vscode.ExtensionContext) {
     );
 
     registerSpriteOffsetEditor(context);
-
-    context.subscriptions.push(
-        vscode.commands.registerCommand('decorate.buildPK3', buildPK3),
-        vscode.commands.registerCommand('acs.compile', compileAcs),
-        vscode.commands.registerCommand('acs.compileAllAndBuild', compileAllAndBuild),
-        vscode.commands.registerCommand('acs.compileCurrentAndBuild', compileCurrentAndBuild),
-    );
 }

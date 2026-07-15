@@ -394,6 +394,69 @@ function findLibraryAcsFiles(workspaceRoot: string): string[] {
     return files;
 }
 
+/**
+ * Compile all ACS libraries listed in LOADACS.
+ * - notConfigured: no LOADACS entries (caller may skip straight to packaging)
+ * - success: every matching library compiled
+ * - failure: configured but incomplete or compile errors (do not package)
+ */
+export type CompileLibrariesResult = 'notConfigured' | 'success' | 'failure';
+
+export async function compileLoadAcsLibraries(
+    options: { clearDiagnostics?: boolean; quietNotConfigured?: boolean } = {}
+): Promise<CompileLibrariesResult> {
+    const { clearDiagnostics = true, quietNotConfigured = false } = options;
+
+    const workspaceRoot = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath;
+    if (!workspaceRoot) {
+        vscode.window.showErrorMessage('No workspace folder opened.');
+        return 'failure';
+    }
+
+    if (clearDiagnostics) {
+        diagnosticCollection.clear();
+    }
+
+    const loadAcsEntries = parseLoadAcs(workspaceRoot);
+    if (loadAcsEntries.length === 0) {
+        if (!quietNotConfigured) {
+            vscode.window.showWarningMessage(`No LOADACS entries found in ${getPk3Root()}/loadacs.`);
+        }
+        return 'notConfigured';
+    }
+
+    const acsFiles = findLibraryAcsFiles(workspaceRoot);
+    if (acsFiles.length === 0) {
+        vscode.window.showWarningMessage(
+            `No matching ACS library files found in ${getPk3Root()}/acs_source/ for LOADACS entries.`
+        );
+        return 'failure';
+    }
+
+    let totalCompiled = 0;
+    let totalErrors = 0;
+
+    for (const acsFile of acsFiles) {
+        const ok = await compileSingleFile(acsFile, workspaceRoot);
+        if (ok) {
+            totalCompiled++;
+        } else {
+            totalErrors++;
+        }
+    }
+
+    if (totalErrors > 0) {
+        vscode.window.showErrorMessage(
+            `Compiled ${totalCompiled}, ${totalErrors} failed. Fix errors before building.`
+        );
+        return 'failure';
+    }
+
+    vscode.window.showInformationMessage(`All ${totalCompiled} ACS libraries compiled successfully.`);
+    return 'success';
+}
+
+/** @deprecated Prefer Compile Current ACS, then Build Project. Kept for keybindings. */
 export async function compileCurrentAndBuild() {
     const editor = vscode.window.activeTextEditor;
     if (!editor || editor.document.languageId !== 'acs') {
@@ -425,49 +488,12 @@ export async function compileCurrentAndBuild() {
     }
 }
 
-/** @returns true when all ACS libraries compiled and PK3 build succeeded */
+/** @deprecated Prefer Build Project. Kept for keybindings. */
 export async function compileAllAndBuild(): Promise<boolean> {
-    const workspaceRoot = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath;
-    if (!workspaceRoot) {
-        vscode.window.showErrorMessage('No workspace folder opened.');
+    const result = await compileLoadAcsLibraries({ quietNotConfigured: false });
+    if (result !== 'success') {
         return false;
     }
-
-    diagnosticCollection.clear();
-
-    const loadAcsEntries = parseLoadAcs(workspaceRoot);
-    if (loadAcsEntries.length === 0) {
-        vscode.window.showWarningMessage(`No LOADACS entries found in ${getPk3Root()}/loadacs.`);
-        return false;
-    }
-
-    const acsFiles = findLibraryAcsFiles(workspaceRoot);
-    if (acsFiles.length === 0) {
-        vscode.window.showWarningMessage(
-            `No matching ACS library files found in ${getPk3Root()}/acs_source/ for LOADACS entries.`
-        );
-        return false;
-    }
-
-    let totalCompiled = 0;
-    let totalErrors = 0;
-
-    for (const acsFile of acsFiles) {
-        const ok = await compileSingleFile(acsFile, workspaceRoot);
-        if (ok) {
-            totalCompiled++;
-        } else {
-            totalErrors++;
-        }
-    }
-
-    if (totalErrors > 0) {
-        const msg = `Compiled ${totalCompiled}, ${totalErrors} failed. Fix errors before building.`;
-        vscode.window.showErrorMessage(msg);
-        return false;
-    }
-
-    vscode.window.showInformationMessage(`All ${totalCompiled} compiled successfully. Building PK3...`);
-
+    vscode.window.showInformationMessage('Building PK3...');
     return await buildPK3();
 }

@@ -8,7 +8,7 @@ A Visual Studio Code extension for Zandronum modding — syntax highlighting, in
 
 - Visual Studio Code `^1.116.0`
 - [ACC](https://wiki.zandronum.com/ACC) — ACS compiler (`acc` on PATH, or set `zandronum-vscode.accPath`)
-- [Zandronum](https://zandronum.com/) — for Build and Run (`zandronum` on PATH, or set `zandronum-vscode.zandronumPath`)
+- [Zandronum](https://zandronum.com/) — for Run Project (`zandronum` on PATH, or set `zandronum-vscode.zandronumPath`)
 
 ## Installation
 
@@ -62,28 +62,19 @@ Cross-file symbol resolution (DECORATE actors, ACS constants) works within the w
 
 ### Build and Run
 
-- **PK3 building** — Package `<pk3Root>/` into `out/build.pk3`
-- **ACS compilation** — Compile `.acs` files with ACC; diagnostics cover the source file and `#include` targets
-- **Launch Zandronum** — Run with the built PK3; optional per-workspace IWAD and args via `.vscode/zandronum.json`
+- **Compile Current ACS** — Compile the active `.acs` file with ACC
+- **Build Project** — If LOADACS is configured, compile all libraries first; then package `<pk3Root>/` into `out/build.pk3`. Stops without packaging on compile failure.
+- **Run Project** — Runs Build Project, then launches Zandronum with the built PK3 (optional IWAD/args via `.vscode/zandronum.json`)
 
 ## Commands
 
-### Build and Run
+### Project workflow (recommended)
 
 | Command | What it does |
 |---|---|
-| **Build PK3** | Zips `<pk3Root>/` (default `src/`) into `out/build.pk3` |
-| **Run Zandronum** | Starts Zandronum with `-file out/build.pk3` (does not rebuild) |
-| **Build and Run Zandronum** | Builds PK3, then launches only if the build succeeded |
-| **Compile All ACS, Build and Run** | Compiles all LOADACS libraries, builds PK3, then launches on success |
-
-### ACS
-
-| Command | What it does |
-|---|---|
-| **Compile ACS** | Compiles the active `.acs` file |
-| **Compile All ACS and Build PK3** | Compiles all LOADACS libraries, then builds PK3 |
-| **Compile Current ACS and Build PK3** | Compiles the active file, then builds PK3 |
+| **Zandronum: Compile Current ACS** | Compiles the active `.acs` file |
+| **Zandronum: Build Project** | Compiles LOADACS libraries when configured, then builds `out/build.pk3` |
+| **Zandronum: Run Project** | Builds the project, then launches Zandronum on success |
 
 ### Editors
 
@@ -99,6 +90,8 @@ Cross-file symbol resolution (DECORATE actors, ACS constants) works within the w
 |---|---|
 | **Add Base Resource** | Adds `.pk3`, `.zip`, or directory paths to `baseResources` |
 | **Refresh Base Resources** | Re-indexes configured base resources |
+
+Legacy aliases (`Build PK3`, `Run Zandronum`, and older compile/build combinations) remain registered for keybindings and `executeCommand`, but are hidden from the Command Palette.
 
 ## Configuration
 
@@ -148,7 +141,7 @@ Optional per-workspace launch configs for IWAD and extra args. Variables: `${wor
 }
 ```
 
-The extension always inserts `-file <workspace>/out/build.pk3` between `preArgs` and `postArgs`. If `.vscode/zandronum.json` is missing or empty, Run uses the executable from settings/PATH with no extra IWAD args.
+The extension always inserts `-file <workspace>/out/build.pk3` between `preArgs` and `postArgs`. If `.vscode/zandronum.json` is missing or empty, **Run Project** / legacy Run use the executable from settings/PATH with no extra IWAD args.
 
 ## Supported Languages
 

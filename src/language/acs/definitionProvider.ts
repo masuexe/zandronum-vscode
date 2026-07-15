@@ -15,7 +15,7 @@ const SCRIPT_EXEC_FUNCTIONS = new Set([
 ]);
 
 function extractIncludePath(lineText: string, cursorCol: number): string | null {
-    const match = lineText.match(/^\s*#include\s+"([^"]*)"/);
+    const match = lineText.match(/^\s*#\s*include\s+"([^"]*)"/i);
     if (!match) {
         return null;
     }
@@ -210,7 +210,19 @@ export async function findScriptDefinition(
     const isNumbered = /^\d+$/.test(scriptRef);
 
     const srcDir = vscode.Uri.joinPath(workspaceRoot, getPk3Root());
-    return searchForScript(srcDir, scriptRef, isNumbered, token);
+    const srcResult = await searchForScript(srcDir, scriptRef, isNumbered, token);
+    if (srcResult) {
+        return srcResult;
+    }
+
+    for (const dir of getBaseAcsIncludeDirs()) {
+        const baseResult = await searchForScript(vscode.Uri.file(dir), scriptRef, isNumbered, token);
+        if (baseResult) {
+            return baseResult;
+        }
+    }
+
+    return undefined;
 }
 
 async function searchForScript(
@@ -271,7 +283,11 @@ export function registerAcsDefinitionProvider(
     symbolDb?: SymbolDatabase
 ) {
     const provider = vscode.languages.registerDefinitionProvider(
-        [{ language: 'acs' }],
+        [
+            { language: 'acs' },
+            { pattern: '**/*.{acs,ACS}' },
+            { pattern: '**/SCRIPTS' },
+        ],
         {
             async provideDefinition(
                 document: vscode.TextDocument,

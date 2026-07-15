@@ -819,14 +819,99 @@
         return null;
     }
 
+    // Host index can briefly miss patches; never lock Missing forever.
+    const RESOLVE_RETRY_MAX = 3;
+    const RESOLVE_RETRY_INTERVAL_MS = 2000;
+    const RESOLVE_LOADING_TIMEOUT_MS = 5000;
+    let ensureRetryTimer = undefined;
+
+    function isEmptyCompositePlaceholder(val) {
+        return !!(val && val._wasComposite && val.state === 'definition' && !val.bitmap);
+    }
+
+    function shouldRetryResource(val) {
+        if (!val) { return true; }
+        const now = Date.now();
+        const retries = val._retries || 0;
+        const last = val._requestedAt || 0;
+        if (val.state === 'missing') {
+            return retries < RESOLVE_RETRY_MAX && now - last >= RESOLVE_RETRY_INTERVAL_MS;
+        }
+        if (val.state === 'loading') {
+            return now - last >= RESOLVE_LOADING_TIMEOUT_MS && retries < RESOLVE_RETRY_MAX;
+        }
+        // Definition-sized placeholder (empty nested composite) — children may appear later
+        if (isEmptyCompositePlaceholder(val) && !val._pendingSubPatches) {
+            return retries < RESOLVE_RETRY_MAX && now - last >= RESOLVE_RETRY_INTERVAL_MS;
+        }
+        return false;
+    }
+
+    function requestResource(resourceId, prevRetries) {
+        resourceCache.set(resourceId, {
+            state: 'loading',
+            _requestedAt: Date.now(),
+            _retries: prevRetries || 0
+        });
+        vscode.postMessage({ type: 'resolveResource', resourceId });
+    }
+
+    function scheduleEnsureRetry() {
+        if (ensureRetryTimer !== undefined || !currentTexture) { return; }
+        let needsRetry = false;
+        for (const patch of currentTexture.patches) {
+            if (shouldRetryResource(resourceCache.get(patch.resourceId))) {
+                needsRetry = true;
+                break;
+            }
+            const val = resourceCache.get(patch.resourceId);
+            // Waiting for backoff window
+            if (val && (val.state === 'missing' || isEmptyCompositePlaceholder(val))
+                && (val._retries || 0) < RESOLVE_RETRY_MAX) {
+                needsRetry = true;
+                break;
+            }
+            if (val && val.state === 'loading') {
+                needsRetry = true;
+                break;
+            }
+        }
+        if (!needsRetry) { return; }
+        ensureRetryTimer = setTimeout(() => {
+            ensureRetryTimer = undefined;
+            ensureResources();
+            renderBase();
+            renderOverlay();
+        }, RESOLVE_RETRY_INTERVAL_MS);
+    }
+
+    /** Drop failed/empty cache entries for current patches so ensureResources can re-request. */
+    function invalidateRetriableResources() {
+        if (!currentTexture) { return; }
+        for (const patch of currentTexture.patches) {
+            const val = resourceCache.get(patch.resourceId);
+            if (!val) { continue; }
+            if (val.state === 'missing' || isEmptyCompositePlaceholder(val)) {
+                resourceCache.delete(patch.resourceId);
+            }
+        }
+    }
+
     function ensureResources() {
         if (!currentTexture) { return; }
         for (const patch of currentTexture.patches) {
-            if (!resourceCache.has(patch.resourceId)) {
-                resourceCache.set(patch.resourceId, { state: 'loading' });
-                vscode.postMessage({ type: 'resolveResource', resourceId: patch.resourceId });
+            const id = patch.resourceId;
+            const val = resourceCache.get(id);
+            if (!val) {
+                requestResource(id, 0);
+                continue;
             }
+            if (!shouldRetryResource(val)) { continue; }
+            const nextRetries = (val._retries || 0) + 1;
+            if (val.state === 'ready' && val.bitmap && val.bitmap.close) { val.bitmap.close(); }
+            requestResource(id, nextRetries);
         }
+        scheduleEnsureRetry();
     }
 
     function retainResources() {
@@ -1534,6 +1619,7 @@
                 }
                 buildTextureList();
                 buildPatchList();
+                invalidateRetriableResources();
                 ensureResources();
                 retainResources();
                 syncInspector();
@@ -1602,19 +1688,25 @@
                     _wasComposite: true
                 });
             } catch {
+                const prev = resourceCache.get(msg.resourceId);
                 resourceCache.set(msg.resourceId, {
                     state: 'definition',
                     width: msg.width || 32,
                     height: msg.height || 32,
-                    _wasComposite: true
+                    _wasComposite: true,
+                    _retries: prev?._retries || 0,
+                    _requestedAt: prev?._requestedAt || Date.now()
                 });
             }
         } else if (msg.resourceType === 'composite') {
+            const prev = resourceCache.get(msg.resourceId);
             resourceCache.set(msg.resourceId, {
                 state: 'definition',
                 width: msg.width || 32,
                 height: msg.height || 32,
-                _wasComposite: true
+                _wasComposite: true,
+                _retries: prev?._retries || 0,
+                _requestedAt: prev?._requestedAt || Date.now()
             });
         } else if (msg.uri) {
             try {
@@ -1629,11 +1721,22 @@
                     grabOffset: msg.grabOffset || null
                 });
             } catch {
-                resourceCache.set(msg.resourceId, { state: 'missing' });
+                const prev = resourceCache.get(msg.resourceId);
+                resourceCache.set(msg.resourceId, {
+                    state: 'missing',
+                    _retries: prev?._retries || 0,
+                    _requestedAt: prev?._requestedAt || Date.now()
+                });
             }
         } else {
-            resourceCache.set(msg.resourceId, { state: 'missing' });
+            const prev = resourceCache.get(msg.resourceId);
+            resourceCache.set(msg.resourceId, {
+                state: 'missing',
+                _retries: prev?._retries || 0,
+                _requestedAt: prev?._requestedAt || Date.now()
+            });
         }
+        scheduleEnsureRetry();
         renderBase();
         renderOverlay();
     }

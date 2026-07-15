@@ -42,12 +42,21 @@ function computeDefinitionPriority(uri: vscode.Uri, pk3Root: string): number {
 
 const TEXTURES_DEF_RE = /^\s*(Texture|WallTexture|Flat|Sprite|Graphic)\s+(?:optional\s+)?(?:"([^"]*)"|([^\s,]+))\s*,\s*(\d+)\s*,\s*(\d+)/gim;
 
+const REFRESH_THROTTLE_MS = 2000;
+
+interface NamedDefinition {
+    name: string;
+    entry: ResourceMetadata;
+}
+
 export class ResourceIndex {
     private readonly pk3Root: string;
     private index = new Map<string, ResourceMetadata[]>();
     private imageWatcher: vscode.FileSystemWatcher | undefined;
     private texturesWatcher: vscode.FileSystemWatcher | undefined;
     private buildPromise: Promise<void> | undefined;
+    private refreshPromise: Promise<void> | undefined;
+    private lastRefreshAt = 0;
 
     constructor(pk3Root: string = 'src') {
         this.pk3Root = pk3Root;
@@ -61,11 +70,42 @@ export class ResourceIndex {
         if (this.buildPromise) { await this.buildPromise; }
     }
 
+    /**
+     * Throttled full rebuild when a resolve misses. Covers incomplete activate-time
+     * findFiles and missing create-watcher events. Returns true if a rebuild ran
+     * (or was awaited) so the caller can re-resolve.
+     */
+    async refreshIfStale(): Promise<boolean> {
+        if (this.refreshPromise) {
+            await this.refreshPromise;
+            return true;
+        }
+        const now = Date.now();
+        if (this.lastRefreshAt > 0 && now - this.lastRefreshAt < REFRESH_THROTTLE_MS) {
+            return false;
+        }
+        this.lastRefreshAt = now;
+        this.buildPromise = this.doBuild();
+        this.refreshPromise = this.buildPromise;
+        try {
+            await this.refreshPromise;
+            return true;
+        } finally {
+            this.refreshPromise = undefined;
+        }
+    }
+
     resolve(type: string, name: string): ResourceMetadata | null {
         const entries = this.index.get(name.toLowerCase());
         if (!entries || entries.length === 0) { return null; }
         if (entries.length === 1) { return entries[0]; }
         return entries.reduce((best, cur) => cur.priority > best.priority ? cur : best);
+    }
+
+    /** All indexed entries for a name (for PNG fallback when a TextureDefinition is empty). */
+    resolveAll(name: string): ResourceMetadata[] {
+        const entries = this.index.get(name.toLowerCase());
+        return entries ? entries.slice() : [];
     }
 
     /** Basenames of indexed image resources (png/jpeg), sorted. */
@@ -103,10 +143,8 @@ export class ResourceIndex {
         this.imageWatcher.onDidDelete(uri => this.removeFile(uri));
         this.texturesWatcher = vscode.workspace.createFileSystemWatcher('**/TEXTURES*');
         this.texturesWatcher.onDidCreate(uri => { void this.scanTexturesFile(uri); });
-        this.texturesWatcher.onDidChange(uri => {
-            this.removeDefinitionsFrom(uri);
-            void this.scanTexturesFile(uri);
-        });
+        // Atomic replace: scan first, then swap defs — avoids a gap where names vanish.
+        this.texturesWatcher.onDidChange(uri => { void this.replaceDefinitionsFrom(uri); });
         this.texturesWatcher.onDidDelete(uri => this.removeDefinitionsFrom(uri));
     }
 
@@ -124,7 +162,8 @@ export class ResourceIndex {
         }
     }
 
-    private async scanTexturesFile(uri: vscode.Uri): Promise<void> {
+    private async collectDefinitionsFrom(uri: vscode.Uri): Promise<NamedDefinition[]> {
+        const result: NamedDefinition[] = [];
         try {
             const data = await vscode.workspace.fs.readFile(uri);
             const text = Buffer.from(data).toString('utf-8');
@@ -134,21 +173,43 @@ export class ResourceIndex {
                 const name = (m[2] ?? m[3]).toLowerCase();
                 const width = parseInt(m[4]);
                 const height = parseInt(m[5]);
-                const entry: ResourceMetadata = {
-                    uri,
-                    type: ResourceType.TextureDefinition,
-                    priority: computeDefinitionPriority(uri, this.pk3Root),
-                    width,
-                    height
-                };
-                const existing = this.index.get(name);
-                if (existing) {
-                    existing.push(entry);
-                } else {
-                    this.index.set(name, [entry]);
-                }
+                result.push({
+                    name,
+                    entry: {
+                        uri,
+                        type: ResourceType.TextureDefinition,
+                        priority: computeDefinitionPriority(uri, this.pk3Root),
+                        width,
+                        height
+                    }
+                });
             }
-        } catch {}
+        } catch { /* ignore unreadable files */ }
+        return result;
+    }
+
+    private addDefinitionEntry(name: string, entry: ResourceMetadata): void {
+        const existing = this.index.get(name);
+        if (existing) {
+            existing.push(entry);
+        } else {
+            this.index.set(name, [entry]);
+        }
+    }
+
+    private async scanTexturesFile(uri: vscode.Uri): Promise<void> {
+        const defs = await this.collectDefinitionsFrom(uri);
+        for (const d of defs) {
+            this.addDefinitionEntry(d.name, d.entry);
+        }
+    }
+
+    private async replaceDefinitionsFrom(uri: vscode.Uri): Promise<void> {
+        const defs = await this.collectDefinitionsFrom(uri);
+        this.removeDefinitionsFrom(uri);
+        for (const d of defs) {
+            this.addDefinitionEntry(d.name, d.entry);
+        }
     }
 
     private addFile(uri: vscode.Uri): void {

@@ -168,13 +168,26 @@ export class TextureDocumentModel {
             v.add(name);
             const subPatches = this.resolveSubPatches(localDef, webview, v);
             v.delete(name);
+            if (subPatches.length > 0) {
+                return {
+                    uri: null,
+                    width: localDef.defData.width,
+                    height: localDef.defData.height,
+                    resourceType: 'composite',
+                    subPatches,
+                    // TEXTURES Offset on Sprite/Graphic defs acts like PNG grAb
+                    grabOffset: texturesOriginOffset(localDef.texProps)
+                };
+            }
+            // Nested children unresolved (index miss) — fall back to same-name PNG/JPEG
+            const imageFallback = this.resolveImageFallback(name, webview);
+            if (imageFallback) { return imageFallback; }
             return {
                 uri: null,
                 width: localDef.defData.width,
                 height: localDef.defData.height,
                 resourceType: 'composite',
-                subPatches,
-                // TEXTURES Offset on Sprite/Graphic defs acts like PNG grAb
+                subPatches: [],
                 grabOffset: texturesOriginOffset(localDef.texProps)
             };
         }
@@ -187,6 +200,11 @@ export class TextureDocumentModel {
             v.add(name);
             const external = this.resolveExternalDefinitionSync(meta.uri, name, webview, v);
             v.delete(name);
+            if (external && external.subPatches && external.subPatches.length > 0) {
+                return external;
+            }
+            const imageFallback = this.resolveImageFallback(name, webview);
+            if (imageFallback) { return imageFallback; }
             if (external) { return external; }
             return {
                 uri: null,
@@ -206,6 +224,23 @@ export class TextureDocumentModel {
             height: meta.height ?? 0,
             resourceType: 'image',
             grabOffset: grab
+        };
+    }
+
+    /** Prefer a same-name image when a TextureDefinition resolves with no usable patches. */
+    private resolveImageFallback(name: string, webview: vscode.Webview): ResolvedResource | null {
+        const entries = this.resourceIndex.resolveAll(name);
+        const img = entries.find(
+            e => e.type === ResourceType.Png || e.type === ResourceType.Jpeg
+        );
+        if (!img) { return null; }
+        this.ensureMetaImageSize(img);
+        return {
+            uri: webview.asWebviewUri(img.uri).toString(),
+            width: img.width ?? 0,
+            height: img.height ?? 0,
+            resourceType: 'image',
+            grabOffset: this.readGrabForUri(img.uri)
         };
     }
 

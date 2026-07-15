@@ -388,7 +388,16 @@ export class TextureDocumentController {
     private async handleResolveResource(resourceId: string): Promise<void> {
         if (!this.panel) { return; }
         await this.resourceIndex.whenReady();
-        const resolved = this.model.resolveResourceFull(resourceId, this.panel.webview);
+        let resolved = this.model.resolveResourceFull(resourceId, this.panel.webview);
+        const emptyComposite = resolved.resourceType === 'composite'
+            && (!resolved.subPatches || resolved.subPatches.length === 0);
+        if (resolved.resourceType === 'missing' || emptyComposite) {
+            const refreshed = await this.resourceIndex.refreshIfStale();
+            if (refreshed && this.panel) {
+                resolved = this.model.resolveResourceFull(resourceId, this.panel.webview);
+            }
+        }
+        if (!this.panel) { return; }
         this.panel.sendResourceResolved(
             resourceId,
             resolved.uri,

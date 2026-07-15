@@ -51,7 +51,7 @@ export interface OffsetSequence {
 
 const LABEL_RE = /^\s*([A-Za-z_][A-Za-z0-9_]*)\s*:/;
 const STATE_LINE_RE =
-    /^\s*([A-Za-z0-9_\[\]\\]{1,8})\s+([A-Za-z0-9\[\]\\]+)\s+(-?\d+|[Rr][Aa][Nn][Dd][Oo][Mm]\s*\([^)]*\))\s*(.*)$/;
+    /^\s*([A-Za-z0-9_]{1,8})\s+(\"[^\"]+\"|[A-Za-z0-9\[\]\\]+)\s+(-?\d+|[Rr][Aa][Nn][Dd][Oo][Mm]\s*\([^)]*\))\s*(.*)$/;
 const OFFSET_RE = /\bOffset\s*\(\s*(-?\d+)\s*,\s*(-?\d+)\s*\)/i;
 const WEAPON_READY_RE = /\bA_WeaponReady\b/i;
 const FLOW_RE = /^\s*(goto|loop|stop|wait|fail)\b/i;

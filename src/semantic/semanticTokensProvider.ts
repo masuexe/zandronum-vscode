@@ -93,7 +93,8 @@ class DecorateSemanticTokensProvider implements vscode.DocumentSemanticTokensPro
         for (let line = 0; line < document.lineCount; line++) {
             const text = document.lineAt(line).text;
             const stringRanges = getStringRanges(text);
-            const wordRe = /[A-Za-z_][A-Za-z0-9_]*/g;
+            // Include leading digits so sprite names like 6H15 stay one token
+            const wordRe = /[A-Za-z0-9_]+/g;
             let wm: RegExpExecArray | null;
 
             // Compute comment ranges for this line

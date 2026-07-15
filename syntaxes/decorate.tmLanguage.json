@@ -99,7 +99,7 @@
 					}
 				},
 				{
-					"match": "([A-Za-z0-9_\\[^\\]][A-Za-z0-9_]*)\\s+([A-Za-z0-9\\[\\]\\\\]+)\\s+(?:(-?[0-9]+)|([Rr][Aa][Nn][Dd][Oo][Mm])\\s*\\(\\s*(-?[0-9]+)\\s*,\\s*(-?[0-9]+)\\s*\\))",
+					"match": "([A-Za-z0-9_][A-Za-z0-9_]{0,7})\\s+(\"[^\"]+\"|[A-Za-z0-9\\[\\]\\\\]+)\\s+(?:(-?[0-9]+)|([Rr][Aa][Nn][Dd][Oo][Mm])\\s*\\(\\s*(-?[0-9]+)\\s*,\\s*(-?[0-9]+)\\s*\\))",
 					"captures": {
 						"1": {"name": "string.sprite.decorate"},
 						"2": {"name": "constant.character.sprite-frame.decorate"},
@@ -245,15 +245,15 @@
 		"numbers": {
 			"patterns": [
 				{
-					"match": "-?\\b([0-9]+\\.[0-9]*|\\.[0-9]+)([eE][+-]?[0-9]+)?\\b",
+					"match": "(?<![A-Za-z0-9_])-?([0-9]+\\.[0-9]*|\\.[0-9]+)([eE][+-]?[0-9]+)?(?![A-Za-z0-9_])",
 					"name": "constant.numeric.float.decorate"
 				},
 				{
-					"match": "-?\\b[0-9]+\\b",
+					"match": "(?<![A-Za-z0-9_])-?[0-9]+(?![A-Za-z0-9_])",
 					"name": "constant.numeric.integer.decorate"
 				},
 				{
-					"match": "\\b0x[0-9a-fA-F]+\\b",
+					"match": "(?<![A-Za-z0-9_])0x[0-9a-fA-F]+(?![A-Za-z0-9_])",
 					"name": "constant.numeric.hex.decorate"
 				}
 			]

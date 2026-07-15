@@ -99,14 +99,17 @@
 					}
 				},
 				{
-					"match": "([A-Za-z0-9_][A-Za-z0-9_]{0,7})\\s+(\"[^\"]+\"|[A-Za-z0-9\\[\\]\\\\]+)\\s+(?:(-?[0-9]+)|([Rr][Aa][Nn][Dd][Oo][Mm])\\s*\\(\\s*(-?[0-9]+)\\s*,\\s*(-?[0-9]+)\\s*\\))",
+					"match": "([A-Za-z0-9_][A-Za-z0-9_]{0,7})\\s+(?:(\")([^\"]+)(\")|([A-Za-z0-9\\[\\]\\\\]+))\\s+(?:(-?[0-9]+)|([Rr][Aa][Nn][Dd][Oo][Mm])\\s*\\(\\s*(-?[0-9]+)\\s*,\\s*(-?[0-9]+)\\s*\\))",
 					"captures": {
 						"1": {"name": "string.sprite.decorate"},
-						"2": {"name": "constant.character.sprite-frame.decorate"},
-						"3": {"name": "constant.numeric.decorate"},
-						"4": {"name": "entity.name.function.decorate"},
-						"5": {"name": "constant.numeric.decorate"},
-						"6": {"name": "constant.numeric.decorate"}
+						"2": {"name": "punctuation.definition.string.begin.decorate"},
+						"3": {"name": "constant.character.sprite-frame.decorate"},
+						"4": {"name": "punctuation.definition.string.end.decorate"},
+						"5": {"name": "constant.character.sprite-frame.decorate"},
+						"6": {"name": "constant.numeric.decorate"},
+						"7": {"name": "entity.name.function.decorate"},
+						"8": {"name": "constant.numeric.decorate"},
+						"9": {"name": "constant.numeric.decorate"}
 					}
 				},
 			{

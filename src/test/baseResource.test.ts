@@ -134,6 +134,15 @@ suite('Base Resource — URI helpers', () => {
 		assert.strictEqual(parsed!.packageId, './deps/base.pk3');
 		assert.strictEqual(parsed!.entryPath, 'actors/a.dec');
 	});
+
+	test('round-trip absolute Windows package path', () => {
+		const uri = makeBaseResourceUri('D:/wads/mm8bdm-v6b.pk3', 'actors/basicactors.txt');
+		assert.ok(!uri.authority, 'must not use authority (VS Code lowercases it)');
+		const parsed = parseBaseResourceUri(uri);
+		assert.ok(parsed);
+		assert.strictEqual(parsed!.packageId, 'D:/wads/mm8bdm-v6b.pk3');
+		assert.strictEqual(parsed!.entryPath, 'actors/basicactors.txt');
+	});
 });
 
 suite('Base Resource — override order', () => {

@@ -86,7 +86,11 @@ export class PackageManager {
     }
 
     findPackage(packageId: string): PackageSource | undefined {
-        return this.packages.find(p => p.id === packageId);
+        const exact = this.packages.find(p => p.id === packageId);
+        if (exact) { return exact; }
+        // VS Code may lowercase URI authorities; also normalize path separators.
+        const norm = packageId.replace(/\\/g, '/').toLowerCase();
+        return this.packages.find(p => p.id.replace(/\\/g, '/').toLowerCase() === norm);
     }
 
     collectZipErrors(): PackageBuildWarning[] {

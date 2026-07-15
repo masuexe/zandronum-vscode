@@ -23,6 +23,15 @@ function findEntryKey(map: Map<string, Uint8Array>, entryPath: string): string |
     return undefined;
 }
 
+function shouldExtractZipEntry(entryPath: string): boolean {
+    const normalized = normalizeEntryPath(entryPath);
+    const name = normalized.split('/').pop() ?? '';
+    if (!name) { return false; }
+    // ZDoom/Zandronum often use DECORATE.txt and actor defs in .txt lumps.
+    if (/^(DECORATE|SCRIPTS|SNDINFO|TEXTURES|LANGUAGE)(\.txt)?$/i.test(name)) { return true; }
+    return /\.(dec|decorate|acs|lm|txt)$/i.test(name);
+}
+
 export class BuiltinPackage implements PackageSource {
     readonly priority: number;
     readonly label = 'builtin';
@@ -179,7 +188,9 @@ export class ZipPackage implements PackageSource {
 
         const buf = this.rawData;
         this.entryMap = await new Promise<Map<string, Uint8Array>>((resolve) => {
-            unzip(buf, (err, data) => {
+            unzip(buf, {
+                filter: (file) => shouldExtractZipEntry(file.name)
+            }, (err, data) => {
                 const map = new Map<string, Uint8Array>();
                 if (err) {
                     this.loadError = `Failed to read PK3/ZIP (${this.label}): ${err.message}`;

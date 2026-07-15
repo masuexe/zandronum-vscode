@@ -1,8 +1,8 @@
 import { SymbolKind, SymbolEntry, ActorSymbol } from './types';
 import { SymbolProvider } from './symbolDatabase';
 
-const DECORATE_PATTERN = /\.dec$|\.decorate$/i;
-const DECORATE_FILENAME = /^DECORATE$/i;
+const DECORATE_PATTERN = /\.dec$|\.decorate$|\.txt$/i;
+const DECORATE_FILENAME = /^DECORATE(\.txt)?$/i;
 
 function decode(u8: Uint8Array): string {
     return Buffer.from(u8).toString('utf-8');

@@ -99,17 +99,20 @@
 					}
 				},
 				{
-					"match": "([A-Za-z0-9_][A-Za-z0-9_]{0,7})\\s+(?:(\")([^\"]+)(\")|([A-Za-z0-9\\[\\]\\\\]+))\\s+(?:(-?[0-9]+)|([Rr][Aa][Nn][Dd][Oo][Mm])\\s*\\(\\s*(-?[0-9]+)\\s*,\\s*(-?[0-9]+)\\s*\\))",
+					"match": "(?:(\")([^\"]+)(\")|([A-Za-z0-9_][A-Za-z0-9_]{0,7}))\\s+(?:(\")([^\"]+)(\")|([A-Za-z0-9\\[\\]\\\\]+))\\s+(?:(-?[0-9]+)|([Rr][Aa][Nn][Dd][Oo][Mm])\\s*\\(\\s*(-?[0-9]+)\\s*,\\s*(-?[0-9]+)\\s*\\))",
 					"captures": {
-						"1": {"name": "string.sprite.decorate"},
-						"2": {"name": "punctuation.definition.string.begin.decorate"},
-						"3": {"name": "constant.character.sprite-frame.decorate"},
-						"4": {"name": "punctuation.definition.string.end.decorate"},
-						"5": {"name": "constant.character.sprite-frame.decorate"},
-						"6": {"name": "constant.numeric.decorate"},
-						"7": {"name": "entity.name.function.decorate"},
-						"8": {"name": "constant.numeric.decorate"},
-						"9": {"name": "constant.numeric.decorate"}
+						"1": {"name": "punctuation.definition.string.begin.decorate"},
+						"2": {"name": "string.sprite.decorate"},
+						"3": {"name": "punctuation.definition.string.end.decorate"},
+						"4": {"name": "string.sprite.decorate"},
+						"5": {"name": "punctuation.definition.string.begin.decorate"},
+						"6": {"name": "constant.character.sprite-frame.decorate"},
+						"7": {"name": "punctuation.definition.string.end.decorate"},
+						"8": {"name": "constant.character.sprite-frame.decorate"},
+						"9": {"name": "constant.numeric.decorate"},
+						"10": {"name": "entity.name.function.decorate"},
+						"11": {"name": "constant.numeric.decorate"},
+						"12": {"name": "constant.numeric.decorate"}
 					}
 				},
 			{

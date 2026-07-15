@@ -51,7 +51,7 @@ export interface OffsetSequence {
 
 const LABEL_RE = /^\s*([A-Za-z_][A-Za-z0-9_]*)\s*:/;
 const STATE_LINE_RE =
-    /^\s*([A-Za-z0-9_]{1,8})\s+(\"[^\"]+\"|[A-Za-z0-9\[\]\\]+)\s+(-?\d+|[Rr][Aa][Nn][Dd][Oo][Mm]\s*\([^)]*\))\s*(.*)$/;
+    /^\s*(\"[^\"]+\"|[A-Za-z0-9_]{1,8})\s+(\"[^\"]+\"|[A-Za-z0-9\[\]\\]+)\s+(-?\d+|[Rr][Aa][Nn][Dd][Oo][Mm]\s*\([^)]*\))\s*(.*)$/;
 const OFFSET_RE = /\bOffset\s*\(\s*(-?\d+)\s*,\s*(-?\d+)\s*\)/i;
 const WEAPON_READY_RE = /\bA_WeaponReady\b/i;
 const FLOW_RE = /^\s*(goto|loop|stop|wait|fail)\b/i;
@@ -61,6 +61,14 @@ const ACTOR_RE = /^\s*Actor\b/i;
 function stripComment(line: string): string {
     const idx = line.indexOf('//');
     return idx >= 0 ? line.substring(0, idx) : line;
+}
+
+/** Strip surrounding quotes from `"####"` / `"#"` state tokens. */
+function stripStateQuotes(token: string): string {
+    if (token.length >= 2 && token.startsWith('"') && token.endsWith('"')) {
+        return token.slice(1, -1);
+    }
+    return token;
 }
 
 function isOffsetAffecting(f: Pick<OffsetStateFrame, 'hasOffsetKeyword' | 'resetsToWeaponReady'>): boolean {
@@ -114,8 +122,8 @@ export function parseLabelFrames(lines: string[], labelLine: number): OffsetStat
             continue;
         }
 
-        const sprite = m[1];
-        const frame = m[2];
+        const sprite = stripStateQuotes(m[1]);
+        const frame = stripStateQuotes(m[2]);
         const duration = m[3];
         const rest = m[4] ?? '';
         const om = OFFSET_RE.exec(rest);

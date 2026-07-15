@@ -1,21 +1,74 @@
 # zandronum-vscode
 
-A Visual Studio Code extension for Zandronum modding, providing modern IDE support for DECORATE, ACS, and special lump languages.
+A Visual Studio Code extension for Zandronum modding — syntax highlighting, intelligent editing, build tools, and visual editors for DECORATE, ACS, and engine lump languages.
+
+> **Not yet published on the VS Code Marketplace.** Install from source or a VSIX package (see [Installation](#installation)).
+
+## Requirements
+
+- Visual Studio Code `^1.116.0`
+- [ACC](https://wiki.zandronum.com/ACC) — ACS compiler (`acc` on PATH, or set `zandronum-vscode.accPath`)
+- [Zandronum](https://zandronum.com/) — for Build and Run (`zandronum` on PATH, or set `zandronum-vscode.zandronumPath`)
+
+## Installation
+
+### From source (development)
+
+```bash
+git clone <repository-url>
+cd zandronum-vscode
+npm install
+npm run compile
+```
+
+Press **F5** in VS Code to launch an Extension Development Host with the extension loaded.
+
+### From VSIX
+
+```bash
+npm install
+npm run compile
+npx @vscode/vsce package
+```
+
+Then in VS Code: **Extensions** → **…** → **Install from VSIX…** → select the generated `.vsix` file.
 
 ## Features
 
-- **Syntax highlighting**: DECORATE, ACS
-- **Intelligent completion**: Action functions, properties, flags, expressions (DECORATE); built-in functions and constants (ACS)
-- **Signature help**: Parameter hints for action functions and ACS built-ins
-- **Hover documentation**: Function signatures with parameter descriptions
-- **ACS compilation**: Compile `.acs` files with ACC, integrated error diagnostics
-- **PK3 building**: Package workspace files into a PK3 archive
-- **Build and Run**: Launch Zandronum with the built PK3 (optionally after compiling ACS)
-- **Snippets**: Actor templates (DECORATE), script templates (ACS)
+### Language support
 
-## Build and Run
+| Language | Syntax | Completion | Signature | Hover | Go to Definition | Symbols | Semantic tokens | Other |
+|---|---|---|---|---|---|---|---|---|
+| DECORATE | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | Color preview, weapon offset preview |
+| ACS | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ACC compile integration |
+| SNDINFO | ✓ | ✓ | ✓ | ✓ | | | | |
+| TEXTURES | ✓ | ✓ | | ✓ | | ✓ | | Folding, color preview, visual editor |
+| MAPINFO | ✓ | | | | | | | |
+| GLDEFS | ✓ | | | | | | | |
+| MENUDEF | ✓ | | | | | | | |
+| ANIMDEFS | ✓ | | | | | | | |
+| SBARINFO | ✓ | | | | | | | |
+| CVARINFO | ✓ | | | | | | | |
 
-Command Palette entries:
+Snippets are available for DECORATE (actor templates) and ACS (script templates).
+
+Cross-file symbol resolution (DECORATE actors, ACS constants) works within the workspace and against configured [base resources](#base-resources).
+
+### Editors
+
+- **Texture Editor** — Visual editor for TEXTURES definitions (patch layout, offsets, scales, translation preview). Open from the editor context menu or **Open Texture Editor** command while editing a TEXTURES file.
+- **Sprite Offset Editor** — Edit PNG `grAb` chunks (SLADE-compatible). Available as a custom editor for `.png` files or via **Edit Sprite Offset**.
+- **Weapon Offset Preview** — Preview weapon sprite offsets from DECORATE. Use the CodeLens on relevant lines or **Preview Weapon Offset**.
+
+### Build and Run
+
+- **PK3 building** — Package `<pk3Root>/` into `out/build.pk3`
+- **ACS compilation** — Compile `.acs` files with ACC; diagnostics cover the source file and `#include` targets
+- **Launch Zandronum** — Run with the built PK3; optional per-workspace IWAD and args via `.vscode/zandronum.json`
+
+## Commands
+
+### Build and Run
 
 | Command | What it does |
 |---|---|
@@ -24,14 +77,61 @@ Command Palette entries:
 | **Build and Run Zandronum** | Builds PK3, then launches only if the build succeeded |
 | **Compile All ACS, Build and Run** | Compiles all LOADACS libraries, builds PK3, then launches on success |
 
-### Zandronum executable
+### ACS
+
+| Command | What it does |
+|---|---|
+| **Compile ACS** | Compiles the active `.acs` file |
+| **Compile All ACS and Build PK3** | Compiles all LOADACS libraries, then builds PK3 |
+| **Compile Current ACS and Build PK3** | Compiles the active file, then builds PK3 |
+
+### Editors
+
+| Command | What it does |
+|---|---|
+| **Open Texture Editor** | Opens the visual texture editor for the current TEXTURES file |
+| **Edit Sprite Offset** | Opens the sprite offset editor for a PNG file |
+| **Preview Weapon Offset** | Opens weapon offset preview for the current DECORATE line |
+
+### Base Resources
+
+| Command | What it does |
+|---|---|
+| **Add Base Resource** | Adds `.pk3`, `.zip`, or directory paths to `baseResources` |
+| **Refresh Base Resources** | Re-indexes configured base resources |
+
+## Configuration
+
+### Zandronum
 
 | Setting | Default | Description |
 |---|---|---|
 | `zandronum-vscode.zandronumPath` | `""` | Path to the Zandronum executable (uses system PATH if empty) |
-| `zandronum-vscode.pk3Root` | `"src"` | Content root packed into the PK3 |
+| `zandronum-vscode.pk3Root` | `"src"` | Content root packed into the PK3; resources inside get higher lookup priority |
 
-### Launch configuration (`.vscode/zandronum.json`)
+### ACC Compiler
+
+| Setting | Default | Description |
+|---|---|---|
+| `zandronum-vscode.accPath` | `""` | Path to ACC executable (uses system PATH if empty) |
+| `zandronum-vscode.accIncludePaths` | `""` | Additional ACC include directories (`-i`), semicolon-separated |
+| `zandronum-vscode.accOutputDir` | `""` | Output directory for compiled `.o` files (relative to workspace). If empty, defaults to `<pk3Root>/acs` |
+
+### Base Resources
+
+| Setting | Default | Description |
+|---|---|---|
+| `zandronum-vscode.baseResources` | `[]` | Read-only base resource paths loaded before the workspace for symbol resolution. Supports `.pk3`/`.zip` archives and directories. Later entries override earlier ones; workspace always wins. `.wad` and `.pk7` are not supported yet. |
+
+Load engine or mod PK3s here so DECORATE actor names and ACS `#define` constants from those packages appear in completion, hover, and go-to-definition. Use **Add Base Resource** or edit the workspace settings directly.
+
+### Palette (PLAYPAL)
+
+| Setting | Default | Description |
+|---|---|---|
+| `zandronum-vscode.playpalPath` | `""` | Path to an external PLAYPAL lump file or a directory containing one. Supports relative (workspace root) and absolute paths. Used for palette color preview in Translation properties. |
+
+## Launch configuration (`.vscode/zandronum.json`)
 
 Optional per-workspace launch configs for IWAD and extra args. Variables: `${workspaceFolder}`, `${buildOutput}`, `${env:VAR}`.
 
@@ -50,36 +150,29 @@ Optional per-workspace launch configs for IWAD and extra args. Variables: `${wor
 
 The extension always inserts `-file <workspace>/out/build.pk3` between `preArgs` and `postArgs`. If `.vscode/zandronum.json` is missing or empty, Run uses the executable from settings/PATH with no extra IWAD args.
 
-## Configuration
-
-### ACC Compiler
-
-| Setting | Default | Description |
-|---|---|---|
-| `zandronum-vscode.accPath` | `""` | Path to ACC executable (uses system PATH if empty) |
-| `zandronum-vscode.accIncludePaths` | `""` | Additional ACC include directories (`-i`), semicolon-separated |
-| `zandronum-vscode.accOutputDir` | `"src/acs"` | Output directory for compiled `.o` files |
-
-### Non-Standard File Extensions
-
-Some lump files may carry extensions that conflict with other languages (e.g., `TEXTURES.class` is recognized as Java). Add these to your settings:
-
-```jsonc
-"files.associations": {
-    "TEXTURES.*": "textures",
-    "MAPINFO.*": "mapinfo",
-    "SNDINFO.*": "sndinfo",
-    "GLDEFS.*": "gldefs",
-    "MENUDEF.*": "menudef",
-    "ANIMDEFS.*": "animdefs",
-}
-```
-
-These associations have the highest priority and will not affect other users.
-
 ## Supported Languages
 
 | Language | ID | Extensions | Filenames |
 |---|---|---|---|
 | DECORATE | `decorate` | `.dec`, `.decorate` | `DECORATE` |
 | ACS | `acs` | `.acs` | `SCRIPTS` |
+| MAPINFO | `mapinfo` | | `MAPINFO` |
+| SNDINFO | `sndinfo` | | `SNDINFO` |
+| GLDEFS | `gldefs` | | `GLDEFS` |
+| MENUDEF | `menudef` | | `MENUDEF` |
+| TEXTURES | `textures` | | `TEXTURES` |
+| ANIMDEFS | `animdefs` | | `ANIMDEFS` |
+| SBARINFO | `sbarinfo` | | `SBARINFO` |
+| CVARINFO | `cvarinfo` | | `CVARINFO` |
+
+## Development
+
+```bash
+npm install          # install dependencies
+npm run compile      # build TypeScript → out/
+npm run watch        # watch mode
+npm run lint         # ESLint
+npm test             # extension tests (compile + lint + vscode-test)
+```
+
+Content root for PK3 packaging defaults to `src/` (`pk3Root`); build output is `out/build.pk3`.

@@ -1,7 +1,7 @@
 {
   "name": "zandronum-vscode",
   "displayName": "zandronum-vscode",
-  "description": "",
+  "description": "VS Code extension for Zandronum modding — DECORATE, ACS, lump syntax, build tools, and visual editors.",
   "version": "0.0.1",
   "engines": {
     "vscode": "^1.116.0"

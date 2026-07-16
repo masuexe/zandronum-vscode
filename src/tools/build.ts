@@ -53,8 +53,9 @@ export async function buildPK3(): Promise<boolean> {
 }
 
 /**
- * Project build: compile LOADACS libraries when configured, then package PK3.
- * Skips ACS when LOADACS is absent; stops without packaging on compile failure.
+ * Project build: compile LOADACS libraries when configured (workspace + base
+ * resources), then package PK3. Skips ACS when no LOADACS entries exist;
+ * stops without packaging on compile failure.
  */
 export async function buildProject(): Promise<boolean> {
     // Dynamic import avoids a static cycle with compileAcs → buildPK3.

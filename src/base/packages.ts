@@ -29,7 +29,7 @@ function shouldExtractZipEntry(entryPath: string): boolean {
     const name = normalized.split('/').pop() ?? '';
     if (!name) { return false; }
     // ZDoom/Zandronum often use DECORATE.txt and actor defs in .txt lumps.
-    if (/^(DECORATE|SCRIPTS|SNDINFO|TEXTURES|LANGUAGE)(\.txt)?$/i.test(name)) { return true; }
+    if (/^(DECORATE|SCRIPTS|SNDINFO|TEXTURES|LANGUAGE|LOADACS)(\.txt)?$/i.test(name)) { return true; }
     return /\.(dec|decorate|acs|lm|txt)$/i.test(name);
 }
 

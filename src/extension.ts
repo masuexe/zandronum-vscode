@@ -37,7 +37,7 @@ import { SymbolDatabase } from './base/symbolDatabase';
 import { ActorSymbolProvider } from './base/actorProvider';
 import { AcsSymbolProvider } from './base/acsProvider';
 import { extractBaseAcsSources } from './base/extractBaseAcs';
-import { setBaseAcsIncludeDirs } from './base/baseAcsIncludes';
+import { setBaseAcsIncludeDirs, setBasePackagesForCompile } from './base/baseAcsIncludes';
 import {
     BASE_RESOURCE_SCHEME,
     BaseResourceContentProvider,
@@ -108,6 +108,8 @@ export function activate(context: vscode.ExtensionContext) {
         try {
             await packageManager.build();
             if (generation !== rebuildGeneration) { return; }
+
+            setBasePackagesForCompile(packageManager.getPackages());
 
             await symbolDatabase.build(packageManager.getPackages());
             if (generation !== rebuildGeneration) { return; }

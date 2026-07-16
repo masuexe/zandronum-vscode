@@ -437,7 +437,14 @@ function findActorContext(
         }
 
         if (i === position.line && braceDepth > 0) {
-            return ctxAtDepth[braceDepth - 1] || null;
+            // Actor header is stored at the brace depth where it appears (usually 0).
+            // Inside States {} depth is 2+, so walk upward for the nearest actor context.
+            for (let d = braceDepth - 1; d >= 0; d--) {
+                if (ctxAtDepth[d]) {
+                    return ctxAtDepth[d];
+                }
+            }
+            return null;
         }
     }
 

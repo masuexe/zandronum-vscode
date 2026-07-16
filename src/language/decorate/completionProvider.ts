@@ -14,6 +14,7 @@ import {
 } from '../../shared/dataLoader';
 import { SymbolDatabase } from '../../base/symbolDatabase';
 import { SymbolKind } from '../../base/types';
+import { buildActionInsertText } from '../../shared/snippetBuilder';
 
 type ContextType = 'flag' | 'state' | 'function' | 'property' | 'inherit' | 'none';
 
@@ -305,11 +306,14 @@ function provideActionItems(
         }
         const item = new vscode.CompletionItem(fn, vscode.CompletionItemKind.Function);
         item.detail = `${data.desc || 'DECORATE Action Function'}${formatActionForLabel(data)}`;
-        item.insertText = new vscode.SnippetString(`${fn}($0)`);
-        item.command = {
-            title: 'Trigger Signature Help',
-            command: 'editor.action.triggerParameterHints'
-        };
+        const insert = buildActionInsertText(fn, data.params);
+        item.insertText = insert.insertText;
+        if (insert.triggerSignatureHelp) {
+            item.command = {
+                title: 'Trigger Signature Help',
+                command: 'editor.action.triggerParameterHints'
+            };
+        }
         items.push(item);
     }
 
@@ -326,17 +330,15 @@ function provideStateKeywordItems(
         if (prefix && !name.toUpperCase().startsWith(prefix.toUpperCase())) {
             continue;
         }
-        const hasParams = Array.isArray(data.params) && data.params.length > 0;
         const item = new vscode.CompletionItem(name, vscode.CompletionItemKind.Keyword);
         item.detail = data.desc || 'DECORATE State Keyword';
-        if (hasParams) {
-            item.insertText = new vscode.SnippetString(`${name}($0)`);
+        const insert = buildActionInsertText(name, data.params);
+        item.insertText = insert.insertText;
+        if (insert.triggerSignatureHelp) {
             item.command = {
                 title: 'Trigger Signature Help',
                 command: 'editor.action.triggerParameterHints'
             };
-        } else {
-            item.insertText = name;
         }
         items.push(item);
     }

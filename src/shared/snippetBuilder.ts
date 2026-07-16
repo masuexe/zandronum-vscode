@@ -1,6 +1,35 @@
 import * as vscode from 'vscode';
 import { ParamData } from './dataLoader';
 
+/**
+ * DECORATE state actions: only insert `Name($0)` when the first parameter is required.
+ * Zero-arg and first-optional actions must be bare `Name` — `Name()` errors for zero-arg.
+ */
+export function actionNeedsParenSnippet(params?: ParamData[] | string[]): boolean {
+    if (!Array.isArray(params) || params.length === 0) {
+        return false;
+    }
+    const first = params[0];
+    if (typeof first !== 'object' || first == null) {
+        return true;
+    }
+    return !first.optional;
+}
+
+/** Insert text + whether to trigger signature help after accept. */
+export function buildActionInsertText(
+    functionName: string,
+    params?: ParamData[] | string[]
+): { insertText: string | vscode.SnippetString; triggerSignatureHelp: boolean } {
+    if (actionNeedsParenSnippet(params)) {
+        return {
+            insertText: new vscode.SnippetString(`${functionName}($0)`),
+            triggerSignatureHelp: true,
+        };
+    }
+    return { insertText: functionName, triggerSignatureHelp: false };
+}
+
 function buildParamSnippet(param: ParamData, index: number): string {
     const paramLabel = param.optional ? `${param.name}?` : param.name;
 

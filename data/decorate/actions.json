@@ -5619,31 +5619,29 @@
       {
         "name": "spread_z",
         "type": "float",
-        "optional": true,
-        "default": "0"
+        "optional": false
       },
       {
         "name": "numbullets",
         "type": "int",
-        "optional": true,
-        "default": "0"
+        "optional": false
       },
       {
         "name": "damageperbullet",
         "type": "int",
-        "optional": true,
-        "default": "0"
+        "optional": false
       },
       {
         "name": "pufftype",
         "type": "string",
         "optional": true,
-        "default": "\"\""
+        "default": "\"BulletPuff\""
       },
       {
         "name": "flags",
         "type": "int",
         "optional": true,
+        "default": "1",
         "mode": "bitmask",
         "enum": [
           {
@@ -5671,6 +5669,12 @@
             "value": 32
           }
         ]
+      },
+      {
+        "name": "range",
+        "type": "float",
+        "optional": true,
+        "default": "0"
       }
     ],
     "desc": "Action function: A_FireBullets"
@@ -5692,25 +5696,25 @@
         "name": "useammo",
         "type": "bool",
         "optional": true,
-        "default": "0"
+        "default": "true"
       },
       {
-        "name": "spawnofs_horz",
+        "name": "spawnofs_xy",
         "type": "int",
         "optional": true,
         "default": "0"
       },
       {
         "name": "spawnheight",
-        "type": "int",
+        "type": "float",
         "optional": true,
         "default": "0"
       },
       {
-        "name": "aim",
+        "name": "aimatangle",
         "type": "bool",
         "optional": true,
-        "default": "0"
+        "default": "false"
       },
       {
         "name": "pitch",
@@ -5746,7 +5750,7 @@
         "default": "0"
       }
     ],
-    "desc": "Action function: A_FireBullets"
+    "desc": "Action function: ThrustThing"
   },
   "ThrustThingZ": {
     "params": [
@@ -5771,6 +5775,236 @@
         "optional": false
       }
     ],
-    "desc": "Action function: A_FireBullets"
+    "desc": "Action function: ThrustThingZ"
+  },
+  "A_RandomPowerupFrame": {
+    "params": [],
+    "desc": "Action function: A_RandomPowerupFrame"
+  },
+  "ACS_Execute": {
+    "params": [
+      {
+        "name": "script",
+        "type": "int",
+        "optional": false
+      },
+      {
+        "name": "mapnum",
+        "type": "int",
+        "optional": true,
+        "default": "0"
+      },
+      {
+        "name": "arg1",
+        "type": "int",
+        "optional": true,
+        "default": "0"
+      },
+      {
+        "name": "arg2",
+        "type": "int",
+        "optional": true,
+        "default": "0"
+      },
+      {
+        "name": "arg3",
+        "type": "int",
+        "optional": true,
+        "default": "0"
+      }
+    ],
+    "desc": "Action function: ACS_Execute"
+  },
+  "ACS_ExecuteAlways": {
+    "params": [
+      {
+        "name": "script",
+        "type": "int",
+        "optional": false
+      },
+      {
+        "name": "mapnum",
+        "type": "int",
+        "optional": true,
+        "default": "0"
+      },
+      {
+        "name": "arg1",
+        "type": "int",
+        "optional": true,
+        "default": "0"
+      },
+      {
+        "name": "arg2",
+        "type": "int",
+        "optional": true,
+        "default": "0"
+      },
+      {
+        "name": "arg3",
+        "type": "int",
+        "optional": true,
+        "default": "0"
+      }
+    ],
+    "desc": "Action function: ACS_ExecuteAlways"
+  },
+  "ACS_ExecuteWithResult": {
+    "params": [
+      {
+        "name": "script",
+        "type": "int",
+        "optional": false
+      },
+      {
+        "name": "arg1",
+        "type": "int",
+        "optional": true,
+        "default": "0"
+      },
+      {
+        "name": "arg2",
+        "type": "int",
+        "optional": true,
+        "default": "0"
+      },
+      {
+        "name": "arg3",
+        "type": "int",
+        "optional": true,
+        "default": "0"
+      },
+      {
+        "name": "arg4",
+        "type": "int",
+        "optional": true,
+        "default": "0"
+      }
+    ],
+    "desc": "Action function: ACS_ExecuteWithResult"
+  },
+  "ACS_Suspend": {
+    "params": [
+      {
+        "name": "script",
+        "type": "int",
+        "optional": false
+      },
+      {
+        "name": "mapnum",
+        "type": "int",
+        "optional": false
+      }
+    ],
+    "desc": "Action function: ACS_Suspend"
+  },
+  "ACS_Terminate": {
+    "params": [
+      {
+        "name": "script",
+        "type": "int",
+        "optional": false
+      },
+      {
+        "name": "mapnum",
+        "type": "int",
+        "optional": false
+      }
+    ],
+    "desc": "Action function: ACS_Terminate"
+  },
+  "ACS_LockedExecute": {
+    "params": [
+      {
+        "name": "script",
+        "type": "int",
+        "optional": false
+      },
+      {
+        "name": "mapnum",
+        "type": "int",
+        "optional": false
+      },
+      {
+        "name": "arg1",
+        "type": "int",
+        "optional": false
+      },
+      {
+        "name": "arg2",
+        "type": "int",
+        "optional": false
+      },
+      {
+        "name": "lock",
+        "type": "int",
+        "optional": false
+      }
+    ],
+    "desc": "Action function: ACS_LockedExecute"
+  },
+  "ACS_LockedExecuteDoor": {
+    "params": [
+      {
+        "name": "script",
+        "type": "int",
+        "optional": false
+      },
+      {
+        "name": "mapnum",
+        "type": "int",
+        "optional": false
+      },
+      {
+        "name": "arg1",
+        "type": "int",
+        "optional": false
+      },
+      {
+        "name": "arg2",
+        "type": "int",
+        "optional": false
+      },
+      {
+        "name": "lock",
+        "type": "int",
+        "optional": false
+      }
+    ],
+    "desc": "Action function: ACS_LockedExecuteDoor"
+  },
+  "CallACS": {
+    "params": [
+      {
+        "name": "script",
+        "type": "string",
+        "optional": false
+      },
+      {
+        "name": "arg1",
+        "type": "int",
+        "optional": true,
+        "default": "0"
+      },
+      {
+        "name": "arg2",
+        "type": "int",
+        "optional": true,
+        "default": "0"
+      },
+      {
+        "name": "arg3",
+        "type": "int",
+        "optional": true,
+        "default": "0"
+      },
+      {
+        "name": "arg4",
+        "type": "int",
+        "optional": true,
+        "default": "0"
+      }
+    ],
+    "desc": "Alias of ACS_NamedExecuteWithResult"
   }
 }

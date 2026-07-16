@@ -203,8 +203,8 @@ export function activate(context: vscode.ExtensionContext) {
     const stateKeywordsData = getStateKeywords(context);
 
     registerCompletionProvider(context, actionsData, propertiesData, flagsData, expressionsData, inheritanceData, symbolDatabase, stateKeywordsData);
-    registerSignatureHelp(context, actionsData, stateKeywordsData);
-    registerHoverProvider(context, actionsData, stateKeywordsData, symbolDatabase, inheritanceData);
+    registerSignatureHelp(context, actionsData, stateKeywordsData, expressionsData);
+    registerHoverProvider(context, actionsData, stateKeywordsData, symbolDatabase, inheritanceData, expressionsData);
     registerDecorateSemanticTokens(context);
     registerDefinitionProvider(context, symbolDatabase);
     registerColorProvider(context);

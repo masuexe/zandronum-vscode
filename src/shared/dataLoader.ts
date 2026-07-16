@@ -13,10 +13,15 @@ export interface ParamData {
     desc?: string;
 }
 
+export type DecorateUsage = 'state' | 'expression';
+export type ExpressionKind = 'function' | 'variable';
+
 export interface ActionData {
     params?: ParamData[] | string[];
     signature?: string;
     desc?: string;
+    /** Where this symbol may appear. Default for actions.json: ["state"]. */
+    usage?: DecorateUsage[];
 }
 
 export interface PropertyData {
@@ -33,6 +38,114 @@ export interface FlagData {
 
 export interface ExpressionData {
     desc?: string;
+    kind?: ExpressionKind;
+    params?: ParamData[] | string[];
+    signature?: string;
+    /** Where this symbol may appear. Default for expressions.json: ["expression"]. */
+    usage?: DecorateUsage[];
+}
+
+/** Callable with params — state actions and expression functions share this shape. */
+export type DecorateCallableData = ActionData & ExpressionData;
+
+export function getActionUsage(data: ActionData): DecorateUsage[] {
+    return data.usage && data.usage.length > 0 ? data.usage : ['state'];
+}
+
+export function getExpressionUsage(data: ExpressionData): DecorateUsage[] {
+    return data.usage && data.usage.length > 0 ? data.usage : ['expression'];
+}
+
+export function getExpressionKind(data: ExpressionData): ExpressionKind {
+    if (data.kind === 'function' || data.kind === 'variable') {
+        return data.kind;
+    }
+    return Array.isArray(data.params) ? 'function' : 'variable';
+}
+
+export function actionAllowsUsage(data: ActionData, usage: DecorateUsage): boolean {
+    return getActionUsage(data).includes(usage);
+}
+
+export function expressionAllowsUsage(data: ExpressionData, usage: DecorateUsage): boolean {
+    return getExpressionUsage(data).includes(usage);
+}
+
+/**
+ * State-callable symbols from actions.json (usage includes "state").
+ * Expression-only names must not appear in actions.json.
+ */
+export function getStateCallables(
+    actionsData: Record<string, ActionData>
+): Record<string, ActionData> {
+    const out: Record<string, ActionData> = {};
+    for (const [name, data] of Object.entries(actionsData)) {
+        if (actionAllowsUsage(data, 'state')) {
+            out[name] = data;
+        }
+    }
+    return out;
+}
+
+/**
+ * Expression-callable functions: expression-only entries from expressions.json,
+ * plus dual actions projected from actions.json (usage includes "expression").
+ * Dual params are authoritative in actions.json to avoid drift.
+ */
+export function getExpressionCallables(
+    actionsData: Record<string, ActionData>,
+    expressionsData: Record<string, ExpressionData>
+): Record<string, DecorateCallableData> {
+    const out: Record<string, DecorateCallableData> = {};
+
+    for (const [name, data] of Object.entries(actionsData)) {
+        if (actionAllowsUsage(data, 'expression')) {
+            out[name] = data;
+        }
+    }
+
+    for (const [name, data] of Object.entries(expressionsData)) {
+        if (!expressionAllowsUsage(data, 'expression')) {
+            continue;
+        }
+        if (getExpressionKind(data) !== 'function') {
+            continue;
+        }
+        // Prefer action params when dual is already projected
+        if (!out[name]) {
+            out[name] = data;
+        }
+    }
+
+    return out;
+}
+
+/** Built-in expression variables (health, angle, …). */
+export function getExpressionVariables(
+    expressionsData: Record<string, ExpressionData>
+): Record<string, ExpressionData> {
+    const out: Record<string, ExpressionData> = {};
+    for (const [name, data] of Object.entries(expressionsData)) {
+        if (!expressionAllowsUsage(data, 'expression')) {
+            continue;
+        }
+        if (getExpressionKind(data) === 'variable') {
+            out[name] = data;
+        }
+    }
+    return out;
+}
+
+export function findCallableCaseInsensitive(
+    callables: Record<string, DecorateCallableData>,
+    name: string
+): DecorateCallableData | undefined {
+    if (callables[name]) return callables[name];
+    const lower = name.toLowerCase();
+    for (const key of Object.keys(callables)) {
+        if (key.toLowerCase() === lower) return callables[key];
+    }
+    return undefined;
 }
 
 export interface InheritanceData {

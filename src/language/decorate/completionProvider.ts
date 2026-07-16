@@ -1,5 +1,17 @@
 import * as vscode from 'vscode';
-import { ActionData, PropertyData, FlagData, ExpressionData, InheritanceData, findActionCaseInsensitive, StateKeywordData } from '../../shared/dataLoader';
+import {
+    ActionData,
+    PropertyData,
+    FlagData,
+    ExpressionData,
+    InheritanceData,
+    findActionCaseInsensitive,
+    StateKeywordData,
+    getStateCallables,
+    getExpressionCallables,
+    getExpressionVariables,
+    DecorateCallableData,
+} from '../../shared/dataLoader';
 import { SymbolDatabase } from '../../base/symbolDatabase';
 import { SymbolKind } from '../../base/types';
 
@@ -252,13 +264,14 @@ function provideFlagItems(
 
 function provideActionItems(actionsData: Record<string, ActionData>, prefix: string): vscode.CompletionItem[] {
     const items: vscode.CompletionItem[] = [];
+    const stateCallables = getStateCallables(actionsData);
 
-    for (const [fn, data] of Object.entries(actionsData)) {
+    for (const [fn, data] of Object.entries(stateCallables)) {
         if (prefix && !fn.toUpperCase().startsWith(prefix.toUpperCase())) {
             continue;
         }
         const item = new vscode.CompletionItem(fn, vscode.CompletionItemKind.Function);
-        item.detail = data.desc || "DECORATE Action Function";
+        item.detail = data.desc || 'DECORATE Action Function';
         item.insertText = new vscode.SnippetString(`${fn}($0)`);
         item.command = {
             title: 'Trigger Signature Help',
@@ -298,19 +311,60 @@ function provideStateKeywordItems(
     return items;
 }
 
-function provideExpressionItems(expressionsData: Record<string, ExpressionData>, prefix: string): vscode.CompletionItem[] {
+function provideExpressionItems(
+    actionsData: Record<string, ActionData>,
+    expressionsData: Record<string, ExpressionData>,
+    prefix: string
+): vscode.CompletionItem[] {
     const items: vscode.CompletionItem[] = [];
+    const callables = getExpressionCallables(actionsData, expressionsData);
+    const variables = getExpressionVariables(expressionsData);
 
-    for (const [expr, data] of Object.entries(expressionsData)) {
+    for (const [fn, data] of Object.entries(callables)) {
+        if (prefix && !fn.toUpperCase().startsWith(prefix.toUpperCase())) {
+            continue;
+        }
+        const item = new vscode.CompletionItem(fn, vscode.CompletionItemKind.Function);
+        item.detail = data.desc || 'DECORATE Expression Function';
+        item.insertText = new vscode.SnippetString(`${fn}($0)`);
+        item.command = {
+            title: 'Trigger Signature Help',
+            command: 'editor.action.triggerParameterHints'
+        };
+        items.push(item);
+    }
+
+    for (const [expr, data] of Object.entries(variables)) {
         if (prefix && !expr.toUpperCase().startsWith(prefix.toUpperCase())) {
             continue;
         }
         const item = new vscode.CompletionItem(expr, vscode.CompletionItemKind.Variable);
-        item.detail = data.desc || "DECORATE Expression";
+        item.detail = data.desc || 'DECORATE Expression Variable';
         items.push(item);
     }
 
     return items;
+}
+
+function findExpressionParamEnum(
+    actionsData: Record<string, ActionData>,
+    expressionsData: Record<string, ExpressionData>,
+    functionName: string,
+    paramIndex: number
+): { mode: 'bitmask' | 'enum'; enum: Array<{ name: string; value: number }> } | null {
+    const callables: Record<string, DecorateCallableData> = {
+        ...getStateCallables(actionsData),
+        ...getExpressionCallables(actionsData, expressionsData),
+    };
+    const data = findActionCaseInsensitive(callables, functionName);
+    if (!data || !Array.isArray(data.params)) {
+        return null;
+    }
+    const param = data.params[paramIndex] as any;
+    if (param && param.mode && Array.isArray(param.enum)) {
+        return { mode: param.mode, enum: param.enum };
+    }
+    return null;
 }
 
 function findActorParent(
@@ -466,15 +520,17 @@ export function registerCompletionProvider(
                     case 'function': {
                         const callInfo = findCallInfo(document, position);
                         if (callInfo) {
-                            const action = findActionCaseInsensitive(actionsData, callInfo.functionName);
-                            if (action && Array.isArray(action.params)) {
-                                const param = action.params[callInfo.paramIndex] as any;
-                                if (param && param.mode && Array.isArray(param.enum)) {
-                                    return provideEnumItems(param.enum, wordPrefix, param.mode);
-                                }
+                            const enumInfo = findExpressionParamEnum(
+                                actionsData,
+                                expressionsData,
+                                callInfo.functionName,
+                                callInfo.paramIndex
+                            );
+                            if (enumInfo) {
+                                return provideEnumItems(enumInfo.enum, wordPrefix, enumInfo.mode);
                             }
                         }
-                        return provideExpressionItems(expressionsData, wordPrefix);
+                        return provideExpressionItems(actionsData, expressionsData, wordPrefix);
                     }
 
                     case 'property': {

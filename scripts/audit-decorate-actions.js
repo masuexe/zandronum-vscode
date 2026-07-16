@@ -197,9 +197,13 @@ function fixDesc(name, desc) {
     return desc;
 }
 
+/** Line specials / duals that are both state actions and expression calls. */
+const DUAL_USAGE = ['state', 'expression'];
+
 /** ACS line specials usable as DECORATE state actions (DEFINE_SPECIAL min>=0). */
 function acsSpecialEntries() {
     // Names from actionspecials.h; arg layouts follow ZDoom ACS_* special conventions.
+    const usage = DUAL_USAGE;
     return {
         ACS_Execute: {
             params: [
@@ -209,6 +213,7 @@ function acsSpecialEntries() {
                 { name: 'arg2', type: 'int', optional: true, default: '0' },
                 { name: 'arg3', type: 'int', optional: true, default: '0' },
             ],
+            usage,
             desc: 'Action function: ACS_Execute',
         },
         ACS_ExecuteAlways: {
@@ -219,6 +224,7 @@ function acsSpecialEntries() {
                 { name: 'arg2', type: 'int', optional: true, default: '0' },
                 { name: 'arg3', type: 'int', optional: true, default: '0' },
             ],
+            usage,
             desc: 'Action function: ACS_ExecuteAlways',
         },
         ACS_ExecuteWithResult: {
@@ -229,6 +235,7 @@ function acsSpecialEntries() {
                 { name: 'arg3', type: 'int', optional: true, default: '0' },
                 { name: 'arg4', type: 'int', optional: true, default: '0' },
             ],
+            usage,
             desc: 'Action function: ACS_ExecuteWithResult',
         },
         ACS_Suspend: {
@@ -236,6 +243,7 @@ function acsSpecialEntries() {
                 { name: 'script', type: 'int', optional: false },
                 { name: 'mapnum', type: 'int', optional: false },
             ],
+            usage,
             desc: 'Action function: ACS_Suspend',
         },
         ACS_Terminate: {
@@ -243,6 +251,7 @@ function acsSpecialEntries() {
                 { name: 'script', type: 'int', optional: false },
                 { name: 'mapnum', type: 'int', optional: false },
             ],
+            usage,
             desc: 'Action function: ACS_Terminate',
         },
         ACS_LockedExecute: {
@@ -253,6 +262,7 @@ function acsSpecialEntries() {
                 { name: 'arg2', type: 'int', optional: false },
                 { name: 'lock', type: 'int', optional: false },
             ],
+            usage,
             desc: 'Action function: ACS_LockedExecute',
         },
         ACS_LockedExecuteDoor: {
@@ -263,9 +273,45 @@ function acsSpecialEntries() {
                 { name: 'arg2', type: 'int', optional: false },
                 { name: 'lock', type: 'int', optional: false },
             ],
+            usage,
             desc: 'Action function: ACS_LockedExecuteDoor',
         },
     };
+}
+
+/** Expression-only names that must NOT appear in actions.json. */
+const EXPRESSION_ONLY = new Set([
+    'CallACS',
+    'CheckClass',
+    'IsPointerEqual',
+    'abs',
+    'sin',
+    'cos',
+    'sqrt',
+    'random',
+    'random2',
+    'frandom',
+]);
+
+/** Duals that must have usage: ["state","expression"] in actions.json. */
+function dualActionNames() {
+    return new Set([
+        'ThrustThing',
+        'ThrustThingZ',
+        'ACS_NamedExecuteWithResult',
+        ...Object.keys(acsSpecialEntries()),
+    ]);
+}
+
+function usageIncludes(entry, mode) {
+    const u = entry.usage && entry.usage.length ? entry.usage : ['state'];
+    return u.includes(mode);
+}
+
+function sameUsage(a, expected) {
+    const got = (a.usage && a.usage.length ? a.usage : ['state']).slice().sort().join(',');
+    const exp = expected.slice().sort().join(',');
+    return got === exp;
 }
 
 function main() {
@@ -273,11 +319,17 @@ function main() {
     const natives = loadAllNatives();
     const actions = JSON.parse(fs.readFileSync(ACTIONS_PATH, 'utf8'));
 
+    const EXPRESSIONS_PATH = path.join(ROOT, 'data', 'decorate', 'expressions.json');
+    const expressions = fs.existsSync(EXPRESSIONS_PATH)
+        ? JSON.parse(fs.readFileSync(EXPRESSIONS_PATH, 'utf8'))
+        : {};
+
     const report = {
         missingInJson: [],
         extraInJson: [],
         paramIssues: [],
         descIssues: [],
+        usageIssues: [],
         fixed: [],
         added: [],
     };
@@ -327,9 +379,12 @@ function main() {
                 buildParamFromSource(sp, jsonParams.find(p => p.name === sp.name) || jsonParams[i])
             );
             const next = { params: newParams, desc: fixedDesc };
-            // Preserve non-stub prose descriptions
+            // Preserve non-stub prose descriptions and usage
             if (entry.desc && !/^Action function:/.test(entry.desc.trim())) {
                 next.desc = entry.desc;
+            }
+            if (entry.usage) {
+                next.usage = entry.usage;
             }
             actions[name] = next;
             report.fixed.push(name);
@@ -337,13 +392,20 @@ function main() {
     }
 
     // Extras: JSON keys with no native — keep line specials ThrustThing* and ACS_* entry points
-    const intentionalExtras = new Set([
-        'ThrustThing',
-        'ThrustThingZ',
-        'CallACS',
-        ...Object.keys(acsSpecialEntries()),
-    ]);
+    // CallACS is expression-only and must NOT live in actions.json
+    const intentionalExtras = dualActionNames();
     for (const name of Object.keys(actions)) {
+        if (EXPRESSION_ONLY.has(name)) {
+            report.usageIssues.push({
+                name,
+                issue: 'expression-only symbol must not be in actions.json',
+            });
+            if (apply) {
+                delete actions[name];
+                report.fixed.push(name + ' (removed from actions)');
+            }
+            continue;
+        }
         if (!natives.has(name)) {
             if (!intentionalExtras.has(name)) {
                 report.extraInJson.push(name);
@@ -360,6 +422,50 @@ function main() {
         }
     }
 
+    // Usage classification: duals vs state-default vs expression-only file
+    const duals = dualActionNames();
+    for (const name of duals) {
+        if (!actions[name]) {
+            report.usageIssues.push({ name, issue: 'dual missing from actions.json' });
+            continue;
+        }
+        if (!sameUsage(actions[name], DUAL_USAGE)) {
+            report.usageIssues.push({
+                name,
+                issue: `usage expected [state,expression] got ${JSON.stringify(actions[name].usage || ['state'])}`,
+            });
+            if (apply) {
+                actions[name].usage = DUAL_USAGE.slice();
+                report.fixed.push(name + ' (usage)');
+            }
+        }
+    }
+    if (actions.ACS_NamedExecuteWithResult && !usageIncludes(actions.ACS_NamedExecuteWithResult, 'expression')) {
+        report.usageIssues.push({
+            name: 'ACS_NamedExecuteWithResult',
+            issue: 'must allow expression usage',
+        });
+    }
+    for (const name of EXPRESSION_ONLY) {
+        if (name === 'CallACS' || name === 'CheckClass' || name === 'IsPointerEqual') {
+            if (!expressions[name]) {
+                report.usageIssues.push({
+                    name,
+                    issue: 'expression-only symbol missing from expressions.json',
+                });
+            } else {
+                const kind = expressions[name].kind
+                    || (Array.isArray(expressions[name].params) ? 'function' : 'variable');
+                if (kind !== 'function') {
+                    report.usageIssues.push({
+                        name,
+                        issue: `expressions.json kind should be function, got ${kind}`,
+                    });
+                }
+            }
+        }
+    }
+
     if (apply) {
         // Add A_RandomPowerupFrame
         if (!actions.A_RandomPowerupFrame && natives.has('A_RandomPowerupFrame')) {
@@ -370,30 +476,23 @@ function main() {
             report.added.push('A_RandomPowerupFrame');
         }
 
-        // Add ACS specials + CallACS
+        // Add ACS specials (duals); never add CallACS to actions.json
         const acs = acsSpecialEntries();
         for (const [name, entry] of Object.entries(acs)) {
             if (!actions[name]) {
                 actions[name] = entry;
                 report.added.push(name);
+            } else if (!sameUsage(actions[name], DUAL_USAGE)) {
+                actions[name].usage = DUAL_USAGE.slice();
             }
         }
-        if (!actions.CallACS) {
-            // Alias of ACS_NamedExecuteWithResult
-            const src = actions.ACS_NamedExecuteWithResult || {
-                params: [
-                    { name: 'script', type: 'string', optional: false },
-                    { name: 'arg1', type: 'int', optional: true, default: '0' },
-                    { name: 'arg2', type: 'int', optional: true, default: '0' },
-                    { name: 'arg3', type: 'int', optional: true, default: '0' },
-                    { name: 'arg4', type: 'int', optional: true, default: '0' },
-                ],
-            };
-            actions.CallACS = {
-                params: JSON.parse(JSON.stringify(src.params)),
-                desc: 'Alias of ACS_NamedExecuteWithResult',
-            };
-            report.added.push('CallACS');
+        if (actions.ACS_NamedExecuteWithResult) {
+            actions.ACS_NamedExecuteWithResult.usage = DUAL_USAGE.slice();
+        }
+        for (const name of ['ThrustThing', 'ThrustThingZ']) {
+            if (actions[name]) {
+                actions[name].usage = DUAL_USAGE.slice();
+            }
         }
 
         // Stable key order: existing order first, then new keys sorted
@@ -410,8 +509,15 @@ function main() {
     console.log('JSON actions:', Object.keys(actions).length);
     console.log('Param issues:', report.paramIssues.length);
     console.log('Desc issues:', report.descIssues.length);
+    console.log('Usage issues:', report.usageIssues.length);
     console.log('Missing (tracked):', report.missingInJson);
     console.log('Extra in JSON:', report.extraInJson);
+    if (report.usageIssues.length) {
+        console.log('\n--- Usage issues ---');
+        for (const x of report.usageIssues) {
+            console.log(`${x.name}: ${x.issue}`);
+        }
+    }
     if (report.paramIssues.length) {
         console.log('\n--- Param issues (first 80) ---');
         for (const x of report.paramIssues.slice(0, 80)) {

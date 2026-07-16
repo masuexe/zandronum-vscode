@@ -1,125 +1,287 @@
 {
   "abs": {
+    "kind": "function",
+    "params": [
+      {
+        "name": "value",
+        "type": "float",
+        "optional": false
+      }
+    ],
     "desc": "Returns the absolute value"
   },
   "cos": {
+    "kind": "function",
+    "params": [
+      {
+        "name": "angle",
+        "type": "float",
+        "optional": false
+      }
+    ],
     "desc": "Returns cosine of angle"
   },
   "sin": {
+    "kind": "function",
+    "params": [
+      {
+        "name": "angle",
+        "type": "float",
+        "optional": false
+      }
+    ],
     "desc": "Returns sine of angle"
   },
   "sqrt": {
+    "kind": "function",
+    "params": [
+      {
+        "name": "value",
+        "type": "float",
+        "optional": false
+      }
+    ],
     "desc": "Returns the square root"
   },
   "random": {
+    "kind": "function",
+    "params": [
+      {
+        "name": "min",
+        "type": "int",
+        "optional": false
+      },
+      {
+        "name": "max",
+        "type": "int",
+        "optional": false
+      }
+    ],
     "desc": "Returns a random integer value between `min` and `max`"
   },
   "random2": {
+    "kind": "function",
+    "params": [
+      {
+        "name": "mask",
+        "type": "int",
+        "optional": true
+      }
+    ],
     "desc": "Returns a random integer value between `-mask` and `+mask`"
   },
   "frandom": {
+    "kind": "function",
+    "params": [
+      {
+        "name": "min",
+        "type": "float",
+        "optional": false
+      },
+      {
+        "name": "max",
+        "type": "float",
+        "optional": false
+      }
+    ],
     "desc": "Returns a random floating point value between `min` and `max`"
   },
-  "ACS_ExecuteWithResult": {
-    "desc": "Runs a script and uses its return value"
+  "CheckClass": {
+    "kind": "function",
+    "params": [
+      {
+        "name": "classname",
+        "type": "string",
+        "optional": false
+      },
+      {
+        "name": "ptr",
+        "type": "int",
+        "optional": true,
+        "default": "AAPTR_DEFAULT"
+      },
+      {
+        "name": "match_superclass",
+        "type": "bool",
+        "optional": true,
+        "default": "false"
+      }
+    ],
+    "desc": "Returns true if the actor (or pointer) matches the given class"
   },
-  "ACS_NamedExecuteWithResult": {
-    "desc": "Runs a named script and uses its return value"
+  "IsPointerEqual": {
+    "kind": "function",
+    "params": [
+      {
+        "name": "ptr_a",
+        "type": "int",
+        "optional": false
+      },
+      {
+        "name": "ptr_b",
+        "type": "int",
+        "optional": false
+      }
+    ],
+    "desc": "Returns true if two actor pointers refer to the same actor"
   },
   "CallACS": {
-    "desc": "Runs a named script and uses its return value"
+    "kind": "function",
+    "params": [
+      {
+        "name": "script",
+        "type": "string",
+        "optional": false
+      },
+      {
+        "name": "arg1",
+        "type": "int",
+        "optional": true,
+        "default": "0"
+      },
+      {
+        "name": "arg2",
+        "type": "int",
+        "optional": true,
+        "default": "0"
+      },
+      {
+        "name": "arg3",
+        "type": "int",
+        "optional": true,
+        "default": "0"
+      },
+      {
+        "name": "arg4",
+        "type": "int",
+        "optional": true,
+        "default": "0"
+      }
+    ],
+    "desc": "Alias of ACS_NamedExecuteWithResult (expression only)"
   },
   "alpha": {
+    "kind": "variable",
     "desc": "Built-in variable: alpha"
   },
   "angle": {
+    "kind": "variable",
     "desc": "Built-in variable: angle"
   },
   "args": {
+    "kind": "variable",
     "desc": "Built-in variable: args"
   },
   "ceilingz": {
+    "kind": "variable",
     "desc": "Built-in variable: ceilingz"
   },
   "floorz": {
+    "kind": "variable",
     "desc": "Built-in variable: floorz"
   },
   "health": {
+    "kind": "variable",
     "desc": "Built-in variable: health"
   },
   "mass": {
+    "kind": "variable",
     "desc": "Built-in variable: mass"
   },
   "pitch": {
+    "kind": "variable",
     "desc": "Built-in variable: pitch"
   },
   "special": {
+    "kind": "variable",
     "desc": "Built-in variable: special"
   },
   "tid": {
+    "kind": "variable",
     "desc": "Built-in variable: tid"
   },
   "TIDtoHate": {
+    "kind": "variable",
     "desc": "Built-in variable: TIDtoHate"
   },
   "waterlevel": {
+    "kind": "variable",
     "desc": "Built-in variable: waterlevel"
   },
   "damage": {
+    "kind": "variable",
     "desc": "Built-in variable: damage"
   },
   "x": {
+    "kind": "variable",
     "desc": "Built-in variable: x"
   },
   "y": {
+    "kind": "variable",
     "desc": "Built-in variable: y"
   },
   "z": {
+    "kind": "variable",
     "desc": "Built-in variable: z"
   },
   "velx": {
+    "kind": "variable",
     "desc": "Built-in variable: velx"
   },
   "vely": {
+    "kind": "variable",
     "desc": "Built-in variable: vely"
   },
   "velz": {
+    "kind": "variable",
     "desc": "Built-in variable: velz"
   },
   "momx": {
+    "kind": "variable",
     "desc": "Built-in variable: momx"
   },
   "momy": {
+    "kind": "variable",
     "desc": "Built-in variable: momy"
   },
   "momz": {
+    "kind": "variable",
     "desc": "Built-in variable: momz"
   },
   "scaleX": {
+    "kind": "variable",
     "desc": "Built-in variable: scaleX"
   },
   "scaleY": {
+    "kind": "variable",
     "desc": "Built-in variable: scaleY"
   },
   "score": {
+    "kind": "variable",
     "desc": "Built-in variable: score"
   },
   "accuracy": {
+    "kind": "variable",
     "desc": "Built-in variable: accuracy"
   },
   "stamina": {
+    "kind": "variable",
     "desc": "Built-in variable: stamina"
   },
   "height": {
+    "kind": "variable",
     "desc": "Built-in variable: height"
   },
   "radius": {
+    "kind": "variable",
     "desc": "Built-in variable: radius"
   },
   "reactiontime": {
+    "kind": "variable",
     "desc": "Built-in variable: reactiontime"
   },
   "meleerange": {
+    "kind": "variable",
     "desc": "Built-in variable: meleerange"
   }
 }

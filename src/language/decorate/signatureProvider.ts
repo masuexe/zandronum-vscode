@@ -1,5 +1,13 @@
 import * as vscode from 'vscode';
-import { ActionData, findActionCaseInsensitive, StateKeywordData, findStateKeywordCaseInsensitive } from '../../shared/dataLoader';
+import {
+    ActionData,
+    ExpressionData,
+    findActionCaseInsensitive,
+    findCallableCaseInsensitive,
+    getExpressionCallables,
+    StateKeywordData,
+    findStateKeywordCaseInsensitive,
+} from '../../shared/dataLoader';
 
 function calculateActiveParameter(fullLine: string, cursorPosition: number, openParenIndex: number): number {
     const textInParens = fullLine.substring(openParenIndex + 1, cursorPosition);
@@ -49,8 +57,13 @@ function buildSignature(fnName: string, params?: any[]): string {
 export function registerSignatureHelp(
     context: vscode.ExtensionContext,
     actionsData: Record<string, ActionData>,
-    stateKeywords?: Record<string, StateKeywordData>
+    stateKeywords?: Record<string, StateKeywordData>,
+    expressionsData?: Record<string, ExpressionData>
 ) {
+    const expressionCallables = expressionsData
+        ? getExpressionCallables(actionsData, expressionsData)
+        : {};
+
     const signatureProvider = vscode.languages.registerSignatureHelpProvider(
         [{ language: 'decorate' }],
         {
@@ -99,6 +112,10 @@ export function registerSignatureHelp(
                 let data: ActionData | undefined;
                 if (stateKeywords) {
                     data = findStateKeywordCaseInsensitive(stateKeywords, functionName);
+                }
+                // Prefer expression callables for nested calls (CheckClass, CallACS, …)
+                if (!data) {
+                    data = findCallableCaseInsensitive(expressionCallables, functionName);
                 }
                 if (!data) {
                     data = findActionCaseInsensitive(actionsData, functionName);

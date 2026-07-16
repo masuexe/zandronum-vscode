@@ -5573,7 +5573,11 @@
         "default": "0"
       }
     ],
-    "desc": "Action function: ACS_NamedExecuteWithResult"
+    "desc": "Action function: ACS_NamedExecuteWithResult",
+    "usage": [
+      "state",
+      "expression"
+    ]
   },
   "ACS_NamedExecuteAlways": {
     "params": [
@@ -5750,7 +5754,11 @@
         "default": "0"
       }
     ],
-    "desc": "Action function: ThrustThing"
+    "desc": "Action function: ThrustThing",
+    "usage": [
+      "state",
+      "expression"
+    ]
   },
   "ThrustThingZ": {
     "params": [
@@ -5775,7 +5783,11 @@
         "optional": false
       }
     ],
-    "desc": "Action function: ThrustThingZ"
+    "desc": "Action function: ThrustThingZ",
+    "usage": [
+      "state",
+      "expression"
+    ]
   },
   "A_RandomPowerupFrame": {
     "params": [],
@@ -5813,7 +5825,11 @@
         "default": "0"
       }
     ],
-    "desc": "Action function: ACS_Execute"
+    "desc": "Action function: ACS_Execute",
+    "usage": [
+      "state",
+      "expression"
+    ]
   },
   "ACS_ExecuteAlways": {
     "params": [
@@ -5847,7 +5863,11 @@
         "default": "0"
       }
     ],
-    "desc": "Action function: ACS_ExecuteAlways"
+    "desc": "Action function: ACS_ExecuteAlways",
+    "usage": [
+      "state",
+      "expression"
+    ]
   },
   "ACS_ExecuteWithResult": {
     "params": [
@@ -5881,7 +5901,11 @@
         "default": "0"
       }
     ],
-    "desc": "Action function: ACS_ExecuteWithResult"
+    "desc": "Action function: ACS_ExecuteWithResult",
+    "usage": [
+      "state",
+      "expression"
+    ]
   },
   "ACS_Suspend": {
     "params": [
@@ -5896,7 +5920,11 @@
         "optional": false
       }
     ],
-    "desc": "Action function: ACS_Suspend"
+    "desc": "Action function: ACS_Suspend",
+    "usage": [
+      "state",
+      "expression"
+    ]
   },
   "ACS_Terminate": {
     "params": [
@@ -5911,7 +5939,11 @@
         "optional": false
       }
     ],
-    "desc": "Action function: ACS_Terminate"
+    "desc": "Action function: ACS_Terminate",
+    "usage": [
+      "state",
+      "expression"
+    ]
   },
   "ACS_LockedExecute": {
     "params": [
@@ -5941,7 +5973,11 @@
         "optional": false
       }
     ],
-    "desc": "Action function: ACS_LockedExecute"
+    "desc": "Action function: ACS_LockedExecute",
+    "usage": [
+      "state",
+      "expression"
+    ]
   },
   "ACS_LockedExecuteDoor": {
     "params": [
@@ -5971,40 +6007,10 @@
         "optional": false
       }
     ],
-    "desc": "Action function: ACS_LockedExecuteDoor"
-  },
-  "CallACS": {
-    "params": [
-      {
-        "name": "script",
-        "type": "string",
-        "optional": false
-      },
-      {
-        "name": "arg1",
-        "type": "int",
-        "optional": true,
-        "default": "0"
-      },
-      {
-        "name": "arg2",
-        "type": "int",
-        "optional": true,
-        "default": "0"
-      },
-      {
-        "name": "arg3",
-        "type": "int",
-        "optional": true,
-        "default": "0"
-      },
-      {
-        "name": "arg4",
-        "type": "int",
-        "optional": true,
-        "default": "0"
-      }
-    ],
-    "desc": "Alias of ACS_NamedExecuteWithResult"
+    "desc": "Action function: ACS_LockedExecuteDoor",
+    "usage": [
+      "state",
+      "expression"
+    ]
   }
 }

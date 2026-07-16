@@ -1,5 +1,17 @@
 import * as vscode from 'vscode';
-import { ActionData, findActionCaseInsensitive, ParamData, StateKeywordData, findStateKeywordCaseInsensitive, InheritanceData, findInheritanceCaseInsensitive } from '../../shared/dataLoader';
+import {
+    ActionData,
+    ExpressionData,
+    findActionCaseInsensitive,
+    findCallableCaseInsensitive,
+    getExpressionCallables,
+    getExpressionVariables,
+    ParamData,
+    StateKeywordData,
+    findStateKeywordCaseInsensitive,
+    InheritanceData,
+    findInheritanceCaseInsensitive,
+} from '../../shared/dataLoader';
 import { buildSignatureLabel, buildParamLabel } from '../../shared/signatureBuilder';
 import { SymbolDatabase } from '../../base/symbolDatabase';
 import { SymbolKind, ActorSymbol } from '../../base/types';
@@ -84,8 +96,16 @@ export function registerHoverProvider(
     actionsData: Record<string, ActionData>,
     stateKeywords?: Record<string, StateKeywordData>,
     symbolDb?: SymbolDatabase,
-    inheritanceData?: Record<string, InheritanceData>
+    inheritanceData?: Record<string, InheritanceData>,
+    expressionsData?: Record<string, ExpressionData>
 ) {
+    const expressionCallables = expressionsData
+        ? getExpressionCallables(actionsData, expressionsData)
+        : {};
+    const expressionVariables = expressionsData
+        ? getExpressionVariables(expressionsData)
+        : {};
+
     const provider = vscode.languages.registerHoverProvider(
         [{ language: 'decorate' }],
         {
@@ -104,9 +124,30 @@ export function registerHoverProvider(
                     }
                 }
 
+                // Expression-only functions (CheckClass, CallACS, …) before state actions
+                const exprFn = findCallableCaseInsensitive(expressionCallables, word);
+                if (exprFn && !findActionCaseInsensitive(actionsData, word)) {
+                    return new vscode.Hover(buildHoverContent(word, exprFn));
+                }
+
                 const actionData = findActionCaseInsensitive(actionsData, word);
                 if (actionData) {
                     return new vscode.Hover(buildHoverContent(word, actionData));
+                }
+
+                if (exprFn) {
+                    return new vscode.Hover(buildHoverContent(word, exprFn));
+                }
+
+                const exprVar = findCallableCaseInsensitive(expressionVariables, word);
+                if (exprVar) {
+                    const md = new vscode.MarkdownString();
+                    md.isTrusted = true;
+                    md.appendCodeblock(word, 'decorate');
+                    if (exprVar.desc) {
+                        md.appendMarkdown(`\n\n${exprVar.desc}`);
+                    }
+                    return new vscode.Hover(md);
                 }
 
                 const actor = symbolDb?.query<ActorSymbol>(SymbolKind.Actor, word);

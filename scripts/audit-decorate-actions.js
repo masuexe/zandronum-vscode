@@ -316,8 +316,19 @@ function sameUsage(a, expected) {
 
 function main() {
     const apply = process.argv.includes('--apply');
+    // Param audit still uses the focused Actor/Inventory/Skulltag set for speed/compatibility
     const natives = loadAllNatives();
+    const {
+        parseActorSources,
+        expectedForFromClasses,
+        forClassesEqual,
+        collectAncestors,
+    } = require('./import-class-scoped-actions.js');
+    const { extendsMap, natives: allNatives } = parseActorSources();
     const actions = JSON.parse(fs.readFileSync(ACTIONS_PATH, 'utf8'));
+    const inheritance = JSON.parse(
+        fs.readFileSync(path.join(ROOT, 'data', 'decorate', 'inheritance.json'), 'utf8')
+    );
 
     const EXPRESSIONS_PATH = path.join(ROOT, 'data', 'decorate', 'expressions.json');
     const expressions = fs.existsSync(EXPRESSIONS_PATH)
@@ -330,6 +341,8 @@ function main() {
         paramIssues: [],
         descIssues: [],
         usageIssues: [],
+        forIssues: [],
+        inheritanceIssues: [],
         fixed: [],
         added: [],
     };
@@ -386,12 +399,15 @@ function main() {
             if (entry.usage) {
                 next.usage = entry.usage;
             }
+            if (entry.for !== undefined) {
+                next.for = entry.for;
+            }
             actions[name] = next;
             report.fixed.push(name);
         }
     }
 
-    // Extras: JSON keys with no native — keep line specials ThrustThing* and ACS_* entry points
+    // Extras: JSON keys with no native — keep line specials + all class-scoped action natives
     // CallACS is expression-only and must NOT live in actions.json
     const intentionalExtras = dualActionNames();
     for (const name of Object.keys(actions)) {
@@ -406,10 +422,10 @@ function main() {
             }
             continue;
         }
-        if (!natives.has(name)) {
-            if (!intentionalExtras.has(name)) {
-                report.extraInJson.push(name);
-            }
+        if (!allNatives.has(name) && !intentionalExtras.has(name)) {
+            report.extraInJson.push(name);
+        }
+        if (!natives.has(name) && !allNatives.has(name)) {
             const before = actions[name].desc;
             const fixedDesc = fixDesc(name, before);
             if (fixedDesc !== before) {
@@ -418,6 +434,69 @@ function main() {
                     actions[name].desc = fixedDesc;
                     report.fixed.push(name);
                 }
+            }
+        }
+    }
+
+    // Class-scoped for / inheritance coverage (from full actor tree)
+    const scopedDeclaring = new Set();
+    for (const [name, native] of allNatives) {
+        const classes = [...native.classes];
+        const scopedClasses = classes.filter((c) => c !== 'Actor');
+        const expectedFor = expectedForFromClasses(native.classes);
+
+        if (scopedClasses.length === 0) {
+            // Actor-global: must not have for
+            if (actions[name] && actions[name].for !== undefined) {
+                report.forIssues.push({
+                    name,
+                    issue: `Actor native should not have for, got ${JSON.stringify(actions[name].for)}`,
+                });
+                if (apply) {
+                    delete actions[name].for;
+                    report.fixed.push(name + ' (clear for)');
+                }
+            }
+            continue;
+        }
+
+        for (const c of scopedClasses) scopedDeclaring.add(c);
+
+        if (!actions[name]) {
+            report.missingInJson.push(name);
+            report.forIssues.push({ name, issue: `class-scoped missing (for=${JSON.stringify(expectedFor)})` });
+            continue;
+        }
+
+        if (!forClassesEqual(actions[name].for, expectedFor)) {
+            report.forIssues.push({
+                name,
+                issue: `for expected ${JSON.stringify(expectedFor)} got ${JSON.stringify(actions[name].for)}`,
+            });
+            if (apply) {
+                if (expectedFor === undefined) {
+                    delete actions[name].for;
+                } else {
+                    actions[name].for = expectedFor;
+                }
+                report.fixed.push(name + ' (for)');
+            }
+        }
+    }
+
+    for (const className of scopedDeclaring) {
+        for (const anc of collectAncestors(className, extendsMap)) {
+            if (anc === 'Actor') continue;
+            if (!inheritance[anc]) {
+                report.inheritanceIssues.push({
+                    name: anc,
+                    issue: `missing from inheritance.json (needed for ${className})`,
+                });
+            } else if (!inheritance[anc].extends) {
+                report.inheritanceIssues.push({
+                    name: anc,
+                    issue: 'missing extends',
+                });
             }
         }
     }
@@ -505,16 +584,37 @@ function main() {
 
     // Print summary
     console.log('=== Audit summary ===');
-    console.log('Source natives:', natives.size);
+    console.log('Source natives (Actor/Inv/ST):', natives.size);
+    console.log('Source natives (all actors):', allNatives.size);
     console.log('JSON actions:', Object.keys(actions).length);
     console.log('Param issues:', report.paramIssues.length);
     console.log('Desc issues:', report.descIssues.length);
     console.log('Usage issues:', report.usageIssues.length);
-    console.log('Missing (tracked):', report.missingInJson);
+    console.log('For issues:', report.forIssues.length);
+    console.log('Inheritance issues:', report.inheritanceIssues.length);
+    console.log('Missing (tracked):', report.missingInJson.length ? report.missingInJson.slice(0, 20) : []);
+    if (report.missingInJson.length > 20) {
+        console.log('  ... +', report.missingInJson.length - 20, 'more');
+    }
     console.log('Extra in JSON:', report.extraInJson);
     if (report.usageIssues.length) {
         console.log('\n--- Usage issues ---');
         for (const x of report.usageIssues) {
+            console.log(`${x.name}: ${x.issue}`);
+        }
+    }
+    if (report.forIssues.length) {
+        console.log('\n--- For issues (first 40) ---');
+        for (const x of report.forIssues.slice(0, 40)) {
+            console.log(`${x.name}: ${x.issue}`);
+        }
+        if (report.forIssues.length > 40) {
+            console.log(`... +${report.forIssues.length - 40} more`);
+        }
+    }
+    if (report.inheritanceIssues.length) {
+        console.log('\n--- Inheritance issues (first 20) ---');
+        for (const x of report.inheritanceIssues.slice(0, 20)) {
             console.log(`${x.name}: ${x.issue}`);
         }
     }

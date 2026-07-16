@@ -22,6 +22,12 @@ export interface ActionData {
     desc?: string;
     /** Where this symbol may appear. Default for actions.json: ["state"]. */
     usage?: DecorateUsage[];
+    /**
+     * Declaring actor class(es). Omit = available on any actor (Actor natives / line specials).
+     * When set, state completion shows the action only if the current actor's class or
+     * ancestor chain includes one of these classes.
+     */
+    for?: string | string[];
 }
 
 export interface PropertyData {

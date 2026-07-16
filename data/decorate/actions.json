@@ -5681,7 +5681,8 @@
         "default": "0"
       }
     ],
-    "desc": "Action function: A_FireBullets"
+    "desc": "Action function: A_FireBullets",
+    "for": "Inventory"
   },
   "A_FireCustomMissile": {
     "params": [
@@ -5727,7 +5728,8 @@
         "default": "0"
       }
     ],
-    "desc": "Action function: A_FireCustomMissile"
+    "desc": "Action function: A_FireCustomMissile",
+    "for": "Inventory"
   },
   "ThrustThing": {
     "params": [
@@ -5791,7 +5793,8 @@
   },
   "A_RandomPowerupFrame": {
     "params": [],
-    "desc": "Action function: A_RandomPowerupFrame"
+    "desc": "Action function: A_RandomPowerupFrame",
+    "for": "RandomPowerup"
   },
   "ACS_Execute": {
     "params": [
@@ -6012,5 +6015,2134 @@
       "state",
       "expression"
     ]
+  },
+  "A_M_Refire": {
+    "params": [
+      {
+        "name": "ignoremissile",
+        "type": "bool",
+        "optional": true,
+        "default": "false"
+      }
+    ],
+    "for": "ScriptedMarine",
+    "desc": "Action function: A_M_Refire"
+  },
+  "A_M_CheckAttack": {
+    "params": [],
+    "for": "ScriptedMarine",
+    "desc": "Action function: A_M_CheckAttack"
+  },
+  "A_MarineChase": {
+    "params": [],
+    "for": "ScriptedMarine",
+    "desc": "Action function: A_MarineChase"
+  },
+  "A_MarineLook": {
+    "params": [],
+    "for": "ScriptedMarine",
+    "desc": "Action function: A_MarineLook"
+  },
+  "A_MarineNoise": {
+    "params": [],
+    "for": "ScriptedMarine",
+    "desc": "Action function: A_MarineNoise"
+  },
+  "A_M_Punch": {
+    "params": [
+      {
+        "name": "force",
+        "type": "int",
+        "optional": false
+      }
+    ],
+    "for": "ScriptedMarine",
+    "desc": "Action function: A_M_Punch"
+  },
+  "A_M_SawRefire": {
+    "params": [],
+    "for": "ScriptedMarine",
+    "desc": "Action function: A_M_SawRefire"
+  },
+  "A_M_FirePistol": {
+    "params": [
+      {
+        "name": "accurate",
+        "type": "bool",
+        "optional": false
+      }
+    ],
+    "for": "ScriptedMarine",
+    "desc": "Action function: A_M_FirePistol"
+  },
+  "A_M_FireShotgun": {
+    "params": [],
+    "for": "ScriptedMarine",
+    "desc": "Action function: A_M_FireShotgun"
+  },
+  "A_M_FireShotgun2": {
+    "params": [],
+    "for": "ScriptedMarine",
+    "desc": "Action function: A_M_FireShotgun2"
+  },
+  "A_M_FireCGun": {
+    "params": [
+      {
+        "name": "accurate",
+        "type": "bool",
+        "optional": false
+      }
+    ],
+    "for": "ScriptedMarine",
+    "desc": "Action function: A_M_FireCGun"
+  },
+  "A_M_FireMissile": {
+    "params": [],
+    "for": "ScriptedMarine",
+    "desc": "Action function: A_M_FireMissile"
+  },
+  "A_M_FirePlasma": {
+    "params": [],
+    "for": "ScriptedMarine",
+    "desc": "Action function: A_M_FirePlasma"
+  },
+  "A_M_FireRailgun": {
+    "params": [],
+    "for": "ScriptedMarine",
+    "desc": "Action function: A_M_FireRailgun"
+  },
+  "A_M_BFGsound": {
+    "params": [],
+    "for": "ScriptedMarine",
+    "desc": "Action function: A_M_BFGsound"
+  },
+  "A_M_FireBFG": {
+    "params": [],
+    "for": "ScriptedMarine",
+    "desc": "Action function: A_M_FireBFG"
+  },
+  "A_BeakRaise": {
+    "params": [],
+    "for": "Beak",
+    "desc": "Action function: A_BeakRaise"
+  },
+  "A_BeakAttackPL1": {
+    "params": [],
+    "for": "Beak",
+    "desc": "Action function: A_BeakAttackPL1"
+  },
+  "A_BeakAttackPL2": {
+    "params": [],
+    "for": "BeakPowered",
+    "desc": "Action function: A_BeakAttackPL2"
+  },
+  "A_Sor1Pain": {
+    "params": [],
+    "for": "Sorcerer1",
+    "desc": "Action function: A_Sor1Pain"
+  },
+  "A_Sor1Chase": {
+    "params": [],
+    "for": "Sorcerer1",
+    "desc": "Action function: A_Sor1Chase"
+  },
+  "A_Srcr1Attack": {
+    "params": [],
+    "for": "Sorcerer1",
+    "desc": "Action function: A_Srcr1Attack"
+  },
+  "A_SorcererRise": {
+    "params": [],
+    "for": "Sorcerer1",
+    "desc": "Action function: A_SorcererRise"
+  },
+  "A_Srcr2Decide": {
+    "params": [],
+    "for": "Sorcerer2",
+    "desc": "Action function: A_Srcr2Decide"
+  },
+  "A_Srcr2Attack": {
+    "params": [],
+    "for": "Sorcerer2",
+    "desc": "Action function: A_Srcr2Attack"
+  },
+  "A_Sor2DthInit": {
+    "params": [],
+    "for": "Sorcerer2",
+    "desc": "Action function: A_Sor2DthInit"
+  },
+  "A_Sor2DthLoop": {
+    "params": [],
+    "for": "Sorcerer2",
+    "desc": "Action function: A_Sor2DthLoop"
+  },
+  "A_BlueSpark": {
+    "params": [],
+    "for": "Sorcerer2FX1",
+    "desc": "Action function: A_BlueSpark"
+  },
+  "A_GenWizard": {
+    "params": [],
+    "for": "Sorcerer2FX2",
+    "desc": "Action function: A_GenWizard"
+  },
+  "A_Timebomb": {
+    "params": [],
+    "for": "ActivatedTimeBomb",
+    "desc": "Action function: A_Timebomb"
+  },
+  "A_ImpMsAttack": {
+    "params": [],
+    "for": "HereticImp",
+    "desc": "Action function: A_ImpMsAttack"
+  },
+  "A_ImpDeath": {
+    "params": [],
+    "for": "HereticImp",
+    "desc": "Action function: A_ImpDeath"
+  },
+  "A_ImpXDeath1": {
+    "params": [],
+    "for": "HereticImp",
+    "desc": "Action function: A_ImpXDeath1"
+  },
+  "A_ImpExplode": {
+    "params": [],
+    "for": "HereticImp",
+    "desc": "Action function: A_ImpExplode"
+  },
+  "A_PodPain": {
+    "params": [
+      {
+        "name": "podtype",
+        "type": "string",
+        "optional": true,
+        "default": "\"PodGoo\""
+      }
+    ],
+    "for": "Pod",
+    "desc": "Action function: A_PodPain"
+  },
+  "A_RemovePod": {
+    "params": [],
+    "for": "Pod",
+    "desc": "Action function: A_RemovePod"
+  },
+  "A_MakePod": {
+    "params": [
+      {
+        "name": "podtype",
+        "type": "string",
+        "optional": true,
+        "default": "\"Pod\""
+      }
+    ],
+    "for": "PodGenerator",
+    "desc": "Action function: A_MakePod"
+  },
+  "A_AccTeleGlitter": {
+    "params": [],
+    "for": "TeleGlitter1",
+    "desc": "Action function: A_AccTeleGlitter"
+  },
+  "A_VolcanoSet": {
+    "params": [],
+    "for": "Volcano",
+    "desc": "Action function: A_VolcanoSet"
+  },
+  "A_VolcanoBlast": {
+    "params": [],
+    "for": "Volcano",
+    "desc": "Action function: A_VolcanoBlast"
+  },
+  "A_VolcBallImpact": {
+    "params": [],
+    "for": "VolcanoBlast",
+    "desc": "Action function: A_VolcBallImpact"
+  },
+  "A_StaffAttack": {
+    "params": [
+      {
+        "name": "damage",
+        "type": "int",
+        "optional": false
+      },
+      {
+        "name": "puff",
+        "type": "string",
+        "optional": false
+      }
+    ],
+    "for": "Staff",
+    "desc": "Action function: A_StaffAttack"
+  },
+  "A_FireGoldWandPL1": {
+    "params": [],
+    "for": "GoldWand",
+    "desc": "Action function: A_FireGoldWandPL1"
+  },
+  "A_FireGoldWandPL2": {
+    "params": [],
+    "for": "GoldWandPowered",
+    "desc": "Action function: A_FireGoldWandPL2"
+  },
+  "A_FireCrossbowPL1": {
+    "params": [],
+    "for": "Crossbow",
+    "desc": "Action function: A_FireCrossbowPL1"
+  },
+  "A_FireCrossbowPL2": {
+    "params": [],
+    "for": "CrossbowPowered",
+    "desc": "Action function: A_FireCrossbowPL2"
+  },
+  "A_GauntletAttack": {
+    "params": [
+      {
+        "name": "power",
+        "type": "int",
+        "optional": false
+      }
+    ],
+    "for": "Gauntlets",
+    "desc": "Action function: A_GauntletAttack"
+  },
+  "A_FireMacePL1": {
+    "params": [],
+    "for": "Mace",
+    "desc": "Action function: A_FireMacePL1"
+  },
+  "A_FireMacePL2": {
+    "params": [],
+    "for": "MacePowered",
+    "desc": "Action function: A_FireMacePL2"
+  },
+  "A_MacePL1Check": {
+    "params": [],
+    "for": "MaceFX1",
+    "desc": "Action function: A_MacePL1Check"
+  },
+  "A_MaceBallImpact": {
+    "params": [],
+    "for": "MaceFX1",
+    "desc": "Action function: A_MaceBallImpact"
+  },
+  "A_MaceBallImpact2": {
+    "params": [],
+    "for": "MaceFX2",
+    "desc": "Action function: A_MaceBallImpact2"
+  },
+  "A_DeathBallImpact": {
+    "params": [],
+    "for": "MaceFX4",
+    "desc": "Action function: A_DeathBallImpact"
+  },
+  "A_FireBlasterPL1": {
+    "params": [],
+    "for": "Blaster",
+    "desc": "Action function: A_FireBlasterPL1"
+  },
+  "A_SpawnRippers": {
+    "params": [],
+    "for": "BlasterFX1",
+    "desc": "Action function: A_SpawnRippers"
+  },
+  "A_FireSkullRodPL1": {
+    "params": [],
+    "for": "SkullRod",
+    "desc": "Action function: A_FireSkullRodPL1"
+  },
+  "A_FireSkullRodPL2": {
+    "params": [],
+    "for": "SkullRodPowered",
+    "desc": "Action function: A_FireSkullRodPL2"
+  },
+  "A_AddPlayerRain": {
+    "params": [],
+    "for": "HornRodFX2",
+    "desc": "Action function: A_AddPlayerRain"
+  },
+  "A_HideInCeiling": {
+    "params": [],
+    "for": "HornRodFX2",
+    "desc": "Action function: A_HideInCeiling"
+  },
+  "A_SkullRodStorm": {
+    "params": [],
+    "for": "HornRodFX2",
+    "desc": "Action function: A_SkullRodStorm"
+  },
+  "A_RainImpact": {
+    "params": [],
+    "for": "RainPillar",
+    "desc": "Action function: A_RainImpact"
+  },
+  "A_FirePhoenixPL1": {
+    "params": [],
+    "for": "PhoenixRod",
+    "desc": "Action function: A_FirePhoenixPL1"
+  },
+  "A_InitPhoenixPL2": {
+    "params": [],
+    "for": "PhoenixRodPowered",
+    "desc": "Action function: A_InitPhoenixPL2"
+  },
+  "A_FirePhoenixPL2": {
+    "params": [],
+    "for": "PhoenixRodPowered",
+    "desc": "Action function: A_FirePhoenixPL2"
+  },
+  "A_ShutdownPhoenixPL2": {
+    "params": [],
+    "for": "PhoenixRodPowered",
+    "desc": "Action function: A_ShutdownPhoenixPL2"
+  },
+  "A_PhoenixPuff": {
+    "params": [],
+    "for": "PhoenixFX1",
+    "desc": "Action function: A_PhoenixPuff"
+  },
+  "A_FlameEnd": {
+    "params": [],
+    "for": "PhoenixFX2",
+    "desc": "Action function: A_FlameEnd"
+  },
+  "A_FloatPuff": {
+    "params": [],
+    "for": "PhoenixFX2",
+    "desc": "Action function: A_FloatPuff"
+  },
+  "A_LichAttack": {
+    "params": [],
+    "for": "Ironlich",
+    "desc": "Action function: A_LichAttack"
+  },
+  "A_LichIceImpact": {
+    "params": [],
+    "for": "HeadFX1",
+    "desc": "Action function: A_LichIceImpact"
+  },
+  "A_LichFireGrow": {
+    "params": [],
+    "for": "HeadFX3",
+    "desc": "Action function: A_LichFireGrow"
+  },
+  "A_WhirlwindSeek": {
+    "params": [],
+    "for": "Whirlwind",
+    "desc": "Action function: A_WhirlwindSeek"
+  },
+  "A_KnightAttack": {
+    "params": [],
+    "for": "Knight",
+    "desc": "Action function: A_KnightAttack"
+  },
+  "A_DripBlood": {
+    "params": [],
+    "for": "RedAxe",
+    "desc": "Action function: A_DripBlood"
+  },
+  "A_GhostOff": {
+    "params": [],
+    "for": "Wizard",
+    "desc": "Action function: A_GhostOff"
+  },
+  "A_WizAtk1": {
+    "params": [],
+    "for": "Wizard",
+    "desc": "Action function: A_WizAtk1"
+  },
+  "A_WizAtk2": {
+    "params": [],
+    "for": "Wizard",
+    "desc": "Action function: A_WizAtk2"
+  },
+  "A_WizAtk3": {
+    "params": [],
+    "for": "Wizard",
+    "desc": "Action function: A_WizAtk3"
+  },
+  "A_BatSpawnInit": {
+    "params": [],
+    "for": "BatSpawner",
+    "desc": "Action function: A_BatSpawnInit"
+  },
+  "A_BatSpawn": {
+    "params": [],
+    "for": "BatSpawner",
+    "desc": "Action function: A_BatSpawn"
+  },
+  "A_BatMove": {
+    "params": [],
+    "for": "Bat",
+    "desc": "Action function: A_BatMove"
+  },
+  "A_BishopChase": {
+    "params": [],
+    "for": "Bishop",
+    "desc": "Action function: A_BishopChase"
+  },
+  "A_BishopDecide": {
+    "params": [],
+    "for": "Bishop",
+    "desc": "Action function: A_BishopDecide"
+  },
+  "A_BishopDoBlur": {
+    "params": [],
+    "for": "Bishop",
+    "desc": "Action function: A_BishopDoBlur"
+  },
+  "A_BishopSpawnBlur": {
+    "params": [],
+    "for": "Bishop",
+    "desc": "Action function: A_BishopSpawnBlur"
+  },
+  "A_BishopPainBlur": {
+    "params": [],
+    "for": "Bishop",
+    "desc": "Action function: A_BishopPainBlur"
+  },
+  "A_BishopAttack": {
+    "params": [],
+    "for": "Bishop",
+    "desc": "Action function: A_BishopAttack"
+  },
+  "A_BishopAttack2": {
+    "params": [],
+    "for": "Bishop",
+    "desc": "Action function: A_BishopAttack2"
+  },
+  "A_ClericAttack": {
+    "params": [],
+    "for": "ClericBoss",
+    "desc": "Action function: A_ClericAttack"
+  },
+  "A_CFlameAttack": {
+    "params": [],
+    "for": "CWeapFlame",
+    "desc": "Action function: A_CFlameAttack"
+  },
+  "A_CFlameRotate": {
+    "params": [],
+    "for": "CircleFlame",
+    "desc": "Action function: A_CFlameRotate"
+  },
+  "A_CFlamePuff": {
+    "params": [],
+    "for": "CFlameMissile",
+    "desc": "Action function: A_CFlamePuff"
+  },
+  "A_CFlameMissile": {
+    "params": [],
+    "for": "CFlameMissile",
+    "desc": "Action function: A_CFlameMissile"
+  },
+  "A_CHolyAttack": {
+    "params": [],
+    "for": "CWeapWraithverge",
+    "desc": "Action function: A_CHolyAttack"
+  },
+  "A_CHolyPalette": {
+    "params": [],
+    "for": "CWeapWraithverge",
+    "desc": "Action function: A_CHolyPalette"
+  },
+  "A_CHolyAttack2": {
+    "params": [],
+    "for": "HolyMissile",
+    "desc": "Action function: A_CHolyAttack2"
+  },
+  "A_CHolySeek": {
+    "params": [],
+    "for": "HolySpirit",
+    "desc": "Action function: A_CHolySeek"
+  },
+  "A_CHolyCheckScream": {
+    "params": [],
+    "for": "HolySpirit",
+    "desc": "Action function: A_CHolyCheckScream"
+  },
+  "A_CHolyTail": {
+    "params": [],
+    "for": "HolyTail",
+    "desc": "Action function: A_CHolyTail"
+  },
+  "A_CMaceAttack": {
+    "params": [],
+    "for": "CWeapMace",
+    "desc": "Action function: A_CMaceAttack"
+  },
+  "A_CStaffInitBlink": {
+    "params": [],
+    "for": "CWeapStaff",
+    "desc": "Action function: A_CStaffInitBlink"
+  },
+  "A_CStaffCheckBlink": {
+    "params": [],
+    "for": "CWeapStaff",
+    "desc": "Action function: A_CStaffCheckBlink"
+  },
+  "A_CStaffCheck": {
+    "params": [],
+    "for": "CWeapStaff",
+    "desc": "Action function: A_CStaffCheck"
+  },
+  "A_CStaffAttack": {
+    "params": [],
+    "for": "CWeapStaff",
+    "desc": "Action function: A_CStaffAttack"
+  },
+  "A_DragonInitFlight": {
+    "params": [],
+    "for": "Dragon",
+    "desc": "Action function: A_DragonInitFlight"
+  },
+  "A_DragonFlap": {
+    "params": [],
+    "for": "Dragon",
+    "desc": "Action function: A_DragonFlap"
+  },
+  "A_DragonFlight": {
+    "params": [],
+    "for": "Dragon",
+    "desc": "Action function: A_DragonFlight"
+  },
+  "A_DragonPain": {
+    "params": [],
+    "for": "Dragon",
+    "desc": "Action function: A_DragonPain"
+  },
+  "A_DragonAttack": {
+    "params": [],
+    "for": "Dragon",
+    "desc": "Action function: A_DragonAttack"
+  },
+  "A_DragonCheckCrash": {
+    "params": [],
+    "for": "Dragon",
+    "desc": "Action function: A_DragonCheckCrash"
+  },
+  "A_DragonFX2": {
+    "params": [],
+    "for": "DragonFireball",
+    "desc": "Action function: A_DragonFX2"
+  },
+  "A_FAxeCheckUp": {
+    "params": [],
+    "for": "FWeapAxe",
+    "desc": "Action function: A_FAxeCheckUp"
+  },
+  "A_FAxeCheckReady": {
+    "params": [],
+    "for": "FWeapAxe",
+    "desc": "Action function: A_FAxeCheckReady"
+  },
+  "A_FAxeCheckAtk": {
+    "params": [],
+    "for": "FWeapAxe",
+    "desc": "Action function: A_FAxeCheckAtk"
+  },
+  "A_FAxeAttack": {
+    "params": [],
+    "for": "FWeapAxe",
+    "desc": "Action function: A_FAxeAttack"
+  },
+  "A_FAxeCheckUpG": {
+    "params": [],
+    "for": "FWeapAxe",
+    "desc": "Action function: A_FAxeCheckUpG"
+  },
+  "A_FAxeCheckReadyG": {
+    "params": [],
+    "for": "FWeapAxe",
+    "desc": "Action function: A_FAxeCheckReadyG"
+  },
+  "A_FighterAttack": {
+    "params": [],
+    "for": "FighterBoss",
+    "desc": "Action function: A_FighterAttack"
+  },
+  "A_FPunchAttack": {
+    "params": [],
+    "for": "FWeapFist",
+    "desc": "Action function: A_FPunchAttack"
+  },
+  "A_FHammerAttack": {
+    "params": [],
+    "for": "FWeapHammer",
+    "desc": "Action function: A_FHammerAttack"
+  },
+  "A_FHammerThrow": {
+    "params": [],
+    "for": "FWeapHammer",
+    "desc": "Action function: A_FHammerThrow"
+  },
+  "A_FSwordAttack": {
+    "params": [],
+    "for": "FWeapQuietus",
+    "desc": "Action function: A_FSwordAttack"
+  },
+  "A_FSwordFlames": {
+    "params": [],
+    "for": "FSwordMissile",
+    "desc": "Action function: A_FSwordFlames"
+  },
+  "A_FiredRocks": {
+    "params": [],
+    "for": "FireDemon",
+    "desc": "Action function: A_FiredRocks"
+  },
+  "A_FiredChase": {
+    "params": [],
+    "for": "FireDemon",
+    "desc": "Action function: A_FiredChase"
+  },
+  "A_FiredAttack": {
+    "params": [],
+    "for": "FireDemon",
+    "desc": "Action function: A_FiredAttack"
+  },
+  "A_FiredSplotch": {
+    "params": [],
+    "for": "FireDemon",
+    "desc": "Action function: A_FiredSplotch"
+  },
+  "A_SmBounce": {
+    "params": [],
+    "for": "FireDemonRock1",
+    "desc": "Action function: A_SmBounce"
+  },
+  "A_PoisonBagInit": {
+    "params": [],
+    "for": "PoisonBag",
+    "desc": "Action function: A_PoisonBagInit"
+  },
+  "A_TimeBomb": {
+    "params": [],
+    "for": "FireBomb",
+    "desc": "Action function: A_TimeBomb"
+  },
+  "A_CheckThrowBomb": {
+    "params": [],
+    "for": "ThrowingBomb",
+    "desc": "Action function: A_CheckThrowBomb"
+  },
+  "A_CheckThrowBomb2": {
+    "params": [],
+    "for": "ThrowingBomb",
+    "desc": "Action function: A_CheckThrowBomb2"
+  },
+  "A_PoisonBagDamage": {
+    "params": [],
+    "for": "PoisonCloud",
+    "desc": "Action function: A_PoisonBagDamage"
+  },
+  "A_PoisonBagCheck": {
+    "params": [],
+    "for": "PoisonCloud",
+    "desc": "Action function: A_PoisonBagCheck"
+  },
+  "A_PoisonShroom": {
+    "params": [],
+    "for": "ZPoisonShroom",
+    "desc": "Action function: A_PoisonShroom"
+  },
+  "A_FogSpawn": {
+    "params": [],
+    "for": "FogSpawner",
+    "desc": "Action function: A_FogSpawn"
+  },
+  "A_FogMove": {
+    "params": [],
+    "for": "FogPatchSmall",
+    "desc": "Action function: A_FogMove"
+  },
+  "A_SorcSpinBalls": {
+    "params": [],
+    "for": "Heresiarch",
+    "desc": "Action function: A_SorcSpinBalls"
+  },
+  "A_SpeedBalls": {
+    "params": [],
+    "for": "Heresiarch",
+    "desc": "Action function: A_SpeedBalls"
+  },
+  "A_SorcBossAttack": {
+    "params": [],
+    "for": "Heresiarch",
+    "desc": "Action function: A_SorcBossAttack"
+  },
+  "A_SpawnFizzle": {
+    "params": [],
+    "for": "Heresiarch",
+    "desc": "Action function: A_SpawnFizzle"
+  },
+  "A_SorcBallOrbit": {
+    "params": [],
+    "for": "SorcBall",
+    "desc": "Action function: A_SorcBallOrbit"
+  },
+  "A_SorcBallPop": {
+    "params": [],
+    "for": "SorcBall",
+    "desc": "Action function: A_SorcBallPop"
+  },
+  "A_BounceCheck": {
+    "params": [],
+    "for": "SorcBall",
+    "desc": "Action function: A_BounceCheck"
+  },
+  "A_SorcFX1Seek": {
+    "params": [],
+    "for": "SorcFX1",
+    "desc": "Action function: A_SorcFX1Seek"
+  },
+  "A_SorcFX2Split": {
+    "params": [],
+    "for": "SorcFX2",
+    "desc": "Action function: A_SorcFX2Split"
+  },
+  "A_SorcFX2Orbit": {
+    "params": [],
+    "for": "SorcFX2",
+    "desc": "Action function: A_SorcFX2Orbit"
+  },
+  "A_SpawnBishop": {
+    "params": [],
+    "for": "SorcFX3",
+    "desc": "Action function: A_SpawnBishop"
+  },
+  "A_SorcererBishopEntry": {
+    "params": [],
+    "for": "SorcFX3",
+    "desc": "Action function: A_SorcererBishopEntry"
+  },
+  "A_SorcFX4Check": {
+    "params": [],
+    "for": "SorcFX4",
+    "desc": "Action function: A_SorcFX4Check"
+  },
+  "A_PotteryExplode": {
+    "params": [],
+    "for": "Pottery1",
+    "desc": "Action function: A_PotteryExplode"
+  },
+  "A_PotteryChooseBit": {
+    "params": [],
+    "for": "PotteryBit",
+    "desc": "Action function: A_PotteryChooseBit"
+  },
+  "A_PotteryCheck": {
+    "params": [],
+    "for": "PotteryBit",
+    "desc": "Action function: A_PotteryCheck"
+  },
+  "A_CorpseBloodDrip": {
+    "params": [],
+    "for": "ZCorpseLynchedNoHeart",
+    "desc": "Action function: A_CorpseBloodDrip"
+  },
+  "A_CorpseExplode": {
+    "params": [],
+    "for": "ZCorpseSitting",
+    "desc": "Action function: A_CorpseExplode"
+  },
+  "A_LeafSpawn": {
+    "params": [],
+    "for": "LeafSpawner",
+    "desc": "Action function: A_LeafSpawn"
+  },
+  "A_LeafThrust": {
+    "params": [],
+    "for": "Leaf1",
+    "desc": "Action function: A_LeafThrust"
+  },
+  "A_LeafCheck": {
+    "params": [],
+    "for": "Leaf1",
+    "desc": "Action function: A_LeafCheck"
+  },
+  "A_SoAExplode": {
+    "params": [],
+    "for": "ZSuitOfArmor",
+    "desc": "Action function: A_SoAExplode"
+  },
+  "A_BellReset1": {
+    "params": [],
+    "for": "ZBell",
+    "desc": "Action function: A_BellReset1"
+  },
+  "A_BellReset2": {
+    "params": [],
+    "for": "ZBell",
+    "desc": "Action function: A_BellReset2"
+  },
+  "A_IceGuyLook": {
+    "params": [],
+    "for": "IceGuy",
+    "desc": "Action function: A_IceGuyLook"
+  },
+  "A_IceGuyChase": {
+    "params": [],
+    "for": "IceGuy",
+    "desc": "Action function: A_IceGuyChase"
+  },
+  "A_IceGuyAttack": {
+    "params": [],
+    "for": "IceGuy",
+    "desc": "Action function: A_IceGuyAttack"
+  },
+  "A_IceGuyMissileExplode": {
+    "params": [],
+    "for": "IceGuyFX",
+    "desc": "Action function: A_IceGuyMissileExplode"
+  },
+  "A_KoraxChase": {
+    "params": [],
+    "for": "Korax",
+    "desc": "Action function: A_KoraxChase"
+  },
+  "A_KoraxDecide": {
+    "params": [],
+    "for": "Korax",
+    "desc": "Action function: A_KoraxDecide"
+  },
+  "A_KoraxBonePop": {
+    "params": [],
+    "for": "Korax",
+    "desc": "Action function: A_KoraxBonePop"
+  },
+  "A_KoraxMissile": {
+    "params": [],
+    "for": "Korax",
+    "desc": "Action function: A_KoraxMissile"
+  },
+  "A_KoraxCommand": {
+    "params": [],
+    "for": "Korax",
+    "desc": "Action function: A_KoraxCommand"
+  },
+  "A_KSpiritRoam": {
+    "params": [],
+    "for": "KoraxSpirit",
+    "desc": "Action function: A_KSpiritRoam"
+  },
+  "A_KBolt": {
+    "params": [],
+    "for": "KoraxBolt",
+    "desc": "Action function: A_KBolt"
+  },
+  "A_KBoltRaise": {
+    "params": [],
+    "for": "KoraxBolt",
+    "desc": "Action function: A_KBoltRaise"
+  },
+  "A_MageAttack": {
+    "params": [],
+    "for": "MageBoss",
+    "desc": "Action function: A_MageAttack"
+  },
+  "A_FireConePL1": {
+    "params": [],
+    "for": "MWeapFrost",
+    "desc": "Action function: A_FireConePL1"
+  },
+  "A_ShedShard": {
+    "params": [],
+    "for": "FrostMissile",
+    "desc": "Action function: A_ShedShard"
+  },
+  "A_LightningReady": {
+    "params": [],
+    "for": "MWeapLightning",
+    "desc": "Action function: A_LightningReady"
+  },
+  "A_MLightningAttack": {
+    "params": [
+      {
+        "name": "floor",
+        "type": "string",
+        "optional": true,
+        "default": "\"LightningFloor\""
+      },
+      {
+        "name": "ceiling",
+        "type": "string",
+        "optional": true,
+        "default": "\"LightningCeiling\""
+      }
+    ],
+    "for": "MWeapLightning",
+    "desc": "Action function: A_MLightningAttack"
+  },
+  "A_LightningZap": {
+    "params": [],
+    "for": "LightningCeiling",
+    "desc": "Action function: A_LightningZap"
+  },
+  "A_LightningClip": {
+    "params": [],
+    "for": "LightningCeiling",
+    "desc": "Action function: A_LightningClip"
+  },
+  "A_LightningRemove": {
+    "params": [],
+    "for": "LightningCeiling",
+    "desc": "Action function: A_LightningRemove"
+  },
+  "A_LastZap": {
+    "params": [],
+    "for": "LightningFloor",
+    "desc": "Action function: A_LastZap"
+  },
+  "A_ZapMimic": {
+    "params": [],
+    "for": "LightningZap",
+    "desc": "Action function: A_ZapMimic"
+  },
+  "A_MStaffAttack": {
+    "params": [],
+    "for": "MWeapBloodscourge",
+    "desc": "Action function: A_MStaffAttack"
+  },
+  "A_MStaffPalette": {
+    "params": [],
+    "for": "MWeapBloodscourge",
+    "desc": "Action function: A_MStaffPalette"
+  },
+  "A_MStaffTrack": {
+    "params": [],
+    "for": "MageStaffFX2",
+    "desc": "Action function: A_MStaffTrack"
+  },
+  "A_SnoutAttack": {
+    "params": [],
+    "for": "Snout",
+    "desc": "Action function: A_SnoutAttack"
+  },
+  "A_SerpentHumpDecide": {
+    "params": [],
+    "for": "Serpent",
+    "desc": "Action function: A_SerpentHumpDecide"
+  },
+  "A_SerpentHide": {
+    "params": [],
+    "for": "Serpent",
+    "desc": "Action function: A_SerpentHide"
+  },
+  "A_SerpentCheckForAttack": {
+    "params": [],
+    "for": "Serpent",
+    "desc": "Action function: A_SerpentCheckForAttack"
+  },
+  "A_SerpentSpawnGibs": {
+    "params": [],
+    "for": "Serpent",
+    "desc": "Action function: A_SerpentSpawnGibs"
+  },
+  "A_SerpentUnHide": {
+    "params": [],
+    "for": "Serpent",
+    "desc": "Action function: A_SerpentUnHide"
+  },
+  "A_SerpentRaiseHump": {
+    "params": [],
+    "for": "Serpent",
+    "desc": "Action function: A_SerpentRaiseHump"
+  },
+  "A_SerpentLowerHump": {
+    "params": [],
+    "for": "Serpent",
+    "desc": "Action function: A_SerpentLowerHump"
+  },
+  "A_SerpentChooseAttack": {
+    "params": [],
+    "for": "Serpent",
+    "desc": "Action function: A_SerpentChooseAttack"
+  },
+  "A_SerpentMeleeAttack": {
+    "params": [],
+    "for": "Serpent",
+    "desc": "Action function: A_SerpentMeleeAttack"
+  },
+  "A_SerpentHeadCheck": {
+    "params": [],
+    "for": "SerpentHead",
+    "desc": "Action function: A_SerpentHeadCheck"
+  },
+  "A_FloatGib": {
+    "params": [],
+    "for": "SerpentGib1",
+    "desc": "Action function: A_FloatGib"
+  },
+  "A_DelayGib": {
+    "params": [],
+    "for": "SerpentGib1",
+    "desc": "Action function: A_DelayGib"
+  },
+  "A_SinkGib": {
+    "params": [],
+    "for": "SerpentGib1",
+    "desc": "Action function: A_SinkGib"
+  },
+  "A_ThrustRaise": {
+    "params": [],
+    "for": "ThrustFloor",
+    "desc": "Action function: A_ThrustRaise"
+  },
+  "A_ThrustImpale": {
+    "params": [],
+    "for": "ThrustFloor",
+    "desc": "Action function: A_ThrustImpale"
+  },
+  "A_ThrustLower": {
+    "params": [],
+    "for": "ThrustFloor",
+    "desc": "Action function: A_ThrustLower"
+  },
+  "A_ThrustInitDn": {
+    "params": [],
+    "for": "ThrustFloor",
+    "desc": "Action function: A_ThrustInitDn"
+  },
+  "A_ThrustInitUp": {
+    "params": [],
+    "for": "ThrustFloor",
+    "desc": "Action function: A_ThrustInitUp"
+  },
+  "A_Summon": {
+    "params": [],
+    "for": "SummoningDoll",
+    "desc": "Action function: A_Summon"
+  },
+  "A_TeloSpawnA": {
+    "params": [],
+    "for": "TelOtherFX1",
+    "desc": "Action function: A_TeloSpawnA"
+  },
+  "A_TeloSpawnB": {
+    "params": [],
+    "for": "TelOtherFX1",
+    "desc": "Action function: A_TeloSpawnB"
+  },
+  "A_TeloSpawnC": {
+    "params": [],
+    "for": "TelOtherFX1",
+    "desc": "Action function: A_TeloSpawnC"
+  },
+  "A_TeloSpawnD": {
+    "params": [],
+    "for": "TelOtherFX1",
+    "desc": "Action function: A_TeloSpawnD"
+  },
+  "A_CheckTeleRing": {
+    "params": [],
+    "for": "TelOtherFX1",
+    "desc": "Action function: A_CheckTeleRing"
+  },
+  "A_WraithInit": {
+    "params": [],
+    "for": "Wraith",
+    "desc": "Action function: A_WraithInit"
+  },
+  "A_WraithChase": {
+    "params": [],
+    "for": "Wraith",
+    "desc": "Action function: A_WraithChase"
+  },
+  "A_WraithFX3": {
+    "params": [],
+    "for": "Wraith",
+    "desc": "Action function: A_WraithFX3"
+  },
+  "A_WraithMelee": {
+    "params": [],
+    "for": "Wraith",
+    "desc": "Action function: A_WraithMelee"
+  },
+  "A_WraithRaiseInit": {
+    "params": [],
+    "for": "WraithBuried",
+    "desc": "Action function: A_WraithRaiseInit"
+  },
+  "A_WraithRaise": {
+    "params": [],
+    "for": "WraithBuried",
+    "desc": "Action function: A_WraithRaise"
+  },
+  "A_WraithFX2": {
+    "params": [],
+    "for": "WraithFX1",
+    "desc": "Action function: A_WraithFX2"
+  },
+  "A_MinotaurDecide": {
+    "params": [],
+    "for": "Minotaur",
+    "desc": "Action function: A_MinotaurDecide"
+  },
+  "A_MinotaurAtk1": {
+    "params": [],
+    "for": "Minotaur",
+    "desc": "Action function: A_MinotaurAtk1"
+  },
+  "A_MinotaurAtk2": {
+    "params": [],
+    "for": "Minotaur",
+    "desc": "Action function: A_MinotaurAtk2"
+  },
+  "A_MinotaurAtk3": {
+    "params": [],
+    "for": "Minotaur",
+    "desc": "Action function: A_MinotaurAtk3"
+  },
+  "A_MinotaurCharge": {
+    "params": [],
+    "for": "Minotaur",
+    "desc": "Action function: A_MinotaurCharge"
+  },
+  "A_MinotaurLook": {
+    "params": [],
+    "for": "Minotaur",
+    "desc": "Action function: A_MinotaurLook"
+  },
+  "A_MinotaurRoam": {
+    "params": [],
+    "for": "Minotaur",
+    "desc": "Action function: A_MinotaurRoam"
+  },
+  "A_MinotaurChase": {
+    "params": [],
+    "for": "Minotaur",
+    "desc": "Action function: A_MinotaurChase"
+  },
+  "A_MinotaurDeath": {
+    "params": [],
+    "for": "Minotaur",
+    "desc": "Action function: A_MinotaurDeath"
+  },
+  "A_MntrFloorFire": {
+    "params": [],
+    "for": "MinotaurFX2",
+    "desc": "Action function: A_MntrFloorFire"
+  },
+  "A_IceSetTics": {
+    "params": [],
+    "for": "IceChunk",
+    "desc": "Action function: A_IceSetTics"
+  },
+  "A_BridgeOrbit": {
+    "params": [],
+    "for": "BridgeBall",
+    "desc": "Action function: A_BridgeOrbit"
+  },
+  "A_BridgeInit": {
+    "params": [
+      {
+        "name": "balltype",
+        "type": "string",
+        "optional": true,
+        "default": "\"BridgeBall\""
+      }
+    ],
+    "for": "CustomBridge",
+    "desc": "Action function: A_BridgeInit"
+  },
+  "A_JumpIfNoAmmo": {
+    "params": [
+      {
+        "name": "label",
+        "type": "state",
+        "optional": false
+      }
+    ],
+    "for": "Inventory",
+    "desc": "Action function: A_JumpIfNoAmmo"
+  },
+  "A_CustomPunch": {
+    "params": [
+      {
+        "name": "damage",
+        "type": "int",
+        "optional": false
+      },
+      {
+        "name": "norandom",
+        "type": "bool",
+        "optional": true,
+        "default": "false"
+      },
+      {
+        "name": "flags",
+        "type": "int",
+        "optional": true,
+        "default": "CPF_USEAMMO"
+      },
+      {
+        "name": "pufftype",
+        "type": "string",
+        "optional": true,
+        "default": "\"BulletPuff\""
+      },
+      {
+        "name": "range",
+        "type": "float",
+        "optional": true,
+        "default": "0"
+      },
+      {
+        "name": "lifesteal",
+        "type": "float",
+        "optional": true,
+        "default": "0"
+      }
+    ],
+    "for": "Inventory",
+    "desc": "Action function: A_CustomPunch"
+  },
+  "A_RailAttack": {
+    "params": [
+      {
+        "name": "damage",
+        "type": "int",
+        "optional": false
+      },
+      {
+        "name": "spawnofs_xy",
+        "type": "int",
+        "optional": true,
+        "default": "0"
+      },
+      {
+        "name": "useammo",
+        "type": "int",
+        "optional": true,
+        "default": "true"
+      },
+      {
+        "name": "color1",
+        "type": "string",
+        "optional": true,
+        "default": "\"\""
+      },
+      {
+        "name": "color2",
+        "type": "string",
+        "optional": true,
+        "default": "\"\""
+      },
+      {
+        "name": "flags",
+        "type": "int",
+        "optional": true,
+        "default": "0"
+      },
+      {
+        "name": "maxdiff",
+        "type": "float",
+        "optional": true,
+        "default": "0"
+      },
+      {
+        "name": "pufftype",
+        "type": "string",
+        "optional": true,
+        "default": "\"BulletPuff\""
+      },
+      {
+        "name": "spread_xy",
+        "type": "float",
+        "optional": true,
+        "default": "0"
+      },
+      {
+        "name": "spread_z",
+        "type": "float",
+        "optional": true,
+        "default": "0"
+      },
+      {
+        "name": "range",
+        "type": "float",
+        "optional": true,
+        "default": "0"
+      },
+      {
+        "name": "duration",
+        "type": "int",
+        "optional": true,
+        "default": "0"
+      },
+      {
+        "name": "sparsity",
+        "type": "float",
+        "optional": true,
+        "default": "1.0"
+      },
+      {
+        "name": "driftspeed",
+        "type": "float",
+        "optional": true,
+        "default": "1.0"
+      },
+      {
+        "name": "spawnclass",
+        "type": "string",
+        "optional": true,
+        "default": "\"none\""
+      },
+      {
+        "name": "spawnofs_z",
+        "type": "float",
+        "optional": true,
+        "default": "0"
+      }
+    ],
+    "for": "Inventory",
+    "desc": "Action function: A_RailAttack"
+  },
+  "A_Light": {
+    "params": [
+      {
+        "name": "extralight",
+        "type": "int",
+        "optional": false
+      }
+    ],
+    "for": "Inventory",
+    "desc": "Action function: A_Light"
+  },
+  "A_Light0": {
+    "params": [],
+    "for": "Inventory",
+    "desc": "Action function: A_Light0"
+  },
+  "A_Light1": {
+    "params": [],
+    "for": "Inventory",
+    "desc": "Action function: A_Light1"
+  },
+  "A_Light2": {
+    "params": [],
+    "for": "Inventory",
+    "desc": "Action function: A_Light2"
+  },
+  "A_LightInverse": {
+    "params": [],
+    "for": "Inventory",
+    "desc": "Action function: A_LightInverse"
+  },
+  "A_WeaponReady": {
+    "params": [
+      {
+        "name": "flags",
+        "type": "int",
+        "optional": true,
+        "default": "0"
+      }
+    ],
+    "for": "Inventory",
+    "desc": "Action function: A_WeaponReady"
+  },
+  "A_Lower": {
+    "params": [],
+    "for": "Inventory",
+    "desc": "Action function: A_Lower"
+  },
+  "A_Raise": {
+    "params": [],
+    "for": "Inventory",
+    "desc": "Action function: A_Raise"
+  },
+  "A_FirePistol": {
+    "params": [],
+    "for": "Inventory",
+    "desc": "Action function: A_FirePistol"
+  },
+  "A_FireShotgun": {
+    "params": [],
+    "for": "Inventory",
+    "desc": "Action function: A_FireShotgun"
+  },
+  "A_FireShotgun2": {
+    "params": [],
+    "for": "Inventory",
+    "desc": "Action function: A_FireShotgun2"
+  },
+  "A_OpenShotgun2": {
+    "params": [],
+    "for": "Inventory",
+    "desc": "Action function: A_OpenShotgun2"
+  },
+  "A_LoadShotgun2": {
+    "params": [],
+    "for": "Inventory",
+    "desc": "Action function: A_LoadShotgun2"
+  },
+  "A_CloseShotgun2": {
+    "params": [],
+    "for": "Inventory",
+    "desc": "Action function: A_CloseShotgun2"
+  },
+  "A_FireCGun": {
+    "params": [],
+    "for": "Inventory",
+    "desc": "Action function: A_FireCGun"
+  },
+  "A_FireSTGrenade": {
+    "params": [
+      {
+        "name": "grenadetype",
+        "type": "string",
+        "optional": true,
+        "default": "\"Grenade\""
+      }
+    ],
+    "for": "Inventory",
+    "desc": "Action function: A_FireSTGrenade"
+  },
+  "A_FireMissile": {
+    "params": [],
+    "for": "Inventory",
+    "desc": "Action function: A_FireMissile"
+  },
+  "A_FirePlasma": {
+    "params": [],
+    "for": "Inventory",
+    "desc": "Action function: A_FirePlasma"
+  },
+  "A_FireRailgun": {
+    "params": [
+      {
+        "name": "puffType",
+        "type": "string",
+        "optional": true,
+        "default": "\"None\""
+      }
+    ],
+    "for": "Inventory",
+    "desc": "Action function: A_FireRailgun"
+  },
+  "A_FireRailgunLeft": {
+    "params": [],
+    "for": "Inventory",
+    "desc": "Action function: A_FireRailgunLeft"
+  },
+  "A_FireRailgunRight": {
+    "params": [],
+    "for": "Inventory",
+    "desc": "Action function: A_FireRailgunRight"
+  },
+  "A_RailWait": {
+    "params": [],
+    "for": "Inventory",
+    "desc": "Action function: A_RailWait"
+  },
+  "A_BFGsound": {
+    "params": [],
+    "for": "Inventory",
+    "desc": "Action function: A_BFGsound"
+  },
+  "A_FireBFG": {
+    "params": [],
+    "for": "Inventory",
+    "desc": "Action function: A_FireBFG"
+  },
+  "A_FireOldBFG": {
+    "params": [],
+    "for": "Inventory",
+    "desc": "Action function: A_FireOldBFG"
+  },
+  "A_ReFire": {
+    "params": [
+      {
+        "name": "flash",
+        "type": "state",
+        "optional": true,
+        "default": "\"\""
+      }
+    ],
+    "for": "Inventory",
+    "desc": "Action function: A_ReFire"
+  },
+  "A_ClearReFire": {
+    "params": [],
+    "for": "Inventory",
+    "desc": "Action function: A_ClearReFire"
+  },
+  "A_CheckReload": {
+    "params": [],
+    "for": "Inventory",
+    "desc": "Action function: A_CheckReload"
+  },
+  "A_GunFlash": {
+    "params": [
+      {
+        "name": "flash",
+        "type": "state",
+        "optional": true,
+        "default": "\"\""
+      },
+      {
+        "name": "flags",
+        "type": "int",
+        "optional": true,
+        "default": "0"
+      }
+    ],
+    "for": "Inventory",
+    "desc": "Action function: A_GunFlash"
+  },
+  "A_Saw": {
+    "params": [
+      {
+        "name": "fullsound",
+        "type": "string",
+        "optional": true,
+        "default": "\"weapons/sawfull\""
+      },
+      {
+        "name": "hitsound",
+        "type": "string",
+        "optional": true,
+        "default": "\"weapons/sawhit\""
+      },
+      {
+        "name": "damage",
+        "type": "int",
+        "optional": true,
+        "default": "2"
+      },
+      {
+        "name": "pufftype",
+        "type": "string",
+        "optional": true,
+        "default": "\"BulletPuff\""
+      },
+      {
+        "name": "flags",
+        "type": "int",
+        "optional": true,
+        "default": "0"
+      },
+      {
+        "name": "range",
+        "type": "float",
+        "optional": true,
+        "default": "0"
+      },
+      {
+        "name": "spread_xy",
+        "type": "float",
+        "optional": true,
+        "default": "2.8125"
+      },
+      {
+        "name": "spread_z",
+        "type": "float",
+        "optional": true,
+        "default": "0"
+      },
+      {
+        "name": "lifesteal",
+        "type": "float",
+        "optional": true,
+        "default": "0"
+      }
+    ],
+    "for": "Inventory",
+    "desc": "Action function: A_Saw"
+  },
+  "A_CheckForReload": {
+    "params": [
+      {
+        "name": "counter",
+        "type": "int",
+        "optional": false
+      },
+      {
+        "name": "label",
+        "type": "state",
+        "optional": false
+      },
+      {
+        "name": "dontincrement",
+        "type": "bool",
+        "optional": true,
+        "default": "false"
+      }
+    ],
+    "for": "Inventory",
+    "desc": "Action function: A_CheckForReload"
+  },
+  "A_ResetReloadCounter": {
+    "params": [],
+    "for": "Inventory",
+    "desc": "Action function: A_ResetReloadCounter"
+  },
+  "A_RestoreSpecialPosition": {
+    "params": [],
+    "for": "Inventory",
+    "desc": "Action function: A_RestoreSpecialPosition"
+  },
+  "A_RestoreSpecialDoomThing": {
+    "params": [],
+    "for": "Inventory",
+    "desc": "Action function: A_RestoreSpecialDoomThing"
+  },
+  "A_RestoreSpecialThing1": {
+    "params": [],
+    "for": "Inventory",
+    "desc": "Action function: A_RestoreSpecialThing1"
+  },
+  "A_RestoreSpecialThing2": {
+    "params": [],
+    "for": "Inventory",
+    "desc": "Action function: A_RestoreSpecialThing2"
+  },
+  "A_CheckRailReload": {
+    "params": [],
+    "for": "Inventory",
+    "desc": "Action function: A_CheckRailReload"
+  },
+  "A_ZoomFactor": {
+    "params": [
+      {
+        "name": "scale",
+        "type": "float",
+        "optional": true,
+        "default": "1"
+      },
+      {
+        "name": "flags",
+        "type": "int",
+        "optional": true,
+        "default": "0"
+      }
+    ],
+    "for": "Weapon",
+    "desc": "Action function: A_ZoomFactor"
+  },
+  "A_SetCrosshair": {
+    "params": [
+      {
+        "name": "xhair",
+        "type": "int",
+        "optional": false
+      }
+    ],
+    "for": "Weapon",
+    "desc": "Action function: A_SetCrosshair"
+  },
+  "A_SpawnSingleItem": {
+    "params": [
+      {
+        "name": "type",
+        "type": "string",
+        "optional": false
+      },
+      {
+        "name": "fail_sp",
+        "type": "int",
+        "optional": true,
+        "default": "0"
+      },
+      {
+        "name": "fail_co",
+        "type": "int",
+        "optional": true,
+        "default": "0"
+      },
+      {
+        "name": "fail_dm",
+        "type": "int",
+        "optional": true,
+        "default": "0"
+      }
+    ],
+    "for": "SpecialSpot",
+    "desc": "Action function: A_SpawnSingleItem"
+  },
+  "A_BeShadowyFoe": {
+    "params": [],
+    "for": "Acolyte",
+    "desc": "Action function: A_BeShadowyFoe"
+  },
+  "A_AcolyteBits": {
+    "params": [],
+    "for": "Acolyte",
+    "desc": "Action function: A_AcolyteBits"
+  },
+  "A_AcolyteDie": {
+    "params": [],
+    "for": "Acolyte",
+    "desc": "Action function: A_AcolyteDie"
+  },
+  "A_HideDecepticon": {
+    "params": [],
+    "for": "AcolyteToBe",
+    "desc": "Action function: A_HideDecepticon"
+  },
+  "A_AlienSpectreDeath": {
+    "params": [],
+    "for": "AlienSpectre1",
+    "desc": "Action function: A_AlienSpectreDeath"
+  },
+  "A_CrusaderChoose": {
+    "params": [],
+    "for": "Crusader",
+    "desc": "Action function: A_CrusaderChoose"
+  },
+  "A_CrusaderSweepLeft": {
+    "params": [],
+    "for": "Crusader",
+    "desc": "Action function: A_CrusaderSweepLeft"
+  },
+  "A_CrusaderSweepRight": {
+    "params": [],
+    "for": "Crusader",
+    "desc": "Action function: A_CrusaderSweepRight"
+  },
+  "A_CrusaderRefire": {
+    "params": [],
+    "for": "Crusader",
+    "desc": "Action function: A_CrusaderRefire"
+  },
+  "A_CrusaderDeath": {
+    "params": [],
+    "for": "Crusader",
+    "desc": "Action function: A_CrusaderDeath"
+  },
+  "A_SpawnEntity": {
+    "params": [],
+    "for": "EntityPod",
+    "desc": "Action function: A_SpawnEntity"
+  },
+  "A_EntityAttack": {
+    "params": [],
+    "for": "EntityBoss",
+    "desc": "Action function: A_EntityAttack"
+  },
+  "A_EntityDeath": {
+    "params": [],
+    "for": "EntityBoss",
+    "desc": "Action function: A_EntityDeath"
+  },
+  "A_SubEntityDeath": {
+    "params": [],
+    "for": "EntitySecond",
+    "desc": "Action function: A_SubEntityDeath"
+  },
+  "A_InquisitorWalk": {
+    "params": [],
+    "for": "Inquisitor",
+    "desc": "Action function: A_InquisitorWalk"
+  },
+  "A_InquisitorDecide": {
+    "params": [],
+    "for": "Inquisitor",
+    "desc": "Action function: A_InquisitorDecide"
+  },
+  "A_InquisitorAttack": {
+    "params": [],
+    "for": "Inquisitor",
+    "desc": "Action function: A_InquisitorAttack"
+  },
+  "A_InquisitorJump": {
+    "params": [],
+    "for": "Inquisitor",
+    "desc": "Action function: A_InquisitorJump"
+  },
+  "A_InquisitorCheckLand": {
+    "params": [],
+    "for": "Inquisitor",
+    "desc": "Action function: A_InquisitorCheckLand"
+  },
+  "A_TossArm": {
+    "params": [],
+    "for": "Inquisitor",
+    "desc": "Action function: A_TossArm"
+  },
+  "A_ReaverRanged": {
+    "params": [],
+    "for": [
+      "Inquisitor",
+      "Reaver"
+    ],
+    "desc": "Action function: A_ReaverRanged"
+  },
+  "A_LoremasterChain": {
+    "params": [],
+    "for": "LoreShot",
+    "desc": "Action function: A_LoremasterChain"
+  },
+  "A_WakeOracleSpectre": {
+    "params": [],
+    "for": "Oracle",
+    "desc": "Action function: A_WakeOracleSpectre"
+  },
+  "A_ProgrammerMelee": {
+    "params": [],
+    "for": "Programmer",
+    "desc": "Action function: A_ProgrammerMelee"
+  },
+  "A_SpawnProgrammerBase": {
+    "params": [],
+    "for": "Programmer",
+    "desc": "Action function: A_SpawnProgrammerBase"
+  },
+  "A_ProgrammerDeath": {
+    "params": [],
+    "for": "Programmer",
+    "desc": "Action function: A_ProgrammerDeath"
+  },
+  "A_SpotLightning": {
+    "params": [],
+    "for": [
+      "Programmer",
+      "SpectralMonster"
+    ],
+    "desc": "Action function: A_SpotLightning"
+  },
+  "A_Beacon": {
+    "params": [],
+    "for": "TeleporterBeacon",
+    "desc": "Action function: A_Beacon"
+  },
+  "A_SentinelAttack": {
+    "params": [],
+    "for": "Sentinel",
+    "desc": "Action function: A_SentinelAttack"
+  },
+  "A_SelectPiece": {
+    "params": [],
+    "for": "Sigil",
+    "desc": "Action function: A_SelectPiece"
+  },
+  "A_SelectSigilView": {
+    "params": [],
+    "for": "Sigil",
+    "desc": "Action function: A_SelectSigilView"
+  },
+  "A_SelectSigilDown": {
+    "params": [],
+    "for": "Sigil",
+    "desc": "Action function: A_SelectSigilDown"
+  },
+  "A_SelectSigilAttack": {
+    "params": [],
+    "for": "Sigil",
+    "desc": "Action function: A_SelectSigilAttack"
+  },
+  "A_SigilCharge": {
+    "params": [],
+    "for": "Sigil",
+    "desc": "Action function: A_SigilCharge"
+  },
+  "A_FireSigil1": {
+    "params": [],
+    "for": "Sigil",
+    "desc": "Action function: A_FireSigil1"
+  },
+  "A_FireSigil2": {
+    "params": [],
+    "for": "Sigil",
+    "desc": "Action function: A_FireSigil2"
+  },
+  "A_FireSigil3": {
+    "params": [],
+    "for": "Sigil",
+    "desc": "Action function: A_FireSigil3"
+  },
+  "A_FireSigil4": {
+    "params": [],
+    "for": "Sigil",
+    "desc": "Action function: A_FireSigil4"
+  },
+  "A_FireSigil5": {
+    "params": [],
+    "for": "Sigil",
+    "desc": "Action function: A_FireSigil5"
+  },
+  "A_SpectreChunkSmall": {
+    "params": [],
+    "for": "SpectralMonster",
+    "desc": "Action function: A_SpectreChunkSmall"
+  },
+  "A_SpectreChunkLarge": {
+    "params": [],
+    "for": "SpectralMonster",
+    "desc": "Action function: A_SpectreChunkLarge"
+  },
+  "A_Spectre3Attack": {
+    "params": [],
+    "for": "SpectralMonster",
+    "desc": "Action function: A_Spectre3Attack"
+  },
+  "A_SpectralLightningTail": {
+    "params": [],
+    "for": "SpectralLightningH1",
+    "desc": "Action function: A_SpectralLightningTail"
+  },
+  "A_SpectralBigBallLightning": {
+    "params": [],
+    "for": "SpectralLightningBigBall1",
+    "desc": "Action function: A_SpectralBigBallLightning"
+  },
+  "A_SpectralLightning": {
+    "params": [],
+    "for": "SpectralLightningSpot",
+    "desc": "Action function: A_SpectralLightning"
+  },
+  "A_StalkerLookInit": {
+    "params": [],
+    "for": "Stalker",
+    "desc": "Action function: A_StalkerLookInit"
+  },
+  "A_StalkerChaseDecide": {
+    "params": [],
+    "for": "Stalker",
+    "desc": "Action function: A_StalkerChaseDecide"
+  },
+  "A_StalkerWalk": {
+    "params": [],
+    "for": "Stalker",
+    "desc": "Action function: A_StalkerWalk"
+  },
+  "A_StalkerDrop": {
+    "params": [],
+    "for": "Stalker",
+    "desc": "Action function: A_StalkerDrop"
+  },
+  "A_StalkerAttack": {
+    "params": [],
+    "for": "Stalker",
+    "desc": "Action function: A_StalkerAttack"
+  },
+  "A_ItBurnsItBurns": {
+    "params": [],
+    "for": "StrifePlayer",
+    "desc": "Action function: A_ItBurnsItBurns"
+  },
+  "A_CrispyPlayer": {
+    "params": [],
+    "for": "StrifePlayer",
+    "desc": "Action function: A_CrispyPlayer"
+  },
+  "A_HandLower": {
+    "params": [],
+    "for": "StrifePlayer",
+    "desc": "Action function: A_HandLower"
+  },
+  "A_JabDagger": {
+    "params": [],
+    "for": "PunchDagger",
+    "desc": "Action function: A_JabDagger"
+  },
+  "A_ClearFlash": {
+    "params": [],
+    "for": "StrifeCrossbow",
+    "desc": "Action function: A_ClearFlash"
+  },
+  "A_ShowElectricFlash": {
+    "params": [],
+    "for": "StrifeCrossbow",
+    "desc": "Action function: A_ShowElectricFlash"
+  },
+  "A_FireArrow": {
+    "params": [
+      {
+        "name": "proj",
+        "type": "string",
+        "optional": false
+      }
+    ],
+    "for": "StrifeCrossbow",
+    "desc": "Action function: A_FireArrow"
+  },
+  "A_FireMiniMissile": {
+    "params": [],
+    "for": "MiniMissileLauncher",
+    "desc": "Action function: A_FireMiniMissile"
+  },
+  "A_FireFlamer": {
+    "params": [],
+    "for": "FlameThrower",
+    "desc": "Action function: A_FireFlamer"
+  },
+  "A_FlameDie": {
+    "params": [],
+    "for": "FlameMissile",
+    "desc": "Action function: A_FlameDie"
+  },
+  "A_FireMauler1": {
+    "params": [],
+    "for": "Mauler",
+    "desc": "Action function: A_FireMauler1"
+  },
+  "A_FireMauler2Pre": {
+    "params": [],
+    "for": "Mauler2",
+    "desc": "Action function: A_FireMauler2Pre"
+  },
+  "A_FireMauler2": {
+    "params": [],
+    "for": "Mauler2",
+    "desc": "Action function: A_FireMauler2"
+  },
+  "A_MaulerTorpedoWave": {
+    "params": [],
+    "for": "MaulerTorpedo",
+    "desc": "Action function: A_MaulerTorpedoWave"
+  },
+  "A_Burnarea": {
+    "params": [],
+    "for": "PhosphorousFire",
+    "desc": "Action function: A_Burnarea"
+  },
+  "A_Burnination": {
+    "params": [],
+    "for": "PhosphorousFire",
+    "desc": "Action function: A_Burnination"
+  },
+  "A_FireGrenade": {
+    "params": [
+      {
+        "name": "grenadetype",
+        "type": "string",
+        "optional": false
+      },
+      {
+        "name": "angleofs",
+        "type": "int",
+        "optional": false
+      },
+      {
+        "name": "flash",
+        "type": "state",
+        "optional": false
+      }
+    ],
+    "for": "StrifeGrenadeLauncher",
+    "desc": "Action function: A_FireGrenade"
+  },
+  "A_TemplarAttack": {
+    "params": [],
+    "for": "Templar",
+    "desc": "Action function: A_TemplarAttack"
+  },
+  "A_ExtraLightOff": {
+    "params": [],
+    "for": "PowerCrystal",
+    "desc": "Action function: A_ExtraLightOff"
+  },
+  "A_Explode512": {
+    "params": [],
+    "for": "PowerCrystal",
+    "desc": "Action function: A_Explode512"
+  },
+  "A_LightGoesOut": {
+    "params": [],
+    "for": "PowerCrystal",
+    "desc": "Action function: A_LightGoesOut"
   }
 }

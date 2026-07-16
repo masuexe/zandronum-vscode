@@ -262,7 +262,37 @@ function provideFlagItems(
     return items;
 }
 
-function provideActionItems(actionsData: Record<string, ActionData>, prefix: string): vscode.CompletionItem[] {
+function actionForClasses(data: ActionData): string[] | undefined {
+    if (data.for == null) {
+        return undefined;
+    }
+    return Array.isArray(data.for) ? data.for : [data.for];
+}
+
+function actionAllowedForClasses(data: ActionData, allowedClasses?: Set<string>): boolean {
+    if (!allowedClasses) {
+        return true;
+    }
+    const forClasses = actionForClasses(data);
+    if (!forClasses || forClasses.length === 0) {
+        return true;
+    }
+    return forClasses.some((c) => allowedClasses.has(c));
+}
+
+function formatActionForLabel(data: ActionData): string {
+    const forClasses = actionForClasses(data);
+    if (!forClasses || forClasses.length === 0) {
+        return ' [Actor]';
+    }
+    return ` [${forClasses.join(', ')}]`;
+}
+
+function provideActionItems(
+    actionsData: Record<string, ActionData>,
+    prefix: string,
+    allowedClasses?: Set<string>
+): vscode.CompletionItem[] {
     const items: vscode.CompletionItem[] = [];
     const stateCallables = getStateCallables(actionsData);
 
@@ -270,8 +300,11 @@ function provideActionItems(actionsData: Record<string, ActionData>, prefix: str
         if (prefix && !fn.toUpperCase().startsWith(prefix.toUpperCase())) {
             continue;
         }
+        if (!actionAllowedForClasses(data, allowedClasses)) {
+            continue;
+        }
         const item = new vscode.CompletionItem(fn, vscode.CompletionItemKind.Function);
-        item.detail = data.desc || 'DECORATE Action Function';
+        item.detail = `${data.desc || 'DECORATE Action Function'}${formatActionForLabel(data)}`;
         item.insertText = new vscode.SnippetString(`${fn}($0)`);
         item.command = {
             title: 'Trigger Signature Help',
@@ -367,19 +400,29 @@ function findExpressionParamEnum(
     return null;
 }
 
-function findActorParent(
+interface ActorContext {
+    /** Declared class name (`Foo` in `actor Foo : Bar`). */
+    className: string;
+    /** Parent class if present (`Bar`), else null. */
+    parent: string | null;
+}
+
+function findActorContext(
     document: vscode.TextDocument,
     position: vscode.Position
-): string | null {
+): ActorContext | null {
     let braceDepth = 0;
-    const parentAtDepth: (string | null)[] = [];
+    const ctxAtDepth: (ActorContext | null)[] = [];
 
     for (let i = 0; i <= position.line; i++) {
         const lineText = document.lineAt(i).text;
 
-        const match = /\bactor\b\s+\w+\s*:\s*(\w+)/i.exec(lineText);
+        const match = /\bactor\b\s+(\w+)(?:\s*:\s*(\w+))?/i.exec(lineText);
         if (match) {
-            parentAtDepth[braceDepth] = match[1];
+            ctxAtDepth[braceDepth] = {
+                className: match[1],
+                parent: match[2] || null,
+            };
         }
 
         for (const char of lineText) {
@@ -394,23 +437,35 @@ function findActorParent(
         }
 
         if (i === position.line && braceDepth > 0) {
-            return parentAtDepth[braceDepth - 1] || null;
+            return ctxAtDepth[braceDepth - 1] || null;
         }
     }
 
     return null;
 }
 
+/** @deprecated Use findActorContext; kept for flag/property call sites. */
+function findActorParent(
+    document: vscode.TextDocument,
+    position: vscode.Position
+): string | null {
+    const ctx = findActorContext(document, position);
+    return ctx?.parent ?? null;
+}
+
 function resolveChain(
-    parent: string,
+    start: string,
     inheritanceData: Record<string, InheritanceData>
 ): Set<string> | undefined {
-    if (!inheritanceData[parent]) {
+    if (start === 'Actor') {
+        return new Set(['Actor']);
+    }
+    if (!inheritanceData[start]) {
         return undefined;
     }
     const chain = new Set<string>();
-    chain.add(parent);
-    let current = parent;
+    chain.add(start);
+    let current = start;
     while (true) {
         const data = inheritanceData[current];
         if (!data || !data.extends || chain.has(data.extends)) {
@@ -419,6 +474,35 @@ function resolveChain(
         chain.add(data.extends);
         current = data.extends;
     }
+    return chain;
+}
+
+/**
+ * Classes the current actor may use class-scoped actions from.
+ * Includes the actor's own class name plus its parent ancestry.
+ * Returns undefined when the parent is unknown (no for-filtering), matching flags/properties.
+ */
+function buildAllowedClasses(
+    ctx: ActorContext | null,
+    inheritanceData: Record<string, InheritanceData>
+): Set<string> | undefined {
+    if (!ctx) {
+        return undefined;
+    }
+
+    const start = ctx.parent || ctx.className;
+    const chain = resolveChain(start, inheritanceData);
+    if (!chain) {
+        // Unknown custom parent — do not filter (avoid empty completion)
+        if (ctx.parent && ctx.parent !== 'Actor' && !inheritanceData[ctx.parent]) {
+            return undefined;
+        }
+        // Parent is Actor or omitted: still allow self + Actor
+        return new Set([ctx.className, 'Actor']);
+    }
+
+    chain.add(ctx.className);
+    chain.add('Actor');
     return chain;
 }
 
@@ -510,7 +594,9 @@ export function registerCompletionProvider(
                         return provideInheritanceItems(inheritanceData, symbolDb, wordPrefix);
 
                     case 'state': {
-                        const items = provideActionItems(actionsData, wordPrefix);
+                        const actorCtx = findActorContext(document, position);
+                        const allowed = buildAllowedClasses(actorCtx, inheritanceData);
+                        const items = provideActionItems(actionsData, wordPrefix, allowed);
                         if (stateKeywords) {
                             items.push(...provideStateKeywordItems(stateKeywords, wordPrefix));
                         }

@@ -24,7 +24,9 @@ export function parseLoadAcsText(content: string): string[] {
 }
 
 function isLoadAcsFileName(name: string): boolean {
-    return /^loadacs(\.txt)?$/i.test(name);
+    // Engine strips the last extension, then compares the ≤8-char lump name.
+    const base = name.includes('.') ? name.slice(0, name.lastIndexOf('.')) : name;
+    return base.slice(0, 8).toLowerCase() === 'loadacs';
 }
 
 function readWorkspaceLoadAcs(workspaceRoot: string): string[] {
@@ -73,7 +75,7 @@ function isRootLoadAcsPath(entryPath: string): boolean {
 
 /**
  * Read LOADACS entries from a base resource package (folder or zip).
- * Skips builtin/workspace. Looks for a root-level `loadacs` / `loadacs.txt` lump.
+ * Skips builtin/workspace. Looks for a root-level LOADACS lump (any extension; engine strips it).
  */
 export async function readLoadAcsFromPackage(pkg: PackageSource): Promise<string[]> {
     if (pkg.id === 'builtin' || pkg.id === 'workspace') {

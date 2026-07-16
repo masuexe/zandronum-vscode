@@ -89,6 +89,17 @@ suite('LOADACS discovery — packages and merge', () => {
 		assert.deepStrictEqual(names, ['fromTxtLib']);
 	});
 
+	test('readLoadAcsFromPackage accepts arbitrary LOADACS extension', async () => {
+		const zipped = zipSync({
+			'LOADACS.whatever': Buffer.from('extLib\n'),
+		});
+		const pk3 = path.join(tmpRoot, 'loadacs-ext.pk3');
+		fs.writeFileSync(pk3, zipped);
+		const pkg = new ZipPackage(pk3, 1, pk3);
+		const names = await readLoadAcsFromPackage(pkg);
+		assert.deepStrictEqual(names, ['extLib']);
+	});
+
 	test('collectLoadAcsEntries merges workspace first and dedupes case-insensitively', async () => {
 		const folderPkg = new FolderPackage(baseFolder, 1, baseFolder);
 		const zipPkg = new ZipPackage(tmpPk3, 2, tmpPk3);

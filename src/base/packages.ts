@@ -28,8 +28,10 @@ function shouldExtractZipEntry(entryPath: string): boolean {
     const normalized = normalizeEntryPath(entryPath);
     const name = normalized.split('/').pop() ?? '';
     if (!name) { return false; }
-    // ZDoom/Zandronum often use DECORATE.txt and actor defs in .txt lumps.
-    if (/^(DECORATE|SCRIPTS|SNDINFO|TEXTURES|LANGUAGE|LOADACS)(\.txt)?$/i.test(name)) { return true; }
+    // Special lumps: engine strips the last extension; keep NAME and NAME.*
+    const base = name.includes('.') ? name.slice(0, name.lastIndexOf('.')) : name;
+    if (/^(DECORATE|SCRIPTS|SNDINFO|TEXTURES|LANGUAGE|LOADACS)$/i.test(base)) { return true; }
+    // Actor/text lumps often live as .txt / .dec / etc.
     return /\.(dec|decorate|acs|lm|txt)$/i.test(name);
 }
 

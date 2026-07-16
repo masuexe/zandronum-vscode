@@ -13,7 +13,7 @@ The extension aims to support all major Zandronum-related languages and workflow
 
 DECORATE is not case-sensitive.
 
-And special lumps for Zandronum, including (Note: These special lumps are identified by their filename, not their file extension. File extensions can be any name):
+And special lumps for Zandronum (see **Special Lump Naming** below for how names and extensions work):
 
 * ALTHUDCF
 * ANCRINFO
@@ -87,7 +87,36 @@ If uncertain, assume the feature is NOT available.
 
 ---
 
+# Special Lump Naming (Engine Rules)
 
+Zandronum identifies special lumps by an **8-character uppercase name derived from the file basename after stripping the last extension**. Extensions are **not** part of the lump identity.
+
+Engine PK3 load path (`FResourceLump::LumpNameSetup`):
+
+1. Take the path segment after the last `/`
+2. Strip everything from the **last** `.` onward (no `.` → keep the whole name)
+3. Uppercase and truncate to 8 characters → that is the lump `Name` used by `FindLump`
+
+| On disk | Lump `Name` |
+|---------|-------------|
+| `DECORATE` | `DECORATE` |
+| `DECORATE.txt` | `DECORATE` |
+| `DECORATE.whatever` | `DECORATE` |
+| `LOADACS.txt` | `LOADACS` |
+| `loadacs` | `LOADACS` |
+
+**Implications for this extension:**
+
+- When discovering or matching special lumps (`LOADACS`, `DECORATE`, `SNDINFO`, …), **never** require an exact full filename. Match by engine rules: strip the last extension, compare case-insensitively to the lump name (first 8 chars).
+- Real mods commonly use `*.txt` (e.g. `LOADACS.txt`, `DECORATE.txt`, `MAPINFO.txt`). Treating only the bare name as valid is a bug.
+- Root-directory lumps enter the global namespace. Files under unmapped dirs (e.g. `actors/`) are **not** found via `FindLump("DECORATE")`; they are usually pulled in via `#include` with a **full path** (any extension is fine if the path matches).
+- VS Code language associations (`.dec`, `.acs`) are editor convenience only — they do **not** change how the engine names lumps.
+
+## ACC and ACS extensions
+
+ACC does **not** require `.acs` if the caller already passes a name with an extension (`MS_SuggestFileExt` only appends `.acs` when there is no `.`). `#include` paths are similarly free-form. Prefer matching sources by library / `#library` name and path, not by forcing `.acs` only — but default project layout may still use `.acs`.
+
+---
 
 ## Semantic Tokens
 
@@ -486,6 +515,34 @@ Unless explicitly requested:
 # Common Pitfalls
 
 Lessons learned from bugs encountered during development. Apply these checks before committing.
+
+## Special Lump Extensions (Do Not Hardcode Bare Filenames)
+
+**Most naming bugs in this project come from treating on-disk filenames as lump names.**
+
+The engine ignores the extension when resolving special lumps. Matching only `loadacs` (no extension) misses `LOADACS.txt` and any other `LOADACS.*` — this broke Build Project’s base-resource LOADACS merge in real mods (e.g. `mm8bdm-v6b.pk3`).
+
+```ts
+// WRONG — only bare name; misses LOADACS.txt / decorate.txt
+entry.name.toLowerCase() === 'loadacs'
+entry.path === 'DECORATE'
+
+// RIGHT — strip last extension, then compare lump name (case-insensitive, ≤8 chars)
+function lumpBaseName(fileName: string): string {
+    const base = fileName.includes('.')
+        ? fileName.slice(0, fileName.lastIndexOf('.'))
+        : fileName;
+    return base.slice(0, 8).toLowerCase();
+}
+lumpBaseName(entry.name) === 'loadacs'
+```
+
+Also apply when:
+
+- Scanning PK3 / folder base resources for special lumps
+- Zip extract filters (`shouldExtractZipEntry`) — allow `NAME` and `NAME.*`, not only `NAME` / `NAME.txt`
+- Workspace `findFiles` / language `filenames` contributions — include common `*.txt` variants when listing known lumps
+- Prefer a shared helper over copying ad-hoc `/^loadacs(\.txt)?$/i` patterns that still reject other extensions
 
 ## Regex Case Sensitivity
 

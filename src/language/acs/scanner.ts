@@ -53,7 +53,10 @@ export function scanLineDeclarations(
         const parts = tail.split(',');
         for (const part of parts) {
             const trimmed = part.trimStart().replace(/^\d+:\s*/, '');
-            const idMatch = /^([A-Za-z_][A-Za-z0-9_]*)/.exec(trimmed);
+            // Multi-param lines: "str text, str fontName" — later parts still start with a type.
+            // Also support same-type lists: "int a, b, c".
+            const typedId = /^(?:int|str|bool|fixed)\s+([A-Za-z_][A-Za-z0-9_]*)/i.exec(trimmed);
+            const idMatch = typedId ?? /^([A-Za-z_][A-Za-z0-9_]*)/.exec(trimmed);
             if (idMatch) {
                 const varName = idMatch[1];
                 if (!ACS_KEYWORDS.has(varName.toLowerCase())) {

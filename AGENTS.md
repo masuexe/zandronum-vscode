@@ -611,6 +611,28 @@ Variable declarations can span multiple lines with `{` initializers. Regex patte
 /\b(int|str|bool|fixed)\s+([^;]+)(?:;|$)/gi
 ```
 
+## Multi-Line Typed Parameter Lists (Coding Style Variants)
+
+ACS authors commonly split function/script parameters across lines. A scanner that only extracts params from a same-line `(...)` match will miss continuation lines, and the fallback declaration scan must still understand **typed** comma lists.
+
+```acs
+// Common style — only the first name per line was collected before the fix
+function void Foo(str text, str fontName, str colorName,
+    int boxId, int boxId2, int textId, int textId2,
+    int boxX1, int boxY1, int boxX2, int boxY2)
+```
+
+```ts
+// WRONG — after split(","), later parts are " str fontName"; first ident is the type keyword
+const idMatch = /^([A-Za-z_][A-Za-z0-9_]*)/.exec(trimmed);
+
+// RIGHT — accept "type name" or bare "name" (same-type lists: int a, b, c)
+const typedId = /^(?:int|str|bool|fixed)\s+([A-Za-z_][A-Za-z0-9_]*)/i.exec(trimmed);
+const idMatch = typedId ?? /^([A-Za-z_][A-Za-z0-9_]*)/.exec(trimmed);
+```
+
+When adding ACS/DECORATE scanners or semantic-token collectors, test against realistic formatting variants (single-line vs wrapped parameter lists, multiple `#define`s on one line, etc.), not only the most compact form.
+
 ## Source Text Structural Scanning
 
 When counting `{`/`}` for scope tracking (brace depth), **always strip comments and strings first**. Otherwise braces inside `//`, `/* */`, and `"..."` corrupt the count.

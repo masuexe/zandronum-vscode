@@ -135,6 +135,19 @@
           "CVARINFO.*"
         ],
         "configuration": "./language-configuration.json"
+      },
+      {
+        "id": "language",
+        "aliases": [
+          "LANGUAGE"
+        ],
+        "filenames": [
+          "LANGUAGE"
+        ],
+        "filenamePatterns": [
+          "LANGUAGE.*"
+        ],
+        "configuration": "./language-configuration.json"
       }
     ],
     "grammars": [
@@ -187,6 +200,11 @@
         "language": "cvarinfo",
         "scopeName": "source.cvarinfo",
         "path": "./syntaxes/cvarinfo.tmLanguage.json"
+      },
+      {
+        "language": "language",
+        "scopeName": "source.language",
+        "path": "./syntaxes/language.tmLanguage.json"
       }
     ],
     "snippets": [

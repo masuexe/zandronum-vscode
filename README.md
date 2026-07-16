@@ -49,6 +49,7 @@ Then in VS Code: **Extensions** → **…** → **Install from VSIX…** → sel
 | ANIMDEFS | ✓ | | | | | | | |
 | SBARINFO | ✓ | | | | | | | |
 | CVARINFO | ✓ | | | | | | | |
+| LANGUAGE | ✓ | | | | | | | |
 
 Snippets are available for DECORATE (actor templates) and ACS (script templates).
 
@@ -157,6 +158,7 @@ The extension always inserts `-file <workspace>/out/build.pk3` between `preArgs`
 | ANIMDEFS | `animdefs` | | `ANIMDEFS` |
 | SBARINFO | `sbarinfo` | | `SBARINFO` |
 | CVARINFO | `cvarinfo` | | `CVARINFO` |
+| LANGUAGE | `language` | | `LANGUAGE` |
 
 ## Development
 

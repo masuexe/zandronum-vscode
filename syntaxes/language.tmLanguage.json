@@ -1,0 +1,81 @@
+{
+    "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+    "name": "LANGUAGE",
+    "patterns": [
+        { "include": "#comments" },
+        { "include": "#sections" },
+        { "include": "#ifgame" },
+        { "include": "#strings" },
+        { "include": "#identifiers" },
+        { "include": "#operators" }
+    ],
+    "repository": {
+        "comments": {
+            "patterns": [
+                { "name": "comment.line.double-slash.language", "match": "//.*$" },
+                { "name": "comment.block.language", "begin": "/\\*", "end": "\\*/" }
+            ]
+        },
+        "sections": {
+            "patterns": [
+                {
+                    "name": "meta.section.language",
+                    "begin": "\\[",
+                    "end": "\\]",
+                    "beginCaptures": {
+                        "0": { "name": "punctuation.definition.section.begin.language" }
+                    },
+                    "endCaptures": {
+                        "0": { "name": "punctuation.definition.section.end.language" }
+                    },
+                    "patterns": [
+                        {
+                            "match": "(?i)~?(?:\\*|default|[A-Za-z]{2,3})",
+                            "name": "entity.name.section.language"
+                        }
+                    ]
+                }
+            ]
+        },
+        "ifgame": {
+            "patterns": [
+                {
+                    "match": "(?i)(\\$ifgame)\\s*(\\()\\s*([A-Za-z_][A-Za-z0-9_]*)\\s*(\\))",
+                    "captures": {
+                        "1": { "name": "keyword.control.ifgame.language" },
+                        "2": { "name": "punctuation.definition.parameters.begin.language" },
+                        "3": { "name": "variable.parameter.language" },
+                        "4": { "name": "punctuation.definition.parameters.end.language" }
+                    }
+                }
+            ]
+        },
+        "strings": {
+            "patterns": [
+                {
+                    "name": "string.quoted.double.language",
+                    "begin": "\"",
+                    "end": "\"",
+                    "patterns": [
+                        { "name": "constant.character.escape.color.language", "match": "\\\\c(?:\\[[^\\]]*\\]|[A-Za-z-])" },
+                        { "name": "constant.character.escape.language", "match": "\\\\." }
+                    ]
+                }
+            ]
+        },
+        "identifiers": {
+            "patterns": [
+                {
+                    "match": "[A-Za-z_][A-Za-z0-9_]*(?=\\s*=)",
+                    "name": "entity.name.language"
+                }
+            ]
+        },
+        "operators": {
+            "patterns": [
+                { "match": "=|;", "name": "keyword.operator.assignment.language" }
+            ]
+        }
+    },
+    "scopeName": "source.language"
+}

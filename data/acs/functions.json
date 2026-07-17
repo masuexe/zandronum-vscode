@@ -4744,14 +4744,9 @@
     "desc": "Changes the music for the activator only (client-side)."
   },
   "Log": {
-    "params": [
-      {
-        "name": "s",
-        "type": "string",
-        "optional": true
-      }
-    ],
-    "desc": "Prints a message to the console only."
+    "signature": "Log(cast:expression, ...)",
+    "params": [],
+    "desc": "Prints to the console using Print cast syntax: comma-separated `cast:expression` items (`s`, `d`/`i`, `f`, `c`, `n`, `l`, `k`, `b`, `x`, `a`).\n\nExample: `Log(s:\"Health: \", d:health)`"
   },
   "LumpClose": {
     "params": [
@@ -5804,24 +5799,14 @@
     "desc": "Waits until the polyobject finishes moving."
   },
   "Print": {
-    "params": [
-      {
-        "name": "s",
-        "type": "string",
-        "optional": true
-      }
-    ],
-    "desc": "Prints a message to the screen and console."
+    "signature": "Print(cast:expression, ...)",
+    "params": [],
+    "desc": "Prints to the screen and console using cast syntax: comma-separated `cast:expression` items (`s`, `d`/`i`, `f`, `c`, `n`, `l`, `k`, `b`, `x`, `a`).\n\nExample: `Print(s:\"Health: \", d:health)`"
   },
   "PrintBold": {
-    "params": [
-      {
-        "name": "s",
-        "type": "string",
-        "optional": true
-      }
-    ],
-    "desc": "Prints a message in bold to the screen and console."
+    "signature": "PrintBold(cast:expression, ...)",
+    "params": [],
+    "desc": "Prints in bold using Print cast syntax: comma-separated `cast:expression` items (`s`, `d`/`i`, `f`, `c`, `n`, `l`, `k`, `b`, `x`, `a`).\n\nExample: `PrintBold(s:\"Wave \", d:wave)`"
   },
   "QuakeEx": {
     "params": [
@@ -9129,14 +9114,9 @@
     "desc": "ACS function: StrMid."
   },
   "StrParam": {
-    "params": [
-      {
-        "name": "s",
-        "type": "string",
-        "optional": true
-      }
-    ],
-    "desc": "Returns a formatted string with parameter substitution."
+    "signature": "StrParam(cast:expression, ...)",
+    "params": [],
+    "desc": "Builds and returns a `str` using Print cast syntax: comma-separated `cast:expression` items (`s`, `d`/`i`, `f`, `c`, `n`, `l`, `k`, `b`, `x`, `a`).\n\nExample: `str msg = StrParam(s:\"Score: \", d:score);`"
   },
   "StrRight": {
     "params": [

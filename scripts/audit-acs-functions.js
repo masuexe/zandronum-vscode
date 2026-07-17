@@ -20,12 +20,13 @@ const FUNCTIONS_PATH = path.join(ROOT, 'data', 'acs', 'functions.json');
 
 /** ACC language constructs (token.h) — not in InternalFunctions / zspecial tables. */
 const LANGUAGE_ALLOWLIST = new Map([
-    ['print', { name: 'Print', min: 0, max: 1, kind: 'language' }],
-    ['printbold', { name: 'PrintBold', min: 0, max: 1, kind: 'language' }],
-    ['log', { name: 'Log', min: 0, max: 1, kind: 'language' }],
+    // Print-family: cast:expression list (not typed params). Keep max:0 so --apply does not invent fake args.
+    ['print', { name: 'Print', min: 0, max: 0, kind: 'language' }],
+    ['printbold', { name: 'PrintBold', min: 0, max: 0, kind: 'language' }],
+    ['log', { name: 'Log', min: 0, max: 0, kind: 'language' }],
+    ['strparam', { name: 'StrParam', min: 0, max: 0, kind: 'language' }],
     ['hudmessage', { name: 'HudMessage', min: 0, max: 7, kind: 'language' }],
     ['hudmessagebold', { name: 'HudMessageBold', min: 0, max: 7, kind: 'language' }],
-    ['strparam', { name: 'StrParam', min: 0, max: 1, kind: 'language' }],
     ['beginprint', { name: 'BeginPrint', min: 0, max: 0, kind: 'language' }],
     ['endprint', { name: 'EndPrint', min: 0, max: 0, kind: 'language' }],
     ['morehudmessage', { name: 'MoreHudMessage', min: 0, max: 0, kind: 'language' }],
@@ -354,7 +355,7 @@ function main() {
         return;
     }
 
-    /** @type {Record<string, {params: any[], desc: string}>} */
+    /** @type {Record<string, {params: any[], desc: string, signature?: string}>} */
     const next = {};
 
     // Prefer existing display names when present.
@@ -362,10 +363,26 @@ function main() {
         const cur = currentByKey.get(key);
         const displayName = cur ? cur.name : rec.name;
         const prevEntry = cur ? cur.entry : null;
-        const params = makeParams(rec.min, rec.max, prevEntry ? prevEntry.params : undefined);
-        let desc = prevEntry && typeof prevEntry.desc === 'string' ? prevEntry.desc : '';
-        if (!desc) desc = defaultDesc(rec.kind, displayName);
-        next[displayName] = { params, desc };
+        const prevDesc = prevEntry && typeof prevEntry.desc === 'string' ? prevEntry.desc : '';
+        const prevSig =
+            prevEntry && typeof prevEntry.signature === 'string' && prevEntry.signature.length > 0
+                ? prevEntry.signature
+                : undefined;
+
+        let params;
+        let desc;
+        if (rec.kind === 'language' && rec.max === 0) {
+            // Print-family / PCD helpers: keep hand-authored signature/desc; never invent argN.
+            params = [];
+            desc = prevDesc || defaultDesc(rec.kind, displayName);
+        } else {
+            params = makeParams(rec.min, rec.max, prevEntry ? prevEntry.params : undefined);
+            desc = prevDesc || defaultDesc(rec.kind, displayName);
+        }
+
+        const entry = { params, desc };
+        if (prevSig) entry.signature = prevSig;
+        next[displayName] = entry;
     }
 
     const sorted = sortKeys(next);

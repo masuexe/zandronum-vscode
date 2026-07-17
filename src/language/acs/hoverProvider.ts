@@ -13,7 +13,10 @@ function buildHoverContent(functionName: string, functionData: ActionData): vsco
         ? functionData.params.filter((p): p is ParamData => typeof p === 'object')
         : [];
 
-    const signature = buildSignatureLabel(functionName, params);
+    const signature =
+        typeof functionData.signature === 'string' && functionData.signature.length > 0
+            ? functionData.signature
+            : buildSignatureLabel(functionName, params);
     md.appendCodeblock(signature, 'acs');
 
     if (functionData.desc) {

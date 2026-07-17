@@ -25,8 +25,9 @@ const LANGUAGE_ALLOWLIST = new Map([
     ['printbold', { name: 'PrintBold', min: 0, max: 0, kind: 'language' }],
     ['log', { name: 'Log', min: 0, max: 0, kind: 'language' }],
     ['strparam', { name: 'StrParam', min: 0, max: 0, kind: 'language' }],
-    ['hudmessage', { name: 'HudMessage', min: 0, max: 7, kind: 'language' }],
-    ['hudmessagebold', { name: 'HudMessageBold', min: 0, max: 7, kind: 'language' }],
+    // HudMessage: cast list + ';' + fixed 6 + type-dependent opts (not ordinary typed params).
+    ['hudmessage', { name: 'HudMessage', min: 0, max: 0, kind: 'language' }],
+    ['hudmessagebold', { name: 'HudMessageBold', min: 0, max: 0, kind: 'language' }],
     ['beginprint', { name: 'BeginPrint', min: 0, max: 0, kind: 'language' }],
     ['endprint', { name: 'EndPrint', min: 0, max: 0, kind: 'language' }],
     ['morehudmessage', { name: 'MoreHudMessage', min: 0, max: 0, kind: 'language' }],

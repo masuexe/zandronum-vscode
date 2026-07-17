@@ -4168,84 +4168,14 @@
     "desc": "Line special / ACS callable: HealThing."
   },
   "HudMessage": {
-    "params": [
-      {
-        "name": "s",
-        "type": "string",
-        "optional": true
-      },
-      {
-        "name": "type",
-        "type": "int",
-        "optional": true
-      },
-      {
-        "name": "id",
-        "type": "int",
-        "optional": true
-      },
-      {
-        "name": "color",
-        "type": "int",
-        "optional": true
-      },
-      {
-        "name": "x",
-        "type": "float",
-        "optional": true
-      },
-      {
-        "name": "y",
-        "type": "float",
-        "optional": true
-      },
-      {
-        "name": "holdTime",
-        "type": "float",
-        "optional": true
-      }
-    ],
-    "desc": "Displays a HUD message on screen."
+    "signature": "HudMessage(text...; type, id, color, x, y, holdtime [, ...])",
+    "params": [],
+    "desc": "Displays a HUD message on screen.\n\n**Text** (before `;`): Print cast list (`s:`, `d:`/`i:`, `f:`, …).\n\n**Required after `;`:** `type`, `id`, `color`, `x`, `y`, `holdtime`.\n\n**Extras by type** (low byte of `type`; then optional `alpha` if `HUDMSG_ALPHA` is set):\n- `HUDMSG_PLAIN`: `[alpha]`\n- `HUDMSG_FADEOUT`: `fadetime [, alpha]`\n- `HUDMSG_TYPEON`: `typetime, fadetime [, alpha]`\n- `HUDMSG_FADEINOUT`: `inTime, outTime [, alpha]`\n\n`type` may OR flags such as `HUDMSG_LOG`, `HUDMSG_COLORSTRING`, `HUDMSG_ALPHA`.\n\nExample: `HudMessage(s:\"Hi\"; HUDMSG_PLAIN, 0, CR_GOLD, 0.5, 0.5, 3.0);`"
   },
   "HudMessageBold": {
-    "params": [
-      {
-        "name": "s",
-        "type": "string",
-        "optional": true
-      },
-      {
-        "name": "type",
-        "type": "int",
-        "optional": true
-      },
-      {
-        "name": "id",
-        "type": "int",
-        "optional": true
-      },
-      {
-        "name": "color",
-        "type": "int",
-        "optional": true
-      },
-      {
-        "name": "x",
-        "type": "float",
-        "optional": true
-      },
-      {
-        "name": "y",
-        "type": "float",
-        "optional": true
-      },
-      {
-        "name": "holdTime",
-        "type": "float",
-        "optional": true
-      }
-    ],
-    "desc": "Displays a bold HUD message on screen."
+    "signature": "HudMessageBold(text...; type, id, color, x, y, holdtime [, ...])",
+    "params": [],
+    "desc": "Like `HudMessage`, but bold (all players).\n\n**Text** (before `;`): Print cast list (`s:`, `d:`/`i:`, `f:`, …).\n\n**Required after `;`:** `type`, `id`, `color`, `x`, `y`, `holdtime`.\n\n**Extras by type** (low byte of `type`; then optional `alpha` if `HUDMSG_ALPHA` is set):\n- `HUDMSG_PLAIN`: `[alpha]`\n- `HUDMSG_FADEOUT`: `fadetime [, alpha]`\n- `HUDMSG_TYPEON`: `typetime, fadetime [, alpha]`\n- `HUDMSG_FADEINOUT`: `inTime, outTime [, alpha]`\n\nExample: `HudMessageBold(s:\"Go!\"; HUDMSG_FADEOUT, 1, CR_RED, 0.5, 0.3, 2.0, 0.5);`"
   },
   "IncrementDBEntry": {
     "params": [

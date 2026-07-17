@@ -291,6 +291,31 @@ Supported concepts include:
 * labels
 * preprocessor directives
 
+## ACS Metadata Rules
+
+Built-in ACS callable names come from Zandronum-ACC + engine cross-check (not the wiki alone):
+
+| Source | Path under `ref/` | Role |
+|--------|-------------------|------|
+| PCD builtins | `acc-branch-zandronum/symbol.c` `InternalFunctions[]` | name + fixed arity |
+| CALLFUNC / line specials | `acc-branch-zandronum/zspecial.acs` | negative = CALLFUNC (`min,max`); positive = line specials callable as functions |
+| Engine | `zandronum-stable-branch-default/src/p_acs.cpp` `EACSFunctions` / `CallFunction` | verify Zandronum-only APIs; warn on mismatches |
+| Language constructs | ACC `token.h` / `token.c` | `Print`, `PrintBold`, `Log`, `HudMessage`, `HudMessageBold`, `StrParam`, plus HudMessage PCD helpers |
+
+Extension data:
+
+- [`data/acs/functions.json`](data/acs/functions.json) — completion / hover / signature
+- [`data/acs/constants.json`](data/acs/constants.json) — built-in constants
+
+Maintain with:
+
+```bash
+node scripts/audit-acs-functions.js           # report missing / arity / extras
+node scripts/audit-acs-functions.js --apply   # sync functions.json to ACC
+```
+
+Do not invent ACS APIs that are absent from ACC tables. Script flow keywords (`suspend` / `terminate` / `restart`) are TextMate keywords, not `functions.json` entries.
+
 ---
 
 # Build System

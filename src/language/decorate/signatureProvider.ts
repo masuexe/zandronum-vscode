@@ -16,7 +16,8 @@ function calculateActiveParameter(fullLine: string, cursorPosition: number, open
     let stringChar = '';
     let parenDepth = 0;
 
-    for (const char of textInParens) {
+    for (let i = 0; i < textInParens.length; i++) {
+        const char = textInParens[i];
         if (!inString) {
             if (char === '"' || char === "'") {
                 inString = true;
@@ -28,7 +29,7 @@ function calculateActiveParameter(fullLine: string, cursorPosition: number, open
             } else if (char === ',' && parenDepth === 0) {
                 commaCount++;
             }
-        } else if (char === stringChar && fullLine[cursorPosition - 1] !== '\\') {
+        } else if (char === stringChar && textInParens[i - 1] !== '\\') {
             inString = false;
         }
     }
@@ -36,22 +37,47 @@ function calculateActiveParameter(fullLine: string, cursorPosition: number, open
     return commaCount;
 }
 
-function buildSignature(fnName: string, params?: any[]): string {
+interface SignatureParts {
+    label: string;
+    paramRanges: Array<[number, number]>;
+    docs: string[];
+}
+
+function buildSignatureParts(fnName: string, params?: any[]): SignatureParts {
     if (!Array.isArray(params) || params.length === 0) {
-        return `${fnName}()`;
+        return { label: `${fnName}()`, paramRanges: [], docs: [] };
     }
 
-    const paramStrs = params
-        .filter((p: any) => typeof p === 'object')
-        .map((p: any) => {
-            if (p.variadic) return `${p.type} ${p.name}...`;
-            const optional = p.optional;
-            return optional
-                ? `[${p.type} ${p.name}]`
-                : `${p.type} ${p.name}`;
-        });
+    const objectParams = params.filter((p: any) => typeof p === 'object');
+    const paramRanges: Array<[number, number]> = [];
+    const docs: string[] = [];
+    let inner = '';
 
-    return `${fnName}(${paramStrs.join(', ')})`;
+    for (let i = 0; i < objectParams.length; i++) {
+        const p = objectParams[i];
+        let segment: string;
+        if (p.variadic) {
+            segment = `${p.type} ${p.name}...`;
+        } else if (p.optional) {
+            segment = `[${p.type} ${p.name}]`;
+        } else {
+            segment = `${p.type} ${p.name}`;
+        }
+
+        if (i > 0) {
+            inner += ', ';
+        }
+        const start = fnName.length + 1 + inner.length;
+        inner += segment;
+        paramRanges.push([start, start + segment.length]);
+        docs.push(p.desc || `Parameter: ${p.name} (${p.type})`);
+    }
+
+    return {
+        label: `${fnName}(${inner})`,
+        paramRanges,
+        docs
+    };
 }
 
 export function registerSignatureHelp(
@@ -124,33 +150,24 @@ export function registerSignatureHelp(
                     return null;
                 }
 
-                const signature = new vscode.SignatureInformation(
-                    data.signature || buildSignature(functionName, data.params),
-                    data.desc
+                const { label, paramRanges, docs } = buildSignatureParts(functionName, data.params);
+                const signature = new vscode.SignatureInformation(label, data.desc);
+                signature.parameters = paramRanges.map(
+                    (range, i) => new vscode.ParameterInformation(range, docs[i])
                 );
-
-                if (Array.isArray(data.params)) {
-                    signature.parameters = data.params
-                        .filter((p: any) => typeof p === 'object')
-                        .map((p: any) => {
-                            const label = p.optional
-                                ? `[${p.name}: ${p.type}]`
-                                : `${p.name}: ${p.type}`;
-                            return new vscode.ParameterInformation(
-                                label,
-                                p.desc || `Parameter: ${p.name} (${p.type})`
-                            );
-                        });
-                }
 
                 const signatureHelp = new vscode.SignatureHelp();
                 signatureHelp.signatures = [signature];
                 signatureHelp.activeSignature = 0;
-                signatureHelp.activeParameter = calculateActiveParameter(
+                let active = calculateActiveParameter(
                     textBeforeCursor,
                     textBeforeCursor.length,
                     openParenIndex
                 );
+                if (paramRanges.length > 0 && active >= paramRanges.length) {
+                    active = paramRanges.length - 1;
+                }
+                signatureHelp.activeParameter = active;
 
                 return signatureHelp;
             }

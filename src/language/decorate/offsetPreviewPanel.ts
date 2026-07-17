@@ -27,6 +27,9 @@ export interface OffsetPreviewFrameView {
     } | null;
     grabX: number;
     grabY: number;
+    /** Original texture origin (same as grabX/Y at resolve time; webview may preview a different grab). */
+    grabOrigX: number;
+    grabOrigY: number;
     hasGrab: boolean;
     missingResource: boolean;
     resolvedName: string | null;
@@ -100,12 +103,20 @@ export class OffsetPreviewPanel {
             </div>
             <div class="section">
                 <div class="section-title">Offset</div>
-                <div class="field-row"><label>Effective X</label><span id="info-ox">—</span></div>
-                <div class="field-row"><label>Effective Y</label><span id="info-oy">—</span></div>
+                <div class="field-row"><label id="label-coord-x">HUD TL X</label><input type="number" id="input-coord-x" step="1"></div>
+                <div class="field-row"><label id="label-coord-y">HUD TL Y (−32)</label><input type="number" id="input-coord-y" step="1"></div>
+                <div class="field-row"><label>Offset (PSprite)</label><span id="info-effective">—</span></div>
+                <div class="field-row texture-only"><label>HUD TL (Y−32)</label><span id="info-hud-tl">—</span></div>
                 <div class="field-row"><label>Δ vs prev</label><span id="info-delta">—</span></div>
                 <div class="field-row"><label>Declared</label><span id="info-declared">—</span></div>
-                <div class="field-row"><label>grAb / origin</label><span id="info-grab">—</span></div>
-                <div class="hint">Drag sprite to edit Offset (Undo works). Offset(0,0) keep-both is not draggable; Offset(0,y)/Offset(x,0) keep one axis. A_WeaponReady resets to (0,32). Play uses duration tics. Pan: Ctrl+drag. Arrows: ±1 (Shift ±8). Space: play/pause.</div>
+                <div class="field-row"><label>Origin (original)</label><span id="info-grab">—</span></div>
+                <div class="field-row texture-only"><label>Δ texture</label><span id="info-grab-delta">—</span></div>
+                <div class="field-row texture-only"><label>→ Offset</label><span id="info-computed-offset">—</span></div>
+                <div class="texture-actions texture-only">
+                    <button type="button" id="btn-apply-texture" title="Write computed Offset to DECORATE">Apply to Offset</button>
+                    <button type="button" id="btn-reset-texture" title="Discard preview grab">Reset</button>
+                </div>
+                <div class="hint" id="info-hint">HUD TL = sprite corner; Y minus 32 (weapon rest). Offset (PSprite) = DECORATE / red crosshair.</div>
                 <div class="hint" id="info-playpal">PLAYPAL: —</div>
                 <div class="hint warn" id="info-warning" hidden></div>
             </div>

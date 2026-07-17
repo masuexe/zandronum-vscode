@@ -11,6 +11,8 @@
     const HUD_H = 200;
     const HUD_STATUS_BAR_Y = 168;
     const CENTER_X = 160;
+    /** Default weapon Offset Y (A_WeaponReady). Editor HUD top-left Y is relative to this line. */
+    const WEAPON_REST_Y = 32;
 
     let zoom = 2;
     let panX = 0;
@@ -42,6 +44,16 @@
     let dragCurrentOffsetY = 0;
     /** @type {{ x: number, y: number } | null} Live offsets after mouse-up until document refresh. */
     let optimisticOffset = null;
+    /** @type {'weapon' | 'texture'} */
+    let editMode = 'weapon';
+    /** @type {{ x: number, y: number } | null} Texture-mode preview grab (null = use original). */
+    let previewGrab = null;
+    /** @type {{ x: number, y: number } | null} Restored if Apply write-back fails. */
+    let pendingTextureGrabRestore = null;
+    let dragStartGrabX = 0;
+    let dragStartGrabY = 0;
+    let dragCurrentGrabX = 0;
+    let dragCurrentGrabY = 0;
     let lastMouseX = 0;
     let lastMouseY = 0;
     let canvasW = 0;
@@ -70,8 +82,37 @@
         return s;
     }
 
+    function setEditMode(mode) {
+        if (mode !== 'weapon' && mode !== 'texture') {
+            return;
+        }
+        if (editMode === mode) {
+            return;
+        }
+        editMode = mode;
+        if (editMode === 'texture') {
+            stopPlayback();
+        } else {
+            previewGrab = null;
+        }
+        document.body.classList.toggle('mode-weapon', editMode === 'weapon');
+        document.body.classList.toggle('mode-texture', editMode === 'texture');
+        buildToolbar();
+        queueRender();
+    }
+
     function buildToolbar() {
         toolbar.innerHTML = '';
+        const btnWeapon = createButton('Weapon Offset', () => setEditMode('weapon'));
+        const btnTexture = createButton('Texture origin', () => setEditMode('texture'));
+        if (editMode === 'weapon') {
+            btnWeapon.classList.add('active');
+        } else {
+            btnTexture.classList.add('active');
+        }
+        toolbar.appendChild(btnWeapon);
+        toolbar.appendChild(btnTexture);
+        toolbar.appendChild(createSeparator());
         const bgLabels = { checkered: 'BG: Check', dark: 'BG: Dark', light: 'BG: Light' };
         toolbar.appendChild(createButton(bgLabels[background] || 'BG', () => {
             const order = ['dark', 'checkered', 'light'];
@@ -84,6 +125,78 @@
         toolbar.appendChild(createButton('Fit Sprite', () => { fitSprite(); render(); }));
         toolbar.appendChild(createButton('1:1', () => { zoom = 1; panX = 0; panY = 0; render(); }));
         toolbar.appendChild(createButton('2×', () => { zoom = 2; panX = 0; panY = 0; render(); }));
+    }
+
+    function grabOrigOf(frame) {
+        if (!frame) {
+            return { x: 0, y: 0 };
+        }
+        return {
+            x: frame.grabOrigX != null ? frame.grabOrigX : (frame.grabX || 0),
+            y: frame.grabOrigY != null ? frame.grabOrigY : (frame.grabY || 0)
+        };
+    }
+
+    function currentPreviewGrab(frame) {
+        if (draggingOffset && editMode === 'texture') {
+            return { x: dragCurrentGrabX, y: dragCurrentGrabY };
+        }
+        if (previewGrab) {
+            return previewGrab;
+        }
+        return grabOrigOf(frame);
+    }
+
+    function textureDirty(frame) {
+        if (!frame || editMode !== 'texture') {
+            return false;
+        }
+        const g0 = grabOrigOf(frame);
+        const g1 = currentPreviewGrab(frame);
+        return g1.x !== g0.x || g1.y !== g0.y;
+    }
+
+    function computedDecorate(frame) {
+        const g0 = grabOrigOf(frame);
+        const g1 = currentPreviewGrab(frame);
+        return {
+            x: Math.round(frame.offsetX - (g1.x - g0.x)),
+            y: Math.round(frame.offsetY - (g1.y - g0.y))
+        };
+    }
+
+    function resetPreviewGrab() {
+        previewGrab = null;
+        queueRender();
+    }
+
+    function applyTextureDelta() {
+        const frame = activeFrame();
+        if (!frame || !canEditOffset(frame)) {
+            status.textContent = frame && frame.offsetIsKeep
+                ? 'Offset(0, 0) means keep previous — change it in DECORATE first if you want an absolute offset.'
+                : 'This frame has no Offset(...) to edit.';
+            return;
+        }
+        if (!textureDirty(frame)) {
+            return;
+        }
+        const g0 = grabOrigOf(frame);
+        const g1 = currentPreviewGrab(frame);
+        const dPrime = computedDecorate(frame);
+        stopPlayback();
+        // Keep screen position: show D' with original grab until document refresh
+        previewGrab = null;
+        optimisticOffset = { x: dPrime.x, y: dPrime.y };
+        pendingTextureGrabRestore = { x: g1.x, y: g1.y };
+        vscode.postMessage({
+            type: 'applyTextureDeltaAsOffset',
+            g0x: g0.x,
+            g0y: g0.y,
+            g1x: g1.x,
+            g1y: g1.y
+        });
+        queueRender();
     }
 
     function fitZoom() {
@@ -99,7 +212,7 @@
 
     /** Zoom/pan so the current weapon sprite stays visible in the viewport. */
     function fitSprite() {
-        const frame = activeFrame();
+        const frame = displayFrame() || activeFrame();
         if (!frame || !spriteBitmap) {
             fitZoom();
             return;
@@ -143,11 +256,24 @@
         return viewData.frames[i];
     }
 
-    /** Frame used for drawing/inspector — applies live drag offsets when dragging. */
+    /** Frame used for drawing/inspector — applies live drag / preview grab when active. */
     function displayFrame() {
         const frame = activeFrame();
         if (!frame) {
             return null;
+        }
+        if (editMode === 'texture') {
+            const g = currentPreviewGrab(frame);
+            const out = {
+                ...frame,
+                grabX: g.x,
+                grabY: g.y
+            };
+            if (optimisticOffset) {
+                out.offsetX = optimisticOffset.x;
+                out.offsetY = optimisticOffset.y;
+            }
+            return out;
         }
         if (draggingOffset) {
             return {
@@ -176,6 +302,16 @@
         return !!(frame && frame.hasOffsetKeyword && !frame.offsetIsKeep && !frame.missingResource);
     }
 
+    function canDragSprite(frame) {
+        if (!frame || frame.missingResource || !spriteBitmap) {
+            return false;
+        }
+        if (editMode === 'texture') {
+            return true;
+        }
+        return canEditOffset(frame);
+    }
+
     function spriteScreenRect(origin, frame) {
         if (!spriteBitmap || !frame) {
             return null;
@@ -189,8 +325,9 @@
     }
 
     function hitTestSprite(clientX, clientY) {
+        const base = activeFrame();
         const frame = displayFrame();
-        if (!canEditOffset(activeFrame()) || !spriteBitmap) {
+        if (!canDragSprite(base) || !spriteBitmap) {
             return false;
         }
         const rect = canvas.getBoundingClientRect();
@@ -211,6 +348,20 @@
 
     function nudgeOffset(dx, dy) {
         const frame = activeFrame();
+        if (!frame) {
+            return;
+        }
+        if (editMode === 'texture') {
+            if (frame.missingResource) {
+                return;
+            }
+            stopPlayback();
+            const g = currentPreviewGrab(frame);
+            // Arrow right/down moves sprite on screen → grab decreases
+            previewGrab = { x: Math.round(g.x - dx), y: Math.round(g.y - dy) };
+            queueRender();
+            return;
+        }
         if (!canEditOffset(frame)) {
             if (frame && frame.offsetIsKeep) {
                 status.textContent = 'Offset(0, 0) means keep previous — change it in DECORATE first if you want an absolute offset.';
@@ -307,6 +458,12 @@
     }
 
     function togglePlayback() {
+        if (editMode === 'texture') {
+            stopPlayback();
+            status.textContent = 'Playback is disabled in Texture origin mode.';
+            updatePlayButton();
+            return;
+        }
         if (playing) {
             stopPlayback();
         } else {
@@ -737,20 +894,133 @@
         }
     }
 
+    /**
+     * Editor coords for sprite top-left on HUD.
+     * X = OffsetX - grabX (absolute HUD X).
+     * Y = (OffsetY - grabY) - WEAPON_REST_Y — relative to the default rest line (y=32),
+     * so with Offset(0,32) the numbers match -TEXTURES/grAb origin (e.g. grab -184,-94 → 184,94).
+     */
+    function hudTopLeft(frame) {
+        if (!frame) {
+            return { x: 0, y: 0 };
+        }
+        return {
+            x: Math.round(frame.offsetX - frame.grabX),
+            y: Math.round(frame.offsetY - frame.grabY - WEAPON_REST_Y)
+        };
+    }
+
+    /** Invert editor HUD top-left → DECORATE Offset. */
+    function offsetFromHudTopLeft(hudX, hudY, grabX, grabY) {
+        return {
+            x: Math.round(hudX + grabX),
+            y: Math.round(hudY + WEAPON_REST_Y + grabY)
+        };
+    }
+
+    function syncCoordInputs(frame) {
+        const ix = el('input-coord-x');
+        const iy = el('input-coord-y');
+        const lx = el('label-coord-x');
+        const ly = el('label-coord-y');
+        if (!ix || !iy) {
+            return;
+        }
+        const focused = document.activeElement === ix || document.activeElement === iy;
+        if (editMode === 'texture') {
+            if (lx) { lx.textContent = 'Preview grab X'; }
+            if (ly) { ly.textContent = 'Preview grab Y'; }
+            ix.disabled = !frame || !!frame.missingResource;
+            iy.disabled = !frame || !!frame.missingResource;
+            if (!focused && frame) {
+                const g = currentPreviewGrab(frame);
+                ix.value = String(g.x);
+                iy.value = String(g.y);
+            }
+        } else {
+            if (lx) { lx.textContent = 'HUD TL X'; }
+            if (ly) { ly.textContent = 'HUD TL Y (−32)'; }
+            const editable = canEditOffset(frame);
+            ix.disabled = !editable;
+            iy.disabled = !editable;
+            if (!focused && frame) {
+                const tl = hudTopLeft(frame);
+                ix.value = String(tl.x);
+                iy.value = String(tl.y);
+            }
+        }
+    }
+
+    function commitCoordInputs() {
+        const ix = el('input-coord-x');
+        const iy = el('input-coord-y');
+        const frame = activeFrame();
+        if (!ix || !iy || !frame) {
+            return;
+        }
+        const parseIntOr = (raw, fallback) => {
+            if (raw === '' || raw === '-' || raw === '+') {
+                return null;
+            }
+            const n = Number(raw);
+            return Number.isFinite(n) ? Math.round(n) : null;
+        };
+        if (editMode === 'texture') {
+            if (frame.missingResource) {
+                syncCoordInputs(displayFrame());
+                return;
+            }
+            const g = currentPreviewGrab(frame);
+            const x = parseIntOr(ix.value, g.x);
+            const y = parseIntOr(iy.value, g.y);
+            if (x === null || y === null) {
+                syncCoordInputs(displayFrame());
+                return;
+            }
+            previewGrab = { x, y };
+            queueRender();
+            return;
+        }
+        if (!canEditOffset(frame)) {
+            syncCoordInputs(displayFrame());
+            return;
+        }
+        const disp = displayFrame() || frame;
+        const tl = hudTopLeft(disp);
+        const hudX = parseIntOr(ix.value, tl.x);
+        const hudY = parseIntOr(iy.value, tl.y);
+        if (hudX === null || hudY === null) {
+            syncCoordInputs(disp);
+            return;
+        }
+        const next = offsetFromHudTopLeft(hudX, hudY, disp.grabX, disp.grabY);
+        if (next.x === frame.offsetX && next.y === frame.offsetY && !optimisticOffset) {
+            return;
+        }
+        optimisticOffset = { x: next.x, y: next.y };
+        commitOffset(next.x, next.y);
+        queueRender();
+    }
+
     function updateInspector(frame) {
         const warnEl = el('info-warning');
+        const base = activeFrame();
         if (!frame) {
             el('info-label').textContent = viewData?.label || '—';
             el('info-sprite').textContent = '—';
             el('info-frame').textContent = '—';
             el('info-duration').textContent = '—';
             el('info-line').textContent = '—';
-            el('info-ox').textContent = '—';
-            el('info-oy').textContent = '—';
+            el('info-effective').textContent = '—';
+            if (el('info-hud-tl')) { el('info-hud-tl').textContent = '—'; }
             el('info-delta').textContent = '—';
             el('info-declared').textContent = '—';
             el('info-grab').textContent = '—';
+            if (el('info-grab-delta')) { el('info-grab-delta').textContent = '—'; }
+            if (el('info-computed-offset')) { el('info-computed-offset').textContent = '—'; }
             el('info-seq').textContent = '—';
+            syncCoordInputs(null);
+            updateTextureActionButtons(null);
             if (warnEl) {
                 if (viewData && viewData.warning) {
                     warnEl.hidden = false;
@@ -761,6 +1031,7 @@
                 }
             }
             updatePlaypalHint();
+            updateHintText();
             status.textContent = viewData?.warning || 'No Offset frame selected';
             return;
         }
@@ -772,8 +1043,11 @@
         el('info-frame').textContent = frame.frame;
         el('info-duration').textContent = String(frame.duration);
         el('info-line').textContent = String(frame.line + 1);
-        el('info-ox').textContent = String(frame.offsetX);
-        el('info-oy').textContent = String(frame.offsetY);
+        el('info-effective').textContent = `Offset(${frame.offsetX}, ${frame.offsetY})`;
+        if (el('info-hud-tl')) {
+            const tl = hudTopLeft(frame);
+            el('info-hud-tl').textContent = `(${tl.x}, ${tl.y})`;
+        }
 
         if (frame.deltaX !== null && frame.deltaY !== null) {
             const sx = frame.deltaX > 0 ? '+' : '';
@@ -798,15 +1072,34 @@
         }
 
         if (frame.resetsToWeaponReady) {
-            const base = el('info-declared').textContent;
-            el('info-declared').textContent = (base === '(inherited)' ? '' : base + ' · ') + 'A_WeaponReady → (0, 32)';
+            const declaredBase = el('info-declared').textContent;
+            el('info-declared').textContent = (declaredBase === '(inherited)' ? '' : declaredBase + ' · ') + 'A_WeaponReady → (0, 32)';
         }
 
-        el('info-grab').textContent = frame.hasGrab
-            ? `(${frame.grabX}, ${frame.grabY})`
-            : '(none → 0, 0)';
+        const g0 = grabOrigOf(base || frame);
+        el('info-grab').textContent = (base || frame).hasGrab
+            ? `(${g0.x}, ${g0.y})`
+            : `(none → 0, 0)`;
+
+        if (editMode === 'texture' && base) {
+            const g1 = currentPreviewGrab(base);
+            const dx = g1.x - g0.x;
+            const dy = g1.y - g0.y;
+            const sx = dx > 0 ? '+' : '';
+            const sy = dy > 0 ? '+' : '';
+            if (el('info-grab-delta')) {
+                el('info-grab-delta').textContent = `${sx}${dx}, ${sy}${dy}`;
+            }
+            const dPrime = computedDecorate(base);
+            if (el('info-computed-offset')) {
+                el('info-computed-offset').textContent = `Offset(${dPrime.x}, ${dPrime.y})`;
+            }
+        }
 
         el('info-seq').textContent = `${activeIndex + 1} / ${viewData.frames.length}`;
+        syncCoordInputs(frame);
+        updateTextureActionButtons(base);
+        updateHintText();
 
         const warnParts = [];
         if (viewData.warning) {
@@ -835,6 +1128,10 @@
         if (frame.resetsToWeaponReady) {
             statusExtra = '  [A_WeaponReady → (0,32)]';
         }
+        if (editMode === 'texture' && textureDirty(base)) {
+            const dPrime = computedDecorate(base);
+            statusExtra += `  [preview → Offset(${dPrime.x}, ${dPrime.y})]`;
+        }
         if (frame.missingResource) {
             status.textContent = `Missing sprite for ${frame.sprite} ${frame.frame} (tried ${frame.sprite}${frame.frame}0, TEXTURES, …)`;
         } else if (frame.composite) {
@@ -845,6 +1142,29 @@
             status.textContent = `TEXTURES ${frame.resolvedName}${trNote}  Offset(${frame.offsetX}, ${frame.offsetY})${statusExtra}`;
         } else {
             status.textContent = `${frame.resolvedName || (frame.sprite + frame.frame)}  Offset(${frame.offsetX}, ${frame.offsetY})${statusExtra}`;
+        }
+    }
+
+    function updateTextureActionButtons(frame) {
+        const applyBtn = el('btn-apply-texture');
+        const resetBtn = el('btn-reset-texture');
+        if (!applyBtn || !resetBtn) {
+            return;
+        }
+        const dirty = textureDirty(frame);
+        applyBtn.disabled = !dirty || !canEditOffset(frame);
+        resetBtn.disabled = !dirty && !previewGrab;
+    }
+
+    function updateHintText() {
+        const hint = el('info-hint');
+        if (!hint) {
+            return;
+        }
+        if (editMode === 'texture') {
+            hint.textContent = 'Texture origin (preview): drag or type grab to slide the sprite under a fixed crosshair. Apply writes Offset so the same look uses the original grab. Does not edit PNG/TEXTURES. HUD top-left is shown read-only.';
+        } else {
+            hint.textContent = 'HUD TL = sprite corner on 320×200 (not the red crosshair). Y is relative to weapon rest (minus 32), so Offset(0,32) + TEXTURES Offset(-a,-b) shows as (a,b). Offset(PSprite) = DECORATE Offset. Inputs: OffsetX = TLX+grabX, OffsetY = TLY+32+grabY.';
         }
     }
 
@@ -966,6 +1286,9 @@
             return;
         }
         optimisticOffset = null;
+        // Drop unsaved texture preview when document/view refreshes
+        previewGrab = null;
+        pendingTextureGrabRestore = null;
         viewData = data;
         pendingViewData = data;
         activeIndex = data.activeIndex || 0;
@@ -997,6 +1320,7 @@
         if (!viewData || !viewData.frames.length) {
             return;
         }
+        previewGrab = null;
         activeIndex = Math.max(0, Math.min(index, viewData.frames.length - 1));
         scrub.value = String(activeIndex);
         const frame = activeFrame();
@@ -1015,6 +1339,24 @@
     el('btn-reveal').addEventListener('click', () => {
         vscode.postMessage({ type: 'reveal' });
     });
+    el('btn-apply-texture').addEventListener('click', () => applyTextureDelta());
+    el('btn-reset-texture').addEventListener('click', () => resetPreviewGrab());
+
+    function bindCoordInput(input) {
+        if (!input) {
+            return;
+        }
+        input.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                commitCoordInputs();
+                input.blur();
+            }
+        });
+        input.addEventListener('blur', () => commitCoordInputs());
+    }
+    bindCoordInput(el('input-coord-x'));
+    bindCoordInput(el('input-coord-y'));
 
     canvas.addEventListener('mousedown', (e) => {
         if (e.button === 1 || (e.button === 0 && (e.ctrlKey || e.metaKey))) {
@@ -1030,11 +1372,11 @@
         }
 
         const frame = activeFrame();
-        if (frame && frame.offsetIsKeep) {
+        if (editMode === 'weapon' && frame && frame.offsetIsKeep) {
             status.textContent = 'Offset(0, 0) means keep previous — change it in DECORATE first if you want an absolute offset.';
             return;
         }
-        if (!canEditOffset(frame)) {
+        if (!canDragSprite(frame)) {
             return;
         }
         if (!hitTestSprite(e.clientX, e.clientY)) {
@@ -1046,10 +1388,18 @@
         draggingOffset = true;
         dragStartMouseX = e.clientX;
         dragStartMouseY = e.clientY;
-        dragStartOffsetX = frame.offsetX;
-        dragStartOffsetY = frame.offsetY;
-        dragCurrentOffsetX = frame.offsetX;
-        dragCurrentOffsetY = frame.offsetY;
+        if (editMode === 'texture') {
+            const g = currentPreviewGrab(frame);
+            dragStartGrabX = g.x;
+            dragStartGrabY = g.y;
+            dragCurrentGrabX = g.x;
+            dragCurrentGrabY = g.y;
+        } else {
+            dragStartOffsetX = frame.offsetX;
+            dragStartOffsetY = frame.offsetY;
+            dragCurrentOffsetX = frame.offsetX;
+            dragCurrentOffsetY = frame.offsetY;
+        }
         canvas.classList.add('dragging');
         vscode.postMessage({ type: 'dragStart' });
         e.preventDefault();
@@ -1076,11 +1426,17 @@
             return;
         }
         if (draggingOffset) {
-            // Drag sprite with mouse: right = +Offset X, down = +Offset Y
             const dx = (e.clientX - dragStartMouseX) / zoom;
             const dy = (e.clientY - dragStartMouseY) / zoom;
-            dragCurrentOffsetX = Math.round(dragStartOffsetX + dx);
-            dragCurrentOffsetY = Math.round(dragStartOffsetY + dy);
+            if (editMode === 'texture') {
+                // Right/down moves sprite on screen → grab decreases (sprite-offset semantics)
+                dragCurrentGrabX = Math.round(dragStartGrabX - dx);
+                dragCurrentGrabY = Math.round(dragStartGrabY - dy);
+            } else {
+                // Drag sprite: right = +Offset X, down = +Offset Y
+                dragCurrentOffsetX = Math.round(dragStartOffsetX + dx);
+                dragCurrentOffsetY = Math.round(dragStartOffsetY + dy);
+            }
             queueRender();
         }
     });
@@ -1091,21 +1447,34 @@
             canvas.classList.remove('panning');
         }
         if (draggingOffset) {
-            const x = dragCurrentOffsetX;
-            const y = dragCurrentOffsetY;
-            const changed = x !== dragStartOffsetX || y !== dragStartOffsetY;
             draggingOffset = false;
             canvas.classList.remove('dragging');
             vscode.postMessage({ type: 'dragEnd' });
-            if (changed) {
-                // Hold live position until document update arrives (avoids snap-back).
-                optimisticOffset = { x, y };
-                commitOffset(x, y);
-                queueRender();
-            } else if (pendingViewData) {
-                applyView(pendingViewData);
+            if (editMode === 'texture') {
+                const changed =
+                    dragCurrentGrabX !== dragStartGrabX ||
+                    dragCurrentGrabY !== dragStartGrabY;
+                if (changed) {
+                    previewGrab = { x: dragCurrentGrabX, y: dragCurrentGrabY };
+                }
+                if (pendingViewData && !changed) {
+                    applyView(pendingViewData);
+                } else {
+                    queueRender();
+                }
             } else {
-                queueRender();
+                const x = dragCurrentOffsetX;
+                const y = dragCurrentOffsetY;
+                const changed = x !== dragStartOffsetX || y !== dragStartOffsetY;
+                if (changed) {
+                    optimisticOffset = { x, y };
+                    commitOffset(x, y);
+                    queueRender();
+                } else if (pendingViewData) {
+                    applyView(pendingViewData);
+                } else {
+                    queueRender();
+                }
             }
         }
     });
@@ -1118,6 +1487,10 @@
     }, { passive: false });
 
     window.addEventListener('keydown', (e) => {
+        const tag = (e.target && e.target.tagName) ? e.target.tagName.toLowerCase() : '';
+        if (tag === 'input' || tag === 'textarea') {
+            return;
+        }
         if (e.key === ' ' || e.code === 'Space') {
             e.preventDefault();
             togglePlayback();
@@ -1146,8 +1519,14 @@
         } else if (msg.type === 'editResult') {
             if (!msg.ok && msg.reason) {
                 optimisticOffset = null;
+                if (pendingTextureGrabRestore) {
+                    previewGrab = pendingTextureGrabRestore;
+                    pendingTextureGrabRestore = null;
+                }
                 status.textContent = msg.reason;
                 queueRender();
+            } else if (msg.ok) {
+                pendingTextureGrabRestore = null;
             }
         } else if (msg.type === 'palette') {
             if (msg.rgb && msg.rgb.length >= 768) {
@@ -1172,9 +1551,11 @@
         }
     });
 
+    document.body.classList.add('mode-weapon');
     buildToolbar();
     fitZoom();
     updatePlaypalHint();
     updatePlayButton();
+    updateHintText();
     vscode.postMessage({ type: 'ready' });
 })();

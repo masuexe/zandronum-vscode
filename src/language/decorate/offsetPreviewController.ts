@@ -157,6 +157,10 @@ class OffsetPreviewController {
                 await this.handleSetOffset(msg.x, msg.y);
                 break;
             }
+            case 'applyTextureDeltaAsOffset': {
+                await this.handleApplyTextureDelta(msg.g0x, msg.g0y, msg.g1x, msg.g1y);
+                break;
+            }
             case 'dragStart': {
                 this.webviewDragging = true;
                 this.suppressSelectionSync = true;
@@ -173,6 +177,29 @@ class OffsetPreviewController {
                 break;
             }
         }
+    }
+
+    private async handleApplyTextureDelta(
+        g0x: unknown,
+        g0y: unknown,
+        g1x: unknown,
+        g1y: unknown
+    ): Promise<void> {
+        if (
+            typeof g0x !== 'number' || typeof g0y !== 'number' ||
+            typeof g1x !== 'number' || typeof g1y !== 'number' ||
+            !Number.isFinite(g0x) || !Number.isFinite(g0y) ||
+            !Number.isFinite(g1x) || !Number.isFinite(g1y)
+        ) {
+            return;
+        }
+        const frame = this.activeFrame();
+        if (!frame) {
+            return;
+        }
+        const dPrimeX = Math.round(frame.effectiveOffset.x - (g1x - g0x));
+        const dPrimeY = Math.round(frame.effectiveOffset.y - (g1y - g0y));
+        await this.handleSetOffset(dPrimeX, dPrimeY);
     }
 
     private async handleSetOffset(x: unknown, y: unknown): Promise<void> {
@@ -383,6 +410,8 @@ class OffsetPreviewController {
                     : null,
                 grabX: resolved?.grabX ?? 0,
                 grabY: resolved?.grabY ?? 0,
+                grabOrigX: resolved?.grabX ?? 0,
+                grabOrigY: resolved?.grabY ?? 0,
                 hasGrab: resolved?.hasGrab ?? false,
                 missingResource: !resolved,
                 resolvedName: resolved?.resolvedName ?? null

@@ -31,6 +31,54 @@ html, body {
     background: var(--vscode-button-secondaryHoverBackground, #505050);
 }
 
+#toolbar button.active {
+    background: var(--vscode-button-background, #0e639c);
+    color: var(--vscode-button-foreground, #fff);
+}
+
+#toolbar button:disabled,
+.texture-actions button:disabled,
+#input-coord-x:disabled,
+#input-coord-y:disabled {
+    opacity: 0.45;
+    cursor: default;
+}
+
+.field-row input[type="number"] {
+    width: 72px;
+    text-align: right;
+    background: var(--vscode-input-background);
+    color: var(--vscode-input-foreground);
+    border: 1px solid var(--vscode-input-border, #555);
+    padding: 1px 4px;
+    font-size: 12px;
+    box-sizing: border-box;
+}
+
+.texture-actions {
+    display: flex;
+    gap: 4px;
+    margin: 8px 0 4px;
+}
+
+.texture-actions button {
+    flex: 1;
+    background: var(--vscode-button-secondaryBackground, #3a3a3a);
+    color: var(--vscode-button-secondaryForeground, #ccc);
+    border: 1px solid var(--vscode-button-border, transparent);
+    padding: 4px 6px;
+    cursor: pointer;
+    font-size: 11px;
+}
+
+.texture-actions button:hover:not(:disabled) {
+    background: var(--vscode-button-secondaryHoverBackground, #505050);
+}
+
+body.mode-weapon .texture-only {
+    display: none;
+}
+
 #toolbar .sep {
     width: 1px;
     height: 16px;
@@ -73,7 +121,7 @@ html, body {
 }
 
 #inspector {
-    width: 220px;
+    width: 240px;
     flex-shrink: 0;
     border-left: 1px solid var(--vscode-panel-border, #444);
     padding: 8px;

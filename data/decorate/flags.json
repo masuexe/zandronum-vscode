@@ -780,6 +780,10 @@
     "desc": "Always respawns regardless of dmflag (for items)",
     "for": "Inventory"
   },
+  "INVENTORY.FORCERESPAWNINSURVIVAL": {
+    "desc": "Respawns in survival even without DF_ITEMS_RESPAWN",
+    "for": "Inventory"
+  },
   "INVENTORY.TRANSFER": {
     "desc": "Transfers all items in inventory to acquiring actor",
     "for": "Inventory"
@@ -880,6 +884,14 @@
     "desc": "Will not adjust aim of attack regardless of autoaim",
     "for": "Weapon"
   },
+  "WEAPON.ALLOW_WITH_RESPAWN_INVUL": {
+    "desc": "Can be used while respawn invulnerability is active",
+    "for": "Weapon"
+  },
+  "WEAPON.NOLMS": {
+    "desc": "Not given to players in LMS / TLMS games",
+    "for": "Weapon"
+  },
   "WEAPON.NODEATHDESELECT": {
     "desc": "Will not deselect when player dies",
     "for": "Weapon"
@@ -900,6 +912,10 @@
     "desc": "Enables crouching for morphed player classes",
     "for": "PlayerPawn"
   },
+  "PLAYERPAWN.NOMORPHLIMITATIONS": {
+    "desc": "Removes morph limitations (land sounds, weapon switch, speed powerups, etc.)",
+    "for": "PlayerPawn"
+  },
   "PLAYERPAWN.WEAPONLEVEL2ENDED": {
     "desc": "Signals enhanced weapon power has expired (internal)",
     "for": "PlayerPawn"
@@ -907,5 +923,9 @@
   "PLAYERPAWN.MAKEFOOTSTEPS": {
     "desc": "Enables pawn to run MakeFootsteps",
     "for": "PlayerPawn"
+  },
+  "POWERSPEED.NOTRAIL": {
+    "desc": "Do not draw the speed powerup trail",
+    "for": "PowerSpeed"
   }
 }

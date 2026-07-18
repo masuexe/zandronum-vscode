@@ -20,6 +20,8 @@ import { registerAcsDefinitionProvider } from './language/acs/definitionProvider
 import { registerAcsSymbolProvider } from './language/acs/symbolProvider';
 import { registerColorProvider } from './language/decorate/colorProvider';
 import { registerDecorateSymbolProvider } from './language/decorate/symbolProvider';
+import { registerDecorateRenameAndReferences } from './language/decorate/renameProvider';
+import { registerAcsRenameAndReferences } from './language/acs/renameProvider';
 import { registerSpriteOffsetEditor } from './editors/spriteOffsetEditorProvider';
 import { getTexturesKeywords } from './shared/dataLoader';
 import { TexturesParser } from './language/textures/texturesParser';
@@ -209,6 +211,7 @@ export function activate(context: vscode.ExtensionContext) {
     registerDefinitionProvider(context, symbolDatabase);
     registerColorProvider(context);
     registerDecorateSymbolProvider(context);
+    registerDecorateRenameAndReferences(context);
 
     const acsFunctionsData = getAcsFunctions(context);
     const acsConstantsData = getAcsConstants(context);
@@ -223,6 +226,7 @@ export function activate(context: vscode.ExtensionContext) {
     registerAcsSemanticTokens(context, acsConstantsData, workspaceIndex);
     registerAcsDefinitionProvider(context, symbolDatabase);
     registerAcsSymbolProvider(context);
+    registerAcsRenameAndReferences(context, acsFunctionsData, acsConstantsData);
 
     context.subscriptions.push(
         vscode.workspace.onDidSaveTextDocument((doc) => {

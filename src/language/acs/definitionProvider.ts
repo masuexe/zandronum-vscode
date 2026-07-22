@@ -7,10 +7,19 @@ import { SymbolKind } from '../../base/types';
 import { locationFromSymbol } from '../../base/symbolLocation';
 import { getBaseAcsIncludeDirs } from '../../base/baseAcsIncludes';
 
-const SCRIPT_EXEC_FUNCTIONS = new Set([
-    'acs_execute', 'acs_executealways',
+/** Named/numbered script callables used by goto-definition and hover/signature enrichment. */
+export const SCRIPT_EXEC_FUNCTIONS = new Set([
+    'acs_execute', 'acs_executealways', 'acs_executewithresult',
     'acs_namedexecute', 'acs_namedexecutealways', 'acs_namedexecutewithresult',
     'acs_namedsuspend', 'acs_namedterminate',
+    'acs_suspend', 'acs_terminate',
+    'callacs',
+]);
+
+/** Callables whose arg1… slots can be overlaid with script parameter names. */
+export const SCRIPT_ARG_OVERLAY_FUNCTIONS = new Set([
+    'acs_execute', 'acs_executealways', 'acs_executewithresult',
+    'acs_namedexecute', 'acs_namedexecutealways', 'acs_namedexecutewithresult',
     'callacs',
 ]);
 

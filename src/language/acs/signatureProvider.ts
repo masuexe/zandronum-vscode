@@ -1,5 +1,10 @@
 import * as vscode from 'vscode';
-import { ActionData, findActionCaseInsensitive } from '../../shared/dataLoader';
+import { ActionData, ParamData, findActionCaseInsensitive } from '../../shared/dataLoader';
+import { SymbolDatabase } from '../../base/symbolDatabase';
+import {
+    callTextFromLine,
+    resolveNamedScriptOverlay,
+} from './namedScriptResolve';
 
 function calculateActiveParameter(fullLine: string, cursorPosition: number, openParenIndex: number): number {
     const textInParens = fullLine.substring(openParenIndex + 1, cursorPosition);
@@ -74,7 +79,8 @@ function buildSignatureParts(fnName: string, params?: any[]): SignatureParts {
 
 export function registerAcsSignatureHelp(
     context: vscode.ExtensionContext,
-    functionsData: Record<string, ActionData>
+    functionsData: Record<string, ActionData>,
+    symbolDb?: SymbolDatabase
 ) {
     const provider = vscode.languages.registerSignatureHelpProvider(
         [{ language: 'acs' }],
@@ -126,9 +132,18 @@ export function registerAcsSignatureHelp(
                     return null;
                 }
 
+                const baseParams = Array.isArray(functionData.params)
+                    ? functionData.params.filter((p): p is ParamData => typeof p === 'object')
+                    : [];
+                const overlay = resolveNamedScriptOverlay(
+                    functionName,
+                    baseParams,
+                    callTextFromLine(fullLineText, fnNameStart),
+                    symbolDb
+                );
                 const { label, paramRanges, docs } = buildSignatureParts(
                     functionName,
-                    functionData.params
+                    overlay.params
                 );
                 const signature = new vscode.SignatureInformation(label, functionData.desc);
                 signature.parameters = paramRanges.map(

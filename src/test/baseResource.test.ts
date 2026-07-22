@@ -8,7 +8,7 @@ import { ZipPackage, FolderPackage, normalizeEntryPath } from '../base/packages'
 import { ActorSymbolProvider } from '../base/actorProvider';
 import { AcsSymbolProvider } from '../base/acsProvider';
 import { SymbolDatabase } from '../base/symbolDatabase';
-import { SymbolKind } from '../base/types';
+import { AcsScriptSymbol, SymbolKind } from '../base/types';
 import { extractBaseAcsSources } from '../base/extractBaseAcs';
 import { makeBaseResourceUri, parseBaseResourceUri } from '../base/baseResourceUri';
 
@@ -29,7 +29,12 @@ suite('Base Resource — ZipPackage cache', () => {
 
 	suiteSetup(() => {
 		const decorate = Buffer.from('actor Zombie : Actor {}\nactor Demon : Actor {}\n');
-		const acs = Buffer.from('#define MY_CONST 1\nfunction void Hello(void) {}\n');
+		const acs = Buffer.from(
+			'#define MY_CONST 1\n' +
+			'function void Hello(void) {}\n' +
+			'script "GiveAmmo"(int tid, int amount) {\n}\n' +
+			'script 42 (int x) {\n}\n'
+		);
 		const zipped = zipSync({
 			'actors/enemies.dec': decorate,
 			'acs/lib.acs': acs,
@@ -69,7 +74,7 @@ suite('Base Resource — ZipPackage cache', () => {
 		assert.strictEqual(symbols[0].location!.line, 0);
 	});
 
-	test('AcsSymbolProvider finds define and function', async () => {
+	test('AcsSymbolProvider finds define, function, and scripts', async () => {
 		const pkg = new ZipPackage('test.pk3', 1, tmpPk3);
 		const content = await pkg.openEntry('acs/lib.acs');
 		const provider = new AcsSymbolProvider();
@@ -77,6 +82,13 @@ suite('Base Resource — ZipPackage cache', () => {
 		const names = symbols.map(s => s.name);
 		assert.ok(names.includes('MY_CONST'));
 		assert.ok(names.includes('Hello'));
+		const give = symbols.find(s => s.kind === SymbolKind.AcsScript && s.name === 'GiveAmmo') as AcsScriptSymbol | undefined;
+		assert.ok(give);
+		assert.deepStrictEqual(give!.params, [
+			{ type: 'int', name: 'tid' },
+			{ type: 'int', name: 'amount' },
+		]);
+		assert.ok(names.includes('42'));
 	});
 
 	test('SymbolDatabase indexes with package metadata and override order', async () => {

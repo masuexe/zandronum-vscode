@@ -2,12 +2,18 @@ import * as vscode from 'vscode';
 import {
     ActionData,
     ExpressionData,
+    ParamData,
     findActionCaseInsensitive,
     findCallableCaseInsensitive,
     getExpressionCallables,
     StateKeywordData,
     findStateKeywordCaseInsensitive,
 } from '../../shared/dataLoader';
+import { SymbolDatabase } from '../../base/symbolDatabase';
+import {
+    callTextFromLine,
+    resolveNamedScriptOverlay,
+} from '../acs/namedScriptResolve';
 
 function calculateActiveParameter(fullLine: string, cursorPosition: number, openParenIndex: number): number {
     const textInParens = fullLine.substring(openParenIndex + 1, cursorPosition);
@@ -84,7 +90,8 @@ export function registerSignatureHelp(
     context: vscode.ExtensionContext,
     actionsData: Record<string, ActionData>,
     stateKeywords?: Record<string, StateKeywordData>,
-    expressionsData?: Record<string, ExpressionData>
+    expressionsData?: Record<string, ExpressionData>,
+    symbolDb?: SymbolDatabase
 ) {
     const expressionCallables = expressionsData
         ? getExpressionCallables(actionsData, expressionsData)
@@ -150,7 +157,16 @@ export function registerSignatureHelp(
                     return null;
                 }
 
-                const { label, paramRanges, docs } = buildSignatureParts(functionName, data.params);
+                const baseParams = Array.isArray(data.params)
+                    ? data.params.filter((p): p is ParamData => typeof p === 'object')
+                    : [];
+                const overlay = resolveNamedScriptOverlay(
+                    functionName,
+                    baseParams,
+                    callTextFromLine(fullLineText, fnNameStart),
+                    symbolDb
+                );
+                const { label, paramRanges, docs } = buildSignatureParts(functionName, overlay.params);
                 const signature = new vscode.SignatureInformation(label, data.desc);
                 signature.parameters = paramRanges.map(
                     (range, i) => new vscode.ParameterInformation(range, docs[i])

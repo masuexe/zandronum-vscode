@@ -14,19 +14,38 @@ import {
 } from '../../shared/dataLoader';
 import { buildSignatureLabel, buildParamLabel } from '../../shared/signatureBuilder';
 import { SymbolDatabase } from '../../base/symbolDatabase';
-import { SymbolKind, ActorSymbol } from '../../base/types';
+import { SymbolKind, ActorSymbol, AcsScriptSymbol } from '../../base/types';
 import { symbolSourceDetail } from '../../base/symbolLocation';
+import {
+    callTextFromLine,
+    resolveNamedScriptOverlay,
+} from '../acs/namedScriptResolve';
 
-function buildHoverContent(functionName: string, actionData: ActionData): vscode.MarkdownString {
+function buildHoverContent(
+    functionName: string,
+    actionData: ActionData,
+    options?: {
+        params?: ParamData[];
+        script?: AcsScriptSymbol;
+        extraScriptParams?: { name: string; type: string }[];
+    }
+): vscode.MarkdownString {
     const md = new vscode.MarkdownString();
     md.isTrusted = true;
 
-    const params = Array.isArray(actionData.params)
-        ? actionData.params.filter((p): p is ParamData => typeof p === 'object')
-        : [];
+    const params = options?.params
+        ?? (Array.isArray(actionData.params)
+            ? actionData.params.filter((p): p is ParamData => typeof p === 'object')
+            : []);
 
     const signature = buildSignatureLabel(functionName, params);
     md.appendCodeblock(signature, 'decorate');
+
+    if (options?.script) {
+        md.appendMarkdown(
+            `\n\n**Script:** \`${options.script.scriptKey}\` (${symbolSourceDetail(options.script)})\n\n`
+        );
+    }
 
     if (actionData.desc) {
         md.appendMarkdown(`\n\n${actionData.desc}\n\n`);
@@ -55,7 +74,40 @@ function buildHoverContent(functionName: string, actionData: ActionData): vscode
         });
     }
 
+    const extras = options?.extraScriptParams;
+    if (extras && extras.length > 0) {
+        md.appendMarkdown('\n**Additional script parameters** (beyond engine arity):\n\n');
+        for (const p of extras) {
+            md.appendMarkdown(`- \`${p.type} ${p.name}\`\n`);
+        }
+    }
+
     return md;
+}
+
+function hoverForCallable(
+    functionName: string,
+    actionData: ActionData,
+    lineText: string,
+    wordStart: number,
+    symbolDb?: SymbolDatabase
+): vscode.Hover {
+    const baseParams = Array.isArray(actionData.params)
+        ? actionData.params.filter((p): p is ParamData => typeof p === 'object')
+        : [];
+    const overlay = resolveNamedScriptOverlay(
+        functionName,
+        baseParams,
+        callTextFromLine(lineText, wordStart),
+        symbolDb
+    );
+    return new vscode.Hover(
+        buildHoverContent(functionName, actionData, {
+            params: overlay.params,
+            script: overlay.script,
+            extraScriptParams: overlay.extraScriptParams,
+        })
+    );
 }
 
 function buildActorHover(
@@ -117,26 +169,29 @@ export function registerHoverProvider(
 
                 const word = document.getText(wordRange);
 
+                const lineText = document.lineAt(position.line).text;
+                const wordStart = wordRange.start.character;
+
                 if (stateKeywords) {
                     const keywordData = findStateKeywordCaseInsensitive(stateKeywords, word);
                     if (keywordData) {
-                        return new vscode.Hover(buildHoverContent(word, keywordData));
+                        return hoverForCallable(word, keywordData, lineText, wordStart, symbolDb);
                     }
                 }
 
                 // Expression-only functions (CheckClass, CallACS, …) before state actions
                 const exprFn = findCallableCaseInsensitive(expressionCallables, word);
                 if (exprFn && !findActionCaseInsensitive(actionsData, word)) {
-                    return new vscode.Hover(buildHoverContent(word, exprFn));
+                    return hoverForCallable(word, exprFn, lineText, wordStart, symbolDb);
                 }
 
                 const actionData = findActionCaseInsensitive(actionsData, word);
                 if (actionData) {
-                    return new vscode.Hover(buildHoverContent(word, actionData));
+                    return hoverForCallable(word, actionData, lineText, wordStart, symbolDb);
                 }
 
                 if (exprFn) {
-                    return new vscode.Hover(buildHoverContent(word, exprFn));
+                    return hoverForCallable(word, exprFn, lineText, wordStart, symbolDb);
                 }
 
                 const exprVar = findCallableCaseInsensitive(expressionVariables, word);

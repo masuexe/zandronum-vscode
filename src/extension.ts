@@ -135,9 +135,10 @@ export function activate(context: vscode.ExtensionContext) {
 
             const actors = symbolDatabase.queryAll(SymbolKind.Actor).length;
             const consts = symbolDatabase.queryAll(SymbolKind.AcsConstant).length;
+            const scripts = symbolDatabase.queryAll(SymbolKind.AcsScript).length;
             getBaseResourceOutput().appendLine(
                 `[${new Date().toISOString()}] Indexed packages=${packageManager.getPackages().length} ` +
-                `actors=${actors} acsConstants=${consts}`
+                `actors=${actors} acsConstants=${consts} acsScripts=${scripts}`
             );
         } catch (err) {
             getBaseResourceOutput().appendLine(`Base resource rebuild failed: ${err}`);
@@ -205,7 +206,7 @@ export function activate(context: vscode.ExtensionContext) {
     const stateKeywordsData = getStateKeywords(context);
 
     registerCompletionProvider(context, actionsData, propertiesData, flagsData, expressionsData, inheritanceData, symbolDatabase, stateKeywordsData);
-    registerSignatureHelp(context, actionsData, stateKeywordsData, expressionsData);
+    registerSignatureHelp(context, actionsData, stateKeywordsData, expressionsData, symbolDatabase);
     registerHoverProvider(context, actionsData, stateKeywordsData, symbolDatabase, inheritanceData, expressionsData);
     registerDecorateSemanticTokens(context);
     registerDefinitionProvider(context, symbolDatabase);
@@ -221,7 +222,7 @@ export function activate(context: vscode.ExtensionContext) {
         workspaceRoot
     );
     registerAcsCompletionProvider(context, acsFunctionsData, acsConstantsData, workspaceIndex, symbolDatabase);
-    registerAcsSignatureHelp(context, acsFunctionsData);
+    registerAcsSignatureHelp(context, acsFunctionsData, symbolDatabase);
     registerAcsHoverProvider(context, acsFunctionsData, symbolDatabase);
     registerAcsSemanticTokens(context, acsConstantsData, workspaceIndex);
     registerAcsDefinitionProvider(context, symbolDatabase);

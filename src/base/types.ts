@@ -2,6 +2,7 @@ export enum SymbolKind {
     Actor = 'actor',
     AcsConstant = 'acsConstant',
     AcsFunction = 'acsFunction',
+    AcsScript = 'acsScript',
 }
 
 export interface SymbolLocation {
@@ -30,6 +31,18 @@ export interface AcsConstantSymbol extends SymbolEntry {
 
 export interface AcsFunctionSymbol extends SymbolEntry {
     kind: SymbolKind.AcsFunction;
+}
+
+export interface AcsScriptParam {
+    name: string;
+    type: string;
+}
+
+export interface AcsScriptSymbol extends SymbolEntry {
+    kind: SymbolKind.AcsScript;
+    /** Script name or number as string (lookup key; stored case-preserved). */
+    scriptKey: string;
+    params: AcsScriptParam[];
 }
 
 export interface PackageEntry {

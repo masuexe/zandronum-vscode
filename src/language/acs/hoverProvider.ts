@@ -2,22 +2,43 @@ import * as vscode from 'vscode';
 import { ActionData, findActionCaseInsensitive, ParamData } from '../../shared/dataLoader';
 import { buildSignatureLabel, buildParamLabel } from '../../shared/signatureBuilder';
 import { SymbolDatabase } from '../../base/symbolDatabase';
-import { SymbolKind } from '../../base/types';
+import { AcsScriptSymbol, SymbolKind } from '../../base/types';
 import { symbolSourceDetail } from '../../base/symbolLocation';
+import {
+    callTextFromLine,
+    resolveNamedScriptOverlay,
+} from './namedScriptResolve';
 
-function buildHoverContent(functionName: string, functionData: ActionData): vscode.MarkdownString {
+function buildHoverContent(
+    functionName: string,
+    functionData: ActionData,
+    options?: {
+        params?: ParamData[];
+        script?: AcsScriptSymbol;
+        extraScriptParams?: { name: string; type: string }[];
+    }
+): vscode.MarkdownString {
     const md = new vscode.MarkdownString();
     md.isTrusted = true;
 
-    const params = Array.isArray(functionData.params)
-        ? functionData.params.filter((p): p is ParamData => typeof p === 'object')
-        : [];
+    const params = options?.params
+        ?? (Array.isArray(functionData.params)
+            ? functionData.params.filter((p): p is ParamData => typeof p === 'object')
+            : []);
 
     const signature =
-        typeof functionData.signature === 'string' && functionData.signature.length > 0
-            ? functionData.signature
-            : buildSignatureLabel(functionName, params);
+        options?.params
+            ? buildSignatureLabel(functionName, params)
+            : (typeof functionData.signature === 'string' && functionData.signature.length > 0
+                ? functionData.signature
+                : buildSignatureLabel(functionName, params));
     md.appendCodeblock(signature, 'acs');
+
+    if (options?.script) {
+        md.appendMarkdown(
+            `\n\n**Script:** \`${options.script.scriptKey}\` (${symbolSourceDetail(options.script)})\n\n`
+        );
+    }
 
     if (functionData.desc) {
         md.appendMarkdown(`\n\n${functionData.desc}\n\n`);
@@ -44,6 +65,14 @@ function buildHoverContent(functionName: string, functionData: ActionData): vsco
         });
     }
 
+    const extras = options?.extraScriptParams;
+    if (extras && extras.length > 0) {
+        md.appendMarkdown('\n**Additional script parameters** (beyond engine arity):\n\n');
+        for (const p of extras) {
+            md.appendMarkdown(`- \`${p.type} ${p.name}\`\n`);
+        }
+    }
+
     return md;
 }
 
@@ -64,7 +93,29 @@ export function registerAcsHoverProvider(
                 const word = document.getText(wordRange);
                 const functionData = findActionCaseInsensitive(functionsData, word);
                 if (functionData) {
-                    return new vscode.Hover(buildHoverContent(word, functionData));
+                    const baseParams = Array.isArray(functionData.params)
+                        ? functionData.params.filter((p): p is ParamData => typeof p === 'object')
+                        : [];
+                    const lineText = document.lineAt(position.line).text;
+                    const overlay = resolveNamedScriptOverlay(
+                        word,
+                        baseParams,
+                        callTextFromLine(lineText, wordRange.start.character),
+                        symbolDb
+                    );
+                    return new vscode.Hover(
+                        buildHoverContent(
+                            word,
+                            functionData,
+                            overlay.script
+                                ? {
+                                    params: overlay.params,
+                                    script: overlay.script,
+                                    extraScriptParams: overlay.extraScriptParams,
+                                }
+                                : undefined
+                        )
+                    );
                 }
 
                 if (symbolDb) {

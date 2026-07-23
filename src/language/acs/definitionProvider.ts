@@ -103,10 +103,24 @@ function findFileRecursiveLocal(dir: string, targetName: string): string | null 
     return null;
 }
 
-export function extractScriptRef(
+export interface ScriptArgAtCursor {
+    /** Unquoted script name or number string. */
+    key: string;
+    /** Callee as written in source (e.g. ACS_NamedExecuteWithResult). */
+    calleeName: string;
+    /** First-arg span in the line (includes quotes when present). */
+    argStart: number;
+    argEnd: number;
+}
+
+/**
+ * When the cursor is on the first argument of a NamedExecute / CallACS / Execute call,
+ * return that script key and callee. Otherwise null.
+ */
+export function extractScriptArgAtCursor(
     lineText: string,
     cursorCol: number
-): string | null {
+): ScriptArgAtCursor | null {
     let openParen = -1;
     let depth = 0;
 
@@ -141,8 +155,8 @@ export function extractScriptRef(
         return null;
     }
 
-    const fnName = lineText.substring(fnStart, fnEnd + 1).toLowerCase();
-    if (!SCRIPT_EXEC_FUNCTIONS.has(fnName)) {
+    const calleeName = lineText.substring(fnStart, fnEnd + 1);
+    if (!SCRIPT_EXEC_FUNCTIONS.has(calleeName.toLowerCase())) {
         return null;
     }
 
@@ -198,12 +212,23 @@ export function extractScriptRef(
     }
 
     const firstArg = lineText.substring(argStart, argEnd).trim();
+    const key =
+        firstArg.startsWith('"') && firstArg.endsWith('"') && firstArg.length >= 2
+            ? firstArg.slice(1, -1)
+            : firstArg;
 
-    if (firstArg.startsWith('"') && firstArg.endsWith('"')) {
-        return firstArg.slice(1, -1);
+    if (!key) {
+        return null;
     }
 
-    return firstArg;
+    return { key, calleeName, argStart, argEnd };
+}
+
+export function extractScriptRef(
+    lineText: string,
+    cursorCol: number
+): string | null {
+    return extractScriptArgAtCursor(lineText, cursorCol)?.key ?? null;
 }
 
 export async function findScriptDefinition(

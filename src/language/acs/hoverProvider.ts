@@ -7,6 +7,7 @@ import { symbolSourceDetail } from '../../base/symbolLocation';
 import {
     callTextFromLine,
     resolveNamedScriptOverlay,
+    tryScriptNameHover,
 } from './namedScriptResolve';
 
 function buildHoverContent(
@@ -85,6 +86,18 @@ export function registerAcsHoverProvider(
         [{ language: 'acs' }],
         {
             provideHover(document, position) {
+                const lineText = document.lineAt(position.line).text;
+                const scriptHover = tryScriptNameHover(
+                    lineText,
+                    position.line,
+                    position.character,
+                    symbolDb,
+                    'acs'
+                );
+                if (scriptHover) {
+                    return scriptHover;
+                }
+
                 const wordRange = document.getWordRangeAtPosition(position, /[A-Za-z0-9_]+/);
                 if (!wordRange) {
                     return null;
@@ -96,7 +109,6 @@ export function registerAcsHoverProvider(
                     const baseParams = Array.isArray(functionData.params)
                         ? functionData.params.filter((p): p is ParamData => typeof p === 'object')
                         : [];
-                    const lineText = document.lineAt(position.line).text;
                     const overlay = resolveNamedScriptOverlay(
                         word,
                         baseParams,

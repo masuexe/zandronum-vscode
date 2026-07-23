@@ -19,6 +19,7 @@ import { symbolSourceDetail } from '../../base/symbolLocation';
 import {
     callTextFromLine,
     resolveNamedScriptOverlay,
+    tryScriptNameHover,
 } from '../acs/namedScriptResolve';
 
 function buildHoverContent(
@@ -162,14 +163,24 @@ export function registerHoverProvider(
         [{ language: 'decorate' }],
         {
             provideHover(document, position) {
+                const lineText = document.lineAt(position.line).text;
+                const scriptHover = tryScriptNameHover(
+                    lineText,
+                    position.line,
+                    position.character,
+                    symbolDb,
+                    'decorate'
+                );
+                if (scriptHover) {
+                    return scriptHover;
+                }
+
                 const wordRange = document.getWordRangeAtPosition(position, /[A-Za-z0-9_]+/);
                 if (!wordRange) {
                     return null;
                 }
 
                 const word = document.getText(wordRange);
-
-                const lineText = document.lineAt(position.line).text;
                 const wordStart = wordRange.start.character;
 
                 if (stateKeywords) {

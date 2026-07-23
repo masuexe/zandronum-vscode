@@ -4,9 +4,37 @@ import {
 	enrichNamedExecuteParams,
 	scriptParamsBeyondArity,
 } from '../language/acs/namedScriptResolve';
+import { extractScriptArgAtCursor } from '../language/acs/definitionProvider';
 import { extractScriptParams, parseTypedParamList } from '../base/acsProvider';
 import { AcsScriptSymbol, SymbolKind } from '../base/types';
 import { ParamData } from '../shared/dataLoader';
+
+suite('extractScriptArgAtCursor — script-name hover', () => {
+	test('hits string first arg and returns callee', () => {
+		const line = 'ACS_NamedExecuteWithResult("core_weaponcolor", JUGGERNAUT_DYE)';
+		const col = line.indexOf('weapon') + 1;
+		const hit = extractScriptArgAtCursor(line, col);
+		assert.ok(hit);
+		assert.strictEqual(hit!.key, 'core_weaponcolor');
+		assert.strictEqual(hit!.calleeName, 'ACS_NamedExecuteWithResult');
+		assert.strictEqual(line.slice(hit!.argStart, hit!.argEnd), '"core_weaponcolor"');
+	});
+
+	test('ignores later args', () => {
+		const line = 'ACS_NamedExecuteWithResult("core_weaponcolor", JUGGERNAUT_DYE)';
+		const col = line.indexOf('JUGGERNAUT') + 2;
+		assert.strictEqual(extractScriptArgAtCursor(line, col), null);
+	});
+
+	test('supports numbered ACS_Execute', () => {
+		const line = 'ACS_Execute(42, 0, 1)';
+		const col = line.indexOf('42') + 1;
+		const hit = extractScriptArgAtCursor(line, col);
+		assert.ok(hit);
+		assert.strictEqual(hit!.key, '42');
+		assert.strictEqual(hit!.calleeName, 'ACS_Execute');
+	});
+});
 
 suite('namedScriptResolve — parseFirstScriptArg', () => {
 	test('reads string script while cursor would be on later args', () => {

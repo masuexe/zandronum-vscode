@@ -1,10 +1,13 @@
 import { ParamData } from '../../shared/dataLoader';
 import { SymbolDatabase } from '../../base/symbolDatabase';
 import { AcsScriptSymbol, SymbolKind } from '../../base/types';
+import { symbolSourceDetail } from '../../base/symbolLocation';
 import {
     SCRIPT_ARG_OVERLAY_FUNCTIONS,
     SCRIPT_EXEC_FUNCTIONS,
+    extractScriptArgAtCursor,
 } from './definitionProvider';
+import * as vscode from 'vscode';
 
 /**
  * First argument of a NamedExecute / CallACS / Execute call, regardless of cursor param index.
@@ -201,4 +204,59 @@ export function resolveNamedScriptOverlay(
         script,
         extraScriptParams: scriptParamsBeyondArity(params, script),
     };
+}
+
+/**
+ * Hover when the cursor is on the first script argument of a SCRIPT_EXEC call.
+ * Returns null when not in that context.
+ */
+export function tryScriptNameHover(
+    lineText: string,
+    line: number,
+    cursorCol: number,
+    symbolDb: SymbolDatabase | undefined,
+    languageId: 'acs' | 'decorate'
+): vscode.Hover | null {
+    if (!symbolDb) {
+        return null;
+    }
+
+    const hit = extractScriptArgAtCursor(lineText, cursorCol);
+    if (!hit) {
+        return null;
+    }
+
+    const script = lookupAcsScript(symbolDb, hit.key);
+    const md = new vscode.MarkdownString();
+    md.isTrusted = true;
+
+    if (script) {
+        const paramSig =
+            script.params.length > 0
+                ? script.params.map(p => `${p.type} ${p.name}`).join(', ')
+                : 'void';
+        const displayKey = /^\d+$/.test(script.scriptKey)
+            ? script.scriptKey
+            : `"${script.scriptKey}"`;
+        md.appendCodeblock(`script ${displayKey}(${paramSig})`, 'acs');
+        md.appendMarkdown(`\n\n**Source:** ${symbolSourceDetail(script)}`);
+        if (script.entryPath) {
+            md.appendMarkdown(`\n\n\`${script.entryPath}\``);
+        }
+        if (script.params.length > 0) {
+            md.appendMarkdown('\n\n**Parameters:**\n\n');
+            for (const p of script.params) {
+                md.appendMarkdown(`- \`${p.type} ${p.name}\`\n`);
+            }
+        }
+    } else {
+        const displayKey = /^\d+$/.test(hit.key) ? hit.key : `"${hit.key}"`;
+        md.appendCodeblock(`script ${displayKey}`, languageId);
+        md.appendMarkdown('\n\nScript not found in the symbol index (workspace / base resources).');
+    }
+
+    md.appendMarkdown(`\n\nUsed as argument of \`${hit.calleeName}\`.`);
+
+    const range = new vscode.Range(line, hit.argStart, line, hit.argEnd);
+    return new vscode.Hover(md, range);
 }

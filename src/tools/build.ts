@@ -8,7 +8,7 @@ let currentGen = 0;
 let isBuilding = false;
 
 /** @returns true when a fresh PK3 was written successfully */
-export async function buildPK3(): Promise<boolean> {
+export async function buildPK3(options: { quiet?: boolean } = {}): Promise<boolean> {
     const gen = ++currentGen;
 
     const workspaceFolders = vscode.workspace.workspaceFolders;
@@ -38,7 +38,9 @@ export async function buildPK3(): Promise<boolean> {
     try {
         await doBuild(srcPath, outPath);
         if (gen !== currentGen) { return false; }
-        vscode.window.showInformationMessage('Build complete: out/build.pk3');
+        if (!options.quiet) {
+            vscode.window.showInformationMessage('Build complete: out/build.pk3');
+        }
         return true;
     } catch (err) {
         const message = err instanceof Error ? err.message : String(err);
@@ -60,11 +62,32 @@ export async function buildPK3(): Promise<boolean> {
 export async function buildProject(): Promise<boolean> {
     // Dynamic import avoids a static cycle with compileAcs → buildPK3.
     const { compileLoadAcsLibraries } = await import('./compileAcs.js');
-    const result = await compileLoadAcsLibraries({ quietNotConfigured: true });
-    if (result === 'failure') {
+    const totalStarted = Date.now();
+
+    const acs = await compileLoadAcsLibraries({
+        quietNotConfigured: true,
+        quietSuccess: true,
+    });
+    if (acs.result === 'failure') {
         return false;
     }
-    return buildPK3();
+
+    const pk3Started = Date.now();
+    const ok = await buildPK3({ quiet: true });
+    const pk3Ms = Date.now() - pk3Started;
+    if (!ok) {
+        return false;
+    }
+
+    const totalMs = Date.now() - totalStarted;
+    const fmt = (ms: number) => `${(ms / 1000).toFixed(1)}s`;
+    const acsPart = acs.result === 'notConfigured'
+        ? 'ACS: none'
+        : `ACS: ${fmt(acs.elapsedMs)} (${acs.compiled} compiled, ${acs.skipped} skipped)`;
+    vscode.window.showInformationMessage(
+        `${acsPart} · PK3: ${fmt(pk3Ms)} · total ${fmt(totalMs)}`
+    );
+    return true;
 }
 
 interface FileEntry {

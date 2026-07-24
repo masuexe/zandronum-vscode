@@ -64,7 +64,7 @@ Cross-file symbol resolution (DECORATE actors, ACS constants) works within the w
 ### Build and Run
 
 - **Compile Current ACS** — Compile the active `.acs` file with ACC
-- **Build Project** — Merges workspace and base-resource LOADACS; compiles matching `#library` sources under `<pk3Root>/acs_source/`, then packages into `out/build.pk3`. Base resources supply extra library names and include paths only — they are not compiled directly. Stops without packaging on compile failure.
+- **Build Project** — Merges workspace and base-resource LOADACS; compiles matching `#library` sources under `<pk3Root>/acs_source/` (skips up-to-date `.o`, runs ACC in parallel), then packages into `out/build.pk3`. Reports ACS vs PK3 timings. Base resources supply extra library names and include paths only — they are not compiled directly. Stops without packaging on compile failure.
 - **Run Project** — Runs Build Project, then launches Zandronum with the built PK3 (optional IWAD/args via `.vscode/zandronum.json`)
 
 ## Commands
@@ -74,7 +74,7 @@ Cross-file symbol resolution (DECORATE actors, ACS constants) works within the w
 | Command | What it does |
 |---|---|
 | **Zandronum: Compile Current ACS** | Compiles the active `.acs` file |
-| **Zandronum: Build Project** | Merges workspace + base LOADACS, compiles matching workspace ACS libraries, then builds `out/build.pk3` |
+| **Zandronum: Build Project** | Merges workspace + base LOADACS, incrementally compiles matching ACS libraries (parallel ACC), then builds `out/build.pk3` |
 | **Zandronum: Run Project** | Builds the project, then launches Zandronum on success |
 
 ### Editors
@@ -110,6 +110,7 @@ Legacy aliases (`Build PK3`, `Run Zandronum`, and older compile/build combinatio
 | `zandronum-vscode.accPath` | `""` | Path to ACC executable (uses system PATH if empty) |
 | `zandronum-vscode.accIncludePaths` | `""` | Additional ACC include directories (`-i`), semicolon-separated |
 | `zandronum-vscode.accOutputDir` | `""` | Output directory for compiled `.o` files (relative to workspace). If empty, defaults to `<pk3Root>/acs` |
+| `zandronum-vscode.accConcurrency` | `0` | Max parallel ACC processes for multi-library builds. `0` = `min(4, CPU count)` |
 
 ### Base Resources
 

@@ -312,6 +312,12 @@
           "default": "",
           "description": "Output directory for compiled .o files, relative to the workspace root. If empty, defaults to <pk3Root>/acs."
         },
+        "zandronum-vscode.accConcurrency": {
+          "type": "number",
+          "default": 0,
+          "minimum": 0,
+          "description": "Max parallel ACC processes when compiling multiple ACS libraries. 0 means min(4, CPU count)."
+        },
         "zandronum-vscode.playpalPath": {
           "type": "string",
           "default": "",

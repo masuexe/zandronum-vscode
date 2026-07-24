@@ -2,6 +2,7 @@ import * as vscode from 'vscode';
 import * as cp from 'child_process';
 import * as path from 'path';
 import * as fs from 'fs';
+import * as os from 'os';
 import { buildPK3 } from './build';
 import { getPk3Root } from '../shared/pk3Root';
 import { getBaseAcsIncludeDirs, getBasePackagesForCompile } from '../base/baseAcsIncludes';
@@ -15,8 +16,18 @@ function getAccPath(): string {
 function getUserIncludePaths(): string[] {
     const config = vscode.workspace.getConfiguration('zandronum-vscode');
     const raw = config.get<string>('accIncludePaths') || '';
-    if (!raw.trim()) return [];
+    if (!raw.trim()) { return []; }
     return raw.split(';').map(p => p.trim()).filter(p => p.length > 0);
+}
+
+/** Bounded ACC process concurrency; 0 or unset → min(4, CPU count). */
+function getAccConcurrency(): number {
+    const config = vscode.workspace.getConfiguration('zandronum-vscode');
+    const configured = config.get<number>('accConcurrency');
+    if (typeof configured === 'number' && configured > 0) {
+        return Math.floor(configured);
+    }
+    return Math.min(4, Math.max(1, os.cpus().length || 1));
 }
 
 function getOutputDir(workspaceRoot: string): string {
@@ -236,15 +247,19 @@ export async function compileAcs() {
 
     diagnosticCollection.clear();
 
-    const ok = await compileSingleFile(srcFile, workspaceRoot);
-    if (ok) {
+    const result = await compileSingleFile(srcFile, workspaceRoot, { force: true });
+    if (result === 'compiled') {
         vscode.window.showInformationMessage(`Compiled to ${path.basename(srcFile, path.extname(srcFile))}.o`);
     } else {
         vscode.window.showErrorMessage('Compilation failed. Check the Problems panel.');
     }
 }
 
-async function compileSingleFile(srcFile: string, workspaceRoot: string): Promise<boolean> {
+async function compileSingleFile(
+    srcFile: string,
+    workspaceRoot: string,
+    options: { force?: boolean } = {}
+): Promise<'compiled' | 'skipped' | 'failed'> {
     const accPath = getAccPath();
     const outputDir = getOutputDir(workspaceRoot);
     const includePaths = resolveIncludePaths(workspaceRoot, srcFile);
@@ -256,13 +271,18 @@ async function compileSingleFile(srcFile: string, workspaceRoot: string): Promis
     const srcName = path.basename(srcFile, path.extname(srcFile));
     const outFile = path.join(outputDir, `${srcName}.o`);
 
+    // Incremental: skip when .o exists and is not older than the entry .acs
+    if (!options.force && isObjectUpToDate(srcFile, outFile)) {
+        return 'skipped';
+    }
+
     const args: string[] = [];
     for (const inc of includePaths) {
         args.push('-i', inc);
     }
     args.push(srcFile, outFile);
 
-    return new Promise<boolean>((resolve) => {
+    return new Promise<'compiled' | 'skipped' | 'failed'>((resolve) => {
         const proc = cp.spawn(accPath, args, {
             cwd: workspaceRoot,
             shell: false
@@ -295,9 +315,9 @@ async function compileSingleFile(srcFile: string, workspaceRoot: string): Promis
             }
 
             if (code === 0 && diagMap.size === 0 && oExists) {
-                resolve(true);
+                resolve('compiled');
             } else {
-                resolve(false);
+                resolve('failed');
             }
         });
 
@@ -305,9 +325,43 @@ async function compileSingleFile(srcFile: string, workspaceRoot: string): Promis
             vscode.window.showErrorMessage(
                 `Failed to run ACC compiler. Check that '${accPath}' is a valid path.`
             );
-            resolve(false);
+            resolve('failed');
         });
     });
+}
+
+/** True when outFile exists and mtime >= srcFile mtime (entry file only; no include graph). */
+function isObjectUpToDate(srcFile: string, outFile: string): boolean {
+    try {
+        if (!fs.existsSync(outFile)) { return false; }
+        const srcStat = fs.statSync(srcFile);
+        const outStat = fs.statSync(outFile);
+        return outStat.mtimeMs >= srcStat.mtimeMs;
+    } catch {
+        return false;
+    }
+}
+
+async function mapPool<T, R>(
+    items: readonly T[],
+    concurrency: number,
+    fn: (item: T) => Promise<R>
+): Promise<R[]> {
+    if (items.length === 0) { return []; }
+    const results: R[] = new Array(items.length);
+    let next = 0;
+    const limit = Math.max(1, Math.min(concurrency, items.length));
+
+    async function worker(): Promise<void> {
+        while (true) {
+            const i = next++;
+            if (i >= items.length) { return; }
+            results[i] = await fn(items[i]);
+        }
+    }
+
+    await Promise.all(Array.from({ length: limit }, () => worker()));
+    return results;
 }
 
 function hasLibraryDirective(filePath: string): boolean {
@@ -365,20 +419,45 @@ function findLibraryAcsFiles(workspaceRoot: string, loadAcsEntries: string[]): s
 /**
  * Compile all ACS libraries listed in LOADACS (workspace + base resources).
  * - notConfigured: no LOADACS entries anywhere (caller may skip straight to packaging)
- * - success: every matching workspace library compiled
+ * - success: every matching workspace library compiled or skipped as up-to-date
  * - failure: configured but incomplete or compile errors (do not package)
  */
 export type CompileLibrariesResult = 'notConfigured' | 'success' | 'failure';
 
+export interface CompileLibrariesStats {
+    result: CompileLibrariesResult;
+    compiled: number;
+    skipped: number;
+    failed: number;
+    elapsedMs: number;
+}
+
 export async function compileLoadAcsLibraries(
-    options: { clearDiagnostics?: boolean; quietNotConfigured?: boolean } = {}
-): Promise<CompileLibrariesResult> {
-    const { clearDiagnostics = true, quietNotConfigured = false } = options;
+    options: {
+        clearDiagnostics?: boolean;
+        quietNotConfigured?: boolean;
+        quietSuccess?: boolean;
+    } = {}
+): Promise<CompileLibrariesStats> {
+    const {
+        clearDiagnostics = true,
+        quietNotConfigured = false,
+        quietSuccess = false,
+    } = options;
+    const started = Date.now();
+
+    const empty = (result: CompileLibrariesResult): CompileLibrariesStats => ({
+        result,
+        compiled: 0,
+        skipped: 0,
+        failed: 0,
+        elapsedMs: Date.now() - started,
+    });
 
     const workspaceRoot = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath;
     if (!workspaceRoot) {
         vscode.window.showErrorMessage('No workspace folder opened.');
-        return 'failure';
+        return empty('failure');
     }
 
     if (clearDiagnostics) {
@@ -395,7 +474,7 @@ export async function compileLoadAcsLibraries(
                 `No LOADACS entries found in ${getPk3Root()}/loadacs or base resources.`
             );
         }
-        return 'notConfigured';
+        return empty('notConfigured');
     }
 
     const acsFiles = findLibraryAcsFiles(workspaceRoot, loadAcsEntries);
@@ -403,30 +482,46 @@ export async function compileLoadAcsLibraries(
         vscode.window.showWarningMessage(
             `No matching ACS library files found in ${getPk3Root()}/acs_source/ for LOADACS entries.`
         );
-        return 'failure';
+        return empty('failure');
     }
 
-    let totalCompiled = 0;
-    let totalErrors = 0;
+    const outcomes = await mapPool(
+        acsFiles,
+        getAccConcurrency(),
+        (acsFile) => compileSingleFile(acsFile, workspaceRoot)
+    );
 
-    for (const acsFile of acsFiles) {
-        const ok = await compileSingleFile(acsFile, workspaceRoot);
-        if (ok) {
-            totalCompiled++;
+    let compiled = 0;
+    let skipped = 0;
+    let failed = 0;
+    for (const outcome of outcomes) {
+        if (outcome === 'compiled') { compiled++; }
+        else if (outcome === 'skipped') { skipped++; }
+        else { failed++; }
+    }
+
+    const elapsedMs = Date.now() - started;
+
+    if (failed > 0) {
+        vscode.window.showErrorMessage(
+            `Compiled ${compiled}, ${failed} failed (${skipped} up-to-date). Fix errors before building.`
+        );
+        return { result: 'failure', compiled, skipped, failed, elapsedMs };
+    }
+
+    if (!quietSuccess) {
+        if (compiled === 0 && skipped > 0) {
+            vscode.window.showInformationMessage(
+                `All ${skipped} ACS libraries up-to-date.`
+            );
         } else {
-            totalErrors++;
+            vscode.window.showInformationMessage(
+                `ACS: ${compiled} compiled, ${skipped} skipped (${(elapsedMs / 1000).toFixed(1)}s).`
+            );
         }
     }
 
-    if (totalErrors > 0) {
-        vscode.window.showErrorMessage(
-            `Compiled ${totalCompiled}, ${totalErrors} failed. Fix errors before building.`
-        );
-        return 'failure';
-    }
-
-    vscode.window.showInformationMessage(`All ${totalCompiled} ACS libraries compiled successfully.`);
-    return 'success';
+    return { result: 'success', compiled, skipped, failed, elapsedMs };
 }
 
 /** @deprecated Prefer Compile Current ACS, then Build Project. Kept for keybindings. */
@@ -450,8 +545,8 @@ export async function compileCurrentAndBuild() {
 
     diagnosticCollection.clear();
 
-    const ok = await compileSingleFile(srcFile, workspaceRoot);
-    if (ok) {
+    const result = await compileSingleFile(srcFile, workspaceRoot, { force: true });
+    if (result === 'compiled') {
         vscode.window.showInformationMessage(
             `Compiled ${path.basename(srcFile, path.extname(srcFile))}.o. Building PK3...`
         );
@@ -463,8 +558,8 @@ export async function compileCurrentAndBuild() {
 
 /** @deprecated Prefer Build Project. Kept for keybindings. */
 export async function compileAllAndBuild(): Promise<boolean> {
-    const result = await compileLoadAcsLibraries({ quietNotConfigured: false });
-    if (result !== 'success') {
+    const stats = await compileLoadAcsLibraries({ quietNotConfigured: false });
+    if (stats.result !== 'success') {
         return false;
     }
     vscode.window.showInformationMessage('Building PK3...');

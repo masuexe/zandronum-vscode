@@ -27,6 +27,8 @@ export interface ActorSymbol extends SymbolEntry {
 
 export interface AcsConstantSymbol extends SymbolEntry {
     kind: SymbolKind.AcsConstant;
+    /** Raw `#define` / `#libdefine` replacement text, if any. */
+    value?: string;
 }
 
 export interface AcsFunctionSymbol extends SymbolEntry {

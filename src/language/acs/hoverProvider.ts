@@ -2,7 +2,7 @@ import * as vscode from 'vscode';
 import { ActionData, findActionCaseInsensitive, ParamData } from '../../shared/dataLoader';
 import { buildSignatureLabel, buildParamLabel } from '../../shared/signatureBuilder';
 import { SymbolDatabase } from '../../base/symbolDatabase';
-import { AcsScriptSymbol, SymbolKind } from '../../base/types';
+import { AcsConstantSymbol, AcsScriptSymbol, SymbolKind } from '../../base/types';
 import { symbolSourceDetail } from '../../base/symbolLocation';
 import {
     callTextFromLine,
@@ -141,10 +141,13 @@ export function registerAcsHoverProvider(
                         }
                         return new vscode.Hover(md);
                     }
-                    const c = symbolDb.query(SymbolKind.AcsConstant, word);
+                    const c = symbolDb.query<AcsConstantSymbol>(SymbolKind.AcsConstant, word);
                     if (c) {
                         const md = new vscode.MarkdownString();
-                        md.appendCodeblock(`#define ${c.name}`, 'acs');
+                        const defineLine = c.value
+                            ? `#define ${c.name} ${c.value}`
+                            : `#define ${c.name}`;
+                        md.appendCodeblock(defineLine, 'acs');
                         md.appendMarkdown(`\n\n**Source:** ${symbolSourceDetail(c)}`);
                         if (c.entryPath) {
                             md.appendMarkdown(`\n\n\`${c.entryPath}\``);

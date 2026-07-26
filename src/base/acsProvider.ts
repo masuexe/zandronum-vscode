@@ -85,13 +85,14 @@ export class AcsSymbolProvider implements SymbolProvider {
     }
 
     private scanDefines(effective: string, lineNumber: number, symbols: SymbolEntry[]): void {
-        const defineRe = /#\s*(?:libdefine|define)\s+([A-Za-z_][A-Za-z0-9_]*)/gi;
+        const defineRe = /#\s*(?:libdefine|define)\s+([A-Za-z_][A-Za-z0-9_]*)(.*)/gi;
         let m: RegExpExecArray | null;
         while ((m = defineRe.exec(effective)) !== null) {
             const name = m[1];
             if (ACS_KEYWORDS.has(name.toLowerCase())) {
                 continue;
             }
+            const value = m[2].trim();
             const character = m.index + m[0].lastIndexOf(name);
             const sym: AcsConstantSymbol = {
                 kind: SymbolKind.AcsConstant,
@@ -99,7 +100,8 @@ export class AcsSymbolProvider implements SymbolProvider {
                 source: '',
                 packageId: '',
                 entryPath: '',
-                location: { line: lineNumber, character }
+                location: { line: lineNumber, character },
+                ...(value ? { value } : {}),
             };
             symbols.push(sym);
         }

@@ -8,7 +8,7 @@ import { ZipPackage, FolderPackage, normalizeEntryPath } from '../base/packages'
 import { ActorSymbolProvider } from '../base/actorProvider';
 import { AcsSymbolProvider } from '../base/acsProvider';
 import { SymbolDatabase } from '../base/symbolDatabase';
-import { AcsScriptSymbol, SymbolKind } from '../base/types';
+import { AcsConstantSymbol, AcsScriptSymbol, SymbolKind } from '../base/types';
 import { extractBaseAcsSources } from '../base/extractBaseAcs';
 import { makeBaseResourceUri, parseBaseResourceUri } from '../base/baseResourceUri';
 
@@ -104,8 +104,9 @@ suite('Base Resource — ZipPackage cache', () => {
 		assert.strictEqual(zombie!.packageId, 'deps/test.pk3');
 		assert.strictEqual(zombie!.entryPath, 'actors/enemies.dec');
 
-		const c = db.query(SymbolKind.AcsConstant, 'MY_CONST');
+		const c = db.query<AcsConstantSymbol>(SymbolKind.AcsConstant, 'MY_CONST');
 		assert.ok(c);
+		assert.strictEqual(c!.value, '1');
 	});
 
 	test('extractBaseAcsSources writes ACS files', async () => {

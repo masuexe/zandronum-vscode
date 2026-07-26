@@ -46,6 +46,28 @@
 		"comments": {
 			"patterns": [
 				{
+					"name": "comment.line.editor-key.decorate",
+					"begin": "//\\$(?=\\S)",
+					"end": "$",
+					"beginCaptures": {
+						"0": {"name": "punctuation.definition.comment.decorate"}
+					},
+					"patterns": [
+						{
+							"match": "(?i)\\G(Arg[0-9](?:Tooltip|Type|Enum|Default|Flags)?|Category|Title|Sprite|Color|Angled|NotAngled|IgnoreRenderstyle|Obsolete|User|ClearArgs|GZDB_SKIP|Sort(?:ed)?|Arrow|Error|FixedSize|FixedRotation|AbsoluteZ|[A-Za-z_][A-Za-z0-9_]*)\\b",
+							"name": "keyword.other.editor-key.decorate"
+						},
+						{
+							"match": "\"[^\"]*\"",
+							"name": "string.quoted.double.decorate"
+						},
+						{
+							"match": "\\S+",
+							"name": "string.unquoted.editor-key.decorate"
+						}
+					]
+				},
+				{
 					"name": "comment.line.double-slash.decorate",
 					"match": "//.*$"
 				},

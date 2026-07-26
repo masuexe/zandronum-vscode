@@ -27,7 +27,9 @@ export class BaseAcsSymbolSource implements CompletionSource {
 
         for (const sym of this.symbolDb.search(SymbolKind.AcsFunction, lower)) {
             if (sym.packageId === 'workspace') { continue; }
-            const item = makeFunctionItem(sym.name, symbolSourceDetail(sym));
+            const item = makeFunctionItem(sym.name, symbolSourceDetail(sym), {
+                existingCallParen: context.existingCallParen,
+            });
             items.push(item);
         }
 

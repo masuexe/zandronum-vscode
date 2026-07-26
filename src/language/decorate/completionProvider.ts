@@ -14,7 +14,7 @@ import {
 } from '../../shared/dataLoader';
 import { SymbolDatabase } from '../../base/symbolDatabase';
 import { SymbolKind } from '../../base/types';
-import { buildActionInsertText } from '../../shared/snippetBuilder';
+import { buildActionInsertText, hasExistingCallParen } from '../../shared/snippetBuilder';
 
 type ContextType = 'flag' | 'state' | 'function' | 'property' | 'inherit' | 'none';
 
@@ -292,7 +292,8 @@ function formatActionForLabel(data: ActionData): string {
 function provideActionItems(
     actionsData: Record<string, ActionData>,
     prefix: string,
-    allowedClasses?: Set<string>
+    allowedClasses?: Set<string>,
+    existingCallParen = false
 ): vscode.CompletionItem[] {
     const items: vscode.CompletionItem[] = [];
     const stateCallables = getStateCallables(actionsData);
@@ -306,7 +307,7 @@ function provideActionItems(
         }
         const item = new vscode.CompletionItem(fn, vscode.CompletionItemKind.Function);
         item.detail = `${data.desc || 'DECORATE Action Function'}${formatActionForLabel(data)}`;
-        const insert = buildActionInsertText(fn, data.params);
+        const insert = buildActionInsertText(fn, data.params, { existingCallParen });
         item.insertText = insert.insertText;
         if (insert.triggerSignatureHelp) {
             item.command = {
@@ -322,7 +323,8 @@ function provideActionItems(
 
 function provideStateKeywordItems(
     keywords: Record<string, StateKeywordData>,
-    prefix: string
+    prefix: string,
+    existingCallParen = false
 ): vscode.CompletionItem[] {
     const items: vscode.CompletionItem[] = [];
 
@@ -332,7 +334,7 @@ function provideStateKeywordItems(
         }
         const item = new vscode.CompletionItem(name, vscode.CompletionItemKind.Keyword);
         item.detail = data.desc || 'DECORATE State Keyword';
-        const insert = buildActionInsertText(name, data.params);
+        const insert = buildActionInsertText(name, data.params, { existingCallParen });
         item.insertText = insert.insertText;
         if (insert.triggerSignatureHelp) {
             item.command = {
@@ -349,7 +351,8 @@ function provideStateKeywordItems(
 function provideExpressionItems(
     actionsData: Record<string, ActionData>,
     expressionsData: Record<string, ExpressionData>,
-    prefix: string
+    prefix: string,
+    existingCallParen = false
 ): vscode.CompletionItem[] {
     const items: vscode.CompletionItem[] = [];
     const callables = getExpressionCallables(actionsData, expressionsData);
@@ -361,11 +364,15 @@ function provideExpressionItems(
         }
         const item = new vscode.CompletionItem(fn, vscode.CompletionItemKind.Function);
         item.detail = data.desc || 'DECORATE Expression Function';
-        item.insertText = new vscode.SnippetString(`${fn}($0)`);
-        item.command = {
-            title: 'Trigger Signature Help',
-            command: 'editor.action.triggerParameterHints'
-        };
+        if (existingCallParen) {
+            item.insertText = fn;
+        } else {
+            item.insertText = new vscode.SnippetString(`${fn}($0)`);
+            item.command = {
+                title: 'Trigger Signature Help',
+                command: 'editor.action.triggerParameterHints'
+            };
+        }
         items.push(item);
     }
 
@@ -591,6 +598,7 @@ export function registerCompletionProvider(
                 const lineText = line.text;
                 const contextType = getContextType(document, position, lineText);
                 const wordPrefix = getWordPrefix(lineText, position);
+                const existingCallParen = hasExistingCallParen(lineText, position.character);
 
                 switch (contextType) {
                     case 'flag': {
@@ -605,9 +613,20 @@ export function registerCompletionProvider(
                     case 'state': {
                         const actorCtx = findActorContext(document, position);
                         const allowed = buildAllowedClasses(actorCtx, inheritanceData);
-                        const items = provideActionItems(actionsData, wordPrefix, allowed);
+                        const items = provideActionItems(
+                            actionsData,
+                            wordPrefix,
+                            allowed,
+                            existingCallParen
+                        );
                         if (stateKeywords) {
-                            items.push(...provideStateKeywordItems(stateKeywords, wordPrefix));
+                            items.push(
+                                ...provideStateKeywordItems(
+                                    stateKeywords,
+                                    wordPrefix,
+                                    existingCallParen
+                                )
+                            );
                         }
                         return items;
                     }
@@ -625,7 +644,12 @@ export function registerCompletionProvider(
                                 return provideEnumItems(enumInfo.enum, wordPrefix, enumInfo.mode);
                             }
                         }
-                        return provideExpressionItems(actionsData, expressionsData, wordPrefix);
+                        return provideExpressionItems(
+                            actionsData,
+                            expressionsData,
+                            wordPrefix,
+                            existingCallParen
+                        );
                     }
 
                     case 'property': {

@@ -1,4 +1,5 @@
 import * as vscode from 'vscode';
+import { hasExistingCallParen } from '../../../shared/snippetBuilder';
 
 export interface CompletionContext {
     inFunctionCall: boolean;
@@ -11,6 +12,8 @@ export interface CompletionContext {
     wordPrefix: string;
     braceDepth: number;
     filePath: string;
+    /** True when `(` already follows the identifier being completed. */
+    existingCallParen: boolean;
 }
 
 export function buildCompletionContext(
@@ -156,5 +159,6 @@ export function buildCompletionContext(
         wordPrefix: prefix,
         braceDepth: depthBefore,
         filePath: document.uri.fsPath,
+        existingCallParen: hasExistingCallParen(lineText, position.character),
     };
 }

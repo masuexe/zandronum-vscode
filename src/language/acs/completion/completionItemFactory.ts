@@ -1,11 +1,17 @@
 import * as vscode from 'vscode';
 import { CompletionPriority, makeSortText } from './completionPriority';
 
-export function makeFunctionItem(name: string, detail?: string): vscode.CompletionItem {
+export function makeFunctionItem(
+    name: string,
+    detail?: string,
+    options?: { existingCallParen?: boolean }
+): vscode.CompletionItem {
     const item = new vscode.CompletionItem(name, vscode.CompletionItemKind.Function);
     item.detail = detail || name;
     item.sortText = makeSortText(CompletionPriority.Function, name);
-    item.insertText = new vscode.SnippetString(`${name}($0)`);
+    item.insertText = options?.existingCallParen
+        ? name
+        : new vscode.SnippetString(`${name}($0)`);
     return item;
 }
 

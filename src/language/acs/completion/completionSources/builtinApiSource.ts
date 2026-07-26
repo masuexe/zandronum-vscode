@@ -40,11 +40,15 @@ export class BuiltinApiSource implements CompletionSource {
             const params = Array.isArray(data.params)
                 ? data.params.filter(p => typeof p === 'object') as any[]
                 : [];
-            const item = makeFunctionItem(name, formatCompletionDetail(params));
-            item.command = {
-                title: 'Trigger Parameter Hints',
-                command: 'editor.action.triggerParameterHints'
-            };
+            const item = makeFunctionItem(name, formatCompletionDetail(params), {
+                existingCallParen: context.existingCallParen,
+            });
+            if (!context.existingCallParen) {
+                item.command = {
+                    title: 'Trigger Parameter Hints',
+                    command: 'editor.action.triggerParameterHints'
+                };
+            }
             items.push(item);
         }
         return items;

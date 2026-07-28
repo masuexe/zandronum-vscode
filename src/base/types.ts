@@ -23,6 +23,8 @@ export interface SymbolEntry {
 export interface ActorSymbol extends SymbolEntry {
     kind: SymbolKind.Actor;
     parentClass?: string;
+    /** Declared `var int user_*` names in this actor body (case preserved). */
+    userVars?: string[];
 }
 
 export interface AcsConstantSymbol extends SymbolEntry {

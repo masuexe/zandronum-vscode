@@ -12,7 +12,7 @@ import { registerSignatureHelp } from './language/decorate/signatureProvider';
 import { registerHoverProvider } from './language/decorate/hoverProvider';
 import { buildPK3, buildProject } from './tools/build';
 import { compileAcs, compileAllAndBuild, compileCurrentAndBuild } from './tools/compileAcs';
-import { registerDecorateSemanticTokens } from './semantic/semanticTokensProvider';
+import { registerDecorateSemanticTokens, refreshDecorateSemanticTokens } from './semantic/semanticTokensProvider';
 import { registerAcsSemanticTokens } from './semantic/acsSemanticTokensProvider';
 import { WorkspaceIndex, defaultIncludeResolver } from './language/acs/compilationUnit';
 import { registerDefinitionProvider } from './language/decorate/definitionProvider';
@@ -140,6 +140,7 @@ export function activate(context: vscode.ExtensionContext) {
                 `[${new Date().toISOString()}] Indexed packages=${packageManager.getPackages().length} ` +
                 `actors=${actors} acsConstants=${consts} acsScripts=${scripts}`
             );
+            refreshDecorateSemanticTokens();
         } catch (err) {
             getBaseResourceOutput().appendLine(`Base resource rebuild failed: ${err}`);
             vscode.window.showErrorMessage(`Base resource rebuild failed: ${String(err)}`);
@@ -208,7 +209,7 @@ export function activate(context: vscode.ExtensionContext) {
     registerCompletionProvider(context, actionsData, propertiesData, flagsData, expressionsData, inheritanceData, symbolDatabase, stateKeywordsData);
     registerSignatureHelp(context, actionsData, stateKeywordsData, expressionsData, symbolDatabase);
     registerHoverProvider(context, actionsData, stateKeywordsData, symbolDatabase, inheritanceData, expressionsData);
-    registerDecorateSemanticTokens(context);
+    registerDecorateSemanticTokens(context, symbolDatabase);
     registerDefinitionProvider(context, symbolDatabase);
     registerColorProvider(context);
     registerDecorateSymbolProvider(context);

@@ -47,14 +47,14 @@
 			"patterns": [
 				{
 					"name": "comment.line.editor-key.decorate",
-					"begin": "//\\$(?=\\S)",
+					"begin": "(?i)//\\$(?=Arg[0-9](?:Tooltip|Type|Enum|Default|Flags)?\\b|Category\\b|Title\\b|Sprite\\b|Color\\b|Angled\\b|NotAngled\\b|IgnoreRenderstyle\\b|Obsolete\\b|User\\b|ClearArgs\\b|GZDB_SKIP\\b|Sort(?:ed)?\\b|Arrow\\b|Error\\b|FixedSize\\b|FixedRotation\\b|AbsoluteZ\\b)",
 					"end": "$",
 					"beginCaptures": {
 						"0": {"name": "punctuation.definition.comment.decorate"}
 					},
 					"patterns": [
 						{
-							"match": "(?i)\\G(Arg[0-9](?:Tooltip|Type|Enum|Default|Flags)?|Category|Title|Sprite|Color|Angled|NotAngled|IgnoreRenderstyle|Obsolete|User|ClearArgs|GZDB_SKIP|Sort(?:ed)?|Arrow|Error|FixedSize|FixedRotation|AbsoluteZ|[A-Za-z_][A-Za-z0-9_]*)\\b",
+							"match": "(?i)\\G(Arg[0-9](?:Tooltip|Type|Enum|Default|Flags)?|Category|Title|Sprite|Color|Angled|NotAngled|IgnoreRenderstyle|Obsolete|User|ClearArgs|GZDB_SKIP|Sort(?:ed)?|Arrow|Error|FixedSize|FixedRotation|AbsoluteZ)\\b",
 							"name": "keyword.other.editor-key.decorate"
 						},
 						{

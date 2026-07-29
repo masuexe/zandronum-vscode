@@ -154,12 +154,22 @@ async function findActorInWorkspace(
 
     const pk3RootUri = vscode.Uri.joinPath(workspaceFolders[0].uri, getPk3Root());
     const decFiles = await vscode.workspace.findFiles(
-        new vscode.RelativePattern(pk3RootUri, '**/*.{dec,decorate}')
+        new vscode.RelativePattern(pk3RootUri, '**/*.{dec,decorate,txt}')
     );
     const namedFiles = await vscode.workspace.findFiles(
         new vscode.RelativePattern(pk3RootUri, '**/DECORATE{,.txt}')
     );
-    const allUris = [...decFiles, ...namedFiles];
+    // Dedupe: DECORATE.txt may appear in both globs
+    const seen = new Set<string>();
+    const allUris: vscode.Uri[] = [];
+    for (const uri of [...decFiles, ...namedFiles]) {
+        const key = uri.fsPath.toLowerCase();
+        if (seen.has(key)) {
+            continue;
+        }
+        seen.add(key);
+        allUris.push(uri);
+    }
 
     const re = new RegExp(`\\bactor\\s+(${escapeRegex(className)})\\b`, 'i');
 

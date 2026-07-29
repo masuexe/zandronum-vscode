@@ -98,7 +98,9 @@ export class WorkspacePackage implements PackageSource {
         const pk3RootUri = vscode.Uri.joinPath(workspaceFolders[0].uri, getPk3Root());
         const pattern = new vscode.RelativePattern(
             pk3RootUri,
-            `**/{DECORATE,DECORATE.txt,*.dec,*.decorate,*.acs,SCRIPTS,SNDINFO,TEXTURES,LANGUAGE,*.lm}`
+            // Include *.txt: mods commonly put actors in named .txt lumps (e.g. baseweaponedit.txt).
+            // Engine lump identity ignores extension; ActorSymbolProvider filters non-actor content.
+            `**/{DECORATE,DECORATE.txt,*.dec,*.decorate,*.txt,*.acs,SCRIPTS,SNDINFO,TEXTURES,LANGUAGE,*.lm}`
         );
         const uris = await vscode.workspace.findFiles(pattern);
         return uris.map(uri => ({

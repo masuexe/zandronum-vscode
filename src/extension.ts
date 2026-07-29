@@ -44,6 +44,7 @@ import {
     BASE_RESOURCE_SCHEME,
     BaseResourceContentProvider,
 } from './base/baseResourceUri';
+import { BaseResourceFileSystemProvider } from './base/baseResourceFileSystem';
 import { reportBaseResourceWarnings, getBaseResourceOutput } from './base/diagnostics';
 import { ZipPackage } from './base/packages';
 import { SymbolKind } from './base/types';
@@ -75,10 +76,22 @@ export function activate(context: vscode.ExtensionContext) {
     symbolDatabase.registerProvider(new ActorSymbolProvider());
     symbolDatabase.registerProvider(new AcsSymbolProvider());
 
+    const resourceIndex = new ResourceIndex(getPk3Root());
+    resourceIndex.build();
+    context.subscriptions.push({ dispose: () => resourceIndex.dispose() });
+
+    let offsetPreviewRegistry: ReturnType<typeof registerOffsetPreview> | undefined;
+
     const contentProvider = new BaseResourceContentProvider(packageManager);
+    const baseFsProvider = new BaseResourceFileSystemProvider(packageManager);
     context.subscriptions.push(
         vscode.workspace.registerTextDocumentContentProvider(BASE_RESOURCE_SCHEME, contentProvider),
-        contentProvider
+        contentProvider,
+        vscode.workspace.registerFileSystemProvider(BASE_RESOURCE_SCHEME, baseFsProvider, {
+            isReadonly: true,
+            isCaseSensitive: false
+        }),
+        baseFsProvider
     );
 
     context.subscriptions.push(
@@ -133,12 +146,19 @@ export function activate(context: vscode.ExtensionContext) {
             reportBaseResourceWarnings(warnings, { notify });
             contentProvider.invalidateAll();
 
+            await resourceIndex.whenReady();
+            if (generation !== rebuildGeneration) { return; }
+            await resourceIndex.ingestPackages(packageManager.getPackages());
+            if (generation !== rebuildGeneration) { return; }
+            offsetPreviewRegistry?.refreshAll();
+
             const actors = symbolDatabase.queryAll(SymbolKind.Actor).length;
             const consts = symbolDatabase.queryAll(SymbolKind.AcsConstant).length;
             const scripts = symbolDatabase.queryAll(SymbolKind.AcsScript).length;
             getBaseResourceOutput().appendLine(
                 `[${new Date().toISOString()}] Indexed packages=${packageManager.getPackages().length} ` +
-                `actors=${actors} acsConstants=${consts} acsScripts=${scripts}`
+                `actors=${actors} acsConstants=${consts} acsScripts=${scripts} ` +
+                `images=${resourceIndex.listImageNames().length}`
             );
             refreshDecorateSemanticTokens();
         } catch (err) {
@@ -257,14 +277,10 @@ export function activate(context: vscode.ExtensionContext) {
     registerTexturesFoldingProvider(context, texturesParser);
     registerTexturesColorProvider(context);
 
-    const resourceIndex = new ResourceIndex(getPk3Root());
-    resourceIndex.build();
-    context.subscriptions.push({ dispose: () => resourceIndex.dispose() });
-
     const textureEditorRegistry = new TextureEditorRegistry();
     context.subscriptions.push({ dispose: () => textureEditorRegistry.dispose() });
 
-    registerOffsetPreview(context, resourceIndex);
+    offsetPreviewRegistry = registerOffsetPreview(context, resourceIndex);
 
     context.subscriptions.push(
         vscode.commands.registerCommand('textures.openEditor', () => {

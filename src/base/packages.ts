@@ -30,9 +30,16 @@ function shouldExtractZipEntry(entryPath: string): boolean {
     if (!name) { return false; }
     // Special lumps: engine strips the last extension; keep NAME and NAME.*
     const base = name.includes('.') ? name.slice(0, name.lastIndexOf('.')) : name;
-    if (/^(DECORATE|SCRIPTS|SNDINFO|TEXTURES|LANGUAGE|LOADACS)$/i.test(base)) { return true; }
+    // PLAYPAL is tiny; keep for future palette fallback. Do NOT include PNG here —
+    // large PK3s (tens of thousands of sprites) would decompress into RAM on any openEntry.
+    if (/^(DECORATE|SCRIPTS|SNDINFO|TEXTURES|LANGUAGE|LOADACS|PLAYPAL)$/i.test(base)) { return true; }
     // Actor/text lumps often live as .txt / .dec / etc.
     return /\.(dec|decorate|acs|lm|txt)$/i.test(name);
+}
+
+function shouldExtractZipImage(entryPath: string): boolean {
+    const name = normalizeEntryPath(entryPath).split('/').pop() ?? '';
+    return /\.(png|jpe?g)$/i.test(name);
 }
 
 export class BuiltinPackage implements PackageSource {
@@ -159,7 +166,10 @@ export class ZipPackage implements PackageSource {
     readonly label: string;
     private rawData: Uint8Array | undefined;
     private entryMap: Map<string, Uint8Array> | undefined;
+    /** Separate from entryMap so symbol indexing does not decompress every sprite. */
+    private imageMap: Map<string, Uint8Array> | undefined;
     private loadError: string | undefined;
+    private imageLoadError: string | undefined;
 
     constructor(
         readonly id: string,
@@ -175,31 +185,30 @@ export class ZipPackage implements PackageSource {
     }
 
     getLoadError(): string | undefined {
-        return this.loadError;
+        return this.loadError ?? this.imageLoadError;
     }
 
-    private async ensureEntryMap(): Promise<Map<string, Uint8Array>> {
-        if (this.entryMap) {
-            return this.entryMap;
-        }
+    private async ensureRawData(): Promise<Uint8Array | undefined> {
+        if (this.rawData) { return this.rawData; }
         if (!fs.existsSync(this.filePath)) {
             this.loadError = `File not found: ${this.filePath}`;
-            this.entryMap = new Map();
-            return this.entryMap;
+            return undefined;
         }
+        this.rawData = await fs.promises.readFile(this.filePath);
+        return this.rawData;
+    }
 
-        if (!this.rawData) {
-            this.rawData = await fs.promises.readFile(this.filePath);
-        }
-
-        const buf = this.rawData;
-        this.entryMap = await new Promise<Map<string, Uint8Array>>((resolve) => {
-            unzip(buf, {
-                filter: (file) => shouldExtractZipEntry(file.name)
-            }, (err, data) => {
+    private async unzipFiltered(
+        filter: (name: string) => boolean,
+        onError: (message: string) => void
+    ): Promise<Map<string, Uint8Array>> {
+        const buf = await this.ensureRawData();
+        if (!buf) { return new Map(); }
+        return new Promise<Map<string, Uint8Array>>((resolve) => {
+            unzip(buf, { filter: (file) => filter(file.name) }, (err, data) => {
                 const map = new Map<string, Uint8Array>();
                 if (err) {
-                    this.loadError = `Failed to read PK3/ZIP (${this.label}): ${err.message}`;
+                    onError(`Failed to read PK3/ZIP (${this.label}): ${err.message}`);
                     resolve(map);
                     return;
                 }
@@ -211,8 +220,28 @@ export class ZipPackage implements PackageSource {
                 resolve(map);
             });
         });
+    }
 
+    private async ensureEntryMap(): Promise<Map<string, Uint8Array>> {
+        if (this.entryMap) {
+            return this.entryMap;
+        }
+        this.entryMap = await this.unzipFiltered(
+            shouldExtractZipEntry,
+            (msg) => { this.loadError = msg; }
+        );
         return this.entryMap;
+    }
+
+    private async ensureImageMap(): Promise<Map<string, Uint8Array>> {
+        if (this.imageMap) {
+            return this.imageMap;
+        }
+        this.imageMap = await this.unzipFiltered(
+            shouldExtractZipImage,
+            (msg) => { this.imageLoadError = msg; }
+        );
+        return this.imageMap;
     }
 
     async getEntries(): Promise<PackageEntry[]> {
@@ -224,8 +253,35 @@ export class ZipPackage implements PackageSource {
         return entries;
     }
 
+    /** PNG/JPEG entries for ResourceIndex (lazy; does not affect symbol unzip). */
+    async getImageEntries(): Promise<PackageEntry[]> {
+        const map = await this.ensureImageMap();
+        const entries: PackageEntry[] = [];
+        for (const [p, d] of map) {
+            entries.push({ path: p, size: d.length });
+        }
+        return entries;
+    }
+
     async openEntry(entryPath: string): Promise<Uint8Array> {
         const map = await this.ensureEntryMap();
+        let key = findEntryKey(map, entryPath);
+        if (key) {
+            return map.get(key)!;
+        }
+        // Image preview URIs may hit openEntry via FileSystemProvider
+        if (shouldExtractZipImage(entryPath)) {
+            const imap = await this.ensureImageMap();
+            key = findEntryKey(imap, entryPath);
+            if (key) {
+                return imap.get(key)!;
+            }
+        }
+        return new Uint8Array();
+    }
+
+    async openImageEntry(entryPath: string): Promise<Uint8Array> {
+        const map = await this.ensureImageMap();
         const key = findEntryKey(map, entryPath);
         if (!key) {
             return new Uint8Array();
@@ -237,6 +293,8 @@ export class ZipPackage implements PackageSource {
     invalidate(): void {
         this.rawData = undefined;
         this.entryMap = undefined;
+        this.imageMap = undefined;
         this.loadError = undefined;
+        this.imageLoadError = undefined;
     }
 }

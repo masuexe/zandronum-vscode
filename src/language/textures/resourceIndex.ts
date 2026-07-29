@@ -1,5 +1,10 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
+import { PackageSource } from '../../base/types';
+import { FolderPackage, ZipPackage, normalizeEntryPath } from '../../base/packages';
+import { makeBaseResourceUri } from '../../base/baseResourceUri';
+import { readPngSize } from '../../tools/png/pngChunkReader';
+import { readGrabOffset } from '../../tools/png/pngGrabChunk';
 
 export enum ResourceType {
     Png,
@@ -15,6 +20,10 @@ export interface ResourceMetadata {
     priority: number;
     width?: number;
     height?: number;
+    /** Prefill from package ingest (PNG grAb); undefined = not probed. */
+    grabOffset?: { x: number; y: number } | null;
+    /** Indexed from baseResources — cleared/replaced on ingestPackages. */
+    fromPackage?: boolean;
 }
 
 function typeFromExtension(ext: string): ResourceType {
@@ -40,9 +49,16 @@ function computeDefinitionPriority(uri: vscode.Uri, pk3Root: string): number {
     return isInPk3Root(uri, pk3Root) ? 20 : 5;
 }
 
+/** Package images stay below workspace pk3Root (10). */
+function computePackageImagePriority(pkgPriority: number): number {
+    return 1 + Math.min(Math.max(pkgPriority, 0), 8);
+}
+
 const TEXTURES_DEF_RE = /^\s*(Texture|WallTexture|Flat|Sprite|Graphic)\s+(?:optional\s+)?(?:"([^"]*)"|([^\s,]+))\s*,\s*(\d+)\s*,\s*(\d+)/gim;
 
 const REFRESH_THROTTLE_MS = 2000;
+
+const IMAGE_EXT_RE = /\.(png|jpe?g)$/i;
 
 interface NamedDefinition {
     name: string;
@@ -57,6 +73,8 @@ export class ResourceIndex {
     private buildPromise: Promise<void> | undefined;
     private refreshPromise: Promise<void> | undefined;
     private lastRefreshAt = 0;
+    private lastPackages: readonly PackageSource[] = [];
+    private ingestPromise: Promise<void> | undefined;
 
     constructor(pk3Root: string = 'src') {
         this.pk3Root = pk3Root;
@@ -66,6 +84,11 @@ export class ResourceIndex {
         this.buildPromise = this.doBuild();
     }
 
+    /**
+     * Wait for workspace image / TEXTURES index only.
+     * Package ingest is separate and may take a long time for large PK3s;
+     * callers refresh via OffsetPreviewRegistry.refreshAll after ingest.
+     */
     async whenReady(): Promise<void> {
         if (this.buildPromise) { await this.buildPromise; }
     }
@@ -89,9 +112,105 @@ export class ResourceIndex {
         this.refreshPromise = this.buildPromise;
         try {
             await this.refreshPromise;
+            if (this.lastPackages.length > 0) {
+                await this.ingestPackages(this.lastPackages);
+            }
             return true;
         } finally {
             this.refreshPromise = undefined;
+        }
+    }
+
+    /**
+     * Index PNG/JPEG from baseResources packages (ZipPackage / FolderPackage).
+     * Skips builtin and workspace (workspace already covered by findFiles).
+     */
+    async ingestPackages(packages: readonly PackageSource[]): Promise<void> {
+        this.lastPackages = packages;
+        const run = this.runIngestPackages(packages);
+        this.ingestPromise = run;
+        try {
+            await run;
+        } finally {
+            if (this.ingestPromise === run) {
+                this.ingestPromise = undefined;
+            }
+        }
+    }
+
+    private async runIngestPackages(packages: readonly PackageSource[]): Promise<void> {
+        this.clearPackageEntries();
+
+        for (const pkg of packages) {
+            if (pkg.id === 'builtin' || pkg.id === 'workspace') { continue; }
+            if (pkg.label === 'builtin' || pkg.label === 'workspace') { continue; }
+
+            const isFolder = pkg instanceof FolderPackage;
+            const isZip = pkg instanceof ZipPackage;
+            if (!isFolder && !isZip) { continue; }
+
+            let entries;
+            try {
+                // Zip: image map only (symbol unzip excludes PNG). Folder: full walk.
+                entries = isZip ? await pkg.getImageEntries() : await pkg.getEntries();
+            } catch {
+                continue;
+            }
+
+            const priority = computePackageImagePriority(pkg.priority);
+            for (const entry of entries) {
+                const baseName = entry.path.split('/').pop() ?? '';
+                if (!IMAGE_EXT_RE.test(baseName)) { continue; }
+
+                const ext = path.extname(baseName);
+                const name = path.basename(baseName, ext).toLowerCase();
+                if (!name) { continue; }
+
+                let uri: vscode.Uri;
+                if (isFolder) {
+                    const fullPath = path.join(pkg.getRootPath(), normalizeEntryPath(entry.path));
+                    uri = vscode.Uri.file(fullPath);
+                } else {
+                    uri = makeBaseResourceUri(pkg.id, entry.path);
+                }
+
+                const meta: ResourceMetadata = {
+                    uri,
+                    type: typeFromExtension(ext),
+                    priority,
+                    fromPackage: true
+                };
+
+                // Prefill size/grab (Zip image map already in memory; Folder reads once).
+                if (meta.type === ResourceType.Png) {
+                    try {
+                        const bytes = isZip
+                            ? await pkg.openImageEntry(entry.path)
+                            : await pkg.openEntry(entry.path);
+                        if (bytes.length > 0) {
+                            const size = readPngSize(bytes);
+                            if (size) {
+                                meta.width = size.width;
+                                meta.height = size.height;
+                            }
+                            meta.grabOffset = readGrabOffset(bytes);
+                        }
+                    } catch { /* leave size unset */ }
+                }
+
+                this.addDefinitionEntry(name, meta);
+            }
+        }
+    }
+
+    private clearPackageEntries(): void {
+        for (const [name, entries] of this.index) {
+            const filtered = entries.filter(e => !e.fromPackage);
+            if (filtered.length === 0) {
+                this.index.delete(name);
+            } else if (filtered.length !== entries.length) {
+                this.index.set(name, filtered);
+            }
         }
     }
 

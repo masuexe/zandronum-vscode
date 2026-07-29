@@ -217,7 +217,7 @@ export class TextureDocumentModel {
 
         this.ensureMetaImageSize(meta);
         const uriStr = webview.asWebviewUri(meta.uri).toString();
-        const grab = this.readGrabForUri(meta.uri);
+        const grab = this.grabForMeta(meta);
         return {
             uri: uriStr,
             width: meta.width ?? 0,
@@ -240,7 +240,7 @@ export class TextureDocumentModel {
             width: img.width ?? 0,
             height: img.height ?? 0,
             resourceType: 'image',
-            grabOffset: this.readGrabForUri(img.uri)
+            grabOffset: this.grabForMeta(img)
         };
     }
 
@@ -374,6 +374,13 @@ export class TextureDocumentModel {
         return results;
     }
 
+    private grabForMeta(meta: ResourceMetadata): { x: number; y: number } | null {
+        if (meta.grabOffset !== undefined) {
+            return meta.grabOffset;
+        }
+        return this.readGrabForUri(meta.uri);
+    }
+
     private readGrabForUri(uri: vscode.Uri): { x: number; y: number } | null {
         const key = uri.toString();
         if (this.grabCache.has(key)) {
@@ -396,7 +403,7 @@ export class TextureDocumentModel {
         if (parts.length < 2) { return null; }
         const meta = this.resourceIndex.resolve(parts[0], parts[1]);
         if (!meta || meta.type === ResourceType.TextureDefinition) { return null; }
-        return this.readGrabForUri(meta.uri);
+        return this.grabForMeta(meta);
     }
 
     async applyPatchMove(

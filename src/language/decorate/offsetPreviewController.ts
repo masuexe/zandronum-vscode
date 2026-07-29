@@ -99,6 +99,14 @@ class OffsetPreviewController {
         });
     }
 
+    /** Called after baseResources image ingest so Missing sprites can resolve. */
+    refreshResources(): void {
+        if (!this.panel || !this.webviewReady) {
+            return;
+        }
+        void this.sendCurrentView();
+    }
+
     dispose(): void {
         this.panel?.dispose();
         this.panel = undefined;
@@ -469,6 +477,13 @@ export class OffsetPreviewRegistry {
             this.controllers.set(key, controller);
         }
         controller.open(line);
+    }
+
+    /** Re-resolve sprites after baseResources ingest completes. */
+    refreshAll(): void {
+        for (const c of this.controllers.values()) {
+            c.refreshResources();
+        }
     }
 
     dispose(): void {

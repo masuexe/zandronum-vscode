@@ -1,4 +1,5 @@
 import * as vscode from 'vscode';
+import { BASE_RESOURCE_SCHEME } from '../../base/baseResourceUri';
 
 /** View DTO sent to the Offset preview webview. */
 export interface OffsetPreviewFrameView {
@@ -55,9 +56,11 @@ export class OffsetPreviewPanel {
         private readonly context: vscode.ExtensionContext,
         onMessage: (msg: any) => void
     ) {
+        // Include zandronum-base: so asWebviewUri PNG loads from ZipPackage hit the FSP.
         const localRoots = [
             vscode.Uri.joinPath(context.extensionUri, 'media'),
-            ...(vscode.workspace.workspaceFolders?.map(f => f.uri) ?? [])
+            ...(vscode.workspace.workspaceFolders?.map(f => f.uri) ?? []),
+            vscode.Uri.from({ scheme: BASE_RESOURCE_SCHEME, path: '/' })
         ];
 
         this.panel = vscode.window.createWebviewPanel(

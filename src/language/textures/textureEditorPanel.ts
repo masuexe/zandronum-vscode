@@ -1,4 +1,5 @@
 import * as vscode from 'vscode';
+import { BASE_RESOURCE_SCHEME } from '../../base/baseResourceUri';
 import { PatchProperties } from './texturesParser';
 import { CompositeSubPatch } from './textureDocumentModel';
 
@@ -40,7 +41,8 @@ export class TextureEditorPanel {
     ) {
         const localRoots = [
             vscode.Uri.joinPath(context.extensionUri, 'media'),
-            ...(vscode.workspace.workspaceFolders?.map(f => f.uri) ?? [])
+            ...(vscode.workspace.workspaceFolders?.map(f => f.uri) ?? []),
+            vscode.Uri.from({ scheme: BASE_RESOURCE_SCHEME, path: '/' })
         ];
 
         this.panel = vscode.window.createWebviewPanel(

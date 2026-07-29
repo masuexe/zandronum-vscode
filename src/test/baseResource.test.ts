@@ -57,10 +57,32 @@ suite('Base Resource — ZipPackage cache', () => {
 		assert.strictEqual(pkg.getLoadError(), undefined);
 	});
 
-	test('case-insensitive openEntry', async () => {
-		const pkg = new ZipPackage('test.pk3', 1, tmpPk3);
-		const bytes = await pkg.openEntry('ACTORS/Enemies.DEC');
-		assert.ok(bytes.length > 0);
+	test('extracts PNG entries via image map for texture preview', async () => {
+		// Minimal valid PNG (1x1)
+		const png = Buffer.from(
+			'89504e470d0a1a0a0000000d49484452000000010000000108060000001f15c489' +
+			'0000000a49444154789c63000100000500010d0a2db40000000049454e44ae426082',
+			'hex'
+		);
+		const zipped = zipSync({
+			'sprites/BUSTD0.png': png,
+			'actors/a.dec': Buffer.from('actor X : Actor {}\n'),
+		});
+		const file = path.join(os.tmpdir(), `zandro-png-${Date.now()}.pk3`);
+		fs.writeFileSync(file, zipped);
+		try {
+			const pkg = new ZipPackage('png-test.pk3', 1, file);
+			// Symbol unzip must not pull PNGs (keeps large PK3s from blocking indexing).
+			const textEntries = await pkg.getEntries();
+			assert.ok(!textEntries.some(e => /\.png$/i.test(e.path)));
+			const images = await pkg.getImageEntries();
+			assert.ok(images.some(e => normalizeEntryPath(e.path).toLowerCase() === 'sprites/bustd0.png'));
+			const bytes = await pkg.openEntry('sprites/BUSTD0.png');
+			assert.ok(bytes.length > 0);
+			assert.strictEqual(bytes[0], 0x89);
+		} finally {
+			try { fs.unlinkSync(file); } catch { /* ignore */ }
+		}
 	});
 
 	test('ActorSymbolProvider finds actors with location', async () => {
@@ -151,10 +173,23 @@ suite('Base Resource — URI helpers', () => {
 	test('round-trip absolute Windows package path', () => {
 		const uri = makeBaseResourceUri('D:/wads/mm8bdm-v6b.pk3', 'actors/basicactors.txt');
 		assert.ok(!uri.authority, 'must not use authority (VS Code lowercases it)');
+		// Path segment must not contain raw ':' or '/' from the drive path
+		assert.ok(!uri.path.includes('D:/'), `path should not embed raw drive path: ${uri.path}`);
 		const parsed = parseBaseResourceUri(uri);
 		assert.ok(parsed);
 		assert.strictEqual(parsed!.packageId, 'D:/wads/mm8bdm-v6b.pk3');
 		assert.strictEqual(parsed!.entryPath, 'actors/basicactors.txt');
+	});
+
+	test('round-trip nested sprite png path', () => {
+		const uri = makeBaseResourceUri(
+			'D:/wads/mm8bdm-v6b.pk3',
+			'sprites/weapons/buster/basesprites/BUSTD0.png'
+		);
+		const parsed = parseBaseResourceUri(uri);
+		assert.ok(parsed);
+		assert.strictEqual(parsed!.packageId, 'D:/wads/mm8bdm-v6b.pk3');
+		assert.strictEqual(parsed!.entryPath, 'sprites/weapons/buster/basesprites/BUSTD0.png');
 	});
 });
 

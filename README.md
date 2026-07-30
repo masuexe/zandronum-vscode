@@ -171,4 +171,4 @@ npm run lint         # ESLint
 npm test             # extension tests (compile + lint + vscode-test)
 ```
 
-Content root for PK3 packaging defaults to `src/` (`pk3Root`); build output is `out/build.pk3`.
+Content root for PK3 packaging defaults to `src/` (`pk3Root`); build output is `out/build.pk3`. The PK3 is a store (uncompressed) ZIP of **files only**, with entry paths using `/` — empty directory entries are never written (ZDoom/Zandronum would otherwise treat Windows-style `\` directory entries as zero-byte texture lumps).

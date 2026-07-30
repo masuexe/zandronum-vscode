@@ -328,6 +328,8 @@ The extension should support:
 
 Build logic should remain independent from language providers.
 
+PK3 packaging (`src/tools/build.ts`) writes a store ZIP via `fflate`: **file entries only**, paths always `/`. Never emit empty directory entries (especially with `\`) — the engine skips dirs only when the name ends with `/` before path normalization, so backslash directory stubs become invalid texture lumps.
+
 ---
 
 # Recommended Project Structure

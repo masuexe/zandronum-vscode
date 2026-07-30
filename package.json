@@ -303,7 +303,9 @@
         },
         "zandronum-vscode.baseResources": {
           "type": "array",
-          "items": { "type": "string" },
+          "items": {
+            "type": "string"
+          },
           "default": [],
           "description": "Read-only base resource paths loaded before the workspace for symbol resolution. Supports .pk3/.zip archives and directories. Later entries override earlier ones; workspace always wins. .wad and .pk7 are not supported yet."
         },
@@ -402,7 +404,6 @@
     "test": "vscode-test"
   },
   "devDependencies": {
-    "@types/archiver": "^7.0.0",
     "@types/jest": "^30.0.0",
     "@types/mocha": "^10.0.10",
     "@types/node": "^22.19.17",
@@ -414,7 +415,6 @@
     "typescript-eslint": "^8.56.1"
   },
   "dependencies": {
-    "archiver": "^7.0.1",
     "fflate": "^0.8.3"
   }
 }

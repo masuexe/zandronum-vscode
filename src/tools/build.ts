@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import * as fs from 'fs';
 import * as path from 'path';
-import archiver from 'archiver';
+import { Zip, ZipPassThrough } from 'fflate';
 import { getPk3Root } from '../shared/pk3Root';
 
 let currentGen = 0;
@@ -36,7 +36,15 @@ export async function buildPK3(options: { quiet?: boolean } = {}): Promise<boole
     const outPath = path.join(root, 'out', 'build.pk3');
 
     try {
-        await doBuild(srcPath, outPath);
+        await vscode.window.withProgress({
+            location: vscode.ProgressLocation.Notification,
+            title: 'Building PK3...',
+            cancellable: false
+        }, async (progress) => {
+            await packDirectoryToPk3(srcPath, outPath, (message) => {
+                progress.report({ message });
+            });
+        });
         if (gen !== currentGen) { return false; }
         if (!options.quiet) {
             vscode.window.showInformationMessage('Build complete: out/build.pk3');
@@ -97,14 +105,28 @@ interface FileEntry {
 
 const MAX_CONCURRENT_READS = 64;
 
+/** Normalize ZIP entry path: forward slashes only, no trailing slash (not a directory). */
+export function normalizeZipEntryName(name: string): string | null {
+    const normalized = name.replace(/\\/g, '/').replace(/^\/+/, '');
+    if (!normalized || normalized.endsWith('/')) {
+        return null;
+    }
+    return normalized;
+}
+
 async function walkFiles(dir: string, base: string): Promise<FileEntry[]> {
     const entries = await fs.promises.readdir(dir, { withFileTypes: true });
     const result: FileEntry[][] = await Promise.all(
         entries.map(async (e): Promise<FileEntry[]> => {
             const fullPath = path.join(dir, e.name);
-            const archiveName = path.relative(base, fullPath).replace(/\\/g, '/');
             if (e.isDirectory()) {
                 return walkFiles(fullPath, base);
+            }
+            const archiveName = normalizeZipEntryName(
+                path.relative(base, fullPath).replace(/\\/g, '/')
+            );
+            if (!archiveName) {
+                return [];
             }
             return [{ archiveName, diskPath: fullPath }];
         })
@@ -119,45 +141,95 @@ async function readBatch(files: FileEntry[]): Promise<Array<{ archiveName: strin
     return files.map((f, i) => ({ archiveName: f.archiveName, data: buffers[i] }));
 }
 
-async function doBuild(srcPath: string, outPath: string): Promise<void> {
-    await vscode.window.withProgress({
-        location: vscode.ProgressLocation.Notification,
-        title: 'Building PK3...',
-        cancellable: false
-    }, async (progress) => {
-        const outDir = path.dirname(outPath);
-        if (!fs.existsSync(outDir)) {
-            fs.mkdirSync(outDir, { recursive: true });
+/**
+ * Pack every file under srcPath into a store (uncompressed) ZIP/PK3 at outPath.
+ * Writes only file entries with `/` separators — never empty directory entries.
+ * Uses a temp file then rename for atomic replace.
+ */
+export async function packDirectoryToPk3(
+    srcPath: string,
+    outPath: string,
+    onProgress?: (message: string) => void
+): Promise<number> {
+    const outDir = path.dirname(outPath);
+    if (!fs.existsSync(outDir)) {
+        fs.mkdirSync(outDir, { recursive: true });
+    }
+
+    onProgress?.('Scanning files...');
+    const fileEntries = await walkFiles(srcPath, srcPath);
+
+    const tmpPath = `${outPath}.tmp`;
+    try {
+        if (fs.existsSync(tmpPath)) {
+            await fs.promises.unlink(tmpPath);
         }
 
-        progress.report({ message: 'Scanning files...' });
-        const fileEntries = await walkFiles(srcPath, srcPath);
+        await writeStoreZip(fileEntries, tmpPath, onProgress);
 
-        const archive = archiver('zip', { store: true });
+        // Atomic replace of the destination PK3
+        await fs.promises.rename(tmpPath, outPath);
+    } catch (err) {
+        try { await fs.promises.unlink(tmpPath); } catch { /* ignore */ }
+        throw err;
+    }
+
+    return fileEntries.length;
+}
+
+async function writeStoreZip(
+    fileEntries: FileEntry[],
+    outPath: string,
+    onProgress?: (message: string) => void
+): Promise<void> {
+    await new Promise<void>((resolve, reject) => {
         const output = fs.createWriteStream(outPath);
-        let fileCount = 0;
+        let settled = false;
 
-        await new Promise<void>((resolve, reject) => {
-            output.on('close', () => resolve());
-            output.on('error', reject);
-            archive.on('error', reject);
+        const fail = (err: Error) => {
+            if (settled) { return; }
+            settled = true;
+            output.destroy();
+            reject(err);
+        };
 
-            archive.pipe(output);
+        output.on('error', fail);
 
-            (async () => {
-                for (let i = 0; i < fileEntries.length; i += MAX_CONCURRENT_READS) {
-                    const batch = fileEntries.slice(i, i + MAX_CONCURRENT_READS);
-                    const files = await readBatch(batch);
-                    for (const f of files) {
-                        archive.append(f.data, { name: f.archiveName, store: true });
+        const zip = new Zip((err, data, final) => {
+            if (err) {
+                fail(err instanceof Error ? err : new Error(String(err)));
+                return;
+            }
+            if (!output.write(data) && !final) {
+                // backpressure ignored for simplicity; store ZIP chunks are small headers + data
+            }
+            if (final) {
+                output.end(() => {
+                    if (!settled) {
+                        settled = true;
+                        resolve();
                     }
-                    fileCount += files.length;
-                    progress.report({
-                        message: `${fileCount}/${fileEntries.length} files`
-                    });
-                }
-                archive.finalize();
-            })().catch(reject);
+                });
+            }
         });
+
+        (async () => {
+            let fileCount = 0;
+            for (let i = 0; i < fileEntries.length; i += MAX_CONCURRENT_READS) {
+                const batch = fileEntries.slice(i, i + MAX_CONCURRENT_READS);
+                const files = await readBatch(batch);
+                for (const f of files) {
+                    const name = normalizeZipEntryName(f.archiveName);
+                    if (!name) { continue; }
+                    const entry = new ZipPassThrough(name);
+                    zip.add(entry);
+                    // Copy into a standalone Uint8Array — ZipPassThrough may retain the view.
+                    entry.push(Uint8Array.from(f.data), true);
+                    fileCount++;
+                }
+                onProgress?.(`${fileCount}/${fileEntries.length} files`);
+            }
+            zip.end();
+        })().catch(fail);
     });
 }

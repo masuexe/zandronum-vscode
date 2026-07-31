@@ -64,7 +64,7 @@ Cross-file symbol resolution (DECORATE actors, ACS constants) works within the w
 ### Build and Run
 
 - **Compile Current ACS** — Compile the active `.acs` file with ACC
-- **Build Project** — Merges workspace and base-resource LOADACS; compiles matching `#library` sources under `<pk3Root>/acs_source/` (skips up-to-date `.o`, runs ACC in parallel), then packages into `out/build.pk3`. Reports ACS vs PK3 timings. Base resources supply extra library names and include paths only — they are not compiled directly. Stops without packaging on compile failure.
+- **Build Project** — Merges workspace and base-resource LOADACS; compiles matching `#library` sources under `<pk3Root>/acs_source/` (skips `.o` only when newer than the entry ACS **and** its transitive `#include`s; runs ACC in parallel), then packages into `out/build.pk3`. Reports ACS vs PK3 timings. Base resources supply extra library names and include paths only — they are not compiled directly. Stops without packaging on compile failure.
 - **Run Project** — Runs Build Project, then launches Zandronum with the built PK3 (optional IWAD/args via `.vscode/zandronum.json`)
 
 ## Commands

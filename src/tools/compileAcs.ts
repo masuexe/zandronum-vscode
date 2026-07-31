@@ -271,8 +271,8 @@ async function compileSingleFile(
     const srcName = path.basename(srcFile, path.extname(srcFile));
     const outFile = path.join(outputDir, `${srcName}.o`);
 
-    // Incremental: skip when .o exists and is not older than the entry .acs
-    if (!options.force && isObjectUpToDate(srcFile, outFile)) {
+    // Incremental: skip when .o is not older than entry + transitive #includes
+    if (!options.force && isObjectUpToDate(srcFile, outFile, includePaths)) {
         return 'skipped';
     }
 
@@ -330,13 +330,103 @@ async function compileSingleFile(
     });
 }
 
-/** True when outFile exists and mtime >= srcFile mtime (entry file only; no include graph). */
-function isObjectUpToDate(srcFile: string, outFile: string): boolean {
+/**
+ * Resolve an #include name against ACC-style search paths (file dir first,
+ * then -i paths). Case-insensitive basename match for Windows mods.
+ */
+function resolveAcsInclude(includeName: string, searchPaths: readonly string[]): string | null {
+    const base = path.basename(includeName);
+    const lower = base.toLowerCase();
+    for (const dir of searchPaths) {
+        const direct = path.join(dir, includeName);
+        if (fs.existsSync(direct) && fs.statSync(direct).isFile()) {
+            return path.resolve(direct);
+        }
+        const byBase = path.join(dir, base);
+        if (byBase !== direct && fs.existsSync(byBase) && fs.statSync(byBase).isFile()) {
+            return path.resolve(byBase);
+        }
+        try {
+            for (const ent of fs.readdirSync(dir)) {
+                if (ent.toLowerCase() === lower) {
+                    const full = path.join(dir, ent);
+                    if (fs.statSync(full).isFile()) {
+                        return path.resolve(full);
+                    }
+                }
+            }
+        } catch { /* ignore unreadable dirs */ }
+    }
+    return null;
+}
+
+function listDirectIncludes(filePath: string): string[] {
+    try {
+        const text = fs.readFileSync(filePath, 'utf8')
+            .replace(/\/\*[\s\S]*?\*\//g, '')
+            .replace(/\/\/.*$/gm, '');
+        const names: string[] = [];
+        const re = /^\s*#\s*include\s+"([^"]+)"/gim;
+        let m: RegExpExecArray | null;
+        while ((m = re.exec(text)) !== null) {
+            names.push(m[1]);
+        }
+        return names;
+    } catch {
+        return [];
+    }
+}
+
+/** Newest mtime among entry ACS and transitive #includes (cycle-safe). */
+function newestAcsDependencyMtime(
+    entryFile: string,
+    includePaths: readonly string[]
+): number | null {
+    let newest: number | null = null;
+    const visited = new Set<string>();
+    const stack: string[] = [path.resolve(entryFile)];
+
+    while (stack.length > 0) {
+        const file = stack.pop()!;
+        const key = file.toLowerCase();
+        if (visited.has(key)) { continue; }
+        visited.add(key);
+
+        try {
+            const st = fs.statSync(file);
+            if (newest === null || st.mtimeMs > newest) {
+                newest = st.mtimeMs;
+            }
+        } catch {
+            continue;
+        }
+
+        const search = [path.dirname(file), ...includePaths];
+        for (const name of listDirectIncludes(file)) {
+            const resolved = resolveAcsInclude(name, search);
+            if (resolved) {
+                stack.push(resolved);
+            }
+        }
+    }
+
+    return newest;
+}
+
+/**
+ * True when outFile exists and its mtime is >= the newest of the entry ACS
+ * and all transitive #include dependencies.
+ */
+function isObjectUpToDate(
+    srcFile: string,
+    outFile: string,
+    includePaths: readonly string[]
+): boolean {
     try {
         if (!fs.existsSync(outFile)) { return false; }
-        const srcStat = fs.statSync(srcFile);
-        const outStat = fs.statSync(outFile);
-        return outStat.mtimeMs >= srcStat.mtimeMs;
+        const newest = newestAcsDependencyMtime(srcFile, includePaths);
+        if (newest === null) { return false; }
+        return fs.statSync(outFile).mtimeMs >= newest;
     } catch {
         return false;
     }

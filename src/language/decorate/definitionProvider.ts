@@ -6,16 +6,39 @@ import { SymbolDatabase } from '../../base/symbolDatabase';
 import { SymbolKind, ActorSymbol } from '../../base/types';
 import { locationFromSymbol } from '../../base/symbolLocation';
 import { getPk3Root } from '../../shared/pk3Root';
+import {
+    ActionData,
+    ExpressionData,
+    getExpressionCallables,
+} from '../../shared/dataLoader';
+import {
+    extractStateLabelAtCursor,
+    resolveStateLabelGoto,
+    resolveStateLabelJump,
+} from './stateLabelResolve';
 
 export function registerDefinitionProvider(
     context: vscode.ExtensionContext,
-    symbolDb?: SymbolDatabase
+    symbolDb?: SymbolDatabase,
+    actionsData?: Record<string, ActionData>,
+    expressionsData?: Record<string, ExpressionData>
 ) {
+    const expressionCallables = expressionsData && actionsData
+        ? getExpressionCallables(actionsData, expressionsData)
+        : {};
+
     const defProvider = vscode.languages.registerDefinitionProvider(
         [{ language: 'decorate' }],
         {
             provideDefinition(document, position, token) {
-                return provideDefinition(document, position, token, symbolDb);
+                return provideDefinition(
+                    document,
+                    position,
+                    token,
+                    symbolDb,
+                    actionsData,
+                    expressionCallables
+                );
             }
         }
     );
@@ -26,7 +49,9 @@ async function provideDefinition(
     document: vscode.TextDocument,
     position: vscode.Position,
     token: vscode.CancellationToken,
-    symbolDb?: SymbolDatabase
+    symbolDb?: SymbolDatabase,
+    actionsData?: Record<string, ActionData>,
+    expressionCallables: Record<string, ActionData> = {}
 ): Promise<vscode.Definition | undefined> {
     const lineText = document.lineAt(position.line).text;
 
@@ -38,6 +63,36 @@ async function provideDefinition(
     const scriptRef = extractScriptRef(lineText, position.character);
     if (scriptRef !== null) {
         return findScriptDefinition(scriptRef, document.uri, token);
+    }
+
+    if (actionsData) {
+        const stateLabel = extractStateLabelAtCursor(
+            lineText,
+            position.character,
+            actionsData,
+            expressionCallables
+        );
+        if (stateLabel) {
+            if (token.isCancellationRequested) {
+                return undefined;
+            }
+            if (stateLabel.kind === 'goto') {
+                return resolveStateLabelGoto(
+                    document,
+                    position,
+                    stateLabel.label,
+                    symbolDb,
+                    token
+                );
+            }
+            return resolveStateLabelJump(
+                document,
+                position,
+                stateLabel.label,
+                symbolDb,
+                token
+            );
+        }
     }
 
     const wordRange = document.getWordRangeAtPosition(position);

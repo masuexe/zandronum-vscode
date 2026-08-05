@@ -2,8 +2,11 @@ import * as assert from 'assert';
 import { ParamData } from '../shared/dataLoader';
 import { findActorSpanInLines } from '../language/decorate/renameProvider';
 import {
+	actorIsWeaponDescendant,
 	collectStateLabelsInActor,
+	defaultGunFlashLabel,
 	extractGotoLabelAtCursor,
+	extractGunFlashAtCursor,
 	extractJumpLabelAtCursor,
 	extractStateLabelAtCursor,
 	isStateLabelParam,
@@ -209,5 +212,118 @@ suite('stateLabelResolve — inheritance walk', () => {
 		const hit = resolveStateLabelInLines(lines, 'Child', childSpan!, 'Missile');
 		assert.ok(hit);
 		assert.strictEqual(hit!.line, 3);
+	});
+});
+
+suite('stateLabelResolve — A_GunFlash', () => {
+	const inheritanceData = {
+		Weapon: { category: 'Inventory', extends: 'Inventory' },
+		Inventory: { category: 'Inventory', extends: 'Actor' },
+		Pistol: { category: 'Inventory', extends: 'Weapon' },
+	};
+
+	test('cursor on A_GunFlash under Fire defaults to Flash', () => {
+		const lines = [
+			'actor MyGun : Weapon',
+			'{',
+			'  States {',
+			'  Fire:',
+			'    PISG A 5 A_GunFlash',
+			'  Flash:',
+			'    PISF A 1 stop',
+			'  }',
+			'}',
+		];
+		const line = lines[4];
+		const col = line.indexOf('A_GunFlash') + 2;
+		const hit = extractGunFlashAtCursor(line, col);
+		assert.ok(hit);
+		assert.strictEqual(hit!.explicitLabel, null);
+		assert.strictEqual(defaultGunFlashLabel(lines, 4), 'Flash');
+
+		const resolved = extractStateLabelAtCursor(
+			line,
+			col,
+			sampleActions,
+			{},
+			{ lines, lineNumber: 4 }
+		);
+		assert.deepStrictEqual(resolved, {
+			kind: 'jump',
+			label: 'Flash',
+			gunFlashDefault: true,
+		});
+	});
+
+	test('cursor on A_GunFlash() under AltFire defaults to AltFlash', () => {
+		const lines = [
+			'actor MyGun : Weapon',
+			'{',
+			'  States {',
+			'  AltFire:',
+			'    PISG A 5 A_GunFlash()',
+			'  AltFlash:',
+			'    PISF A 1 stop',
+			'  }',
+			'}',
+		];
+		const line = lines[4];
+		const col = line.indexOf('A_GunFlash') + 1;
+		assert.strictEqual(defaultGunFlashLabel(lines, 4), 'AltFlash');
+		const resolved = extractStateLabelAtCursor(
+			line,
+			col,
+			sampleActions,
+			{},
+			{ lines, lineNumber: 4 }
+		);
+		assert.strictEqual(resolved?.label, 'AltFlash');
+		assert.strictEqual(resolved?.gunFlashDefault, true);
+	});
+
+	test('A_GunFlash("CustomFlash") on name resolves CustomFlash', () => {
+		const line = '    PISG A 5 A_GunFlash("CustomFlash")';
+		const col = line.indexOf('A_GunFlash') + 3;
+		const hit = extractGunFlashAtCursor(line, col);
+		assert.ok(hit);
+		assert.strictEqual(hit!.explicitLabel, 'CustomFlash');
+		const resolved = extractStateLabelAtCursor(line, col, sampleActions);
+		assert.deepStrictEqual(resolved, {
+			kind: 'jump',
+			label: 'CustomFlash',
+		});
+	});
+
+	test('explicit arg on string still returns label (regression)', () => {
+		const line = '    PISG A 5 A_GunFlash("CustomFlash")';
+		const actions = {
+			...sampleActions,
+			A_GunFlash: {
+				params: [
+					{ name: 'flash', type: 'state', optional: true },
+					{ name: 'flags', type: 'int', optional: true },
+				] as ParamData[],
+			},
+		};
+		const col = line.indexOf('CustomFlash') + 1;
+		assert.strictEqual(
+			extractJumpLabelAtCursor(line, col, actions),
+			'CustomFlash'
+		);
+	});
+
+	test('Weapon descendant passes legality; Actor does not', () => {
+		assert.ok(
+			actorIsWeaponDescendant('MyGun', 'Weapon', undefined, inheritanceData)
+		);
+		assert.ok(
+			actorIsWeaponDescendant('Pistol', undefined, undefined, inheritanceData)
+		);
+		assert.ok(
+			!actorIsWeaponDescendant('ZombieMan', 'Actor', undefined, inheritanceData)
+		);
+		assert.ok(
+			!actorIsWeaponDescendant('HealthBonus', 'Inventory', undefined, inheritanceData)
+		);
 	});
 });

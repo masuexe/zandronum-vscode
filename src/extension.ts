@@ -230,7 +230,7 @@ export function activate(context: vscode.ExtensionContext) {
     registerSignatureHelp(context, actionsData, stateKeywordsData, expressionsData, symbolDatabase);
     registerHoverProvider(context, actionsData, stateKeywordsData, symbolDatabase, inheritanceData, expressionsData);
     registerDecorateSemanticTokens(context, symbolDatabase);
-    registerDefinitionProvider(context, symbolDatabase, actionsData, expressionsData);
+    registerDefinitionProvider(context, symbolDatabase, actionsData, expressionsData, inheritanceData);
     registerColorProvider(context);
     registerDecorateSymbolProvider(context);
     registerDecorateRenameAndReferences(context);

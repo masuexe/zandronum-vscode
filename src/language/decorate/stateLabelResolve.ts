@@ -1,20 +1,25 @@
 import * as vscode from 'vscode';
 import {
     ActionData,
+    InheritanceData,
     ParamData,
     findActionCaseInsensitive,
     findCallableCaseInsensitive,
+    findInheritanceCaseInsensitive,
 } from '../../shared/dataLoader';
 import { SymbolDatabase } from '../../base/symbolDatabase';
 import { ActorSymbol, SymbolKind } from '../../base/types';
 import { locationFromSymbol } from '../../base/symbolLocation';
 import { findActorSpanInLines } from './renameProvider';
 import { parseActorHeader } from './actorUserVars';
+import { findLabelAtLine } from './offsetPreviewParser';
 
 const LABEL_RE = /^\s*([A-Za-z_][A-Za-z0-9_]*)\s*:/;
 const STATES_RE = /^\s*states\b/i;
 const EXCLUDED_LABELS = new Set(['actor', 'states', 'goto', 'loop', 'stop', 'wait', 'fail']);
 const STATE_LABEL_PARAM_NAME = /^(label|offset|flash|state)$/i;
+const ALT_FIRE_LABELS = new Set(['altfire', 'althold']);
+const GUN_FLASH_NAME = /^A_GunFlash$/i;
 
 export interface ActorLineSpan {
     startLine: number;
@@ -31,6 +36,17 @@ export type StateLabelKind = 'goto' | 'jump';
 export interface StateLabelAtCursor {
     kind: StateLabelKind;
     label: string;
+    /**
+     * Set when F12 is on `A_GunFlash` with empty/missing flash arg.
+     * Definition provider may try AltFlash↔Flash once if primary miss.
+     */
+    gunFlashDefault?: boolean;
+}
+
+/** Result of cursor-on-`A_GunFlash` name detection. */
+export interface GunFlashAtCursor {
+    /** Explicit first-arg label, or null when empty/missing (use default). */
+    explicitLabel: string | null;
 }
 
 function stripLineComment(text: string): string {
@@ -311,11 +327,132 @@ export function extractJumpLabelAtCursor(
     return parseSimpleStateLabel(args[hitIndex].raw);
 }
 
+/**
+ * Cursor on the `A_GunFlash` identifier (not on an argument).
+ * Bare / `()` / `("")` → `explicitLabel: null` (caller uses default Flash/AltFlash).
+ */
+export function extractGunFlashAtCursor(
+    lineText: string,
+    cursorCol: number
+): GunFlashAtCursor | null {
+    let start = cursorCol;
+    let end = cursorCol;
+    while (start > 0 && /[A-Za-z0-9_]/.test(lineText[start - 1])) {
+        start--;
+    }
+    while (end < lineText.length && /[A-Za-z0-9_]/.test(lineText[end])) {
+        end++;
+    }
+    if (start >= end || cursorCol < start || cursorCol > end) {
+        return null;
+    }
+    const word = lineText.slice(start, end);
+    if (!GUN_FLASH_NAME.test(word)) {
+        return null;
+    }
+
+    let i = end;
+    while (i < lineText.length && /\s/.test(lineText[i])) {
+        i++;
+    }
+    if (i >= lineText.length || lineText[i] !== '(') {
+        return { explicitLabel: null };
+    }
+
+    const args = parseTopLevelArgs(lineText, i);
+    if (args.length === 0) {
+        return { explicitLabel: null };
+    }
+    const firstRaw = args[0].raw.trim();
+    if (!firstRaw || firstRaw === '""' || firstRaw === "''") {
+        return { explicitLabel: null };
+    }
+    const label = parseSimpleStateLabel(args[0].raw);
+    if (!label) {
+        return { explicitLabel: null };
+    }
+    return { explicitLabel: label };
+}
+
+/**
+ * Default flash label for empty `A_GunFlash`: AltFire/AltHold → AltFlash, else Flash.
+ */
+export function defaultGunFlashLabel(lines: string[], callLine: number): string {
+    const owning = findLabelAtLine(lines, callLine);
+    if (owning && ALT_FIRE_LABELS.has(owning.name.toLowerCase())) {
+        return 'AltFlash';
+    }
+    return 'Flash';
+}
+
+/**
+ * True when the actor's ancestry includes Weapon (document parent + SymbolDatabase + inheritance.json).
+ */
+export function actorIsWeaponDescendant(
+    className: string | undefined,
+    parentClass: string | undefined,
+    symbolDb?: SymbolDatabase,
+    inheritanceData?: Record<string, InheritanceData>
+): boolean {
+    if (!className && !parentClass) {
+        return false;
+    }
+
+    const visited = new Set<string>();
+    let current: string | undefined = className;
+    let usedDocumentParent = false;
+
+    while (current) {
+        const key = current.toLowerCase();
+        if (visited.has(key)) {
+            break;
+        }
+        visited.add(key);
+
+        if (key === 'weapon') {
+            return true;
+        }
+        if (key === 'actor') {
+            break;
+        }
+
+        const sym = symbolDb?.query<ActorSymbol>(SymbolKind.Actor, current);
+        if (sym?.parentClass) {
+            current = sym.parentClass;
+            continue;
+        }
+
+        if (inheritanceData) {
+            const inh = findInheritanceCaseInsensitive(inheritanceData, current);
+            if (inh?.extends) {
+                current = inh.extends;
+                continue;
+            }
+        }
+
+        if (
+            !usedDocumentParent &&
+            parentClass &&
+            className &&
+            key === className.toLowerCase()
+        ) {
+            usedDocumentParent = true;
+            current = parentClass;
+            continue;
+        }
+
+        break;
+    }
+
+    return false;
+}
+
 export function extractStateLabelAtCursor(
     lineText: string,
     cursorCol: number,
     actionsData: Record<string, ActionData>,
-    expressionCallables: Record<string, ActionData> = {}
+    expressionCallables: Record<string, ActionData> = {},
+    context?: { lines: string[]; lineNumber: number }
 ): StateLabelAtCursor | null {
     const gotoLabel = extractGotoLabelAtCursor(lineText, cursorCol);
     if (gotoLabel) {
@@ -330,6 +467,18 @@ export function extractStateLabelAtCursor(
     if (jumpLabel) {
         return { kind: 'jump', label: jumpLabel };
     }
+
+    const gunFlash = extractGunFlashAtCursor(lineText, cursorCol);
+    if (gunFlash) {
+        if (gunFlash.explicitLabel) {
+            return { kind: 'jump', label: gunFlash.explicitLabel };
+        }
+        const label = context
+            ? defaultGunFlashLabel(context.lines, context.lineNumber)
+            : 'Flash';
+        return { kind: 'jump', label, gunFlashDefault: true };
+    }
+
     return null;
 }
 

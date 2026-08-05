@@ -9,19 +9,26 @@ import { getPk3Root } from '../../shared/pk3Root';
 import {
     ActionData,
     ExpressionData,
+    InheritanceData,
     getExpressionCallables,
 } from '../../shared/dataLoader';
 import {
+    actorIsWeaponDescendant,
+    defaultGunFlashLabel,
+    extractGunFlashAtCursor,
     extractStateLabelAtCursor,
     resolveStateLabelGoto,
     resolveStateLabelJump,
 } from './stateLabelResolve';
+import { findActorSpanInLines } from './renameProvider';
+import { parseActorHeader } from './actorUserVars';
 
 export function registerDefinitionProvider(
     context: vscode.ExtensionContext,
     symbolDb?: SymbolDatabase,
     actionsData?: Record<string, ActionData>,
-    expressionsData?: Record<string, ExpressionData>
+    expressionsData?: Record<string, ExpressionData>,
+    inheritanceData?: Record<string, InheritanceData>
 ) {
     const expressionCallables = expressionsData && actionsData
         ? getExpressionCallables(actionsData, expressionsData)
@@ -37,7 +44,8 @@ export function registerDefinitionProvider(
                     token,
                     symbolDb,
                     actionsData,
-                    expressionCallables
+                    expressionCallables,
+                    inheritanceData
                 );
             }
         }
@@ -51,7 +59,8 @@ async function provideDefinition(
     token: vscode.CancellationToken,
     symbolDb?: SymbolDatabase,
     actionsData?: Record<string, ActionData>,
-    expressionCallables: Record<string, ActionData> = {}
+    expressionCallables: Record<string, ActionData> = {},
+    inheritanceData?: Record<string, InheritanceData>
 ): Promise<vscode.Definition | undefined> {
     const lineText = document.lineAt(position.line).text;
 
@@ -66,11 +75,71 @@ async function provideDefinition(
     }
 
     if (actionsData) {
+        const lines: string[] = [];
+        for (let i = 0; i < document.lineCount; i++) {
+            lines.push(document.lineAt(i).text);
+        }
+
+        // A_GunFlash on callee name — Weapon gate + Flash/AltFlash default
+        const gunFlash = extractGunFlashAtCursor(lineText, position.character);
+        if (gunFlash) {
+            if (token.isCancellationRequested) {
+                return undefined;
+            }
+            const span = findActorSpanInLines(lines, position.line);
+            const header = span
+                ? parseActorHeader(lines[span.startLine] ?? '')
+                : undefined;
+            if (
+                !header ||
+                !actorIsWeaponDescendant(
+                    header.name,
+                    header.parentClass,
+                    symbolDb,
+                    inheritanceData
+                )
+            ) {
+                return undefined;
+            }
+
+            if (gunFlash.explicitLabel) {
+                return resolveStateLabelJump(
+                    document,
+                    position,
+                    gunFlash.explicitLabel,
+                    symbolDb,
+                    token
+                );
+            }
+
+            const primary = defaultGunFlashLabel(lines, position.line);
+            const hit = await resolveStateLabelJump(
+                document,
+                position,
+                primary,
+                symbolDb,
+                token
+            );
+            if (hit) {
+                return hit;
+            }
+            const fallback =
+                primary.toLowerCase() === 'altflash' ? 'Flash' : 'AltFlash';
+            return resolveStateLabelJump(
+                document,
+                position,
+                fallback,
+                symbolDb,
+                token
+            );
+        }
+
         const stateLabel = extractStateLabelAtCursor(
             lineText,
             position.character,
             actionsData,
-            expressionCallables
+            expressionCallables,
+            { lines, lineNumber: position.line }
         );
         if (stateLabel) {
             if (token.isCancellationRequested) {

@@ -13,6 +13,7 @@ import {
 	isStateLabelParamAtIndex,
 	parseSimpleStateLabel,
 	resolveStateLabelInLines,
+	shiftLabelByOffset,
 } from '../language/decorate/stateLabelResolve';
 
 const sampleActions = {
@@ -121,10 +122,9 @@ suite('stateLabelResolve — dotted jump targets', () => {
 			'Flash.AnimA'
 		);
 		const gotoLine = '    goto Flash.AnimA';
-		assert.strictEqual(
-			extractGotoLabelAtCursor(gotoLine, gotoLine.indexOf('AnimA') + 1),
-			'Flash.AnimA'
-		);
+		const gotoHit = extractGotoLabelAtCursor(gotoLine, gotoLine.indexOf('AnimA') + 1);
+		assert.strictEqual(gotoHit?.label, 'Flash.AnimA');
+		assert.strictEqual(gotoHit?.offset, undefined);
 	});
 
 	test('resolve Flash.AnimA to dotted definition', () => {
@@ -169,13 +169,21 @@ suite('stateLabelResolve — cursor extraction', () => {
 	test('goto Label and Label+offset', () => {
 		const line = '    goto Death';
 		const col = line.indexOf('Death') + 1;
-		assert.strictEqual(extractGotoLabelAtCursor(line, col), 'Death');
+		const hit = extractGotoLabelAtCursor(line, col);
+		assert.strictEqual(hit?.label, 'Death');
+		assert.strictEqual(hit?.offset, undefined);
 
 		const withOff = '    goto See+1';
-		assert.strictEqual(
-			extractGotoLabelAtCursor(withOff, withOff.indexOf('See') + 1),
-			'See'
-		);
+		const hit2 = extractGotoLabelAtCursor(withOff, withOff.indexOf('See') + 1);
+		assert.strictEqual(hit2?.label, 'See');
+		assert.strictEqual(hit2?.offset, 1);
+	});
+
+	test('goto Label-N is invalid: offset stays undefined', () => {
+		const line = '    goto See-2';
+		const hit = extractGotoLabelAtCursor(line, line.indexOf('See') + 1);
+		assert.strictEqual(hit?.label, 'See');
+		assert.strictEqual(hit?.offset, undefined);
 	});
 
 	test('goto Actor::Label is out of scope', () => {
@@ -216,7 +224,7 @@ suite('stateLabelResolve — cursor extraction', () => {
 
 	test('extractStateLabelAtCursor distinguishes goto vs jump', () => {
 		const g = extractStateLabelAtCursor('    goto Death', 10, sampleActions);
-		assert.deepStrictEqual(g, { kind: 'goto', label: 'Death' });
+		assert.deepStrictEqual(g, { kind: 'goto', label: 'Death', offset: undefined });
 
 		const j = extractStateLabelAtCursor(
 			'    A_JumpIf(true, "See")',
@@ -409,5 +417,94 @@ suite('stateLabelResolve — A_GunFlash', () => {
 		assert.ok(
 			!actorIsWeaponDescendant('HealthBonus', 'Inventory', undefined, inheritanceData)
 		);
+	});
+});
+
+suite('stateLabelResolve — relative goto offset', () => {
+	const LINES = [
+		'actor Foo',
+		'{',
+		'  States',
+		'  {',
+		'  Flash:',
+		'    TNT1 A 0',
+		'',
+		'    // comment line',
+		'    PUFF A 5 Bright',
+		'    PUFF B 5',
+		'  AnimA:',
+		'    PUFF C 1 A_SetTranslucent(0.5,1)',
+		'    PUFF D 1 stop',
+		'  }',
+		'}',
+	];
+
+	test('shiftLabelByOffset skips blank/comment/label lines', () => {
+		// First frame is offset 0; offset 1 = second frame (PUFF A 5 at line 8)
+		const hit = shiftLabelByOffset(LINES, 4, 1);
+		assert.strictEqual(hit?.line, 8);
+		assert.strictEqual(hit?.character, 4);
+	});
+
+	test('counts frames across blank, comment and label lines', () => {
+		// Flash block: TNT1 A 0 (0), PUFF A 5 (1), PUFF B 5 (2), AnimA: PUFF C 1 (3), PUFF D 1 (4)
+		assert.strictEqual(shiftLabelByOffset(LINES, 4, 1)?.line, 8);
+		assert.strictEqual(shiftLabelByOffset(LINES, 4, 2)?.line, 9);
+		assert.strictEqual(shiftLabelByOffset(LINES, 4, 3)?.line, 11);
+		assert.strictEqual(shiftLabelByOffset(LINES, 4, 4)?.line, 12);
+	});
+
+	test('offset 0 and negative are rejected', () => {
+		assert.strictEqual(shiftLabelByOffset(LINES, 4, 0), undefined);
+		assert.strictEqual(shiftLabelByOffset(LINES, 4, -2), undefined);
+	});
+
+	test('offset past end of States block returns undefined', () => {
+		assert.strictEqual(shiftLabelByOffset(LINES, 4, 5), undefined);
+	});
+
+	test('multi-letter frames count one state per letter (FFF = 3)', () => {
+		const lines = [
+			'actor Foo',
+			'{',
+			'  States {',
+			'  Flash:',
+			'    TNT1 A 0',
+			'    TNT1 B 1',
+			'    8H51 FFF 1 stop',
+			'    TNT1 C 1 stop',
+			'  }',
+			'}',
+		];
+		// array indices: 0=A, 1=B, 2,3,4=FFF, 5=C
+		assert.strictEqual(shiftLabelByOffset(lines, 3, 2)?.line, 6);
+		assert.strictEqual(shiftLabelByOffset(lines, 3, 3)?.line, 6);
+		assert.strictEqual(shiftLabelByOffset(lines, 3, 4)?.line, 6);
+		assert.strictEqual(shiftLabelByOffset(lines, 3, 5)?.line, 7);
+		assert.strictEqual(shiftLabelByOffset(lines, 3, 6), undefined);
+	});
+
+	test('quoted frame strings count one state per char', () => {
+		const lines = [
+			'actor Foo',
+			'{',
+			'  States {',
+			'  Spawn2:',
+			'    "----" "###########" 3 A_Fadeout',
+			'    TNT1 A 0 stop',
+			'  }',
+			'}',
+		];
+		// indices 0..10 = "###########", 11 = TNT1 A 0
+		assert.strictEqual(shiftLabelByOffset(lines, 3, 10)?.line, 4);
+		assert.strictEqual(shiftLabelByOffset(lines, 3, 11)?.line, 5);
+		assert.strictEqual(shiftLabelByOffset(lines, 3, 12), undefined);
+	});
+
+	test('extractStateLabelAtCursor carries goto offset', () => {
+		const line = '    goto Flash+2';
+		const col = line.indexOf('Flash') + 1;
+		const hit = extractStateLabelAtCursor(line, col, sampleActions);
+		assert.deepStrictEqual(hit, { kind: 'goto', label: 'Flash', offset: 2 });
 	});
 });

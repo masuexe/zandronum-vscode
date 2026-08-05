@@ -13,6 +13,7 @@ import { locationFromSymbol } from '../../base/symbolLocation';
 import { findActorSpanInLines } from './renameProvider';
 import { parseActorHeader } from './actorUserVars';
 import { findLabelAtLine } from './offsetPreviewParser';
+import { STATE_LINE_RE, FLOW_RE } from './offsetPreviewParser';
 
 const LABEL_RE = /^\s*([A-Za-z0-9_']+(?:\.[A-Za-z0-9_']+)*)\s*:/;
 /**
@@ -42,6 +43,11 @@ export type StateLabelKind = 'goto' | 'jump';
 export interface StateLabelAtCursor {
     kind: StateLabelKind;
     label: string;
+    /**
+     * Relative goto offset (`goto See+3`), goto only. Zandronum accepts `+N`
+     * offsets only — `goto Label-N` is a parse error in the engine.
+     */
+    offset?: number;
     /**
      * Set when F12 is on `A_GunFlash` with empty/missing flash arg.
      * Definition provider may try AltFlash↔Flash once if primary miss.
@@ -161,6 +167,62 @@ export function findStateLabelInLines(
     return collectStateLabelsInActor(lines, actorSpan).get(label.toLowerCase());
 }
 
+/**
+ * Advance `offset` states forward from `labelLine` (Zandronum `goto Label+N`).
+ *
+ * Engine model (GZDoom 1.8.6 / Zandronum `p_states.cpp` + `thingdef_states.cpp`):
+ * - A States block is a flat state array; `AddStateLabel` binds a label to the
+ *   index of the next state (its first frame = index 0).
+ * - `AddStates` pushes ONE state per frame letter, so `8H51 FFF 1` occupies 3
+ *   slots and `"###########"` occupies 11.
+ * - Labels and flow keywords (`goto`/`loop`/`stop`/`wait`/`fail`) consume no
+ *   slots. `ResolveGotoLabel` applies the offset as plain array arithmetic
+ *   (`state += v`), so `goto Label+N` = array slot `labelIndex + N`.
+ * - `}` ends the block (out of range). Negative offsets are invalid in
+ *   Zandronum (only `+` is parsed) and never passed here.
+ */
+export function shiftLabelByOffset(
+    lines: string[],
+    labelLine: number,
+    offset: number
+): LabelPos | undefined {
+    if (offset <= 0) {
+        return undefined;
+    }
+    let count = 0;
+    for (let l = labelLine + 1; l < lines.length; l++) {
+        const text = stripLineComment(lines[l]);
+        const trimmed = text.trim();
+        if (!trimmed) {
+            continue;
+        }
+        if (trimmed === '}') {
+            return undefined;
+        }
+        if (trimmed === '{' || STATES_RE.test(text)) {
+            continue;
+        }
+        if (LABEL_RE.test(text) || FLOW_RE.test(text)) {
+            continue;
+        }
+        const m = STATE_LINE_RE.exec(text);
+        if (!m) {
+            continue;
+        }
+        let frameToken = m[2];
+        if (frameToken.length >= 2 && frameToken.startsWith('"') && frameToken.endsWith('"')) {
+            frameToken = frameToken.slice(1, -1);
+        }
+        const step = Math.max(1, frameToken.length);
+        if (offset < count + step) {
+            const character = text.search(/\S/);
+            return { line: l, character: character < 0 ? 0 : character };
+        }
+        count += step;
+    }
+    return undefined;
+}
+
 /** Unquoted bare / `"Label"` / `"Flash.AnimA"` state label, or null. */
 export function parseSimpleStateLabel(raw: string): string | null {
     const t = raw.trim();
@@ -180,18 +242,29 @@ export function parseSimpleStateLabel(raw: string): string | null {
     return t;
 }
 
+export interface GotoLabelAtCursor {
+    label: string;
+    /** `+N` offset parsed from `goto Label+N`; undefined when absent. */
+    offset?: number;
+}
+
 /**
- * Cursor on `goto Label` / `goto Flash.AnimA` / `goto Label+n` (not `Actor::Label`).
+ * Cursor on `goto Label` / `goto Flash.AnimA` / `goto Label+N` (not `Actor::Label`).
+ * Zandronum accepts `+N` offsets only; `goto Label-N` is invalid in the engine,
+ * so a `-` after the label is treated as trailing junk (offset stays undefined).
  */
-export function extractGotoLabelAtCursor(lineText: string, cursorCol: number): string | null {
-    const m = /^(\s*goto\s+)([A-Za-z0-9_']+(?:\.[A-Za-z0-9_']+)*)/i.exec(
+export function extractGotoLabelAtCursor(
+    lineText: string,
+    cursorCol: number
+): GotoLabelAtCursor | null {
+    const base = /^(\s*goto\s+)([A-Za-z0-9_']+(?:\.[A-Za-z0-9_']+)*)/i.exec(
         lineText
     );
-    if (!m) {
+    if (!base) {
         return null;
     }
-    const labelStart = m[1].length;
-    const label = m[2];
+    const labelStart = base[1].length;
+    const label = base[2];
     const labelEnd = labelStart + label.length;
 
     const rest = lineText.slice(labelEnd);
@@ -202,7 +275,13 @@ export function extractGotoLabelAtCursor(lineText: string, cursorCol: number): s
     if (cursorCol < labelStart || cursorCol > labelEnd) {
         return null;
     }
-    return label;
+
+    let offset: number | undefined;
+    const om = /^\s*\+\s*(\d+)/.exec(rest);
+    if (om) {
+        offset = parseInt(om[1], 10);
+    }
+    return { label, offset };
 }
 
 interface ArgSpan {
@@ -494,7 +573,7 @@ export function extractStateLabelAtCursor(
 ): StateLabelAtCursor | null {
     const gotoLabel = extractGotoLabelAtCursor(lineText, cursorCol);
     if (gotoLabel) {
-        return { kind: 'goto', label: gotoLabel };
+        return { kind: 'goto', label: gotoLabel.label, offset: gotoLabel.offset };
     }
     const jumpLabel = extractJumpLabelAtCursor(
         lineText,
@@ -678,10 +757,11 @@ export async function resolveStateLabelGoto(
     document: vscode.TextDocument,
     position: vscode.Position,
     label: string,
+    offset: number | undefined,
     symbolDb?: SymbolDatabase,
     token?: vscode.CancellationToken
 ): Promise<vscode.Location | undefined> {
-    return resolveStateLabelFromPosition(document, position, label, symbolDb, token);
+    return resolveStateLabelFromPosition(document, position, label, offset, symbolDb, token);
 }
 
 export async function resolveStateLabelJump(
@@ -691,13 +771,14 @@ export async function resolveStateLabelJump(
     symbolDb?: SymbolDatabase,
     token?: vscode.CancellationToken
 ): Promise<vscode.Location | undefined> {
-    return resolveStateLabelFromPosition(document, position, label, symbolDb, token);
+    return resolveStateLabelFromPosition(document, position, label, undefined, symbolDb, token);
 }
 
 async function resolveStateLabelFromPosition(
     document: vscode.TextDocument,
     position: vscode.Position,
     label: string,
+    offset: number | undefined,
     symbolDb?: SymbolDatabase,
     token?: vscode.CancellationToken
 ): Promise<vscode.Location | undefined> {
@@ -710,12 +791,30 @@ async function resolveStateLabelFromPosition(
     if (!header) {
         return undefined;
     }
-    return resolveStateLabelInChain(
+    const loc = await resolveStateLabelInChain(
         document,
         header.name,
         span,
         label,
         symbolDb,
         token
+    );
+    if (!loc || !offset || offset <= 0) {
+        return loc;
+    }
+
+    // Relative goto `Label+N`: shift N sprite frames from the label definition.
+    const targetDoc =
+        loc.uri.toString() === document.uri.toString()
+            ? document
+            : await vscode.workspace.openTextDocument(loc.uri);
+    const targetLines = documentLines(targetDoc);
+    const shifted = shiftLabelByOffset(targetLines, loc.range.start.line, offset);
+    if (!shifted) {
+        return undefined;
+    }
+    return new vscode.Location(
+        targetDoc.uri,
+        new vscode.Position(shifted.line, shifted.character)
     );
 }

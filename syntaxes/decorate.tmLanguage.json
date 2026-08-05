@@ -146,7 +146,7 @@
 				"name": "keyword.control.decorate"
 			},
 				{
-					"match": "(?i)\\b(Goto)\\b\\s+([a-zA-Z_][a-zA-Z0-9_]*)(?:\\s*([+\\-])\\s*([0-9]+))?",
+					"match": "(?i)\\b(Goto)\\b\\s+([A-Za-z0-9_']+(?:\\.[A-Za-z0-9_']+)*)(?:\\s*(\\+)\\s*([0-9]+))?",
 					"captures": {
 						"1": {"name": "keyword.control.decorate"},
 						"2": {"name": "entity.name.label.decorate"},

@@ -150,6 +150,7 @@ async function provideDefinition(
                     document,
                     position,
                     stateLabel.label,
+                    stateLabel.offset,
                     symbolDb,
                     token
                 );

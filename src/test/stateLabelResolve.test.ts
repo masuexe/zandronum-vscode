@@ -11,6 +11,7 @@ import {
 	extractStateLabelAtCursor,
 	isStateLabelParam,
 	isStateLabelParamAtIndex,
+	parseSimpleStateLabel,
 	resolveStateLabelInLines,
 } from '../language/decorate/stateLabelResolve';
 
@@ -60,6 +61,89 @@ suite('stateLabelResolve — collect labels', () => {
 		assert.strictEqual(labels.get('see')?.line, 7);
 		assert.strictEqual(labels.get('death')?.line, 9);
 		assert.strictEqual(labels.size, 3);
+	});
+
+	test('indexes Flash.AnimA dotted label line', () => {
+		const lines = [
+			'actor MyGun : Weapon',
+			'{',
+			'  States {',
+			'  Flash.AnimA:',
+			'    PISF A 1 stop',
+			'  NoFlash:',
+			'    TNT1 A 0 stop',
+			'  }',
+			'}',
+		];
+		const span = findActorSpanInLines(lines, 0);
+		assert.ok(span);
+		const labels = collectStateLabelsInActor(lines, span!);
+		assert.ok(labels.has('flash.anima'));
+		assert.strictEqual(labels.get('flash.anima')?.line, 3);
+		assert.ok(labels.has('noflash'));
+	});
+
+	test('indexes consecutive Flash: + AnimA: as Flash.AnimA', () => {
+		const lines = [
+			'actor MyGun : Weapon',
+			'{',
+			'  States {',
+			'  Flash:',
+			'  AnimA:',
+			'    PISF A 1 stop',
+			'  }',
+			'}',
+		];
+		const span = findActorSpanInLines(lines, 0);
+		assert.ok(span);
+		const labels = collectStateLabelsInActor(lines, span!);
+		assert.ok(labels.has('flash'));
+		assert.ok(labels.has('anima'));
+		assert.ok(labels.has('flash.anima'));
+		assert.strictEqual(labels.get('flash.anima')?.line, 4);
+	});
+});
+
+suite('stateLabelResolve — dotted jump targets', () => {
+	test('parseSimpleStateLabel accepts Flash.AnimA', () => {
+		assert.strictEqual(parseSimpleStateLabel('"Flash.AnimA"'), 'Flash.AnimA');
+		assert.strictEqual(parseSimpleStateLabel('Flash.AnimA'), 'Flash.AnimA');
+		assert.strictEqual(parseSimpleStateLabel('NoFlash'), 'NoFlash');
+		assert.strictEqual(parseSimpleStateLabel('2Flash'), '2Flash');
+		assert.strictEqual(parseSimpleStateLabel("O'Brien"), "O'Brien");
+		assert.strictEqual(parseSimpleStateLabel('Bad-Name'), null);
+	});
+
+	test('A_Jump / goto extract dotted labels', () => {
+		const jump = '    TNT1 A 0 A_Jump(256, "Flash.AnimA")';
+		assert.strictEqual(
+			extractJumpLabelAtCursor(jump, jump.indexOf('Flash') + 1, sampleActions),
+			'Flash.AnimA'
+		);
+		const gotoLine = '    goto Flash.AnimA';
+		assert.strictEqual(
+			extractGotoLabelAtCursor(gotoLine, gotoLine.indexOf('AnimA') + 1),
+			'Flash.AnimA'
+		);
+	});
+
+	test('resolve Flash.AnimA to dotted definition', () => {
+		const lines = [
+			'actor MyGun : Weapon',
+			'{',
+			'  States {',
+			'  Fire:',
+			'    PISG A 1 A_Jump(256, "Flash.AnimA")',
+			'  Flash.AnimA:',
+			'    PISF A 1 stop',
+			'  }',
+			'}',
+		];
+		const span = findActorSpanInLines(lines, 0);
+		assert.ok(span);
+		const hit = resolveStateLabelInLines(lines, 'MyGun', span!, 'Flash.AnimA');
+		assert.ok(hit);
+		assert.strictEqual(hit!.line, 5);
 	});
 });
 

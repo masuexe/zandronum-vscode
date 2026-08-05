@@ -2,10 +2,22 @@
     // @ts-ignore
     const vscode = acquireVsCodeApi();
 
-    const WEAPON_ANCHOR_X = 160;
-    const WEAPON_ANCHOR_Y = 168;
+    // Weapon HUD (Zandronum PSprite — matches r_things.cpp R_DrawPSprite):
+    //   grAb column at screen x = sx; grAb row at screen y = sy
+    //   (sprite left edge = sx - grabX, top edge = sy - grabY)
+    // Default resting weapon position: sx=0, sy=WEAPONTOP=32.375
+    //   (p_pspr.h: WEAPONTOP = 32*FRACUNIT+0x6000, set by A_WeaponReady each tic).
     const WEAPON_REF_W = 320;
     const WEAPON_REF_H = 200;
+    const WEAPON_ANCHOR_X = 0;
+    const WEAPON_ANCHOR_Y = 32.375;
+    const WEAPON_STATUS_BAR_Y = 168;
+    // Mirror axis = screen center (160, 100). These are the frame-coordinate distances
+    // from the grAb anchor (0, WEAPONTOP) to the screen center; mirroring in weapon mode
+    // shifts the offset by -2*CX / -2*CY so the mirrored image lands mirrored about the
+    // screen center while its grAb stays anchored at (0, WEAPONTOP).
+    const WEAPON_MIRROR_CX = WEAPON_REF_W / 2 - WEAPON_ANCHOR_X;  // 160
+    const WEAPON_MIRROR_CY = WEAPON_REF_H / 2 - WEAPON_ANCHOR_Y;  // 67.625
 
     let state = vscode.getState() || {
         background: 'checkered',
@@ -24,6 +36,8 @@
     let panY = 0;
     let img = null;
     let imgLoaded = false;
+    let flipH = false;
+    let flipV = false;
 
     const canvas = document.getElementById('canvas');
     const ctx = canvas.getContext('2d');
@@ -55,6 +69,7 @@
                 state.viewMode = state.viewMode === 'sprite' ? 'weapon' : 'sprite';
                 saveState();
                 buildToolbar();
+                fitZoom();
                 render();
             }
         );
@@ -89,6 +104,30 @@
             });
             toolbar.appendChild(btn);
         }
+
+        toolbar.appendChild(createSeparator());
+
+        toolbar.appendChild(createButton('Mirror H', () => { mirrorImage('h'); }));
+        toolbar.appendChild(createButton('Mirror V', () => { mirrorImage('v'); }));
+    }
+
+    function mirrorImage(axis) {
+        if (axis === 'h') {
+            flipH = !flipH;
+            if (state.viewMode === 'weapon') {
+                // Mirror about the screen (320x200 frame) vertical center, not the image
+                // box: the image lands on the opposite side of the screen while its grAb
+                // stays anchored at (0, WEAPONTOP). offsetX' = W - 1 - 2*CX - offsetX.
+                offsetX = Math.round(imageWidth - 1 - 2 * WEAPON_MIRROR_CX - offsetX);
+            }
+        } else {
+            flipV = !flipV;
+            if (state.viewMode === 'weapon') {
+                offsetY = Math.round(imageHeight - 1 - 2 * WEAPON_MIRROR_CY - offsetY);
+            }
+        }
+        vscode.postMessage({ type: 'mirrorImage', axis, x: offsetX, y: offsetY });
+        render();
     }
 
     function createButton(text, onclick) {
@@ -121,7 +160,9 @@
             canvasH = rect.height;
         }
         const margin = 60;
-        zoom = Math.min((canvasW - margin) / imageWidth, (canvasH - margin) / imageHeight, 8);
+        const fitW = state.viewMode === 'weapon' ? WEAPON_REF_W : imageWidth;
+        const fitH = state.viewMode === 'weapon' ? WEAPON_REF_H : imageHeight;
+        zoom = Math.min((canvasW - margin) / fitW, (canvasH - margin) / fitH, 8);
         zoom = Math.max(zoom, 0.1);
         panX = 0;
         panY = 0;
@@ -164,14 +205,26 @@
         const origin = getOriginScreen();
 
         if (state.viewMode === 'weapon') {
-            drawWeaponFrame(origin, cw, ch);
+            drawWeaponFrame(origin);
         }
 
         if (imgLoaded && img) {
-            const imgX = origin.x - offsetX * zoom;
-            const imgY = origin.y - offsetY * zoom;
+            const imgX = (state.viewMode === 'weapon'
+                ? origin.x - (WEAPON_REF_W / 2) * zoom + WEAPON_ANCHOR_X * zoom - offsetX * zoom
+                : origin.x - offsetX * zoom);
+            const imgY = (state.viewMode === 'weapon'
+                ? origin.y - (WEAPON_REF_H / 2) * zoom + WEAPON_ANCHOR_Y * zoom - offsetY * zoom
+                : origin.y - offsetY * zoom);
             ctx.imageSmoothingEnabled = zoom < 1;
-            ctx.drawImage(img, imgX, imgY, imageWidth * zoom, imageHeight * zoom);
+            ctx.save();
+            ctx.translate(
+                imgX + (flipH ? imageWidth * zoom : 0),
+                imgY + (flipV ? imageHeight * zoom : 0)
+            );
+            if (flipH) { ctx.scale(-1, 1); }
+            if (flipV) { ctx.scale(1, -1); }
+            ctx.drawImage(img, 0, 0, imageWidth * zoom, imageHeight * zoom);
+            ctx.restore();
         }
 
         drawOriginCross(origin, cw, ch);
@@ -242,17 +295,46 @@
         ctx.stroke();
     }
 
-    function drawWeaponFrame(origin, cw, ch) {
-        const frameW = WEAPON_REF_W * zoom;
-        const frameH = WEAPON_REF_H * zoom;
-        const frameX = origin.x - WEAPON_ANCHOR_X * zoom;
-        const frameY = origin.y - WEAPON_ANCHOR_Y * zoom;
+    // 320x200 screen frame centered on the canvas (screen center = (160,100) at origin).
+    function drawWeaponFrame(origin) {
+        const w = WEAPON_REF_W * zoom;
+        const h = WEAPON_REF_H * zoom;
+        const fx = origin.x - (WEAPON_REF_W / 2) * zoom;
+        const fy = origin.y - (WEAPON_REF_H / 2) * zoom;
 
+        // Screen outline
         ctx.strokeStyle = 'rgba(100, 150, 255, 0.6)';
         ctx.lineWidth = 1;
         ctx.setLineDash([6, 3]);
-        ctx.strokeRect(frameX, frameY, frameW, frameH);
+        ctx.strokeRect(fx, fy, w, h);
         ctx.setLineDash([]);
+
+        // Status bar top (y=168; the view is cut off there in fullscreen)
+        ctx.strokeStyle = 'rgba(120, 160, 220, 0.5)';
+        ctx.beginPath();
+        ctx.moveTo(fx, fy + WEAPON_STATUS_BAR_Y * zoom);
+        ctx.lineTo(fx + w, fy + WEAPON_STATUS_BAR_Y * zoom);
+        ctx.stroke();
+
+        // grAb anchor column (x=0) and resting weapon line (y=WEAPONTOP)
+        const anchorX = fx + WEAPON_ANCHOR_X * zoom;
+        const restY = fy + WEAPON_ANCHOR_Y * zoom;
+        ctx.strokeStyle = 'rgba(255, 200, 80, 0.45)';
+        ctx.beginPath();
+        ctx.moveTo(anchorX, fy);
+        ctx.lineTo(anchorX, fy + h);
+        ctx.moveTo(fx, restY);
+        ctx.lineTo(fx + w, restY);
+        ctx.stroke();
+
+        // Marker where the sprite's offset pixel lands
+        ctx.strokeStyle = 'rgba(255, 220, 100, 0.9)';
+        ctx.beginPath();
+        ctx.moveTo(anchorX - 6, restY);
+        ctx.lineTo(anchorX + 6, restY);
+        ctx.moveTo(anchorX, restY - 6);
+        ctx.lineTo(anchorX, restY + 6);
+        ctx.stroke();
     }
 
     function notifyOffsetChanged() {
@@ -348,6 +430,8 @@
                 imageWidth = msg.width;
                 imageHeight = msg.height;
                 hasOffsetData = msg.hasOffsetData;
+                flipH = !!(msg.flipped && msg.flipped.h);
+                flipV = !!(msg.flipped && msg.flipped.v);
                 presets = msg.presets || [];
                 loadImage();
                 buildToolbar();

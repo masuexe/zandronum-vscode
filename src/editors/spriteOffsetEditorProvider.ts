@@ -96,6 +96,19 @@ export class SpriteOffsetEditorProvider implements vscode.CustomEditorProvider<S
                     }
                     break;
                 }
+                case 'mirrorImage': {
+                    const axis = msg.axis === 'v' ? 'v' : 'h';
+                    document.provider.mirror(axis);
+                    // The webview computes the mode-aware mirrored offset (screen centre
+                    // in Weapon mode, image centre in Sprite mode) and is the source of
+                    // truth for the displayed position.
+                    document.currentOffset = {
+                        x: typeof msg.x === 'number' ? msg.x : document.currentOffset.x,
+                        y: typeof msg.y === 'number' ? msg.y : document.currentOffset.y
+                    };
+                    this._onDidChangeCustomDocument.fire({ document });
+                    break;
+                }
             }
         });
 
@@ -109,6 +122,7 @@ export class SpriteOffsetEditorProvider implements vscode.CustomEditorProvider<S
         document.provider.setOffset(document.currentOffset);
         const bytes = document.provider.serialize();
         await vscode.workspace.fs.writeFile(document.uri, bytes);
+        document.provider.reload(bytes);
     }
 
     async saveCustomDocumentAs(
@@ -118,6 +132,7 @@ export class SpriteOffsetEditorProvider implements vscode.CustomEditorProvider<S
         document.provider.setOffset(document.currentOffset);
         const bytes = document.provider.serialize();
         await vscode.workspace.fs.writeFile(destination, bytes);
+        document.provider.reload(bytes);
     }
 
     async revertCustomDocument(document: SpriteOffsetDocument): Promise<void> {
@@ -150,6 +165,7 @@ export class SpriteOffsetEditorProvider implements vscode.CustomEditorProvider<S
             width: info.width,
             height: info.height,
             hasOffsetData: info.hasOffsetData,
+            flipped: info.flipped,
             presets: AUTO_OFFSET_PRESETS.map(p => ({ id: p.id, displayName: p.displayName }))
         });
     }

@@ -14,7 +14,13 @@ import { findActorSpanInLines } from './renameProvider';
 import { parseActorHeader } from './actorUserVars';
 import { findLabelAtLine } from './offsetPreviewParser';
 
-const LABEL_RE = /^\s*([A-Za-z_][A-Za-z0-9_]*)\s*:/;
+const LABEL_RE = /^\s*([A-Za-z0-9_']+(?:\.[A-Za-z0-9_']+)*)\s*:/;
+/**
+ * One unquoted state-label path (segments joined by `.`).
+ * Matches Zandronum DECORATE CMode tokens (sc_man_scanner.re TOKC2): printable
+ * ASCII in a segment is only A–Z a–z 0–9 _ ' ; `.` / `::` are separators, not segment chars.
+ */
+const STATE_LABEL_TOKEN_RE = /^[A-Za-z0-9_']+(?:\.[A-Za-z0-9_']+)*$/;
 const STATES_RE = /^\s*states\b/i;
 const EXCLUDED_LABELS = new Set(['actor', 'states', 'goto', 'loop', 'stop', 'wait', 'fail']);
 const STATE_LABEL_PARAM_NAME = /^(label|offset|flash|state)$/i;
@@ -76,7 +82,9 @@ export function isStateLabelParamAtIndex(params: ParamData[], index: number): bo
 
 /**
  * Collect `Label:` positions inside an actor's States block.
- * Keys are lowercased label names.
+ * Keys are lowercased label names, including dotted paths:
+ * - `Flash.AnimA:` as a single label line
+ * - consecutive `Flash:` + `AnimA:` (engine child label) → also registers `flash.anima`
  */
 export function collectStateLabelsInActor(
     lines: string[],
@@ -84,6 +92,24 @@ export function collectStateLabelsInActor(
 ): Map<string, LabelPos> {
     const result = new Map<string, LabelPos>();
     let inStates = false;
+    let pending: Array<{ name: string; line: number; character: number }> = [];
+
+    const flushPending = () => {
+        for (let i = 0; i < pending.length; i++) {
+            for (let j = i + 1; j < pending.length; j++) {
+                const path = pending
+                    .slice(i, j + 1)
+                    .map(p => p.name)
+                    .join('.');
+                const key = path.toLowerCase();
+                const leaf = pending[j];
+                if (!result.has(key)) {
+                    result.set(key, { line: leaf.line, character: leaf.character });
+                }
+            }
+        }
+        pending = [];
+    };
 
     for (let l = actorSpan.startLine; l <= actorSpan.endLine && l < lines.length; l++) {
         const text = lines[l];
@@ -96,24 +122,34 @@ export function collectStateLabelsInActor(
             continue;
         }
 
+        if (!effective.trim()) {
+            continue;
+        }
+
         const lm = LABEL_RE.exec(effective);
-        if (!lm) {
+        if (lm) {
+            const label = lm[1];
+            if (EXCLUDED_LABELS.has(label.toLowerCase())) {
+                flushPending();
+                continue;
+            }
+            const character = text.indexOf(label);
+            if (character < 0) {
+                continue;
+            }
+            const key = label.toLowerCase();
+            if (!result.has(key)) {
+                result.set(key, { line: l, character });
+            }
+            pending.push({ name: label, line: l, character });
             continue;
         }
-        const label = lm[1];
-        if (EXCLUDED_LABELS.has(label.toLowerCase())) {
-            continue;
-        }
-        const character = text.indexOf(label);
-        if (character < 0) {
-            continue;
-        }
-        const key = label.toLowerCase();
-        if (!result.has(key)) {
-            result.set(key, { line: l, character });
-        }
+
+        // Frame / flow / other content ends a consecutive label stack
+        flushPending();
     }
 
+    flushPending();
     return result;
 }
 
@@ -125,7 +161,7 @@ export function findStateLabelInLines(
     return collectStateLabelsInActor(lines, actorSpan).get(label.toLowerCase());
 }
 
-/** Unquoted bare / `"Label"` identifier, or null if not a simple label. */
+/** Unquoted bare / `"Label"` / `"Flash.AnimA"` state label, or null. */
 export function parseSimpleStateLabel(raw: string): string | null {
     const t = raw.trim();
     if (!t) {
@@ -133,22 +169,24 @@ export function parseSimpleStateLabel(raw: string): string | null {
     }
     if (t.length >= 2 && t.startsWith('"') && t.endsWith('"')) {
         const inner = t.slice(1, -1);
-        if (!/^[A-Za-z_][A-Za-z0-9_]*$/.test(inner)) {
+        if (!STATE_LABEL_TOKEN_RE.test(inner)) {
             return null;
         }
         return inner;
     }
-    if (!/^[A-Za-z_][A-Za-z0-9_]*$/.test(t)) {
+    if (!STATE_LABEL_TOKEN_RE.test(t)) {
         return null;
     }
     return t;
 }
 
 /**
- * Cursor on `goto Label` / `goto Label+n` (not `Actor::Label` — V1 out of scope).
+ * Cursor on `goto Label` / `goto Flash.AnimA` / `goto Label+n` (not `Actor::Label`).
  */
 export function extractGotoLabelAtCursor(lineText: string, cursorCol: number): string | null {
-    const m = /^(\s*goto\s+)([A-Za-z_][A-Za-z0-9_]*)/i.exec(lineText);
+    const m = /^(\s*goto\s+)([A-Za-z0-9_']+(?:\.[A-Za-z0-9_']+)*)/i.exec(
+        lineText
+    );
     if (!m) {
         return null;
     }

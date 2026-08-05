@@ -270,6 +270,73 @@ Completion providers should not attempt to discover additional built-in symbols 
 
 ---
 
+## DECORATE State Labels (Engine String Rules)
+
+Source of truth: Zandronum `src/thingdef/thingdef_states.cpp` (`ParseStateString`), `src/p_states.cpp` (`MakeStateNameList` / `FindState`), `src/sc_man_scanner.re` (DECORATE **CMode** scanner), `src/thingdef/thingdef_parse.cpp` (`ParseParameter` for `'L'`/`'l'` state args).
+
+### How a label path is built
+
+`ParseStateString` does:
+
+1. `MustGetString()` → one **segment**
+2. Optional `::` + another string → `ClassOrSuper::Segment` (class-scoped goto; F12 V1 does not resolve this yet)
+3. Zero or more `.` + string → append segments (`Flash.AnimA`)
+
+`MakeStateNameList` / `FindStateByString` later split a path on `.` only (also remaps legacy names like `XDeath` → `Death.Extreme`).
+
+### Unquoted segments (label lines and `goto`)
+
+DECORATE parsing uses `FScanner` with **CMode** (`SetCMode(true)`). `GetString()` / `MustGetString()` use the CMode branch of `sc_man_scanner.re`:
+
+- Multi-character tokens are `TOKC2+`
+- `TOKC2` = non-whitespace characters **excluding** stop set `STOPC`
+- `STOPC` / `TOKC` include:  
+  `{ } | = / \` ~ ! @ # $ % ^ & * ( ) [ ] \ ? - = + ; : < > , .` and `"`
+
+Therefore, among **printable ASCII**, an unquoted label **segment** may only contain:
+
+| Allowed | Notes |
+|---------|--------|
+| `A–Z` `a–z` | Letters (case-insensitive at lookup) |
+| `0–9` | Digits; a segment **may start with a digit** |
+| `_` | Underscore |
+| `'` | Apostrophe (often overlooked) |
+
+**Not** allowed inside an unquoted segment (they terminate/tokenize separately): space, `"`, and all other punctuation in `STOPC` (including `-`, `$`, `#`, etc.).
+
+Separators (not part of a segment):
+
+| Token | Role |
+|-------|------|
+| `.` | Child / dotted path (`Flash.AnimA`, `Death.Fire`) |
+| `::` | Class scope (`Super::See`, `SomeActor::Missile`) |
+| `:` | Ends a label definition (`Flash:`) |
+| `+` number | Goto offset after label (`goto See+1`) |
+
+Non-ASCII / high bytes: CMode `TOKC2` can also absorb bytes outside the stop set (including some high-bit characters). The extension intentionally indexes the printable ASCII set above unless a real mod need appears.
+
+### Quoted state arguments (`A_Jump*`, `A_GunFlash("…")`, etc.)
+
+Action params typed as state (`'L'`/`'l'` in ACC/action metadata) use `MustGetToken(TK_StringConst)` — the name **must** be in `"..."`. Inside the quotes, the scanner does not apply `TOKC2`; the whole string is one constant. The engine then runs `MakeStateNameList` and splits on `.` only, so a quoted path can embed characters that would be illegal in an unquoted segment (rare). Empty string / `"None"` / `"*"` have special meanings for some call sites.
+
+### Definition forms that yield `Flash.AnimA`
+
+1. Single dotted label line: `Flash.AnimA:`
+2. Consecutive labels before frames (engine child list):  
+   `Flash:` then `AnimA:` with only blank/comment lines between → FindState path `Flash.AnimA`
+
+### Extension F12 / index regex
+
+Keep label tokenization aligned with the unquoted printable set:
+
+```text
+[A-Za-z0-9_']+(?:\.[A-Za-z0-9_']+)*
+```
+
+Do **not** require a leading letter (digits and `'` are valid). Do **not** treat `-` / `$` / etc. as part of unquoted labels. See [`src/language/decorate/stateLabelResolve.ts`](src/language/decorate/stateLabelResolve.ts).
+
+---
+
 ## ACS Support
 
 Planned features:
@@ -396,14 +463,21 @@ The sprite offset editor is a CustomEditorProvider for visually editing image of
 - Shared FileSystemWatcher (`**/*.png`) on the provider class, not per-document
 - V1 uses `CustomDocumentContentChangeEvent` for dirty tracking (no undo/redo)
 - Auto offset presets defined as `AutoOffsetPreset[]` array, not hardcoded
-- View modes: Sprite (floor line) and Weapon (320×200 reference frame with anchor at 160,168)
+- View modes: Sprite (floor line) and Weapon (320×200 reference frame centered on the canvas; the sprite's offset pixel lands at frame position (0, WEAPONTOP) — Zandronum PSprite semantics, NOT (160,168))
+- Mirror H/V: in Weapon mode the mirror axis is the **screen center** (160, 100), so the image lands on the opposite side of the screen — offsetX' = W − 1 − 2·(160 − 0) − offsetX, offsetY' = H − 1 − 2·(100 − WEAPONTOP) − offsetY (rounded to int). In Sprite mode the image mirrors in place about its own center and the offset is unchanged. The webview computes the offset and sends it with the `mirrorImage` message; the provider only toggles the pending pixel flip.
 
 **Constants:**
 ```ts
-WEAPON_ANCHOR_X = 160
-WEAPON_ANCHOR_Y = 168
+// Weapon view — engine PSprite placement (r_things.cpp R_DrawPSprite):
+//   grAb column at screen x = sx, grAb row at screen y = sy
+//   resting position: sx = 0, sy = WEAPONTOP = 32.375 (p_pspr.h: 32*FRACUNIT+0x6000)
+WEAPON_ANCHOR_X = 0
+WEAPON_ANCHOR_Y = 32.375
 WEAPON_REFERENCE_WIDTH = 320
 WEAPON_REFERENCE_HEIGHT = 200
+// Auto-offset preset "Weapon" still uses its own heuristic (160, 168)
+WEAPON_PRESET_X = 160
+WEAPON_PRESET_Y = 168
 ```
 
 ## SLADE Compatibility
@@ -556,10 +630,10 @@ entry.path === 'DECORATE'
 
 // RIGHT — strip last extension, then compare lump name (case-insensitive, ≤8 chars)
 function lumpBaseName(fileName: string): string {
-    const base = fileName.includes('.')
-        ? fileName.slice(0, fileName.lastIndexOf('.'))
-        : fileName;
-    return base.slice(0, 8).toLowerCase();
+ const base = fileName.includes('.')
+ ? fileName.slice(0, fileName.lastIndexOf('.'))
+ : fileName;
+ return base.slice(0, 8).toLowerCase();
 }
 lumpBaseName(entry.name) === 'loadacs'
 ```
@@ -570,6 +644,18 @@ Also apply when:
 - Zip extract filters (`shouldExtractZipEntry`) — allow `NAME` and `NAME.*`, not only `NAME` / `NAME.txt`
 - Workspace `findFiles` / language `filenames` contributions — include common `*.txt` variants when listing known lumps
 - Prefer a shared helper over copying ad-hoc `/^loadacs(\.txt)?$/i` patterns that still reject other extensions
+
+## DECORATE State Label Character Class
+
+Unquoted labels are **not** C identifiers. Zandronum DECORATE CMode tokens allow `A–Z a–z 0–9 _ '` per path segment; `.` separates segments (`Flash.AnimA`). A regex that requires a leading letter (`[A-Za-z_]…`) incorrectly rejects digit-leading segments and drops `'`. See **DECORATE State Labels (Engine String Rules)** above.
+
+```ts
+// WRONG — rejects Flash.AnimA path segments that are fine, and digit-leading names
+/^[A-Za-z_][A-Za-z0-9_]*$/
+
+// RIGHT — printable ASCII unquoted segment set from sc_man_scanner.re TOKC2
+/^[A-Za-z0-9_']+(?:\.[A-Za-z0-9_']+)*$/
+```
 
 ## Regex Case Sensitivity
 

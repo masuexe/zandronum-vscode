@@ -13,6 +13,19 @@ const REF = path.join(ROOT, 'ref', 'zandronum-stable-branch-default');
 const ACTIONS_PATH = path.join(ROOT, 'data', 'decorate', 'actions.json');
 const { callableSpecials, buildLineSpecialEntry } = require('./import-line-special-param-names.js');
 
+/**
+ * Omitted DECORATE/ACS args default to 0 (engine state/expression paths and ACC
+ * callfunc fallback), so zero defaults are never stored in metadata.
+ */
+function isZeroDefault(value) {
+    if (value == null) return false;
+    const s = String(value).trim().toLowerCase();
+    if (s === 'false' || s === 'aaptr_default') return true;
+    if (/^[-+]?0(\.0*)?$/.test(s)) return true;
+    if (/^0x0+$/i.test(s)) return true;
+    return false;
+}
+
 const SOURCE_FILES = [
     path.join(REF, 'wadsrc', 'static', 'actors', 'actor.txt'),
     path.join(REF, 'wadsrc', 'static', 'actors', 'shared', 'inventory.txt'),
@@ -155,12 +168,12 @@ function compareParam(src, json, index) {
     if (src.optional) {
         const jd = json.default != null ? String(json.default) : undefined;
         const sd = src.default != null ? String(src.default) : undefined;
-        if (jd !== sd) {
-            // Normalize quotes for comparison
-            const norm = (x) => (x || '').replace(/^'|'$/g, '"');
-            if (norm(jd) !== norm(sd)) {
-                issues.push(`param[${index}] (${src.name}) default: json=${jd} source=${sd}`);
-            }
+        // Normalize quotes; zero defaults are equivalent to "not stored".
+        const norm = (x) => (x || '').replace(/^'|'$/g, '"');
+        const jn = jd == null || isZeroDefault(jd) ? undefined : norm(jd);
+        const sn = sd == null || isZeroDefault(sd) ? undefined : norm(sd);
+        if (jn !== sn) {
+            issues.push(`param[${index}] (${src.name}) default: json=${jd} source=${sd}`);
         }
     }
     return issues;
@@ -175,7 +188,7 @@ function buildParamFromSource(src, existing) {
     if (src.variadic) {
         p.variadic = true;
     }
-    if (src.optional && src.default !== undefined) {
+    if (src.optional && src.default !== undefined && !isZeroDefault(src.default)) {
         p.default = src.default;
     }
     // Preserve bitmask/enum metadata when present and arity slot matches by name
@@ -380,6 +393,17 @@ function main() {
                     actions[name].desc = fixedDesc;
                     report.fixed.push(name);
                 }
+            }
+        }
+    }
+
+    // Zero defaults carry no information and are never stored (all entries,
+    // including natives outside the focused source set).
+    for (const [name, entry] of Object.entries(actions)) {
+        for (const p of (entry.params || [])) {
+            if (p && typeof p === 'object' && p.default !== undefined && isZeroDefault(p.default)) {
+                report.paramIssues.push({ name, issue: `unnecessary zero default on ${p.name}` });
+                if (apply) delete p.default;
             }
         }
     }

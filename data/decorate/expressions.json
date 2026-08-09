@@ -65,10 +65,11 @@
       {
         "name": "mask",
         "type": "int",
-        "optional": true
+        "optional": true,
+        "default": "-1"
       }
     ],
-    "desc": "Returns a random integer value between `-mask` and `+mask`"
+    "desc": "Returns a random integer value between `-mask` and `+mask` (defaults to ±255 when mask is omitted)"
   },
   "frandom": {
     "kind": "function",
@@ -97,14 +98,12 @@
       {
         "name": "ptr",
         "type": "int",
-        "optional": true,
-        "default": "AAPTR_DEFAULT"
+        "optional": true
       },
       {
         "name": "match_superclass",
         "type": "bool",
-        "optional": true,
-        "default": "false"
+        "optional": true
       }
     ],
     "desc": "Returns true if the actor (or pointer) matches the given class"
@@ -136,26 +135,22 @@
       {
         "name": "arg1",
         "type": "int",
-        "optional": true,
-        "default": "0"
+        "optional": true
       },
       {
         "name": "arg2",
         "type": "int",
-        "optional": true,
-        "default": "0"
+        "optional": true
       },
       {
         "name": "arg3",
         "type": "int",
-        "optional": true,
-        "default": "0"
+        "optional": true
       },
       {
         "name": "arg4",
         "type": "int",
-        "optional": true,
-        "default": "0"
+        "optional": true
       }
     ],
     "desc": "Alias of ACS_NamedExecuteWithResult (expression only)"

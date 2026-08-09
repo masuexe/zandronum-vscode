@@ -268,6 +268,11 @@ Therefore:
 
 Completion providers should not attempt to discover additional built-in symbols from source files.
 
+Omitted args default to 0 (engine state/expression evaluation and ACC callfunc fallback), so zero
+defaults are NEVER stored in metadata — only non-zero defaults carry information (e.g. A_* native
+defaults like `A_BFGSpray numrays=40`, or `random2`'s `mask=-1`). The decorate actions audit treats a
+stored `default: "0"`/`false`/`AAPTR_DEFAULT` as an issue and removes it on `--apply`.
+
 Line specials (Zandronum `src/actionspecials.h`, `min_args >= 0`) are dual callables: they can appear
 both as state actions and inside DECORATE expressions, so they live in `actions.json` with
 `"usage": ["state", "expression"]` — never in `expressions.json`. Their param counts MUST follow the

@@ -34,6 +34,16 @@ const OVERRIDES = {
     sector_setcurrent: ['tag', 'amount', 'angle', 'useline'],
 };
 
+/** Omitted args default to 0; zero defaults are never stored in metadata. */
+function isZeroDefault(value) {
+    if (value == null) return false;
+    const s = String(value).trim().toLowerCase();
+    if (s === 'false' || s === 'aaptr_default') return true;
+    if (/^[-+]?0(\.0*)?$/.test(s)) return true;
+    if (/^0x0+$/i.test(s)) return true;
+    return false;
+}
+
 function callableSpecials() {
     const h = fs.readFileSync(path.join(ENGINE, 'src', 'actionspecials.h'), 'utf8');
     const out = new Map();
@@ -108,7 +118,7 @@ function buildLineSpecialEntry(name, special, src) {
             type: (prev && prev.type) || 'int',
             optional: i >= special.min,
         };
-        if (prev && prev.default !== undefined) p.default = prev.default;
+        if (prev && prev.default !== undefined && !isZeroDefault(prev.default)) p.default = prev.default;
         if (prev && prev.desc) p.desc = prev.desc;
         params.push(p);
     }

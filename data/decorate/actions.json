@@ -4,8 +4,7 @@
       {
         "name": "angle",
         "type": "float",
-        "optional": true,
-        "default": "0"
+        "optional": true
       }
     ],
     "desc": "Action function: A_Turn"
@@ -15,14 +14,12 @@
       {
         "name": "boomspecial",
         "type": "int",
-        "optional": true,
-        "default": "0"
+        "optional": true
       },
       {
         "name": "tag",
         "type": "int",
-        "optional": true,
-        "default": "0"
+        "optional": true
       }
     ],
     "desc": "Action function: A_LineEffect"
@@ -74,13 +71,13 @@
     "params": [
       {
         "name": "melee",
-        "type": "string",
+        "type": "state",
         "optional": true,
         "default": "\"*\""
       },
       {
         "name": "missile",
-        "type": "string",
+        "type": "state",
         "optional": true,
         "default": "\"none\""
       },
@@ -88,7 +85,6 @@
         "name": "flags",
         "type": "int",
         "optional": true,
-        "default": "0",
         "mode": "bitmask",
         "enum": [
           {
@@ -121,8 +117,7 @@
       {
         "name": "max_turn",
         "type": "float",
-        "optional": true,
-        "default": "0"
+        "optional": true
       },
       {
         "name": "max_pitch",
@@ -138,8 +133,7 @@
       {
         "name": "max_turn",
         "type": "float",
-        "optional": true,
-        "default": "0"
+        "optional": true
       },
       {
         "name": "max_pitch",
@@ -155,8 +149,7 @@
       {
         "name": "max_turn",
         "type": "float",
-        "optional": true,
-        "default": "0"
+        "optional": true
       },
       {
         "name": "max_pitch",
@@ -244,7 +237,6 @@
         "name": "flags",
         "type": "int",
         "optional": true,
-        "default": "0",
         "mode": "bitmask",
         "enum": [
           {
@@ -265,8 +257,7 @@
       {
         "name": "spawnheight",
         "type": "float",
-        "optional": true,
-        "default": "0"
+        "optional": true
       }
     ],
     "desc": "Action function: A_Fire"
@@ -406,14 +397,12 @@
       {
         "name": "angle",
         "type": "float",
-        "optional": true,
-        "default": "0"
+        "optional": true
       },
       {
         "name": "flags",
         "type": "int",
         "optional": true,
-        "default": "0",
         "mode": "bitmask",
         "enum": [
           {
@@ -544,14 +533,12 @@
       {
         "name": "numspawns",
         "type": "int",
-        "optional": true,
-        "default": "0"
+        "optional": true
       },
       {
         "name": "flags",
         "type": "int",
         "optional": true,
-        "default": "0",
         "mode": "bitmask",
         "enum": [
           {
@@ -593,32 +580,27 @@
       {
         "name": "arg1",
         "type": "int",
-        "optional": true,
-        "default": "0"
+        "optional": true
       },
       {
         "name": "arg2",
         "type": "int",
-        "optional": true,
-        "default": "0"
+        "optional": true
       },
       {
         "name": "arg3",
         "type": "int",
-        "optional": true,
-        "default": "0"
+        "optional": true
       },
       {
         "name": "arg4",
         "type": "int",
-        "optional": true,
-        "default": "0"
+        "optional": true
       },
       {
         "name": "arg5",
         "type": "int",
-        "optional": true,
-        "default": "0"
+        "optional": true
       }
     ],
     "desc": "Action function: A_CallSpecial"
@@ -858,14 +840,12 @@
       {
         "name": "maxdist",
         "type": "float",
-        "optional": true,
-        "default": "0"
+        "optional": true
       },
       {
         "name": "flags",
         "type": "int",
         "optional": true,
-        "default": "0",
         "mode": "bitmask",
         "enum": [
           {
@@ -902,8 +882,7 @@
       {
         "name": "MaxTurnAngle",
         "type": "float",
-        "optional": true,
-        "default": "0"
+        "optional": true
       }
     ],
     "desc": "Action function: A_FaceConsolePlayer"
@@ -918,26 +897,22 @@
       {
         "name": "arg1",
         "type": "int",
-        "optional": true,
-        "default": "0"
+        "optional": true
       },
       {
         "name": "arg2",
         "type": "int",
-        "optional": true,
-        "default": "0"
+        "optional": true
       },
       {
         "name": "arg3",
         "type": "int",
-        "optional": true,
-        "default": "0"
+        "optional": true
       },
       {
         "name": "arg4",
         "type": "int",
-        "optional": true,
-        "default": "0"
+        "optional": true
       }
     ],
     "desc": "Action function: A_ClientsideACSExecute"
@@ -958,7 +933,6 @@
         "name": "giveto",
         "type": "int",
         "optional": true,
-        "default": "AAPTR_DEFAULT",
         "mode": "bitmask",
         "enum": [
           {
@@ -1060,7 +1034,6 @@
         "name": "flags",
         "type": "int",
         "optional": true,
-        "default": "0",
         "mode": "bitmask",
         "enum": [
           {
@@ -1198,8 +1171,7 @@
       {
         "name": "looping",
         "type": "bool",
-        "optional": true,
-        "default": "false"
+        "optional": true
       },
       {
         "name": "attenuation",
@@ -1324,14 +1296,12 @@
       {
         "name": "looping",
         "type": "bool",
-        "optional": true,
-        "default": "false"
+        "optional": true
       },
       {
         "name": "attenuation",
         "type": "int",
-        "optional": true,
-        "default": "0"
+        "optional": true
       }
     ],
     "desc": "Action function: A_PlaySoundEx"
@@ -1362,7 +1332,6 @@
         "name": "flags",
         "type": "int",
         "optional": true,
-        "default": "0",
         "mode": "bitmask",
         "enum": [
           {
@@ -1432,20 +1401,17 @@
       {
         "name": "spawnofs_xy",
         "type": "int",
-        "optional": true,
-        "default": "0"
+        "optional": true
       },
       {
         "name": "angle",
         "type": "float",
-        "optional": true,
-        "default": "0"
+        "optional": true
       },
       {
         "name": "flags",
         "type": "int",
         "optional": true,
-        "default": "0",
         "mode": "bitmask",
         "enum": [
           {
@@ -1485,8 +1451,7 @@
       {
         "name": "pitch",
         "type": "float",
-        "optional": true,
-        "default": "0"
+        "optional": true
       }
     ],
     "desc": "Action function: A_CustomMissile"
@@ -1522,14 +1487,12 @@
       {
         "name": "range",
         "type": "float",
-        "optional": true,
-        "default": "0"
+        "optional": true
       },
       {
         "name": "flags",
         "type": "int",
         "optional": true,
-        "default": "0",
         "mode": "bitmask",
         "enum": [
           {
@@ -1567,8 +1530,7 @@
       {
         "name": "spawnofs_xy",
         "type": "int",
-        "optional": true,
-        "default": "0"
+        "optional": true
       },
       {
         "name": "color1",
@@ -1586,7 +1548,6 @@
         "name": "flags",
         "type": "int",
         "optional": true,
-        "default": "0",
         "mode": "bitmask",
         "enum": [
           {
@@ -1614,14 +1575,12 @@
       {
         "name": "aim",
         "type": "bool",
-        "optional": true,
-        "default": "false"
+        "optional": true
       },
       {
         "name": "maxdiff",
         "type": "float",
-        "optional": true,
-        "default": "0"
+        "optional": true
       },
       {
         "name": "pufftype",
@@ -1632,26 +1591,22 @@
       {
         "name": "spread_xy",
         "type": "float",
-        "optional": true,
-        "default": "0"
+        "optional": true
       },
       {
         "name": "spread_z",
         "type": "float",
-        "optional": true,
-        "default": "0"
+        "optional": true
       },
       {
         "name": "range",
         "type": "float",
-        "optional": true,
-        "default": "0"
+        "optional": true
       },
       {
         "name": "duration",
         "type": "int",
-        "optional": true,
-        "default": "0"
+        "optional": true
       },
       {
         "name": "sparsity",
@@ -1674,8 +1629,7 @@
       {
         "name": "spawnofs_z",
         "type": "float",
-        "optional": true,
-        "default": "0"
+        "optional": true
       }
     ],
     "desc": "Action function: A_CustomRailgun"
@@ -1774,14 +1728,13 @@
       },
       {
         "name": "label",
-        "type": "string",
+        "type": "state",
         "optional": false
       },
       {
         "name": "owner",
         "type": "int",
         "optional": true,
-        "default": "AAPTR_DEFAULT",
         "mode": "bitmask",
         "enum": [
           {
@@ -1892,14 +1845,12 @@
       {
         "name": "amount",
         "type": "int",
-        "optional": true,
-        "default": "0"
+        "optional": true
       },
       {
         "name": "giveto",
         "type": "int",
         "optional": true,
-        "default": "AAPTR_DEFAULT",
         "mode": "bitmask",
         "enum": [
           {
@@ -1989,14 +1940,12 @@
       {
         "name": "amount",
         "type": "int",
-        "optional": true,
-        "default": "0"
+        "optional": true
       },
       {
         "name": "flags",
         "type": "int",
         "optional": true,
-        "default": "0",
         "mode": "bitmask",
         "enum": [
           {
@@ -2009,7 +1958,6 @@
         "name": "giveto",
         "type": "int",
         "optional": true,
-        "default": "AAPTR_DEFAULT",
         "mode": "bitmask",
         "enum": [
           {
@@ -2100,14 +2048,12 @@
       {
         "name": "distance",
         "type": "float",
-        "optional": true,
-        "default": "0"
+        "optional": true
       },
       {
         "name": "zheight",
         "type": "float",
-        "optional": true,
-        "default": "0"
+        "optional": true
       },
       {
         "name": "useammo",
@@ -2118,8 +2064,7 @@
       {
         "name": "transfer_translation",
         "type": "bool",
-        "optional": true,
-        "default": "false"
+        "optional": true
       }
     ],
     "desc": "Action function: A_SpawnItem"
@@ -2134,50 +2079,42 @@
       {
         "name": "xofs",
         "type": "float",
-        "optional": true,
-        "default": "0"
+        "optional": true
       },
       {
         "name": "yofs",
         "type": "float",
-        "optional": true,
-        "default": "0"
+        "optional": true
       },
       {
         "name": "zofs",
         "type": "float",
-        "optional": true,
-        "default": "0"
+        "optional": true
       },
       {
         "name": "xvel",
         "type": "float",
-        "optional": true,
-        "default": "0"
+        "optional": true
       },
       {
         "name": "yvel",
         "type": "float",
-        "optional": true,
-        "default": "0"
+        "optional": true
       },
       {
         "name": "zvel",
         "type": "float",
-        "optional": true,
-        "default": "0"
+        "optional": true
       },
       {
         "name": "angle",
         "type": "float",
-        "optional": true,
-        "default": "0"
+        "optional": true
       },
       {
         "name": "flags",
         "type": "int",
         "optional": true,
-        "default": "0",
         "mode": "bitmask",
         "enum": [
           {
@@ -2261,14 +2198,12 @@
       {
         "name": "failchance",
         "type": "int",
-        "optional": true,
-        "default": "0"
+        "optional": true
       },
       {
         "name": "tid",
         "type": "int",
-        "optional": true,
-        "default": "0"
+        "optional": true
       }
     ],
     "desc": "Spawns an actor at the specified offset away from the calling actor, facing the given angle, and with the indicated velocity."
@@ -2283,8 +2218,7 @@
       {
         "name": "time",
         "type": "float",
-        "optional": true,
-        "default": "0"
+        "optional": true
       },
       {
         "name": "fontname",
@@ -2305,8 +2239,7 @@
       {
         "name": "time",
         "type": "float",
-        "optional": true,
-        "default": "0"
+        "optional": true
       },
       {
         "name": "fontname",
@@ -2347,8 +2280,7 @@
       {
         "name": "style",
         "type": "int",
-        "optional": true,
-        "default": "0"
+        "optional": true
       }
     ],
     "desc": "Action function: A_SetTranslucent"
@@ -2397,8 +2329,7 @@
       {
         "name": "remove",
         "type": "bool",
-        "optional": true,
-        "default": "false"
+        "optional": true
       }
     ],
     "desc": "Action function: A_FadeTo"
@@ -2413,8 +2344,7 @@
       {
         "name": "scaley",
         "type": "float",
-        "optional": true,
-        "default": "0"
+        "optional": true
       }
     ],
     "desc": "Action function: A_SetScale"
@@ -2439,8 +2369,7 @@
       {
         "name": "transfer_translation",
         "type": "bool",
-        "optional": true,
-        "default": "false"
+        "optional": true
       },
       {
         "name": "mult_h",
@@ -2488,8 +2417,7 @@
       {
         "name": "nightmarefast",
         "type": "bool",
-        "optional": true,
-        "default": "false"
+        "optional": true
       }
     ],
     "desc": "Action function: A_ExtChase"
@@ -2554,14 +2482,13 @@
       },
       {
         "name": "label",
-        "type": "string",
+        "type": "state",
         "optional": false
       },
       {
         "name": "check_pointer",
         "type": "int",
         "optional": true,
-        "default": "AAPTR_DEFAULT",
         "mode": "bitmask",
         "enum": [
           {
@@ -2665,8 +2592,7 @@
       {
         "name": "removeall",
         "type": "bool",
-        "optional": true,
-        "default": "false"
+        "optional": true
       }
     ],
     "desc": "Action function: A_RemoveChildren"
@@ -2676,8 +2602,7 @@
       {
         "name": "removeall",
         "type": "bool",
-        "optional": true,
-        "default": "false"
+        "optional": true
       }
     ],
     "desc": "Action function: A_RemoveSiblings"
@@ -2786,7 +2711,7 @@
     "params": [
       {
         "name": "teleportstate",
-        "type": "string",
+        "type": "state",
         "optional": true,
         "default": "\"\""
       },
@@ -2806,7 +2731,6 @@
         "name": "flags",
         "type": "int",
         "optional": true,
-        "default": "0",
         "mode": "bitmask",
         "enum": [
           {
@@ -2828,8 +2752,7 @@
       {
         "name": "maxdist",
         "type": "float",
-        "optional": true,
-        "default": "0"
+        "optional": true
       }
     ],
     "desc": "Action function: A_Teleport"
@@ -2919,32 +2842,27 @@
       {
         "name": "xofs",
         "type": "float",
-        "optional": true,
-        "default": "0"
+        "optional": true
       },
       {
         "name": "yofs",
         "type": "float",
-        "optional": true,
-        "default": "0"
+        "optional": true
       },
       {
         "name": "zofs",
         "type": "float",
-        "optional": true,
-        "default": "0"
+        "optional": true
       },
       {
         "name": "angle",
         "type": "float",
-        "optional": true,
-        "default": "0"
+        "optional": true
       },
       {
         "name": "flags",
         "type": "int",
         "optional": true,
-        "default": "0",
         "mode": "bitmask",
         "enum": [
           {
@@ -2991,7 +2909,7 @@
       },
       {
         "name": "success_state",
-        "type": "string",
+        "type": "state",
         "optional": true,
         "default": "\"\""
       }
@@ -3008,20 +2926,17 @@
       {
         "name": "zheight",
         "type": "float",
-        "optional": true,
-        "default": "0"
+        "optional": true
       },
       {
         "name": "xyvel",
         "type": "float",
-        "optional": true,
-        "default": "0"
+        "optional": true
       },
       {
         "name": "zvel",
         "type": "float",
-        "optional": true,
-        "default": "0"
+        "optional": true
       },
       {
         "name": "useammo",
@@ -3081,14 +2996,13 @@
       },
       {
         "name": "label",
-        "type": "string",
+        "type": "state",
         "optional": false
       },
       {
         "name": "forward_ptr",
         "type": "int",
         "optional": true,
-        "default": "AAPTR_DEFAULT",
         "mode": "bitmask",
         "enum": [
           {
@@ -3178,14 +3092,12 @@
       {
         "name": "amount",
         "type": "int",
-        "optional": true,
-        "default": "0"
+        "optional": true
       },
       {
         "name": "forward_ptr",
         "type": "int",
         "optional": true,
-        "default": "AAPTR_DEFAULT",
         "mode": "bitmask",
         "enum": [
           {
@@ -3275,14 +3187,12 @@
       {
         "name": "amount",
         "type": "int",
-        "optional": true,
-        "default": "0"
+        "optional": true
       },
       {
         "name": "flags",
         "type": "int",
         "optional": true,
-        "default": "0",
         "mode": "bitmask",
         "enum": [
           {
@@ -3295,7 +3205,6 @@
         "name": "forward_ptr",
         "type": "int",
         "optional": true,
-        "default": "AAPTR_DEFAULT",
         "mode": "bitmask",
         "enum": [
           {
@@ -3446,8 +3355,7 @@
       {
         "name": "amount",
         "type": "int",
-        "optional": true,
-        "default": "0"
+        "optional": true
       }
     ],
     "desc": "Action function: A_RadiusGive"
@@ -3473,8 +3381,7 @@
       {
         "name": "damage",
         "type": "int",
-        "optional": true,
-        "default": "0"
+        "optional": true
       },
       {
         "name": "meleesound",
@@ -3557,7 +3464,6 @@
         "name": "flags",
         "type": "int",
         "optional": true,
-        "default": "0",
         "mode": "bitmask",
         "enum": [
           {
@@ -3649,8 +3555,7 @@
       {
         "name": "fullthrustdistance",
         "type": "int",
-        "optional": true,
-        "default": "0"
+        "optional": true
       }
     ],
     "desc": "Action function: A_RadiusThrust"
@@ -3689,20 +3594,17 @@
       {
         "name": "alert",
         "type": "bool",
-        "optional": true,
-        "default": "false"
+        "optional": true
       },
       {
         "name": "fulldamagedistance",
         "type": "int",
-        "optional": true,
-        "default": "0"
+        "optional": true
       },
       {
         "name": "nails",
         "type": "int",
-        "optional": true,
-        "default": "0"
+        "optional": true
       },
       {
         "name": "naildamage",
@@ -3767,7 +3669,6 @@
         "name": "flags",
         "type": "int",
         "optional": true,
-        "default": "0",
         "mode": "bitmask",
         "enum": [
           {
@@ -3799,30 +3700,26 @@
       {
         "name": "minseedist",
         "type": "float",
-        "optional": true,
-        "default": "0"
+        "optional": true
       },
       {
         "name": "maxseedist",
         "type": "float",
-        "optional": true,
-        "default": "0"
+        "optional": true
       },
       {
         "name": "maxheardist",
         "type": "float",
-        "optional": true,
-        "default": "0"
+        "optional": true
       },
       {
         "name": "fov",
         "type": "float",
-        "optional": true,
-        "default": "0"
+        "optional": true
       },
       {
         "name": "label",
-        "type": "string",
+        "type": "state",
         "optional": true,
         "default": "\"\""
       }
@@ -3841,14 +3738,13 @@
     "params": [
       {
         "name": "jump",
-        "type": "string",
+        "type": "state",
         "optional": false
       },
       {
         "name": "flags",
         "type": "int",
         "optional": true,
-        "default": "0",
         "mode": "bitmask",
         "enum": [
           {
@@ -3948,44 +3844,37 @@
       {
         "name": "range",
         "type": "float",
-        "optional": true,
-        "default": "0"
+        "optional": true
       },
       {
         "name": "minrange",
         "type": "float",
-        "optional": true,
-        "default": "0"
+        "optional": true
       },
       {
         "name": "angle",
         "type": "float",
-        "optional": true,
-        "default": "0"
+        "optional": true
       },
       {
         "name": "pitch",
         "type": "float",
-        "optional": true,
-        "default": "0"
+        "optional": true
       },
       {
         "name": "offsetheight",
         "type": "float",
-        "optional": true,
-        "default": "0"
+        "optional": true
       },
       {
         "name": "offsetwidth",
         "type": "float",
-        "optional": true,
-        "default": "0"
+        "optional": true
       },
       {
         "name": "ptr_target",
         "type": "int",
         "optional": true,
-        "default": "AAPTR_DEFAULT",
         "mode": "bitmask",
         "enum": [
           {
@@ -4069,20 +3958,18 @@
     "params": [
       {
         "name": "label",
-        "type": "string",
+        "type": "state",
         "optional": false
       },
       {
         "name": "fov",
         "type": "float",
-        "optional": true,
-        "default": "0"
+        "optional": true
       },
       {
         "name": "flags",
         "type": "int",
         "optional": true,
-        "default": "0",
         "mode": "bitmask",
         "enum": [
           {
@@ -4138,14 +4025,12 @@
       {
         "name": "dist_max",
         "type": "float",
-        "optional": true,
-        "default": "0"
+        "optional": true
       },
       {
         "name": "dist_close",
         "type": "float",
-        "optional": true,
-        "default": "0"
+        "optional": true
       }
     ],
     "desc": "Action function: A_JumpIfTargetInLOS"
@@ -4154,20 +4039,18 @@
     "params": [
       {
         "name": "label",
-        "type": "string",
+        "type": "state",
         "optional": false
       },
       {
         "name": "fov",
         "type": "float",
-        "optional": true,
-        "default": "0"
+        "optional": true
       },
       {
         "name": "flags",
         "type": "int",
         "optional": true,
-        "default": "0",
         "mode": "bitmask",
         "enum": [
           {
@@ -4223,14 +4106,12 @@
       {
         "name": "dist_max",
         "type": "float",
-        "optional": true,
-        "default": "0"
+        "optional": true
       },
       {
         "name": "dist_close",
         "type": "float",
-        "optional": true,
-        "default": "0"
+        "optional": true
       }
     ],
     "desc": "Action function: A_JumpIfInTargetLOS"
@@ -4379,14 +4260,12 @@
       {
         "name": "angle",
         "type": "float",
-        "optional": true,
-        "default": "0"
+        "optional": true
       },
       {
         "name": "flags",
         "type": "int",
         "optional": true,
-        "default": "0",
         "mode": "bitmask",
         "enum": [
           {
@@ -4413,7 +4292,6 @@
         "name": "flags",
         "type": "int",
         "optional": true,
-        "default": "0",
         "mode": "bitmask",
         "enum": [
           {
@@ -4444,26 +4322,22 @@
       {
         "name": "x",
         "type": "float",
-        "optional": true,
-        "default": "0"
+        "optional": true
       },
       {
         "name": "y",
         "type": "float",
-        "optional": true,
-        "default": "0"
+        "optional": true
       },
       {
         "name": "z",
         "type": "float",
-        "optional": true,
-        "default": "0"
+        "optional": true
       },
       {
         "name": "flags",
         "type": "int",
         "optional": true,
-        "default": "0",
         "mode": "bitmask",
         "enum": [
           {
@@ -4539,32 +4413,27 @@
       {
         "name": "arg0",
         "type": "int",
-        "optional": true,
-        "default": "0"
+        "optional": true
       },
       {
         "name": "arg1",
         "type": "int",
-        "optional": true,
-        "default": "0"
+        "optional": true
       },
       {
         "name": "arg2",
         "type": "int",
-        "optional": true,
-        "default": "0"
+        "optional": true
       },
       {
         "name": "arg3",
         "type": "int",
-        "optional": true,
-        "default": "0"
+        "optional": true
       },
       {
         "name": "arg4",
         "type": "int",
-        "optional": true,
-        "default": "0"
+        "optional": true
       }
     ],
     "desc": "Action function: A_SetSpecial"
@@ -4652,8 +4521,7 @@
       {
         "name": "amount",
         "type": "int",
-        "optional": true,
-        "default": "0"
+        "optional": true
       }
     ],
     "desc": "Action function: A_GiveToChildren"
@@ -4668,8 +4536,7 @@
       {
         "name": "amount",
         "type": "int",
-        "optional": true,
-        "default": "0"
+        "optional": true
       }
     ],
     "desc": "Action function: A_GiveToSiblings"
@@ -4684,8 +4551,7 @@
       {
         "name": "amount",
         "type": "int",
-        "optional": true,
-        "default": "0"
+        "optional": true
       }
     ],
     "desc": "Action function: A_TakeFromChildren"
@@ -4700,8 +4566,7 @@
       {
         "name": "amount",
         "type": "int",
-        "optional": true,
-        "default": "0"
+        "optional": true
       }
     ],
     "desc": "Action function: A_TakeFromSiblings"
@@ -4822,7 +4687,6 @@
         "name": "newmaster",
         "type": "int",
         "optional": true,
-        "default": "AAPTR_DEFAULT",
         "mode": "bitmask",
         "enum": [
           {
@@ -4903,7 +4767,6 @@
         "name": "newtracer",
         "type": "int",
         "optional": true,
-        "default": "AAPTR_DEFAULT",
         "mode": "bitmask",
         "enum": [
           {
@@ -4983,8 +4846,7 @@
       {
         "name": "flags",
         "type": "int",
-        "optional": true,
-        "default": "0"
+        "optional": true
       }
     ],
     "desc": "Action function: A_RearrangePointers"
@@ -5235,7 +5097,6 @@
         "name": "recepientfield",
         "type": "int",
         "optional": true,
-        "default": "AAPTR_DEFAULT",
         "mode": "bitmask",
         "enum": [
           {
@@ -5315,8 +5176,7 @@
       {
         "name": "flags",
         "type": "int",
-        "optional": true,
-        "default": "0"
+        "optional": true
       }
     ],
     "desc": "Action function: A_TransferPointer"
@@ -5417,26 +5277,22 @@
       {
         "name": "mapnum",
         "type": "int",
-        "optional": true,
-        "default": "0"
+        "optional": true
       },
       {
         "name": "arg1",
         "type": "int",
-        "optional": true,
-        "default": "0"
+        "optional": true
       },
       {
         "name": "arg2",
         "type": "int",
-        "optional": true,
-        "default": "0"
+        "optional": true
       },
       {
         "name": "arg3",
         "type": "int",
-        "optional": true,
-        "default": "0"
+        "optional": true
       }
     ],
     "desc": "Action function: ACS_NamedExecute"
@@ -5451,8 +5307,7 @@
       {
         "name": "mapnum",
         "type": "int",
-        "optional": true,
-        "default": "0"
+        "optional": true
       }
     ],
     "desc": "Action function: ACS_NamedSuspend"
@@ -5467,8 +5322,7 @@
       {
         "name": "mapnum",
         "type": "int",
-        "optional": true,
-        "default": "0"
+        "optional": true
       }
     ],
     "desc": "Action function: ACS_NamedTerminate"
@@ -5483,26 +5337,22 @@
       {
         "name": "mapnum",
         "type": "int",
-        "optional": true,
-        "default": "0"
+        "optional": true
       },
       {
         "name": "arg1",
         "type": "int",
-        "optional": true,
-        "default": "0"
+        "optional": true
       },
       {
         "name": "arg2",
         "type": "int",
-        "optional": true,
-        "default": "0"
+        "optional": true
       },
       {
         "name": "lock",
         "type": "int",
-        "optional": true,
-        "default": "0"
+        "optional": true
       }
     ],
     "desc": "Action function: ACS_NamedLockedExecute"
@@ -5517,26 +5367,22 @@
       {
         "name": "mapnum",
         "type": "int",
-        "optional": true,
-        "default": "0"
+        "optional": true
       },
       {
         "name": "arg1",
         "type": "int",
-        "optional": true,
-        "default": "0"
+        "optional": true
       },
       {
         "name": "arg2",
         "type": "int",
-        "optional": true,
-        "default": "0"
+        "optional": true
       },
       {
         "name": "lock",
         "type": "int",
-        "optional": true,
-        "default": "0"
+        "optional": true
       }
     ],
     "desc": "Action function: ACS_NamedLockedExecuteDoor"
@@ -5551,26 +5397,22 @@
       {
         "name": "arg1",
         "type": "int",
-        "optional": true,
-        "default": "0"
+        "optional": true
       },
       {
         "name": "arg2",
         "type": "int",
-        "optional": true,
-        "default": "0"
+        "optional": true
       },
       {
         "name": "arg3",
         "type": "int",
-        "optional": true,
-        "default": "0"
+        "optional": true
       },
       {
         "name": "arg4",
         "type": "int",
-        "optional": true,
-        "default": "0"
+        "optional": true
       }
     ],
     "desc": "Action function: ACS_NamedExecuteWithResult",
@@ -5589,26 +5431,22 @@
       {
         "name": "mapnum",
         "type": "int",
-        "optional": true,
-        "default": "0"
+        "optional": true
       },
       {
         "name": "arg1",
         "type": "int",
-        "optional": true,
-        "default": "0"
+        "optional": true
       },
       {
         "name": "arg2",
         "type": "int",
-        "optional": true,
-        "default": "0"
+        "optional": true
       },
       {
         "name": "arg3",
         "type": "int",
-        "optional": true,
-        "default": "0"
+        "optional": true
       }
     ],
     "desc": "Action function: ACS_NamedExecuteAlways"
@@ -5677,8 +5515,7 @@
       {
         "name": "range",
         "type": "float",
-        "optional": true,
-        "default": "0"
+        "optional": true
       }
     ],
     "desc": "Action function: A_FireBullets",
@@ -5694,8 +5531,7 @@
       {
         "name": "angle",
         "type": "float",
-        "optional": true,
-        "default": "0"
+        "optional": true
       },
       {
         "name": "useammo",
@@ -5706,26 +5542,22 @@
       {
         "name": "spawnofs_xy",
         "type": "int",
-        "optional": true,
-        "default": "0"
+        "optional": true
       },
       {
         "name": "spawnheight",
         "type": "float",
-        "optional": true,
-        "default": "0"
+        "optional": true
       },
       {
         "name": "aimatangle",
         "type": "bool",
-        "optional": true,
-        "default": "false"
+        "optional": true
       },
       {
         "name": "pitch",
         "type": "float",
-        "optional": true,
-        "default": "0"
+        "optional": true
       }
     ],
     "desc": "Action function: A_FireCustomMissile",
@@ -6007,8 +5839,7 @@
       {
         "name": "ignoremissile",
         "type": "bool",
-        "optional": true,
-        "default": "false"
+        "optional": true
       }
     ],
     "for": "ScriptedMarine",
@@ -7254,8 +7085,7 @@
       {
         "name": "norandom",
         "type": "bool",
-        "optional": true,
-        "default": "false"
+        "optional": true
       },
       {
         "name": "flags",
@@ -7272,18 +7102,16 @@
       {
         "name": "range",
         "type": "float",
-        "optional": true,
-        "default": "0"
+        "optional": true
       },
       {
         "name": "lifesteal",
         "type": "float",
-        "optional": true,
-        "default": "0"
+        "optional": true
       }
     ],
-    "for": "Inventory",
-    "desc": "Action function: A_CustomPunch"
+    "desc": "Action function: A_CustomPunch",
+    "for": "Inventory"
   },
   "A_RailAttack": {
     "params": [
@@ -7295,8 +7123,7 @@
       {
         "name": "spawnofs_xy",
         "type": "int",
-        "optional": true,
-        "default": "0"
+        "optional": true
       },
       {
         "name": "useammo",
@@ -7319,14 +7146,12 @@
       {
         "name": "flags",
         "type": "int",
-        "optional": true,
-        "default": "0"
+        "optional": true
       },
       {
         "name": "maxdiff",
         "type": "float",
-        "optional": true,
-        "default": "0"
+        "optional": true
       },
       {
         "name": "pufftype",
@@ -7337,26 +7162,22 @@
       {
         "name": "spread_xy",
         "type": "float",
-        "optional": true,
-        "default": "0"
+        "optional": true
       },
       {
         "name": "spread_z",
         "type": "float",
-        "optional": true,
-        "default": "0"
+        "optional": true
       },
       {
         "name": "range",
         "type": "float",
-        "optional": true,
-        "default": "0"
+        "optional": true
       },
       {
         "name": "duration",
         "type": "int",
-        "optional": true,
-        "default": "0"
+        "optional": true
       },
       {
         "name": "sparsity",
@@ -7379,12 +7200,11 @@
       {
         "name": "spawnofs_z",
         "type": "float",
-        "optional": true,
-        "default": "0"
+        "optional": true
       }
     ],
-    "for": "Inventory",
-    "desc": "Action function: A_RailAttack"
+    "desc": "Action function: A_RailAttack",
+    "for": "Inventory"
   },
   "A_Light": {
     "params": [
@@ -7422,12 +7242,11 @@
       {
         "name": "flags",
         "type": "int",
-        "optional": true,
-        "default": "0"
+        "optional": true
       }
     ],
-    "for": "Inventory",
-    "desc": "Action function: A_WeaponReady"
+    "desc": "Action function: A_WeaponReady",
+    "for": "Inventory"
   },
   "A_Lower": {
     "params": [],
@@ -7571,12 +7390,11 @@
       {
         "name": "flags",
         "type": "int",
-        "optional": true,
-        "default": "0"
+        "optional": true
       }
     ],
-    "for": "Inventory",
-    "desc": "Action function: A_GunFlash"
+    "desc": "Action function: A_GunFlash",
+    "for": "Inventory"
   },
   "A_Saw": {
     "params": [
@@ -7607,14 +7425,12 @@
       {
         "name": "flags",
         "type": "int",
-        "optional": true,
-        "default": "0"
+        "optional": true
       },
       {
         "name": "range",
         "type": "float",
-        "optional": true,
-        "default": "0"
+        "optional": true
       },
       {
         "name": "spread_xy",
@@ -7625,18 +7441,16 @@
       {
         "name": "spread_z",
         "type": "float",
-        "optional": true,
-        "default": "0"
+        "optional": true
       },
       {
         "name": "lifesteal",
         "type": "float",
-        "optional": true,
-        "default": "0"
+        "optional": true
       }
     ],
-    "for": "Inventory",
-    "desc": "Action function: A_Saw"
+    "desc": "Action function: A_Saw",
+    "for": "Inventory"
   },
   "A_CheckForReload": {
     "params": [
@@ -7653,12 +7467,11 @@
       {
         "name": "dontincrement",
         "type": "bool",
-        "optional": true,
-        "default": "false"
+        "optional": true
       }
     ],
-    "for": "Inventory",
-    "desc": "Action function: A_CheckForReload"
+    "desc": "Action function: A_CheckForReload",
+    "for": "Inventory"
   },
   "A_ResetReloadCounter": {
     "params": [],
@@ -7701,12 +7514,11 @@
       {
         "name": "flags",
         "type": "int",
-        "optional": true,
-        "default": "0"
+        "optional": true
       }
     ],
-    "for": "Weapon",
-    "desc": "Action function: A_ZoomFactor"
+    "desc": "Action function: A_ZoomFactor",
+    "for": "Weapon"
   },
   "A_SetCrosshair": {
     "params": [
@@ -7729,20 +7541,17 @@
       {
         "name": "fail_sp",
         "type": "int",
-        "optional": true,
-        "default": "0"
+        "optional": true
       },
       {
         "name": "fail_co",
         "type": "int",
-        "optional": true,
-        "default": "0"
+        "optional": true
       },
       {
         "name": "fail_dm",
         "type": "int",
-        "optional": true,
-        "default": "0"
+        "optional": true
       }
     ],
     "for": "SpecialSpot",

@@ -1,12 +1,17 @@
 import { ParamData } from './dataLoader';
 
+/** Non-zero defaults are stored in metadata; zero defaults are intentionally absent. */
+function defaultSuffix(param: ParamData): string {
+    return param.default !== undefined ? ` = ${param.default}` : '';
+}
+
 export function buildSignature(functionName: string, params?: ParamData[]): string {
     if (!Array.isArray(params) || params.length === 0) {
         return `${functionName}()`;
     }
 
     const paramStrings = params.map((param) => {
-        const typeAndName = `${param.type} ${param.name}`;
+        const typeAndName = `${param.type} ${param.name}${defaultSuffix(param)}`;
         return param.optional ? `[${typeAndName}]` : typeAndName;
     });
 
@@ -24,15 +29,17 @@ export function formatCompletionDetail(params?: ParamData[]): string {
 
     const paramStrings = params
         .filter(p => typeof p === 'object')
-        .map(p => p.optional ? `[${p.name}: ${p.type}]` : `${p.name}: ${p.type}`);
+        .map(p => p.optional
+            ? `[${p.name}: ${p.type}${defaultSuffix(p)}]`
+            : `${p.name}: ${p.type}${defaultSuffix(p)}`);
 
     return `(${paramStrings.join(', ')})`;
 }
 
 export function buildParamLabel(param: ParamData): string {
     const base = param.optional
-        ? `[${param.name}: ${param.type}]`
-        : `${param.name}: ${param.type}`;
+        ? `[${param.name}: ${param.type}${defaultSuffix(param)}]`
+        : `${param.name}: ${param.type}${defaultSuffix(param)}`;
 
     if (param.mode === 'bitmask') {
         return `${base} (bitmask)`;
@@ -49,6 +56,10 @@ export function buildParamDocumentation(param: ParamData): string {
 
     if (param.optional) {
         doc += `**Optional:** Yes\n\n`;
+    }
+
+    if (param.default !== undefined) {
+        doc += `**Default:** \`${param.default}\`\n\n`;
     }
 
     if (param.mode === 'bitmask' && Array.isArray(param.enum)) {

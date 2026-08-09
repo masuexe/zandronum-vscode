@@ -65,9 +65,9 @@ function buildSignatureParts(fnName: string, params?: any[]): SignatureParts {
         if (p.variadic) {
             segment = `${p.type} ${p.name}...`;
         } else if (p.optional) {
-            segment = `[${p.type} ${p.name}]`;
+            segment = `[${p.type} ${p.name}${p.default !== undefined ? ` = ${p.default}` : ''}]`;
         } else {
-            segment = `${p.type} ${p.name}`;
+            segment = `${p.type} ${p.name}${p.default !== undefined ? ` = ${p.default}` : ''}`;
         }
 
         if (i > 0) {
@@ -76,7 +76,8 @@ function buildSignatureParts(fnName: string, params?: any[]): SignatureParts {
         const start = fnName.length + 1 + inner.length;
         inner += segment;
         paramRanges.push([start, start + segment.length]);
-        docs.push(p.desc || `Parameter: ${p.name} (${p.type})`);
+        const docBase = p.desc || `Parameter: ${p.name} (${p.type})`;
+        docs.push(p.default !== undefined ? `${docBase}\nDefault: ${p.default}` : docBase);
     }
 
     return {

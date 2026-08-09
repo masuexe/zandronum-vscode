@@ -268,6 +268,12 @@ Therefore:
 
 Completion providers should not attempt to discover additional built-in symbols from source files.
 
+Line specials (Zandronum `src/actionspecials.h`, `min_args >= 0`) are dual callables: they can appear
+both as state actions and inside DECORATE expressions, so they live in `actions.json` with
+`"usage": ["state", "expression"]` — never in `expressions.json`. `scripts/audit-decorate-actions.js`
+re-syncs them from `data/acs/functions.json` (params/desc) and will delete unlisted line specials on
+`--apply`, so keep that script's `lineSpecialNames()`/`lineSpecialEntries()` in sync with any manual edits.
+
 ---
 
 ## DECORATE State Labels (Engine String Rules)

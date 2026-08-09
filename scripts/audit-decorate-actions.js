@@ -279,6 +279,36 @@ function acsSpecialEntries() {
     };
 }
 
+/** All line specials callable from DECORATE (actionspecials.h, min args >= 0). */
+function lineSpecialNames() {
+    const h = path.join(REF, 'src', 'actionspecials.h');
+    const text = fs.readFileSync(h, 'utf8');
+    const names = [];
+    const re = /DEFINE_SPECIAL\(\s*([A-Za-z0-9_]+)\s*,\s*\d+\s*,\s*(-?\d+)\s*,\s*(-?\d+)\s*,\s*\d+\s*\)/g;
+    let m;
+    while ((m = re.exec(text)) !== null) {
+        if (Number(m[2]) >= 0) names.push(m[1]);
+    }
+    return names;
+}
+
+/** Line special metadata for DECORATE (params/desc reused from data/acs/functions.json). */
+function lineSpecialEntries() {
+    const acsPath = path.join(ROOT, 'data', 'acs', 'functions.json');
+    const acs = JSON.parse(fs.readFileSync(acsPath, 'utf8'));
+    const usage = DUAL_USAGE;
+    const out = {};
+    for (const name of lineSpecialNames()) {
+        const src = acs[name] || {};
+        out[name] = {
+            params: Array.isArray(src.params) ? src.params : [],
+            desc: src.desc || `Line special / ACS callable: ${name}.`,
+            usage,
+        };
+    }
+    return out;
+}
+
 /** Expression-only names that must NOT appear in actions.json. */
 const EXPRESSION_ONLY = new Set([
     'CallACS',
@@ -300,6 +330,7 @@ function dualActionNames() {
         'ThrustThingZ',
         'ACS_NamedExecuteWithResult',
         ...Object.keys(acsSpecialEntries()),
+        ...lineSpecialNames(),
     ]);
 }
 
@@ -563,6 +594,14 @@ function main() {
                 report.added.push(name);
             } else if (!sameUsage(actions[name], DUAL_USAGE)) {
                 actions[name].usage = DUAL_USAGE.slice();
+            }
+        }
+        // Add remaining line specials (duals); metadata comes from data/acs/functions.json
+        const lspec = lineSpecialEntries();
+        for (const [name, entry] of Object.entries(lspec)) {
+            if (!actions[name]) {
+                actions[name] = entry;
+                report.added.push(name);
             }
         }
         if (actions.ACS_NamedExecuteWithResult) {

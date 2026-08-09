@@ -8144,5 +8144,4465 @@
     "params": [],
     "for": "PowerCrystal",
     "desc": "Action function: A_LightGoesOut"
+  },
+  "Autosave": {
+    "params": [],
+    "desc": "Line special / ACS callable: Autosave.",
+    "usage": [
+      "state",
+      "expression"
+    ]
+  },
+  "Ceiling_CrushAndRaise": {
+    "params": [
+      {
+        "name": "arg1",
+        "type": "int"
+      },
+      {
+        "name": "arg2",
+        "type": "int"
+      },
+      {
+        "name": "arg3",
+        "type": "int"
+      },
+      {
+        "name": "arg4",
+        "type": "int",
+        "optional": true
+      }
+    ],
+    "desc": "Line special / ACS callable: Ceiling_CrushAndRaise.",
+    "usage": [
+      "state",
+      "expression"
+    ]
+  },
+  "Ceiling_CrushAndRaiseA": {
+    "params": [
+      {
+        "name": "arg1",
+        "type": "int"
+      },
+      {
+        "name": "arg2",
+        "type": "int"
+      },
+      {
+        "name": "arg3",
+        "type": "int"
+      },
+      {
+        "name": "arg4",
+        "type": "int"
+      },
+      {
+        "name": "arg5",
+        "type": "int",
+        "optional": true
+      }
+    ],
+    "desc": "Line special / ACS callable: Ceiling_CrushAndRaiseA.",
+    "usage": [
+      "state",
+      "expression"
+    ]
+  },
+  "Ceiling_CrushAndRaiseDist": {
+    "params": [
+      {
+        "name": "arg1",
+        "type": "int"
+      },
+      {
+        "name": "arg2",
+        "type": "int"
+      },
+      {
+        "name": "arg3",
+        "type": "int"
+      },
+      {
+        "name": "arg4",
+        "type": "int",
+        "optional": true
+      },
+      {
+        "name": "arg5",
+        "type": "int",
+        "optional": true
+      }
+    ],
+    "desc": "Line special / ACS callable: Ceiling_CrushAndRaiseDist.",
+    "usage": [
+      "state",
+      "expression"
+    ]
+  },
+  "Ceiling_CrushAndRaiseSilentA": {
+    "params": [
+      {
+        "name": "arg1",
+        "type": "int"
+      },
+      {
+        "name": "arg2",
+        "type": "int"
+      },
+      {
+        "name": "arg3",
+        "type": "int"
+      },
+      {
+        "name": "arg4",
+        "type": "int"
+      },
+      {
+        "name": "arg5",
+        "type": "int",
+        "optional": true
+      }
+    ],
+    "desc": "Line special / ACS callable: Ceiling_CrushAndRaiseSilentA.",
+    "usage": [
+      "state",
+      "expression"
+    ]
+  },
+  "Ceiling_CrushRaiseAndStay": {
+    "params": [
+      {
+        "name": "arg1",
+        "type": "int"
+      },
+      {
+        "name": "arg2",
+        "type": "int"
+      },
+      {
+        "name": "arg3",
+        "type": "int"
+      },
+      {
+        "name": "arg4",
+        "type": "int",
+        "optional": true
+      }
+    ],
+    "desc": "Line special / ACS callable: Ceiling_CrushRaiseAndStay.",
+    "usage": [
+      "state",
+      "expression"
+    ]
+  },
+  "Ceiling_CrushRaiseAndStayA": {
+    "params": [
+      {
+        "name": "arg1",
+        "type": "int"
+      },
+      {
+        "name": "arg2",
+        "type": "int"
+      },
+      {
+        "name": "arg3",
+        "type": "int"
+      },
+      {
+        "name": "arg4",
+        "type": "int"
+      },
+      {
+        "name": "arg5",
+        "type": "int",
+        "optional": true
+      }
+    ],
+    "desc": "Line special / ACS callable: Ceiling_CrushRaiseAndStayA.",
+    "usage": [
+      "state",
+      "expression"
+    ]
+  },
+  "Ceiling_CrushRaiseAndStaySilA": {
+    "params": [
+      {
+        "name": "arg1",
+        "type": "int"
+      },
+      {
+        "name": "arg2",
+        "type": "int"
+      },
+      {
+        "name": "arg3",
+        "type": "int"
+      },
+      {
+        "name": "arg4",
+        "type": "int"
+      },
+      {
+        "name": "arg5",
+        "type": "int",
+        "optional": true
+      }
+    ],
+    "desc": "Line special / ACS callable: Ceiling_CrushRaiseAndStaySilA.",
+    "usage": [
+      "state",
+      "expression"
+    ]
+  },
+  "Ceiling_CrushStop": {
+    "params": [
+      {
+        "name": "arg1",
+        "type": "int"
+      },
+      {
+        "name": "arg2",
+        "type": "int",
+        "optional": true
+      }
+    ],
+    "desc": "Line special / ACS callable: Ceiling_CrushStop.",
+    "usage": [
+      "state",
+      "expression"
+    ]
+  },
+  "Ceiling_LowerAndCrush": {
+    "params": [
+      {
+        "name": "arg1",
+        "type": "int"
+      },
+      {
+        "name": "arg2",
+        "type": "int"
+      },
+      {
+        "name": "arg3",
+        "type": "int"
+      },
+      {
+        "name": "arg4",
+        "type": "int",
+        "optional": true
+      }
+    ],
+    "desc": "Line special / ACS callable: Ceiling_LowerAndCrush.",
+    "usage": [
+      "state",
+      "expression"
+    ]
+  },
+  "Ceiling_LowerAndCrushDist": {
+    "params": [
+      {
+        "name": "arg1",
+        "type": "int"
+      },
+      {
+        "name": "arg2",
+        "type": "int"
+      },
+      {
+        "name": "arg3",
+        "type": "int"
+      },
+      {
+        "name": "arg4",
+        "type": "int",
+        "optional": true
+      },
+      {
+        "name": "arg5",
+        "type": "int",
+        "optional": true
+      }
+    ],
+    "desc": "Line special / ACS callable: Ceiling_LowerAndCrushDist.",
+    "usage": [
+      "state",
+      "expression"
+    ]
+  },
+  "Ceiling_LowerByValue": {
+    "params": [
+      {
+        "name": "tag",
+        "type": "int"
+      },
+      {
+        "name": "speed",
+        "type": "int"
+      },
+      {
+        "name": "value",
+        "type": "int"
+      },
+      {
+        "name": "arg4",
+        "type": "int",
+        "optional": true
+      },
+      {
+        "name": "arg5",
+        "type": "int",
+        "optional": true
+      }
+    ],
+    "desc": "Lowers the ceiling by the given value.",
+    "usage": [
+      "state",
+      "expression"
+    ]
+  },
+  "Ceiling_LowerByValueTimes8": {
+    "params": [
+      {
+        "name": "arg1",
+        "type": "int"
+      },
+      {
+        "name": "arg2",
+        "type": "int"
+      },
+      {
+        "name": "arg3",
+        "type": "int"
+      },
+      {
+        "name": "arg4",
+        "type": "int",
+        "optional": true
+      },
+      {
+        "name": "arg5",
+        "type": "int",
+        "optional": true
+      }
+    ],
+    "desc": "Line special / ACS callable: Ceiling_LowerByValueTimes8.",
+    "usage": [
+      "state",
+      "expression"
+    ]
+  },
+  "Ceiling_LowerInstant": {
+    "params": [
+      {
+        "name": "tag",
+        "type": "int"
+      },
+      {
+        "name": "unused",
+        "type": "int"
+      },
+      {
+        "name": "value",
+        "type": "int"
+      },
+      {
+        "name": "arg4",
+        "type": "int",
+        "optional": true
+      },
+      {
+        "name": "arg5",
+        "type": "int",
+        "optional": true
+      }
+    ],
+    "desc": "Instantly lowers the ceiling.",
+    "usage": [
+      "state",
+      "expression"
+    ]
+  },
+  "Ceiling_LowerToFloor": {
+    "params": [
+      {
+        "name": "arg1",
+        "type": "int"
+      },
+      {
+        "name": "arg2",
+        "type": "int"
+      },
+      {
+        "name": "arg3",
+        "type": "int",
+        "optional": true
+      },
+      {
+        "name": "arg4",
+        "type": "int",
+        "optional": true
+      },
+      {
+        "name": "arg5",
+        "type": "int",
+        "optional": true
+      }
+    ],
+    "desc": "Line special / ACS callable: Ceiling_LowerToFloor.",
+    "usage": [
+      "state",
+      "expression"
+    ]
+  },
+  "Ceiling_LowerToHighestFloor": {
+    "params": [
+      {
+        "name": "arg1",
+        "type": "int"
+      },
+      {
+        "name": "arg2",
+        "type": "int"
+      },
+      {
+        "name": "arg3",
+        "type": "int",
+        "optional": true
+      },
+      {
+        "name": "arg4",
+        "type": "int",
+        "optional": true
+      },
+      {
+        "name": "arg5",
+        "type": "int",
+        "optional": true
+      }
+    ],
+    "desc": "Line special / ACS callable: Ceiling_LowerToHighestFloor.",
+    "usage": [
+      "state",
+      "expression"
+    ]
+  },
+  "Ceiling_LowerToLowest": {
+    "params": [
+      {
+        "name": "arg1",
+        "type": "int"
+      },
+      {
+        "name": "arg2",
+        "type": "int"
+      },
+      {
+        "name": "arg3",
+        "type": "int",
+        "optional": true
+      },
+      {
+        "name": "arg4",
+        "type": "int",
+        "optional": true
+      }
+    ],
+    "desc": "Line special / ACS callable: Ceiling_LowerToLowest.",
+    "usage": [
+      "state",
+      "expression"
+    ]
+  },
+  "Ceiling_MoveToValue": {
+    "params": [
+      {
+        "name": "tag",
+        "type": "int"
+      },
+      {
+        "name": "speed",
+        "type": "int"
+      },
+      {
+        "name": "height",
+        "type": "int"
+      },
+      {
+        "name": "negValue",
+        "type": "int",
+        "optional": true
+      },
+      {
+        "name": "arg5",
+        "type": "int",
+        "optional": true
+      }
+    ],
+    "desc": "Moves the ceiling to the given absolute height.",
+    "usage": [
+      "state",
+      "expression"
+    ]
+  },
+  "Ceiling_MoveToValueTimes8": {
+    "params": [
+      {
+        "name": "arg1",
+        "type": "int"
+      },
+      {
+        "name": "arg2",
+        "type": "int"
+      },
+      {
+        "name": "arg3",
+        "type": "int"
+      },
+      {
+        "name": "arg4",
+        "type": "int"
+      },
+      {
+        "name": "arg5",
+        "type": "int",
+        "optional": true
+      }
+    ],
+    "desc": "Line special / ACS callable: Ceiling_MoveToValueTimes8.",
+    "usage": [
+      "state",
+      "expression"
+    ]
+  },
+  "Ceiling_RaiseByValue": {
+    "params": [
+      {
+        "name": "tag",
+        "type": "int"
+      },
+      {
+        "name": "speed",
+        "type": "int"
+      },
+      {
+        "name": "value",
+        "type": "int"
+      },
+      {
+        "name": "arg4",
+        "type": "int",
+        "optional": true
+      }
+    ],
+    "desc": "Raises the ceiling by the given value.",
+    "usage": [
+      "state",
+      "expression"
+    ]
+  },
+  "Ceiling_RaiseByValueTimes8": {
+    "params": [
+      {
+        "name": "arg1",
+        "type": "int"
+      },
+      {
+        "name": "arg2",
+        "type": "int"
+      },
+      {
+        "name": "arg3",
+        "type": "int"
+      },
+      {
+        "name": "arg4",
+        "type": "int",
+        "optional": true
+      }
+    ],
+    "desc": "Line special / ACS callable: Ceiling_RaiseByValueTimes8.",
+    "usage": [
+      "state",
+      "expression"
+    ]
+  },
+  "Ceiling_RaiseInstant": {
+    "params": [
+      {
+        "name": "tag",
+        "type": "int"
+      },
+      {
+        "name": "unused",
+        "type": "int"
+      },
+      {
+        "name": "value",
+        "type": "int"
+      },
+      {
+        "name": "arg4",
+        "type": "int",
+        "optional": true
+      }
+    ],
+    "desc": "Instantly raises the ceiling.",
+    "usage": [
+      "state",
+      "expression"
+    ]
+  },
+  "Ceiling_RaiseToNearest": {
+    "params": [
+      {
+        "name": "arg1",
+        "type": "int"
+      },
+      {
+        "name": "arg2",
+        "type": "int"
+      },
+      {
+        "name": "arg3",
+        "type": "int",
+        "optional": true
+      }
+    ],
+    "desc": "Line special / ACS callable: Ceiling_RaiseToNearest.",
+    "usage": [
+      "state",
+      "expression"
+    ]
+  },
+  "Ceiling_Waggle": {
+    "params": [
+      {
+        "name": "tag",
+        "type": "int"
+      },
+      {
+        "name": "amplitude",
+        "type": "int"
+      },
+      {
+        "name": "frequency",
+        "type": "int"
+      },
+      {
+        "name": "startDelay",
+        "type": "int"
+      },
+      {
+        "name": "phaseOffset",
+        "type": "int"
+      }
+    ],
+    "desc": "Waggles the ceiling.",
+    "usage": [
+      "state",
+      "expression"
+    ]
+  },
+  "ChangeCamera": {
+    "params": [
+      {
+        "name": "tid",
+        "type": "int"
+      },
+      {
+        "name": "who",
+        "type": "int"
+      },
+      {
+        "name": "revert",
+        "type": "bool"
+      }
+    ],
+    "desc": "Changes the activator's camera to view from the given actor.",
+    "usage": [
+      "state",
+      "expression"
+    ]
+  },
+  "ChangeSkill": {
+    "params": [
+      {
+        "name": "arg1",
+        "type": "int"
+      }
+    ],
+    "desc": "Line special / ACS callable: ChangeSkill.",
+    "usage": [
+      "state",
+      "expression"
+    ]
+  },
+  "ClearForceField": {
+    "params": [
+      {
+        "name": "arg1",
+        "type": "int"
+      }
+    ],
+    "desc": "Line special / ACS callable: ClearForceField.",
+    "usage": [
+      "state",
+      "expression"
+    ]
+  },
+  "DamageThing": {
+    "params": [
+      {
+        "name": "arg1",
+        "type": "int"
+      },
+      {
+        "name": "arg2",
+        "type": "int",
+        "optional": true
+      }
+    ],
+    "desc": "Line special / ACS callable: DamageThing.",
+    "usage": [
+      "state",
+      "expression"
+    ]
+  },
+  "Door_Animated": {
+    "params": [
+      {
+        "name": "tag",
+        "type": "int"
+      },
+      {
+        "name": "speed",
+        "type": "int"
+      },
+      {
+        "name": "delay",
+        "type": "int"
+      },
+      {
+        "name": "arg4",
+        "type": "int",
+        "optional": true
+      }
+    ],
+    "desc": "Opens an animated door and closes it after a delay.",
+    "usage": [
+      "state",
+      "expression"
+    ]
+  },
+  "Door_Close": {
+    "params": [
+      {
+        "name": "tag",
+        "type": "int"
+      },
+      {
+        "name": "speed",
+        "type": "int"
+      },
+      {
+        "name": "lightTag",
+        "type": "int",
+        "optional": true
+      }
+    ],
+    "desc": "Closes a door.",
+    "usage": [
+      "state",
+      "expression"
+    ]
+  },
+  "Door_CloseWaitOpen": {
+    "params": [
+      {
+        "name": "arg1",
+        "type": "int"
+      },
+      {
+        "name": "arg2",
+        "type": "int"
+      },
+      {
+        "name": "arg3",
+        "type": "int"
+      },
+      {
+        "name": "arg4",
+        "type": "int",
+        "optional": true
+      }
+    ],
+    "desc": "Line special / ACS callable: Door_CloseWaitOpen.",
+    "usage": [
+      "state",
+      "expression"
+    ]
+  },
+  "Door_LockedRaise": {
+    "params": [
+      {
+        "name": "tag",
+        "type": "int"
+      },
+      {
+        "name": "speed",
+        "type": "int"
+      },
+      {
+        "name": "delay",
+        "type": "int"
+      },
+      {
+        "name": "lightTag",
+        "type": "int"
+      },
+      {
+        "name": "lock",
+        "type": "int",
+        "optional": true
+      }
+    ],
+    "desc": "Raises a locked door.",
+    "usage": [
+      "state",
+      "expression"
+    ]
+  },
+  "Door_Open": {
+    "params": [
+      {
+        "name": "tag",
+        "type": "int"
+      },
+      {
+        "name": "speed",
+        "type": "int"
+      },
+      {
+        "name": "lightTag",
+        "type": "int",
+        "optional": true
+      }
+    ],
+    "desc": "Opens a door.",
+    "usage": [
+      "state",
+      "expression"
+    ]
+  },
+  "Door_Raise": {
+    "params": [
+      {
+        "name": "tag",
+        "type": "int"
+      },
+      {
+        "name": "speed",
+        "type": "int"
+      },
+      {
+        "name": "delay",
+        "type": "int"
+      },
+      {
+        "name": "lightTag",
+        "type": "int",
+        "optional": true
+      }
+    ],
+    "desc": "Raises a door and then closes it after a delay.",
+    "usage": [
+      "state",
+      "expression"
+    ]
+  },
+  "Elevator_LowerToNearest": {
+    "params": [
+      {
+        "name": "arg1",
+        "type": "int"
+      },
+      {
+        "name": "arg2",
+        "type": "int"
+      }
+    ],
+    "desc": "Line special / ACS callable: Elevator_LowerToNearest.",
+    "usage": [
+      "state",
+      "expression"
+    ]
+  },
+  "Elevator_MoveToFloor": {
+    "params": [
+      {
+        "name": "arg1",
+        "type": "int"
+      },
+      {
+        "name": "arg2",
+        "type": "int"
+      }
+    ],
+    "desc": "Line special / ACS callable: Elevator_MoveToFloor.",
+    "usage": [
+      "state",
+      "expression"
+    ]
+  },
+  "Elevator_RaiseToNearest": {
+    "params": [
+      {
+        "name": "arg1",
+        "type": "int"
+      },
+      {
+        "name": "arg2",
+        "type": "int"
+      }
+    ],
+    "desc": "Line special / ACS callable: Elevator_RaiseToNearest.",
+    "usage": [
+      "state",
+      "expression"
+    ]
+  },
+  "Exit_Normal": {
+    "params": [
+      {
+        "name": "position",
+        "type": "int"
+      }
+    ],
+    "desc": "Exits the current level normally.",
+    "usage": [
+      "state",
+      "expression"
+    ]
+  },
+  "Exit_Secret": {
+    "params": [
+      {
+        "name": "position",
+        "type": "int"
+      }
+    ],
+    "desc": "Exits to the secret level.",
+    "usage": [
+      "state",
+      "expression"
+    ]
+  },
+  "Floor_CrushStop": {
+    "params": [
+      {
+        "name": "arg1",
+        "type": "int"
+      }
+    ],
+    "desc": "Line special / ACS callable: Floor_CrushStop.",
+    "usage": [
+      "state",
+      "expression"
+    ]
+  },
+  "Floor_Donut": {
+    "params": [
+      {
+        "name": "arg1",
+        "type": "int"
+      },
+      {
+        "name": "arg2",
+        "type": "int"
+      },
+      {
+        "name": "arg3",
+        "type": "int"
+      }
+    ],
+    "desc": "Line special / ACS callable: Floor_Donut.",
+    "usage": [
+      "state",
+      "expression"
+    ]
+  },
+  "Floor_LowerByValue": {
+    "params": [
+      {
+        "name": "tag",
+        "type": "int"
+      },
+      {
+        "name": "speed",
+        "type": "int"
+      },
+      {
+        "name": "value",
+        "type": "int"
+      },
+      {
+        "name": "arg4",
+        "type": "int",
+        "optional": true
+      }
+    ],
+    "desc": "Lowers the floor by the given value.",
+    "usage": [
+      "state",
+      "expression"
+    ]
+  },
+  "Floor_LowerByValueTimes8": {
+    "params": [
+      {
+        "name": "arg1",
+        "type": "int"
+      },
+      {
+        "name": "arg2",
+        "type": "int"
+      },
+      {
+        "name": "arg3",
+        "type": "int"
+      },
+      {
+        "name": "arg4",
+        "type": "int",
+        "optional": true
+      }
+    ],
+    "desc": "Line special / ACS callable: Floor_LowerByValueTimes8.",
+    "usage": [
+      "state",
+      "expression"
+    ]
+  },
+  "Floor_LowerInstant": {
+    "params": [
+      {
+        "name": "tag",
+        "type": "int"
+      },
+      {
+        "name": "unused",
+        "type": "int"
+      },
+      {
+        "name": "value",
+        "type": "int"
+      },
+      {
+        "name": "arg4",
+        "type": "int",
+        "optional": true
+      }
+    ],
+    "desc": "Instantly lowers the floor.",
+    "usage": [
+      "state",
+      "expression"
+    ]
+  },
+  "Floor_LowerToHighest": {
+    "params": [
+      {
+        "name": "arg1",
+        "type": "int"
+      },
+      {
+        "name": "arg2",
+        "type": "int"
+      },
+      {
+        "name": "arg3",
+        "type": "int"
+      },
+      {
+        "name": "arg4",
+        "type": "int",
+        "optional": true
+      }
+    ],
+    "desc": "Line special / ACS callable: Floor_LowerToHighest.",
+    "usage": [
+      "state",
+      "expression"
+    ]
+  },
+  "Floor_LowerToLowest": {
+    "params": [
+      {
+        "name": "arg1",
+        "type": "int"
+      },
+      {
+        "name": "arg2",
+        "type": "int"
+      },
+      {
+        "name": "arg3",
+        "type": "int",
+        "optional": true
+      }
+    ],
+    "desc": "Line special / ACS callable: Floor_LowerToLowest.",
+    "usage": [
+      "state",
+      "expression"
+    ]
+  },
+  "Floor_LowerToLowestTxTy": {
+    "params": [
+      {
+        "name": "arg1",
+        "type": "int"
+      },
+      {
+        "name": "arg2",
+        "type": "int"
+      }
+    ],
+    "desc": "Line special / ACS callable: Floor_LowerToLowestTxTy.",
+    "usage": [
+      "state",
+      "expression"
+    ]
+  },
+  "Floor_LowerToNearest": {
+    "params": [
+      {
+        "name": "arg1",
+        "type": "int"
+      },
+      {
+        "name": "arg2",
+        "type": "int"
+      },
+      {
+        "name": "arg3",
+        "type": "int",
+        "optional": true
+      }
+    ],
+    "desc": "Line special / ACS callable: Floor_LowerToNearest.",
+    "usage": [
+      "state",
+      "expression"
+    ]
+  },
+  "Floor_MoveToValue": {
+    "params": [
+      {
+        "name": "tag",
+        "type": "int"
+      },
+      {
+        "name": "speed",
+        "type": "int"
+      },
+      {
+        "name": "height",
+        "type": "int"
+      },
+      {
+        "name": "negValue",
+        "type": "int",
+        "optional": true
+      },
+      {
+        "name": "arg5",
+        "type": "int",
+        "optional": true
+      }
+    ],
+    "desc": "Moves the floor to the given absolute height.",
+    "usage": [
+      "state",
+      "expression"
+    ]
+  },
+  "Floor_MoveToValueTimes8": {
+    "params": [
+      {
+        "name": "arg1",
+        "type": "int"
+      },
+      {
+        "name": "arg2",
+        "type": "int"
+      },
+      {
+        "name": "arg3",
+        "type": "int"
+      },
+      {
+        "name": "arg4",
+        "type": "int"
+      },
+      {
+        "name": "arg5",
+        "type": "int",
+        "optional": true
+      }
+    ],
+    "desc": "Line special / ACS callable: Floor_MoveToValueTimes8.",
+    "usage": [
+      "state",
+      "expression"
+    ]
+  },
+  "Floor_RaiseAndCrush": {
+    "params": [
+      {
+        "name": "arg1",
+        "type": "int"
+      },
+      {
+        "name": "arg2",
+        "type": "int"
+      },
+      {
+        "name": "arg3",
+        "type": "int"
+      },
+      {
+        "name": "arg4",
+        "type": "int",
+        "optional": true
+      }
+    ],
+    "desc": "Line special / ACS callable: Floor_RaiseAndCrush.",
+    "usage": [
+      "state",
+      "expression"
+    ]
+  },
+  "Floor_RaiseAndCrushDoom": {
+    "params": [
+      {
+        "name": "arg1",
+        "type": "int"
+      },
+      {
+        "name": "arg2",
+        "type": "int"
+      },
+      {
+        "name": "arg3",
+        "type": "int"
+      },
+      {
+        "name": "arg4",
+        "type": "int",
+        "optional": true
+      }
+    ],
+    "desc": "Line special / ACS callable: Floor_RaiseAndCrushDoom.",
+    "usage": [
+      "state",
+      "expression"
+    ]
+  },
+  "Floor_RaiseByTexture": {
+    "params": [
+      {
+        "name": "arg1",
+        "type": "int"
+      },
+      {
+        "name": "arg2",
+        "type": "int"
+      },
+      {
+        "name": "arg3",
+        "type": "int",
+        "optional": true
+      },
+      {
+        "name": "arg4",
+        "type": "int",
+        "optional": true
+      }
+    ],
+    "desc": "Line special / ACS callable: Floor_RaiseByTexture.",
+    "usage": [
+      "state",
+      "expression"
+    ]
+  },
+  "Floor_RaiseByValue": {
+    "params": [
+      {
+        "name": "tag",
+        "type": "int"
+      },
+      {
+        "name": "speed",
+        "type": "int"
+      },
+      {
+        "name": "value",
+        "type": "int"
+      },
+      {
+        "name": "arg4",
+        "type": "int",
+        "optional": true
+      },
+      {
+        "name": "arg5",
+        "type": "int",
+        "optional": true
+      }
+    ],
+    "desc": "Raises the floor by the given value.",
+    "usage": [
+      "state",
+      "expression"
+    ]
+  },
+  "Floor_RaiseByValueTimes8": {
+    "params": [
+      {
+        "name": "arg1",
+        "type": "int"
+      },
+      {
+        "name": "arg2",
+        "type": "int"
+      },
+      {
+        "name": "arg3",
+        "type": "int"
+      },
+      {
+        "name": "arg4",
+        "type": "int",
+        "optional": true
+      },
+      {
+        "name": "arg5",
+        "type": "int",
+        "optional": true
+      }
+    ],
+    "desc": "Line special / ACS callable: Floor_RaiseByValueTimes8.",
+    "usage": [
+      "state",
+      "expression"
+    ]
+  },
+  "Floor_RaiseByValueTxTy": {
+    "params": [
+      {
+        "name": "arg1",
+        "type": "int"
+      },
+      {
+        "name": "arg2",
+        "type": "int"
+      },
+      {
+        "name": "arg3",
+        "type": "int"
+      }
+    ],
+    "desc": "Line special / ACS callable: Floor_RaiseByValueTxTy.",
+    "usage": [
+      "state",
+      "expression"
+    ]
+  },
+  "Floor_RaiseInstant": {
+    "params": [
+      {
+        "name": "tag",
+        "type": "int"
+      },
+      {
+        "name": "unused",
+        "type": "int"
+      },
+      {
+        "name": "value",
+        "type": "int"
+      },
+      {
+        "name": "arg4",
+        "type": "int",
+        "optional": true
+      },
+      {
+        "name": "arg5",
+        "type": "int",
+        "optional": true
+      }
+    ],
+    "desc": "Instantly raises the floor.",
+    "usage": [
+      "state",
+      "expression"
+    ]
+  },
+  "Floor_RaiseToHighest": {
+    "params": [
+      {
+        "name": "arg1",
+        "type": "int"
+      },
+      {
+        "name": "arg2",
+        "type": "int"
+      },
+      {
+        "name": "arg3",
+        "type": "int",
+        "optional": true
+      },
+      {
+        "name": "arg4",
+        "type": "int",
+        "optional": true
+      },
+      {
+        "name": "arg5",
+        "type": "int",
+        "optional": true
+      }
+    ],
+    "desc": "Line special / ACS callable: Floor_RaiseToHighest.",
+    "usage": [
+      "state",
+      "expression"
+    ]
+  },
+  "Floor_RaiseToLowestCeiling": {
+    "params": [
+      {
+        "name": "arg1",
+        "type": "int"
+      },
+      {
+        "name": "arg2",
+        "type": "int"
+      },
+      {
+        "name": "arg3",
+        "type": "int",
+        "optional": true
+      },
+      {
+        "name": "arg4",
+        "type": "int",
+        "optional": true
+      },
+      {
+        "name": "arg5",
+        "type": "int",
+        "optional": true
+      }
+    ],
+    "desc": "Line special / ACS callable: Floor_RaiseToLowestCeiling.",
+    "usage": [
+      "state",
+      "expression"
+    ]
+  },
+  "Floor_RaiseToNearest": {
+    "params": [
+      {
+        "name": "arg1",
+        "type": "int"
+      },
+      {
+        "name": "arg2",
+        "type": "int"
+      },
+      {
+        "name": "arg3",
+        "type": "int",
+        "optional": true
+      },
+      {
+        "name": "arg4",
+        "type": "int",
+        "optional": true
+      }
+    ],
+    "desc": "Line special / ACS callable: Floor_RaiseToNearest.",
+    "usage": [
+      "state",
+      "expression"
+    ]
+  },
+  "Floor_TransferNumeric": {
+    "params": [
+      {
+        "name": "arg1",
+        "type": "int"
+      }
+    ],
+    "desc": "Line special / ACS callable: Floor_TransferNumeric.",
+    "usage": [
+      "state",
+      "expression"
+    ]
+  },
+  "Floor_TransferTrigger": {
+    "params": [
+      {
+        "name": "arg1",
+        "type": "int"
+      }
+    ],
+    "desc": "Line special / ACS callable: Floor_TransferTrigger.",
+    "usage": [
+      "state",
+      "expression"
+    ]
+  },
+  "Floor_Waggle": {
+    "params": [
+      {
+        "name": "tag",
+        "type": "int"
+      },
+      {
+        "name": "amplitude",
+        "type": "int"
+      },
+      {
+        "name": "frequency",
+        "type": "int"
+      },
+      {
+        "name": "startDelay",
+        "type": "int"
+      },
+      {
+        "name": "phaseOffset",
+        "type": "int"
+      }
+    ],
+    "desc": "Waggles the floor.",
+    "usage": [
+      "state",
+      "expression"
+    ]
+  },
+  "FloorAndCeiling_LowerByValue": {
+    "params": [
+      {
+        "name": "arg1",
+        "type": "int"
+      },
+      {
+        "name": "arg2",
+        "type": "int"
+      },
+      {
+        "name": "arg3",
+        "type": "int"
+      }
+    ],
+    "desc": "Line special / ACS callable: FloorAndCeiling_LowerByValue.",
+    "usage": [
+      "state",
+      "expression"
+    ]
+  },
+  "FloorAndCeiling_LowerRaise": {
+    "params": [
+      {
+        "name": "arg1",
+        "type": "int"
+      },
+      {
+        "name": "arg2",
+        "type": "int"
+      },
+      {
+        "name": "arg3",
+        "type": "int"
+      },
+      {
+        "name": "arg4",
+        "type": "int",
+        "optional": true
+      }
+    ],
+    "desc": "Line special / ACS callable: FloorAndCeiling_LowerRaise.",
+    "usage": [
+      "state",
+      "expression"
+    ]
+  },
+  "FloorAndCeiling_RaiseByValue": {
+    "params": [
+      {
+        "name": "arg1",
+        "type": "int"
+      },
+      {
+        "name": "arg2",
+        "type": "int"
+      },
+      {
+        "name": "arg3",
+        "type": "int"
+      }
+    ],
+    "desc": "Line special / ACS callable: FloorAndCeiling_RaiseByValue.",
+    "usage": [
+      "state",
+      "expression"
+    ]
+  },
+  "ForceField": {
+    "params": [],
+    "desc": "Line special / ACS callable: ForceField.",
+    "usage": [
+      "state",
+      "expression"
+    ]
+  },
+  "FS_Execute": {
+    "params": [
+      {
+        "name": "arg1",
+        "type": "int"
+      },
+      {
+        "name": "arg2",
+        "type": "int",
+        "optional": true
+      },
+      {
+        "name": "arg3",
+        "type": "int",
+        "optional": true
+      },
+      {
+        "name": "arg4",
+        "type": "int",
+        "optional": true
+      }
+    ],
+    "desc": "Line special / ACS callable: FS_Execute.",
+    "usage": [
+      "state",
+      "expression"
+    ]
+  },
+  "Generic_Ceiling": {
+    "params": [
+      {
+        "name": "tag",
+        "type": "int"
+      },
+      {
+        "name": "speed",
+        "type": "int"
+      },
+      {
+        "name": "height",
+        "type": "int"
+      },
+      {
+        "name": "target",
+        "type": "int"
+      },
+      {
+        "name": "flags",
+        "type": "int"
+      }
+    ],
+    "desc": "Performs a generic ceiling action.",
+    "usage": [
+      "state",
+      "expression"
+    ]
+  },
+  "Generic_Crusher": {
+    "params": [
+      {
+        "name": "tag",
+        "type": "int"
+      },
+      {
+        "name": "speed",
+        "type": "int"
+      },
+      {
+        "name": "silent",
+        "type": "int"
+      },
+      {
+        "name": "arg4",
+        "type": "int"
+      },
+      {
+        "name": "arg5",
+        "type": "int"
+      }
+    ],
+    "desc": "Performs a generic crusher action.",
+    "usage": [
+      "state",
+      "expression"
+    ]
+  },
+  "Generic_Crusher2": {
+    "params": [
+      {
+        "name": "arg1",
+        "type": "int"
+      },
+      {
+        "name": "arg2",
+        "type": "int"
+      },
+      {
+        "name": "arg3",
+        "type": "int"
+      },
+      {
+        "name": "arg4",
+        "type": "int"
+      },
+      {
+        "name": "arg5",
+        "type": "int"
+      }
+    ],
+    "desc": "Line special / ACS callable: Generic_Crusher2.",
+    "usage": [
+      "state",
+      "expression"
+    ]
+  },
+  "Generic_Door": {
+    "params": [
+      {
+        "name": "tag",
+        "type": "int"
+      },
+      {
+        "name": "speed",
+        "type": "int"
+      },
+      {
+        "name": "kind",
+        "type": "int"
+      },
+      {
+        "name": "delay",
+        "type": "int"
+      },
+      {
+        "name": "lightTag",
+        "type": "int"
+      }
+    ],
+    "desc": "Performs a generic door action.",
+    "usage": [
+      "state",
+      "expression"
+    ]
+  },
+  "Generic_Floor": {
+    "params": [
+      {
+        "name": "tag",
+        "type": "int"
+      },
+      {
+        "name": "speed",
+        "type": "int"
+      },
+      {
+        "name": "height",
+        "type": "int"
+      },
+      {
+        "name": "target",
+        "type": "int"
+      },
+      {
+        "name": "flags",
+        "type": "int"
+      }
+    ],
+    "desc": "Performs a generic floor action.",
+    "usage": [
+      "state",
+      "expression"
+    ]
+  },
+  "Generic_Lift": {
+    "params": [
+      {
+        "name": "arg1",
+        "type": "int"
+      },
+      {
+        "name": "arg2",
+        "type": "int"
+      },
+      {
+        "name": "arg3",
+        "type": "int"
+      },
+      {
+        "name": "arg4",
+        "type": "int"
+      },
+      {
+        "name": "arg5",
+        "type": "int"
+      }
+    ],
+    "desc": "Line special / ACS callable: Generic_Lift.",
+    "usage": [
+      "state",
+      "expression"
+    ]
+  },
+  "Generic_Stairs": {
+    "params": [
+      {
+        "name": "arg1",
+        "type": "int"
+      },
+      {
+        "name": "arg2",
+        "type": "int"
+      },
+      {
+        "name": "arg3",
+        "type": "int"
+      },
+      {
+        "name": "arg4",
+        "type": "int"
+      },
+      {
+        "name": "arg5",
+        "type": "int"
+      }
+    ],
+    "desc": "Line special / ACS callable: Generic_Stairs.",
+    "usage": [
+      "state",
+      "expression"
+    ]
+  },
+  "GlassBreak": {
+    "params": [
+      {
+        "name": "arg1",
+        "type": "int",
+        "optional": true
+      },
+      {
+        "name": "arg2",
+        "type": "int",
+        "optional": true
+      }
+    ],
+    "desc": "Line special / ACS callable: GlassBreak.",
+    "usage": [
+      "state",
+      "expression"
+    ]
+  },
+  "HealThing": {
+    "params": [
+      {
+        "name": "arg1",
+        "type": "int"
+      },
+      {
+        "name": "arg2",
+        "type": "int",
+        "optional": true
+      }
+    ],
+    "desc": "Line special / ACS callable: HealThing.",
+    "usage": [
+      "state",
+      "expression"
+    ]
+  },
+  "Light_ChangeToValue": {
+    "params": [
+      {
+        "name": "tag",
+        "type": "int"
+      },
+      {
+        "name": "value",
+        "type": "int"
+      }
+    ],
+    "desc": "Sets the light level of the tagged sector.",
+    "usage": [
+      "state",
+      "expression"
+    ]
+  },
+  "Light_Fade": {
+    "params": [
+      {
+        "name": "tag",
+        "type": "int"
+      },
+      {
+        "name": "value",
+        "type": "int"
+      },
+      {
+        "name": "tics",
+        "type": "int"
+      }
+    ],
+    "desc": "Fades the light level of the tagged sector.",
+    "usage": [
+      "state",
+      "expression"
+    ]
+  },
+  "Light_Flicker": {
+    "params": [
+      {
+        "name": "arg1",
+        "type": "int"
+      },
+      {
+        "name": "arg2",
+        "type": "int"
+      },
+      {
+        "name": "arg3",
+        "type": "int"
+      }
+    ],
+    "desc": "Line special / ACS callable: Light_Flicker.",
+    "usage": [
+      "state",
+      "expression"
+    ]
+  },
+  "Light_ForceLightning": {
+    "params": [
+      {
+        "name": "arg1",
+        "type": "int"
+      }
+    ],
+    "desc": "Line special / ACS callable: Light_ForceLightning.",
+    "usage": [
+      "state",
+      "expression"
+    ]
+  },
+  "Light_Glow": {
+    "params": [
+      {
+        "name": "tag",
+        "type": "int"
+      },
+      {
+        "name": "type",
+        "type": "int"
+      },
+      {
+        "name": "value",
+        "type": "int"
+      },
+      {
+        "name": "tics",
+        "type": "int"
+      }
+    ],
+    "desc": "Creates a glowing light effect in the tagged sector.",
+    "usage": [
+      "state",
+      "expression"
+    ]
+  },
+  "Light_LowerByValue": {
+    "params": [
+      {
+        "name": "tag",
+        "type": "int"
+      },
+      {
+        "name": "value",
+        "type": "int"
+      }
+    ],
+    "desc": "Lowers the light level of the tagged sector.",
+    "usage": [
+      "state",
+      "expression"
+    ]
+  },
+  "Light_MaxNeighbor": {
+    "params": [
+      {
+        "name": "arg1",
+        "type": "int"
+      }
+    ],
+    "desc": "Line special / ACS callable: Light_MaxNeighbor.",
+    "usage": [
+      "state",
+      "expression"
+    ]
+  },
+  "Light_MinNeighbor": {
+    "params": [
+      {
+        "name": "arg1",
+        "type": "int"
+      }
+    ],
+    "desc": "Line special / ACS callable: Light_MinNeighbor.",
+    "usage": [
+      "state",
+      "expression"
+    ]
+  },
+  "Light_RaiseByValue": {
+    "params": [
+      {
+        "name": "tag",
+        "type": "int"
+      },
+      {
+        "name": "value",
+        "type": "int"
+      }
+    ],
+    "desc": "Raises the light level of the tagged sector.",
+    "usage": [
+      "state",
+      "expression"
+    ]
+  },
+  "Light_Stop": {
+    "params": [
+      {
+        "name": "tag",
+        "type": "int"
+      }
+    ],
+    "desc": "Stops the light effect on the tagged sector.",
+    "usage": [
+      "state",
+      "expression"
+    ]
+  },
+  "Light_Strobe": {
+    "params": [
+      {
+        "name": "tag",
+        "type": "int"
+      },
+      {
+        "name": "upper",
+        "type": "int"
+      },
+      {
+        "name": "lower",
+        "type": "int"
+      },
+      {
+        "name": "tics",
+        "type": "int"
+      },
+      {
+        "name": "arg5",
+        "type": "int"
+      }
+    ],
+    "desc": "Strobes the light level of the tagged sector.",
+    "usage": [
+      "state",
+      "expression"
+    ]
+  },
+  "Light_StrobeDoom": {
+    "params": [
+      {
+        "name": "arg1",
+        "type": "int"
+      },
+      {
+        "name": "arg2",
+        "type": "int"
+      },
+      {
+        "name": "arg3",
+        "type": "int"
+      }
+    ],
+    "desc": "Line special / ACS callable: Light_StrobeDoom.",
+    "usage": [
+      "state",
+      "expression"
+    ]
+  },
+  "Line_AlignCeiling": {
+    "params": [
+      {
+        "name": "arg1",
+        "type": "int"
+      },
+      {
+        "name": "arg2",
+        "type": "int"
+      }
+    ],
+    "desc": "Line special / ACS callable: Line_AlignCeiling.",
+    "usage": [
+      "state",
+      "expression"
+    ]
+  },
+  "Line_AlignFloor": {
+    "params": [
+      {
+        "name": "arg1",
+        "type": "int"
+      },
+      {
+        "name": "arg2",
+        "type": "int"
+      }
+    ],
+    "desc": "Line special / ACS callable: Line_AlignFloor.",
+    "usage": [
+      "state",
+      "expression"
+    ]
+  },
+  "Line_SetBlocking": {
+    "params": [
+      {
+        "name": "lineId",
+        "type": "int"
+      },
+      {
+        "name": "flags",
+        "type": "int"
+      },
+      {
+        "name": "flags2",
+        "type": "int"
+      }
+    ],
+    "desc": "Sets blocking flags for a line.",
+    "usage": [
+      "state",
+      "expression"
+    ]
+  },
+  "Line_SetTextureOffset": {
+    "params": [
+      {
+        "name": "lineId",
+        "type": "int"
+      },
+      {
+        "name": "side",
+        "type": "int"
+      },
+      {
+        "name": "offset",
+        "type": "int"
+      },
+      {
+        "name": "arg4",
+        "type": "int"
+      },
+      {
+        "name": "arg5",
+        "type": "int"
+      }
+    ],
+    "desc": "Sets texture offset for a line.",
+    "usage": [
+      "state",
+      "expression"
+    ]
+  },
+  "Line_SetTextureScale": {
+    "params": [
+      {
+        "name": "lineId",
+        "type": "int"
+      },
+      {
+        "name": "side",
+        "type": "int"
+      },
+      {
+        "name": "scale",
+        "type": "int"
+      },
+      {
+        "name": "scaleY",
+        "type": "int"
+      },
+      {
+        "name": "arg5",
+        "type": "int"
+      }
+    ],
+    "desc": "Sets texture scale for a line.",
+    "usage": [
+      "state",
+      "expression"
+    ]
+  },
+  "NoiseAlert": {
+    "params": [
+      {
+        "name": "arg1",
+        "type": "int"
+      },
+      {
+        "name": "arg2",
+        "type": "int"
+      }
+    ],
+    "desc": "Line special / ACS callable: NoiseAlert.",
+    "usage": [
+      "state",
+      "expression"
+    ]
+  },
+  "Pillar_Build": {
+    "params": [
+      {
+        "name": "tag",
+        "type": "int"
+      },
+      {
+        "name": "speed",
+        "type": "int"
+      },
+      {
+        "name": "height",
+        "type": "int"
+      }
+    ],
+    "desc": "Builds a pillar to the specified height.",
+    "usage": [
+      "state",
+      "expression"
+    ]
+  },
+  "Pillar_BuildAndCrush": {
+    "params": [
+      {
+        "name": "tag",
+        "type": "int"
+      },
+      {
+        "name": "speed",
+        "type": "int"
+      },
+      {
+        "name": "height",
+        "type": "int"
+      },
+      {
+        "name": "crush",
+        "type": "int"
+      },
+      {
+        "name": "arg5",
+        "type": "int",
+        "optional": true
+      }
+    ],
+    "desc": "Builds a pillar and crushes.",
+    "usage": [
+      "state",
+      "expression"
+    ]
+  },
+  "Pillar_Open": {
+    "params": [
+      {
+        "name": "tag",
+        "type": "int"
+      },
+      {
+        "name": "speed",
+        "type": "int"
+      },
+      {
+        "name": "distFloor",
+        "type": "int"
+      },
+      {
+        "name": "distCeiling",
+        "type": "int"
+      }
+    ],
+    "desc": "Opens a pillar.",
+    "usage": [
+      "state",
+      "expression"
+    ]
+  },
+  "Plat_DownByValue": {
+    "params": [
+      {
+        "name": "arg1",
+        "type": "int"
+      },
+      {
+        "name": "arg2",
+        "type": "int"
+      },
+      {
+        "name": "arg3",
+        "type": "int"
+      },
+      {
+        "name": "arg4",
+        "type": "int"
+      }
+    ],
+    "desc": "Line special / ACS callable: Plat_DownByValue.",
+    "usage": [
+      "state",
+      "expression"
+    ]
+  },
+  "Plat_DownWaitUpStay": {
+    "params": [
+      {
+        "name": "tag",
+        "type": "int"
+      },
+      {
+        "name": "speed",
+        "type": "int"
+      },
+      {
+        "name": "delay",
+        "type": "int"
+      }
+    ],
+    "desc": "Lowers a platform, waits, then raises it.",
+    "usage": [
+      "state",
+      "expression"
+    ]
+  },
+  "Plat_DownWaitUpStayLip": {
+    "params": [
+      {
+        "name": "arg1",
+        "type": "int"
+      },
+      {
+        "name": "arg2",
+        "type": "int"
+      },
+      {
+        "name": "arg3",
+        "type": "int"
+      },
+      {
+        "name": "arg4",
+        "type": "int"
+      },
+      {
+        "name": "arg5",
+        "type": "int",
+        "optional": true
+      }
+    ],
+    "desc": "Line special / ACS callable: Plat_DownWaitUpStayLip.",
+    "usage": [
+      "state",
+      "expression"
+    ]
+  },
+  "Plat_PerpetualRaise": {
+    "params": [
+      {
+        "name": "tag",
+        "type": "int"
+      },
+      {
+        "name": "speed",
+        "type": "int"
+      },
+      {
+        "name": "delay",
+        "type": "int"
+      }
+    ],
+    "desc": "Continuously raises a platform.",
+    "usage": [
+      "state",
+      "expression"
+    ]
+  },
+  "Plat_PerpetualRaiseLip": {
+    "params": [
+      {
+        "name": "arg1",
+        "type": "int"
+      },
+      {
+        "name": "arg2",
+        "type": "int"
+      },
+      {
+        "name": "arg3",
+        "type": "int"
+      },
+      {
+        "name": "arg4",
+        "type": "int"
+      }
+    ],
+    "desc": "Line special / ACS callable: Plat_PerpetualRaiseLip.",
+    "usage": [
+      "state",
+      "expression"
+    ]
+  },
+  "Plat_RaiseAndStayTx0": {
+    "params": [
+      {
+        "name": "arg1",
+        "type": "int"
+      },
+      {
+        "name": "arg2",
+        "type": "int"
+      },
+      {
+        "name": "arg3",
+        "type": "int",
+        "optional": true
+      }
+    ],
+    "desc": "Line special / ACS callable: Plat_RaiseAndStayTx0.",
+    "usage": [
+      "state",
+      "expression"
+    ]
+  },
+  "Plat_Stop": {
+    "params": [
+      {
+        "name": "arg1",
+        "type": "int"
+      },
+      {
+        "name": "arg2",
+        "type": "int",
+        "optional": true
+      }
+    ],
+    "desc": "Line special / ACS callable: Plat_Stop.",
+    "usage": [
+      "state",
+      "expression"
+    ]
+  },
+  "Plat_ToggleCeiling": {
+    "params": [
+      {
+        "name": "arg1",
+        "type": "int"
+      }
+    ],
+    "desc": "Line special / ACS callable: Plat_ToggleCeiling.",
+    "usage": [
+      "state",
+      "expression"
+    ]
+  },
+  "Plat_UpByValue": {
+    "params": [
+      {
+        "name": "arg1",
+        "type": "int"
+      },
+      {
+        "name": "arg2",
+        "type": "int"
+      },
+      {
+        "name": "arg3",
+        "type": "int"
+      },
+      {
+        "name": "arg4",
+        "type": "int"
+      }
+    ],
+    "desc": "Line special / ACS callable: Plat_UpByValue.",
+    "usage": [
+      "state",
+      "expression"
+    ]
+  },
+  "Plat_UpByValueStayTx": {
+    "params": [
+      {
+        "name": "arg1",
+        "type": "int"
+      },
+      {
+        "name": "arg2",
+        "type": "int"
+      },
+      {
+        "name": "arg3",
+        "type": "int"
+      }
+    ],
+    "desc": "Line special / ACS callable: Plat_UpByValueStayTx.",
+    "usage": [
+      "state",
+      "expression"
+    ]
+  },
+  "Plat_UpNearestWaitDownStay": {
+    "params": [
+      {
+        "name": "arg1",
+        "type": "int"
+      },
+      {
+        "name": "arg2",
+        "type": "int"
+      },
+      {
+        "name": "arg3",
+        "type": "int"
+      }
+    ],
+    "desc": "Line special / ACS callable: Plat_UpNearestWaitDownStay.",
+    "usage": [
+      "state",
+      "expression"
+    ]
+  },
+  "Plat_UpWaitDownStay": {
+    "params": [
+      {
+        "name": "arg1",
+        "type": "int"
+      },
+      {
+        "name": "arg2",
+        "type": "int"
+      },
+      {
+        "name": "arg3",
+        "type": "int"
+      }
+    ],
+    "desc": "Line special / ACS callable: Plat_UpWaitDownStay.",
+    "usage": [
+      "state",
+      "expression"
+    ]
+  },
+  "Polyobj_DoorSlide": {
+    "params": [
+      {
+        "name": "arg1",
+        "type": "int"
+      },
+      {
+        "name": "arg2",
+        "type": "int"
+      },
+      {
+        "name": "arg3",
+        "type": "int"
+      },
+      {
+        "name": "arg4",
+        "type": "int"
+      },
+      {
+        "name": "arg5",
+        "type": "int"
+      }
+    ],
+    "desc": "Line special / ACS callable: Polyobj_DoorSlide.",
+    "usage": [
+      "state",
+      "expression"
+    ]
+  },
+  "Polyobj_DoorSwing": {
+    "params": [
+      {
+        "name": "arg1",
+        "type": "int"
+      },
+      {
+        "name": "arg2",
+        "type": "int"
+      },
+      {
+        "name": "arg3",
+        "type": "int"
+      },
+      {
+        "name": "arg4",
+        "type": "int"
+      }
+    ],
+    "desc": "Line special / ACS callable: Polyobj_DoorSwing.",
+    "usage": [
+      "state",
+      "expression"
+    ]
+  },
+  "Polyobj_Move": {
+    "params": [
+      {
+        "name": "arg1",
+        "type": "int"
+      },
+      {
+        "name": "arg2",
+        "type": "int"
+      },
+      {
+        "name": "arg3",
+        "type": "int"
+      },
+      {
+        "name": "arg4",
+        "type": "int"
+      }
+    ],
+    "desc": "Line special / ACS callable: Polyobj_Move.",
+    "usage": [
+      "state",
+      "expression"
+    ]
+  },
+  "Polyobj_MoveTimes8": {
+    "params": [
+      {
+        "name": "arg1",
+        "type": "int"
+      },
+      {
+        "name": "arg2",
+        "type": "int"
+      },
+      {
+        "name": "arg3",
+        "type": "int"
+      },
+      {
+        "name": "arg4",
+        "type": "int"
+      }
+    ],
+    "desc": "Line special / ACS callable: Polyobj_MoveTimes8.",
+    "usage": [
+      "state",
+      "expression"
+    ]
+  },
+  "Polyobj_MoveTo": {
+    "params": [
+      {
+        "name": "arg1",
+        "type": "int"
+      },
+      {
+        "name": "arg2",
+        "type": "int"
+      },
+      {
+        "name": "arg3",
+        "type": "int"
+      },
+      {
+        "name": "arg4",
+        "type": "int"
+      }
+    ],
+    "desc": "Line special / ACS callable: Polyobj_MoveTo.",
+    "usage": [
+      "state",
+      "expression"
+    ]
+  },
+  "Polyobj_MoveToSpot": {
+    "params": [
+      {
+        "name": "arg1",
+        "type": "int"
+      },
+      {
+        "name": "arg2",
+        "type": "int"
+      },
+      {
+        "name": "arg3",
+        "type": "int"
+      }
+    ],
+    "desc": "Line special / ACS callable: Polyobj_MoveToSpot.",
+    "usage": [
+      "state",
+      "expression"
+    ]
+  },
+  "Polyobj_OR_Move": {
+    "params": [
+      {
+        "name": "arg1",
+        "type": "int"
+      },
+      {
+        "name": "arg2",
+        "type": "int"
+      },
+      {
+        "name": "arg3",
+        "type": "int"
+      },
+      {
+        "name": "arg4",
+        "type": "int"
+      }
+    ],
+    "desc": "Line special / ACS callable: Polyobj_OR_Move.",
+    "usage": [
+      "state",
+      "expression"
+    ]
+  },
+  "Polyobj_OR_MoveTimes8": {
+    "params": [
+      {
+        "name": "arg1",
+        "type": "int"
+      },
+      {
+        "name": "arg2",
+        "type": "int"
+      },
+      {
+        "name": "arg3",
+        "type": "int"
+      },
+      {
+        "name": "arg4",
+        "type": "int"
+      }
+    ],
+    "desc": "Line special / ACS callable: Polyobj_OR_MoveTimes8.",
+    "usage": [
+      "state",
+      "expression"
+    ]
+  },
+  "Polyobj_OR_MoveTo": {
+    "params": [
+      {
+        "name": "arg1",
+        "type": "int"
+      },
+      {
+        "name": "arg2",
+        "type": "int"
+      },
+      {
+        "name": "arg3",
+        "type": "int"
+      },
+      {
+        "name": "arg4",
+        "type": "int"
+      }
+    ],
+    "desc": "Line special / ACS callable: Polyobj_OR_MoveTo.",
+    "usage": [
+      "state",
+      "expression"
+    ]
+  },
+  "Polyobj_OR_MoveToSpot": {
+    "params": [
+      {
+        "name": "arg1",
+        "type": "int"
+      },
+      {
+        "name": "arg2",
+        "type": "int"
+      },
+      {
+        "name": "arg3",
+        "type": "int"
+      }
+    ],
+    "desc": "Line special / ACS callable: Polyobj_OR_MoveToSpot.",
+    "usage": [
+      "state",
+      "expression"
+    ]
+  },
+  "Polyobj_OR_RotateLeft": {
+    "params": [
+      {
+        "name": "arg1",
+        "type": "int"
+      },
+      {
+        "name": "arg2",
+        "type": "int"
+      },
+      {
+        "name": "arg3",
+        "type": "int"
+      }
+    ],
+    "desc": "Line special / ACS callable: Polyobj_OR_RotateLeft.",
+    "usage": [
+      "state",
+      "expression"
+    ]
+  },
+  "Polyobj_OR_RotateRight": {
+    "params": [
+      {
+        "name": "arg1",
+        "type": "int"
+      },
+      {
+        "name": "arg2",
+        "type": "int"
+      },
+      {
+        "name": "arg3",
+        "type": "int"
+      }
+    ],
+    "desc": "Line special / ACS callable: Polyobj_OR_RotateRight.",
+    "usage": [
+      "state",
+      "expression"
+    ]
+  },
+  "Polyobj_RotateLeft": {
+    "params": [
+      {
+        "name": "arg1",
+        "type": "int"
+      },
+      {
+        "name": "arg2",
+        "type": "int"
+      },
+      {
+        "name": "arg3",
+        "type": "int"
+      }
+    ],
+    "desc": "Line special / ACS callable: Polyobj_RotateLeft.",
+    "usage": [
+      "state",
+      "expression"
+    ]
+  },
+  "Polyobj_RotateRight": {
+    "params": [
+      {
+        "name": "arg1",
+        "type": "int"
+      },
+      {
+        "name": "arg2",
+        "type": "int"
+      },
+      {
+        "name": "arg3",
+        "type": "int"
+      }
+    ],
+    "desc": "Line special / ACS callable: Polyobj_RotateRight.",
+    "usage": [
+      "state",
+      "expression"
+    ]
+  },
+  "Polyobj_Stop": {
+    "params": [
+      {
+        "name": "arg1",
+        "type": "int"
+      }
+    ],
+    "desc": "Line special / ACS callable: Polyobj_Stop.",
+    "usage": [
+      "state",
+      "expression"
+    ]
+  },
+  "Radius_Quake": {
+    "params": [
+      {
+        "name": "arg1",
+        "type": "int"
+      },
+      {
+        "name": "arg2",
+        "type": "int"
+      },
+      {
+        "name": "arg3",
+        "type": "int"
+      },
+      {
+        "name": "arg4",
+        "type": "int"
+      },
+      {
+        "name": "arg5",
+        "type": "int"
+      }
+    ],
+    "desc": "Line special / ACS callable: Radius_Quake.",
+    "usage": [
+      "state",
+      "expression"
+    ]
+  },
+  "Scroll_Ceiling": {
+    "params": [
+      {
+        "name": "arg1",
+        "type": "int"
+      },
+      {
+        "name": "arg2",
+        "type": "int"
+      },
+      {
+        "name": "arg3",
+        "type": "int"
+      },
+      {
+        "name": "arg4",
+        "type": "int"
+      }
+    ],
+    "desc": "Line special / ACS callable: Scroll_Ceiling.",
+    "usage": [
+      "state",
+      "expression"
+    ]
+  },
+  "Scroll_Floor": {
+    "params": [
+      {
+        "name": "arg1",
+        "type": "int"
+      },
+      {
+        "name": "arg2",
+        "type": "int"
+      },
+      {
+        "name": "arg3",
+        "type": "int"
+      },
+      {
+        "name": "arg4",
+        "type": "int"
+      }
+    ],
+    "desc": "Line special / ACS callable: Scroll_Floor.",
+    "usage": [
+      "state",
+      "expression"
+    ]
+  },
+  "Scroll_Texture_Both": {
+    "params": [
+      {
+        "name": "arg1",
+        "type": "int"
+      },
+      {
+        "name": "arg2",
+        "type": "int"
+      },
+      {
+        "name": "arg3",
+        "type": "int"
+      },
+      {
+        "name": "arg4",
+        "type": "int"
+      },
+      {
+        "name": "arg5",
+        "type": "int"
+      }
+    ],
+    "desc": "Line special / ACS callable: Scroll_Texture_Both.",
+    "usage": [
+      "state",
+      "expression"
+    ]
+  },
+  "Scroll_Wall": {
+    "params": [
+      {
+        "name": "arg1",
+        "type": "int"
+      },
+      {
+        "name": "arg2",
+        "type": "int"
+      },
+      {
+        "name": "arg3",
+        "type": "int"
+      },
+      {
+        "name": "arg4",
+        "type": "int"
+      },
+      {
+        "name": "arg5",
+        "type": "int"
+      }
+    ],
+    "desc": "Line special / ACS callable: Scroll_Wall.",
+    "usage": [
+      "state",
+      "expression"
+    ]
+  },
+  "Sector_ChangeFlags": {
+    "params": [
+      {
+        "name": "arg1",
+        "type": "int"
+      },
+      {
+        "name": "arg2",
+        "type": "int"
+      },
+      {
+        "name": "arg3",
+        "type": "int"
+      }
+    ],
+    "desc": "Line special / ACS callable: Sector_ChangeFlags.",
+    "usage": [
+      "state",
+      "expression"
+    ]
+  },
+  "Sector_ChangeSound": {
+    "params": [
+      {
+        "name": "arg1",
+        "type": "int"
+      },
+      {
+        "name": "arg2",
+        "type": "int"
+      }
+    ],
+    "desc": "Line special / ACS callable: Sector_ChangeSound.",
+    "usage": [
+      "state",
+      "expression"
+    ]
+  },
+  "Sector_SetCeilingPanning": {
+    "params": [
+      {
+        "name": "tag",
+        "type": "int"
+      },
+      {
+        "name": "xInt",
+        "type": "int"
+      },
+      {
+        "name": "xFrac",
+        "type": "int"
+      },
+      {
+        "name": "yInt",
+        "type": "int"
+      },
+      {
+        "name": "yFrac",
+        "type": "int"
+      }
+    ],
+    "desc": "Sets ceiling texture panning for a sector.",
+    "usage": [
+      "state",
+      "expression"
+    ]
+  },
+  "Sector_SetCeilingScale": {
+    "params": [
+      {
+        "name": "tag",
+        "type": "int"
+      },
+      {
+        "name": "xInt",
+        "type": "int"
+      },
+      {
+        "name": "xFrac",
+        "type": "int"
+      },
+      {
+        "name": "yInt",
+        "type": "int"
+      },
+      {
+        "name": "yFrac",
+        "type": "int"
+      }
+    ],
+    "desc": "Sets ceiling texture scale for a sector.",
+    "usage": [
+      "state",
+      "expression"
+    ]
+  },
+  "Sector_SetCeilingScale2": {
+    "params": [
+      {
+        "name": "arg1",
+        "type": "int"
+      },
+      {
+        "name": "arg2",
+        "type": "int"
+      },
+      {
+        "name": "arg3",
+        "type": "int"
+      }
+    ],
+    "desc": "Line special / ACS callable: Sector_SetCeilingScale2.",
+    "usage": [
+      "state",
+      "expression"
+    ]
+  },
+  "Sector_SetColor": {
+    "params": [
+      {
+        "name": "tag",
+        "type": "int"
+      },
+      {
+        "name": "r",
+        "type": "int"
+      },
+      {
+        "name": "g",
+        "type": "int"
+      },
+      {
+        "name": "b",
+        "type": "int"
+      },
+      {
+        "name": "desaturate",
+        "type": "int",
+        "optional": true
+      }
+    ],
+    "desc": "Sets the color of a tagged sector.",
+    "usage": [
+      "state",
+      "expression"
+    ]
+  },
+  "Sector_SetCurrent": {
+    "params": [
+      {
+        "name": "arg1",
+        "type": "int"
+      },
+      {
+        "name": "arg2",
+        "type": "int"
+      },
+      {
+        "name": "arg3",
+        "type": "int"
+      },
+      {
+        "name": "arg4",
+        "type": "int"
+      }
+    ],
+    "desc": "Line special / ACS callable: Sector_SetCurrent.",
+    "usage": [
+      "state",
+      "expression"
+    ]
+  },
+  "Sector_SetDamage": {
+    "params": [
+      {
+        "name": "tag",
+        "type": "int"
+      },
+      {
+        "name": "amount",
+        "type": "int"
+      },
+      {
+        "name": "name",
+        "type": "string"
+      },
+      {
+        "name": "arg4",
+        "type": "int",
+        "optional": true
+      },
+      {
+        "name": "arg5",
+        "type": "int",
+        "optional": true
+      }
+    ],
+    "desc": "Sets damage for a tagged sector.",
+    "usage": [
+      "state",
+      "expression"
+    ]
+  },
+  "Sector_SetFade": {
+    "params": [
+      {
+        "name": "tag",
+        "type": "int"
+      },
+      {
+        "name": "r",
+        "type": "int"
+      },
+      {
+        "name": "g",
+        "type": "int"
+      },
+      {
+        "name": "b",
+        "type": "int"
+      }
+    ],
+    "desc": "Sets the fade color of a tagged sector.",
+    "usage": [
+      "state",
+      "expression"
+    ]
+  },
+  "Sector_SetFloorPanning": {
+    "params": [
+      {
+        "name": "tag",
+        "type": "int"
+      },
+      {
+        "name": "xInt",
+        "type": "int"
+      },
+      {
+        "name": "xFrac",
+        "type": "int"
+      },
+      {
+        "name": "yInt",
+        "type": "int"
+      },
+      {
+        "name": "yFrac",
+        "type": "int"
+      }
+    ],
+    "desc": "Sets floor texture panning for a sector.",
+    "usage": [
+      "state",
+      "expression"
+    ]
+  },
+  "Sector_SetFloorScale": {
+    "params": [
+      {
+        "name": "tag",
+        "type": "int"
+      },
+      {
+        "name": "xInt",
+        "type": "int"
+      },
+      {
+        "name": "xFrac",
+        "type": "int"
+      },
+      {
+        "name": "yInt",
+        "type": "int"
+      },
+      {
+        "name": "yFrac",
+        "type": "int"
+      }
+    ],
+    "desc": "Sets floor texture scale for a sector.",
+    "usage": [
+      "state",
+      "expression"
+    ]
+  },
+  "Sector_SetFloorScale2": {
+    "params": [
+      {
+        "name": "arg1",
+        "type": "int"
+      },
+      {
+        "name": "arg2",
+        "type": "int"
+      },
+      {
+        "name": "arg3",
+        "type": "int"
+      }
+    ],
+    "desc": "Line special / ACS callable: Sector_SetFloorScale2.",
+    "usage": [
+      "state",
+      "expression"
+    ]
+  },
+  "Sector_SetFriction": {
+    "params": [
+      {
+        "name": "arg1",
+        "type": "int"
+      },
+      {
+        "name": "arg2",
+        "type": "int"
+      }
+    ],
+    "desc": "Line special / ACS callable: Sector_SetFriction.",
+    "usage": [
+      "state",
+      "expression"
+    ]
+  },
+  "Sector_SetGravity": {
+    "params": [
+      {
+        "name": "tag",
+        "type": "int"
+      },
+      {
+        "name": "xInt",
+        "type": "int"
+      },
+      {
+        "name": "xFrac",
+        "type": "int"
+      }
+    ],
+    "desc": "Sets gravity for a sector.",
+    "usage": [
+      "state",
+      "expression"
+    ]
+  },
+  "Sector_SetLink": {
+    "params": [
+      {
+        "name": "controlTag",
+        "type": "int"
+      },
+      {
+        "name": "linkTag",
+        "type": "int"
+      },
+      {
+        "name": "controlType",
+        "type": "int"
+      },
+      {
+        "name": "linkType",
+        "type": "int"
+      }
+    ],
+    "desc": "Links two sectors together.",
+    "usage": [
+      "state",
+      "expression"
+    ]
+  },
+  "Sector_SetPlaneReflection": {
+    "params": [
+      {
+        "name": "arg1",
+        "type": "int"
+      },
+      {
+        "name": "arg2",
+        "type": "int"
+      },
+      {
+        "name": "arg3",
+        "type": "int"
+      }
+    ],
+    "desc": "Line special / ACS callable: Sector_SetPlaneReflection.",
+    "usage": [
+      "state",
+      "expression"
+    ]
+  },
+  "Sector_SetRotation": {
+    "params": [
+      {
+        "name": "arg1",
+        "type": "int"
+      },
+      {
+        "name": "arg2",
+        "type": "int"
+      },
+      {
+        "name": "arg3",
+        "type": "int"
+      }
+    ],
+    "desc": "Line special / ACS callable: Sector_SetRotation.",
+    "usage": [
+      "state",
+      "expression"
+    ]
+  },
+  "Sector_SetTranslucent": {
+    "params": [
+      {
+        "name": "arg1",
+        "type": "int"
+      },
+      {
+        "name": "arg2",
+        "type": "int"
+      },
+      {
+        "name": "arg3",
+        "type": "int"
+      },
+      {
+        "name": "arg4",
+        "type": "int",
+        "optional": true
+      }
+    ],
+    "desc": "Line special / ACS callable: Sector_SetTranslucent.",
+    "usage": [
+      "state",
+      "expression"
+    ]
+  },
+  "Sector_SetWind": {
+    "params": [
+      {
+        "name": "arg1",
+        "type": "int"
+      },
+      {
+        "name": "arg2",
+        "type": "int"
+      },
+      {
+        "name": "arg3",
+        "type": "int"
+      },
+      {
+        "name": "arg4",
+        "type": "int"
+      }
+    ],
+    "desc": "Line special / ACS callable: Sector_SetWind.",
+    "usage": [
+      "state",
+      "expression"
+    ]
+  },
+  "SendToCommunicator": {
+    "params": [
+      {
+        "name": "arg1",
+        "type": "int"
+      },
+      {
+        "name": "arg2",
+        "type": "int"
+      },
+      {
+        "name": "arg3",
+        "type": "int"
+      },
+      {
+        "name": "arg4",
+        "type": "int"
+      }
+    ],
+    "desc": "Line special / ACS callable: SendToCommunicator.",
+    "usage": [
+      "state",
+      "expression"
+    ]
+  },
+  "SetGlobalFogParameter": {
+    "params": [
+      {
+        "name": "arg1",
+        "type": "int"
+      },
+      {
+        "name": "arg2",
+        "type": "int"
+      }
+    ],
+    "desc": "Line special / ACS callable: SetGlobalFogParameter.",
+    "usage": [
+      "state",
+      "expression"
+    ]
+  },
+  "SetPlayerProperty": {
+    "params": [
+      {
+        "name": "who",
+        "type": "int"
+      },
+      {
+        "name": "set",
+        "type": "bool"
+      },
+      {
+        "name": "property",
+        "type": "int"
+      }
+    ],
+    "desc": "Sets a player property for the given player.",
+    "usage": [
+      "state",
+      "expression"
+    ]
+  },
+  "Stairs_BuildDown": {
+    "params": [
+      {
+        "name": "tag",
+        "type": "int"
+      },
+      {
+        "name": "speed",
+        "type": "int"
+      },
+      {
+        "name": "height",
+        "type": "int"
+      },
+      {
+        "name": "delay",
+        "type": "int"
+      },
+      {
+        "name": "reset",
+        "type": "int"
+      }
+    ],
+    "desc": "Builds stairs going down.",
+    "usage": [
+      "state",
+      "expression"
+    ]
+  },
+  "Stairs_BuildDownSync": {
+    "params": [
+      {
+        "name": "arg1",
+        "type": "int"
+      },
+      {
+        "name": "arg2",
+        "type": "int"
+      },
+      {
+        "name": "arg3",
+        "type": "int"
+      },
+      {
+        "name": "arg4",
+        "type": "int"
+      }
+    ],
+    "desc": "Line special / ACS callable: Stairs_BuildDownSync.",
+    "usage": [
+      "state",
+      "expression"
+    ]
+  },
+  "Stairs_BuildUp": {
+    "params": [
+      {
+        "name": "tag",
+        "type": "int"
+      },
+      {
+        "name": "speed",
+        "type": "int"
+      },
+      {
+        "name": "height",
+        "type": "int"
+      },
+      {
+        "name": "delay",
+        "type": "int"
+      },
+      {
+        "name": "reset",
+        "type": "int"
+      }
+    ],
+    "desc": "Builds stairs going up.",
+    "usage": [
+      "state",
+      "expression"
+    ]
+  },
+  "Stairs_BuildUpDoom": {
+    "params": [
+      {
+        "name": "arg1",
+        "type": "int"
+      },
+      {
+        "name": "arg2",
+        "type": "int"
+      },
+      {
+        "name": "arg3",
+        "type": "int"
+      },
+      {
+        "name": "arg4",
+        "type": "int"
+      },
+      {
+        "name": "arg5",
+        "type": "int"
+      }
+    ],
+    "desc": "Line special / ACS callable: Stairs_BuildUpDoom.",
+    "usage": [
+      "state",
+      "expression"
+    ]
+  },
+  "Stairs_BuildUpSync": {
+    "params": [
+      {
+        "name": "arg1",
+        "type": "int"
+      },
+      {
+        "name": "arg2",
+        "type": "int"
+      },
+      {
+        "name": "arg3",
+        "type": "int"
+      },
+      {
+        "name": "arg4",
+        "type": "int"
+      }
+    ],
+    "desc": "Line special / ACS callable: Stairs_BuildUpSync.",
+    "usage": [
+      "state",
+      "expression"
+    ]
+  },
+  "StartConversation": {
+    "params": [
+      {
+        "name": "arg1",
+        "type": "int"
+      },
+      {
+        "name": "arg2",
+        "type": "int",
+        "optional": true
+      }
+    ],
+    "desc": "Line special / ACS callable: StartConversation.",
+    "usage": [
+      "state",
+      "expression"
+    ]
+  },
+  "Teleport": {
+    "params": [
+      {
+        "name": "tid",
+        "type": "int"
+      },
+      {
+        "name": "targetTid",
+        "type": "int",
+        "optional": true
+      },
+      {
+        "name": "fog",
+        "type": "bool",
+        "optional": true
+      }
+    ],
+    "desc": "Teleports the actor to the target thing.",
+    "usage": [
+      "state",
+      "expression"
+    ]
+  },
+  "Teleport_EndGame": {
+    "params": [],
+    "desc": "Ends the game and shows the finale.",
+    "usage": [
+      "state",
+      "expression"
+    ]
+  },
+  "Teleport_Line": {
+    "params": [
+      {
+        "name": "arg1",
+        "type": "int"
+      },
+      {
+        "name": "arg2",
+        "type": "int"
+      },
+      {
+        "name": "arg3",
+        "type": "int",
+        "optional": true
+      }
+    ],
+    "desc": "Line special / ACS callable: Teleport_Line.",
+    "usage": [
+      "state",
+      "expression"
+    ]
+  },
+  "Teleport_NewMap": {
+    "params": [
+      {
+        "name": "map",
+        "type": "string"
+      },
+      {
+        "name": "position",
+        "type": "int"
+      },
+      {
+        "name": "face",
+        "type": "bool",
+        "optional": true
+      }
+    ],
+    "desc": "Teleports to a new map.",
+    "usage": [
+      "state",
+      "expression"
+    ]
+  },
+  "Teleport_NoFog": {
+    "params": [
+      {
+        "name": "arg1",
+        "type": "int"
+      },
+      {
+        "name": "arg2",
+        "type": "int",
+        "optional": true
+      },
+      {
+        "name": "arg3",
+        "type": "int",
+        "optional": true
+      },
+      {
+        "name": "arg4",
+        "type": "int",
+        "optional": true
+      }
+    ],
+    "desc": "Line special / ACS callable: Teleport_NoFog.",
+    "usage": [
+      "state",
+      "expression"
+    ]
+  },
+  "Teleport_NoStop": {
+    "params": [
+      {
+        "name": "arg1",
+        "type": "int"
+      },
+      {
+        "name": "arg2",
+        "type": "int"
+      },
+      {
+        "name": "arg3",
+        "type": "int",
+        "optional": true
+      }
+    ],
+    "desc": "Line special / ACS callable: Teleport_NoStop.",
+    "usage": [
+      "state",
+      "expression"
+    ]
+  },
+  "Teleport_ZombieChanger": {
+    "params": [
+      {
+        "name": "arg1",
+        "type": "int"
+      },
+      {
+        "name": "arg2",
+        "type": "int"
+      }
+    ],
+    "desc": "Line special / ACS callable: Teleport_ZombieChanger.",
+    "usage": [
+      "state",
+      "expression"
+    ]
+  },
+  "TeleportGroup": {
+    "params": [
+      {
+        "name": "groupTid",
+        "type": "int"
+      },
+      {
+        "name": "sourceTid",
+        "type": "int"
+      },
+      {
+        "name": "destTid",
+        "type": "int"
+      },
+      {
+        "name": "moveSource",
+        "type": "bool"
+      },
+      {
+        "name": "fog",
+        "type": "bool"
+      }
+    ],
+    "desc": "Teleports all members of a group to a destination.",
+    "usage": [
+      "state",
+      "expression"
+    ]
+  },
+  "TeleportInSector": {
+    "params": [
+      {
+        "name": "tag",
+        "type": "int"
+      },
+      {
+        "name": "sourceTid",
+        "type": "int"
+      },
+      {
+        "name": "destTid",
+        "type": "int"
+      },
+      {
+        "name": "fog",
+        "type": "bool"
+      },
+      {
+        "name": "group",
+        "type": "int",
+        "optional": true
+      }
+    ],
+    "desc": "Teleports things from one tagged sector to another.",
+    "usage": [
+      "state",
+      "expression"
+    ]
+  },
+  "TeleportOther": {
+    "params": [
+      {
+        "name": "tid",
+        "type": "int"
+      },
+      {
+        "name": "targetTid",
+        "type": "int"
+      },
+      {
+        "name": "fog",
+        "type": "bool"
+      }
+    ],
+    "desc": "Teleports an actor to a target thing.",
+    "usage": [
+      "state",
+      "expression"
+    ]
+  },
+  "Thing_Activate": {
+    "params": [
+      {
+        "name": "arg1",
+        "type": "int"
+      }
+    ],
+    "desc": "Line special / ACS callable: Thing_Activate.",
+    "usage": [
+      "state",
+      "expression"
+    ]
+  },
+  "Thing_ChangeTID": {
+    "params": [
+      {
+        "name": "arg1",
+        "type": "int"
+      },
+      {
+        "name": "arg2",
+        "type": "int"
+      }
+    ],
+    "desc": "Line special / ACS callable: Thing_ChangeTID.",
+    "usage": [
+      "state",
+      "expression"
+    ]
+  },
+  "Thing_Damage": {
+    "params": [
+      {
+        "name": "tid",
+        "type": "int"
+      },
+      {
+        "name": "amount",
+        "type": "int"
+      },
+      {
+        "name": "mod",
+        "type": "string",
+        "optional": true
+      }
+    ],
+    "desc": "Damages all things with the given TID.",
+    "usage": [
+      "state",
+      "expression"
+    ]
+  },
+  "Thing_Deactivate": {
+    "params": [
+      {
+        "name": "arg1",
+        "type": "int"
+      }
+    ],
+    "desc": "Line special / ACS callable: Thing_Deactivate.",
+    "usage": [
+      "state",
+      "expression"
+    ]
+  },
+  "Thing_Destroy": {
+    "params": [
+      {
+        "name": "tid",
+        "type": "int"
+      },
+      {
+        "name": "extreme",
+        "type": "bool",
+        "optional": true
+      },
+      {
+        "name": "arg3",
+        "type": "int",
+        "optional": true
+      }
+    ],
+    "desc": "Destroys all things with the given TID (plays death animation).",
+    "usage": [
+      "state",
+      "expression"
+    ]
+  },
+  "Thing_Hate": {
+    "params": [
+      {
+        "name": "arg1",
+        "type": "int"
+      },
+      {
+        "name": "arg2",
+        "type": "int"
+      },
+      {
+        "name": "arg3",
+        "type": "int",
+        "optional": true
+      }
+    ],
+    "desc": "Line special / ACS callable: Thing_Hate.",
+    "usage": [
+      "state",
+      "expression"
+    ]
+  },
+  "Thing_Move": {
+    "params": [
+      {
+        "name": "arg1",
+        "type": "int"
+      },
+      {
+        "name": "arg2",
+        "type": "int"
+      },
+      {
+        "name": "arg3",
+        "type": "int",
+        "optional": true
+      }
+    ],
+    "desc": "Line special / ACS callable: Thing_Move.",
+    "usage": [
+      "state",
+      "expression"
+    ]
+  },
+  "Thing_Projectile": {
+    "params": [
+      {
+        "name": "arg1",
+        "type": "int"
+      },
+      {
+        "name": "arg2",
+        "type": "int"
+      },
+      {
+        "name": "arg3",
+        "type": "int"
+      },
+      {
+        "name": "arg4",
+        "type": "int"
+      },
+      {
+        "name": "arg5",
+        "type": "int"
+      }
+    ],
+    "desc": "Line special / ACS callable: Thing_Projectile.",
+    "usage": [
+      "state",
+      "expression"
+    ]
+  },
+  "Thing_ProjectileAimed": {
+    "params": [
+      {
+        "name": "arg1",
+        "type": "int"
+      },
+      {
+        "name": "arg2",
+        "type": "int"
+      },
+      {
+        "name": "arg3",
+        "type": "int"
+      },
+      {
+        "name": "arg4",
+        "type": "int"
+      },
+      {
+        "name": "arg5",
+        "type": "int",
+        "optional": true
+      }
+    ],
+    "desc": "Line special / ACS callable: Thing_ProjectileAimed.",
+    "usage": [
+      "state",
+      "expression"
+    ]
+  },
+  "Thing_ProjectileGravity": {
+    "params": [
+      {
+        "name": "arg1",
+        "type": "int"
+      },
+      {
+        "name": "arg2",
+        "type": "int"
+      },
+      {
+        "name": "arg3",
+        "type": "int"
+      },
+      {
+        "name": "arg4",
+        "type": "int"
+      },
+      {
+        "name": "arg5",
+        "type": "int"
+      }
+    ],
+    "desc": "Line special / ACS callable: Thing_ProjectileGravity.",
+    "usage": [
+      "state",
+      "expression"
+    ]
+  },
+  "Thing_ProjectileIntercept": {
+    "params": [
+      {
+        "name": "arg1",
+        "type": "int"
+      },
+      {
+        "name": "arg2",
+        "type": "int"
+      },
+      {
+        "name": "arg3",
+        "type": "int"
+      },
+      {
+        "name": "arg4",
+        "type": "int"
+      },
+      {
+        "name": "arg5",
+        "type": "int"
+      }
+    ],
+    "desc": "Line special / ACS callable: Thing_ProjectileIntercept.",
+    "usage": [
+      "state",
+      "expression"
+    ]
+  },
+  "Thing_Raise": {
+    "params": [
+      {
+        "name": "arg1",
+        "type": "int"
+      },
+      {
+        "name": "arg2",
+        "type": "int",
+        "optional": true
+      }
+    ],
+    "desc": "Line special / ACS callable: Thing_Raise.",
+    "usage": [
+      "state",
+      "expression"
+    ]
+  },
+  "Thing_Remove": {
+    "params": [
+      {
+        "name": "tid",
+        "type": "int"
+      }
+    ],
+    "desc": "Removes all things with the given TID.",
+    "usage": [
+      "state",
+      "expression"
+    ]
+  },
+  "Thing_SetConversation": {
+    "params": [
+      {
+        "name": "arg1",
+        "type": "int"
+      },
+      {
+        "name": "arg2",
+        "type": "int"
+      }
+    ],
+    "desc": "Line special / ACS callable: Thing_SetConversation.",
+    "usage": [
+      "state",
+      "expression"
+    ]
+  },
+  "Thing_SetGoal": {
+    "params": [
+      {
+        "name": "arg1",
+        "type": "int"
+      },
+      {
+        "name": "arg2",
+        "type": "int"
+      },
+      {
+        "name": "arg3",
+        "type": "int"
+      },
+      {
+        "name": "arg4",
+        "type": "int",
+        "optional": true
+      }
+    ],
+    "desc": "Line special / ACS callable: Thing_SetGoal.",
+    "usage": [
+      "state",
+      "expression"
+    ]
+  },
+  "Thing_SetSpecial": {
+    "params": [
+      {
+        "name": "arg1",
+        "type": "int"
+      },
+      {
+        "name": "arg2",
+        "type": "int"
+      },
+      {
+        "name": "arg3",
+        "type": "int"
+      },
+      {
+        "name": "arg4",
+        "type": "int"
+      },
+      {
+        "name": "arg5",
+        "type": "int"
+      }
+    ],
+    "desc": "Line special / ACS callable: Thing_SetSpecial.",
+    "usage": [
+      "state",
+      "expression"
+    ]
+  },
+  "Thing_SetTranslation": {
+    "params": [
+      {
+        "name": "arg1",
+        "type": "int"
+      },
+      {
+        "name": "arg2",
+        "type": "int"
+      }
+    ],
+    "desc": "Line special / ACS callable: Thing_SetTranslation.",
+    "usage": [
+      "state",
+      "expression"
+    ]
+  },
+  "Thing_Spawn": {
+    "params": [
+      {
+        "name": "tid",
+        "type": "int"
+      },
+      {
+        "name": "type",
+        "type": "string"
+      },
+      {
+        "name": "angle",
+        "type": "int"
+      },
+      {
+        "name": "newTid",
+        "type": "int",
+        "optional": true
+      }
+    ],
+    "desc": "Spawns a thing at the location of the actor with the given TID.",
+    "usage": [
+      "state",
+      "expression"
+    ]
+  },
+  "Thing_SpawnFacing": {
+    "params": [
+      {
+        "name": "tid",
+        "type": "int"
+      },
+      {
+        "name": "type",
+        "type": "string"
+      },
+      {
+        "name": "nomonsters",
+        "type": "bool",
+        "optional": true
+      },
+      {
+        "name": "newTid",
+        "type": "int",
+        "optional": true
+      }
+    ],
+    "desc": "Spawns a thing facing the same direction as the spawn spot.",
+    "usage": [
+      "state",
+      "expression"
+    ]
+  },
+  "Thing_SpawnNoFog": {
+    "params": [
+      {
+        "name": "tid",
+        "type": "int"
+      },
+      {
+        "name": "type",
+        "type": "string"
+      },
+      {
+        "name": "angle",
+        "type": "int"
+      },
+      {
+        "name": "newTid",
+        "type": "int",
+        "optional": true
+      }
+    ],
+    "desc": "Spawns a thing without teleport fog.",
+    "usage": [
+      "state",
+      "expression"
+    ]
+  },
+  "Thing_Stop": {
+    "params": [
+      {
+        "name": "arg1",
+        "type": "int"
+      }
+    ],
+    "desc": "Line special / ACS callable: Thing_Stop.",
+    "usage": [
+      "state",
+      "expression"
+    ]
+  },
+  "TranslucentLine": {
+    "params": [
+      {
+        "name": "arg1",
+        "type": "int"
+      },
+      {
+        "name": "arg2",
+        "type": "int"
+      },
+      {
+        "name": "arg3",
+        "type": "int",
+        "optional": true
+      }
+    ],
+    "desc": "Line special / ACS callable: TranslucentLine.",
+    "usage": [
+      "state",
+      "expression"
+    ]
+  },
+  "UsePuzzleItem": {
+    "params": [],
+    "desc": "Line special / ACS callable: UsePuzzleItem.",
+    "usage": [
+      "state",
+      "expression"
+    ]
   }
 }

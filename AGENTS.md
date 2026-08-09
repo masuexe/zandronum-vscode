@@ -270,9 +270,12 @@ Completion providers should not attempt to discover additional built-in symbols 
 
 Line specials (Zandronum `src/actionspecials.h`, `min_args >= 0`) are dual callables: they can appear
 both as state actions and inside DECORATE expressions, so they live in `actions.json` with
-`"usage": ["state", "expression"]` — never in `expressions.json`. `scripts/audit-decorate-actions.js`
-re-syncs them from `data/acs/functions.json` (params/desc) and will delete unlisted line specials on
-`--apply`, so keep that script's `lineSpecialNames()`/`lineSpecialEntries()` in sync with any manual edits.
+`"usage": ["state", "expression"]` — never in `expressions.json`. Their param counts MUST follow the
+engine `actionspecials.h` min/max, not ACC `zspecial.acs` (the two differ for many specials); param
+names come from `src/p_lnspec.cpp` `FUNC(LS_*)` comments, with SLADE `config/languages/acs.txt` as
+fallback. `scripts/import-line-special-param-names.js` applies both, and
+`scripts/audit-decorate-actions.js --apply` uses the same builder (`lineSpecialEntries()`) when adding
+missing specials, so do not hand-edit these entries out of sync with that builder.
 
 ---
 

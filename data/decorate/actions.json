@@ -5734,7 +5734,7 @@
   "ThrustThing": {
     "params": [
       {
-        "name": "byteangle",
+        "name": "angle",
         "type": "int",
         "optional": false
       },
@@ -5745,18 +5745,16 @@
       },
       {
         "name": "nolimit",
-        "type": "bool",
-        "optional": true,
-        "default": "0"
+        "type": "int",
+        "optional": true
       },
       {
         "name": "tid",
         "type": "int",
-        "optional": true,
-        "default": "0"
+        "optional": true
       }
     ],
-    "desc": "Action function: ThrustThing",
+    "desc": "Line special / ACS callable: ThrustThing.",
     "usage": [
       "state",
       "expression"
@@ -5770,22 +5768,22 @@
         "optional": false
       },
       {
-        "name": "force",
+        "name": "zthrust",
         "type": "int",
         "optional": false
       },
       {
-        "name": "up_down",
-        "type": "bool",
+        "name": "down/up",
+        "type": "int",
         "optional": false
       },
       {
-        "name": "set_add",
-        "type": "bool",
+        "name": "set",
+        "type": "int",
         "optional": false
       }
     ],
-    "desc": "Action function: ThrustThingZ",
+    "desc": "Line special / ACS callable: ThrustThingZ.",
     "usage": [
       "state",
       "expression"
@@ -5804,31 +5802,27 @@
         "optional": false
       },
       {
-        "name": "mapnum",
+        "name": "map",
         "type": "int",
-        "optional": true,
-        "default": "0"
+        "optional": true
       },
       {
-        "name": "arg1",
+        "name": "s_arg1",
         "type": "int",
-        "optional": true,
-        "default": "0"
+        "optional": true
       },
       {
-        "name": "arg2",
+        "name": "s_arg2",
         "type": "int",
-        "optional": true,
-        "default": "0"
+        "optional": true
       },
       {
-        "name": "arg3",
+        "name": "s_arg3",
         "type": "int",
-        "optional": true,
-        "default": "0"
+        "optional": true
       }
     ],
-    "desc": "Action function: ACS_Execute",
+    "desc": "Executes a script on the specified map.",
     "usage": [
       "state",
       "expression"
@@ -5842,31 +5836,27 @@
         "optional": false
       },
       {
-        "name": "mapnum",
+        "name": "map",
         "type": "int",
-        "optional": true,
-        "default": "0"
+        "optional": true
       },
       {
-        "name": "arg1",
+        "name": "s_arg1",
         "type": "int",
-        "optional": true,
-        "default": "0"
+        "optional": true
       },
       {
-        "name": "arg2",
+        "name": "s_arg2",
         "type": "int",
-        "optional": true,
-        "default": "0"
+        "optional": true
       },
       {
-        "name": "arg3",
+        "name": "s_arg3",
         "type": "int",
-        "optional": true,
-        "default": "0"
+        "optional": true
       }
     ],
-    "desc": "Action function: ACS_ExecuteAlways",
+    "desc": "Executes a script on the specified map, allowing concurrent instances.",
     "usage": [
       "state",
       "expression"
@@ -5880,31 +5870,27 @@
         "optional": false
       },
       {
-        "name": "arg1",
+        "name": "s_arg1",
         "type": "int",
-        "optional": true,
-        "default": "0"
+        "optional": true
       },
       {
-        "name": "arg2",
+        "name": "s_arg2",
         "type": "int",
-        "optional": true,
-        "default": "0"
+        "optional": true
       },
       {
-        "name": "arg3",
+        "name": "s_arg3",
         "type": "int",
-        "optional": true,
-        "default": "0"
+        "optional": true
       },
       {
-        "name": "arg4",
+        "name": "s_arg4",
         "type": "int",
-        "optional": true,
-        "default": "0"
+        "optional": true
       }
     ],
-    "desc": "Action function: ACS_ExecuteWithResult",
+    "desc": "Executes a script and returns its result value.",
     "usage": [
       "state",
       "expression"
@@ -5918,12 +5904,12 @@
         "optional": false
       },
       {
-        "name": "mapnum",
+        "name": "map",
         "type": "int",
         "optional": false
       }
     ],
-    "desc": "Action function: ACS_Suspend",
+    "desc": "Suspends a script on the specified map.",
     "usage": [
       "state",
       "expression"
@@ -5937,12 +5923,12 @@
         "optional": false
       },
       {
-        "name": "mapnum",
+        "name": "map",
         "type": "int",
         "optional": false
       }
     ],
-    "desc": "Action function: ACS_Terminate",
+    "desc": "Terminates a script on the specified map.",
     "usage": [
       "state",
       "expression"
@@ -5956,17 +5942,17 @@
         "optional": false
       },
       {
-        "name": "mapnum",
+        "name": "map",
         "type": "int",
         "optional": false
       },
       {
-        "name": "arg1",
+        "name": "s_arg1",
         "type": "int",
         "optional": false
       },
       {
-        "name": "arg2",
+        "name": "s_arg2",
         "type": "int",
         "optional": false
       },
@@ -5976,7 +5962,7 @@
         "optional": false
       }
     ],
-    "desc": "Action function: ACS_LockedExecute",
+    "desc": "Line special / ACS callable: ACS_LockedExecute.",
     "usage": [
       "state",
       "expression"
@@ -5990,17 +5976,17 @@
         "optional": false
       },
       {
-        "name": "mapnum",
+        "name": "map",
         "type": "int",
         "optional": false
       },
       {
-        "name": "arg1",
+        "name": "s_arg1",
         "type": "int",
         "optional": false
       },
       {
-        "name": "arg2",
+        "name": "s_arg2",
         "type": "int",
         "optional": false
       },
@@ -6010,7 +5996,7 @@
         "optional": false
       }
     ],
-    "desc": "Action function: ACS_LockedExecuteDoor",
+    "desc": "Line special / ACS callable: ACS_LockedExecuteDoor.",
     "usage": [
       "state",
       "expression"
@@ -8156,19 +8142,22 @@
   "Ceiling_CrushAndRaise": {
     "params": [
       {
-        "name": "arg1",
-        "type": "int"
+        "name": "tag",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg2",
-        "type": "int"
+        "name": "speed",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg3",
-        "type": "int"
+        "name": "crush",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg4",
+        "name": "crushtype",
         "type": "int",
         "optional": true
       }
@@ -8182,23 +8171,27 @@
   "Ceiling_CrushAndRaiseA": {
     "params": [
       {
-        "name": "arg1",
-        "type": "int"
+        "name": "tag",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg2",
-        "type": "int"
+        "name": "dnspeed",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg3",
-        "type": "int"
+        "name": "upspeed",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg4",
-        "type": "int"
+        "name": "damage",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg5",
+        "name": "crushtype",
         "type": "int",
         "optional": true
       }
@@ -8212,24 +8205,27 @@
   "Ceiling_CrushAndRaiseDist": {
     "params": [
       {
-        "name": "arg1",
-        "type": "int"
+        "name": "tag",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg2",
-        "type": "int"
+        "name": "dist",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg3",
-        "type": "int"
+        "name": "speed",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg4",
+        "name": "damage",
         "type": "int",
         "optional": true
       },
       {
-        "name": "arg5",
+        "name": "crushtype",
         "type": "int",
         "optional": true
       }
@@ -8243,23 +8239,27 @@
   "Ceiling_CrushAndRaiseSilentA": {
     "params": [
       {
-        "name": "arg1",
-        "type": "int"
+        "name": "tag",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg2",
-        "type": "int"
+        "name": "dnspeed",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg3",
-        "type": "int"
+        "name": "upspeed",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg4",
-        "type": "int"
+        "name": "damage",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg5",
+        "name": "crushtype",
         "type": "int",
         "optional": true
       }
@@ -8273,19 +8273,22 @@
   "Ceiling_CrushRaiseAndStay": {
     "params": [
       {
-        "name": "arg1",
-        "type": "int"
+        "name": "tag",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg2",
-        "type": "int"
+        "name": "speed",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg3",
-        "type": "int"
+        "name": "crush",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg4",
+        "name": "crushtype",
         "type": "int",
         "optional": true
       }
@@ -8299,23 +8302,27 @@
   "Ceiling_CrushRaiseAndStayA": {
     "params": [
       {
-        "name": "arg1",
-        "type": "int"
+        "name": "tag",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg2",
-        "type": "int"
+        "name": "dnspeed",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg3",
-        "type": "int"
+        "name": "upspeed",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg4",
-        "type": "int"
+        "name": "damage",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg5",
+        "name": "crushtype",
         "type": "int",
         "optional": true
       }
@@ -8329,23 +8336,27 @@
   "Ceiling_CrushRaiseAndStaySilA": {
     "params": [
       {
-        "name": "arg1",
-        "type": "int"
+        "name": "tag",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg2",
-        "type": "int"
+        "name": "dnspeed",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg3",
-        "type": "int"
+        "name": "upspeed",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg4",
-        "type": "int"
+        "name": "damage",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg5",
+        "name": "crushtype",
         "type": "int",
         "optional": true
       }
@@ -8359,13 +8370,9 @@
   "Ceiling_CrushStop": {
     "params": [
       {
-        "name": "arg1",
-        "type": "int"
-      },
-      {
-        "name": "arg2",
+        "name": "tag",
         "type": "int",
-        "optional": true
+        "optional": false
       }
     ],
     "desc": "Line special / ACS callable: Ceiling_CrushStop.",
@@ -8377,19 +8384,22 @@
   "Ceiling_LowerAndCrush": {
     "params": [
       {
-        "name": "arg1",
-        "type": "int"
+        "name": "tag",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg2",
-        "type": "int"
+        "name": "speed",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg3",
-        "type": "int"
+        "name": "crush",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg4",
+        "name": "crushtype",
         "type": "int",
         "optional": true
       }
@@ -8403,24 +8413,27 @@
   "Ceiling_LowerAndCrushDist": {
     "params": [
       {
-        "name": "arg1",
-        "type": "int"
+        "name": "tag",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg2",
-        "type": "int"
+        "name": "speed",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg3",
-        "type": "int"
+        "name": "crush",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg4",
+        "name": "dist",
         "type": "int",
         "optional": true
       },
       {
-        "name": "arg5",
+        "name": "crushtype",
         "type": "int",
         "optional": true
       }
@@ -8435,25 +8448,18 @@
     "params": [
       {
         "name": "tag",
-        "type": "int"
+        "type": "int",
+        "optional": false
       },
       {
         "name": "speed",
-        "type": "int"
-      },
-      {
-        "name": "value",
-        "type": "int"
-      },
-      {
-        "name": "arg4",
         "type": "int",
-        "optional": true
+        "optional": false
       },
       {
-        "name": "arg5",
+        "name": "height",
         "type": "int",
-        "optional": true
+        "optional": false
       }
     ],
     "desc": "Lowers the ceiling by the given value.",
@@ -8465,26 +8471,19 @@
   "Ceiling_LowerByValueTimes8": {
     "params": [
       {
-        "name": "arg1",
-        "type": "int"
-      },
-      {
-        "name": "arg2",
-        "type": "int"
-      },
-      {
-        "name": "arg3",
-        "type": "int"
-      },
-      {
-        "name": "arg4",
+        "name": "tag",
         "type": "int",
-        "optional": true
+        "optional": false
       },
       {
-        "name": "arg5",
+        "name": "speed",
         "type": "int",
-        "optional": true
+        "optional": false
+      },
+      {
+        "name": "height",
+        "type": "int",
+        "optional": false
       }
     ],
     "desc": "Line special / ACS callable: Ceiling_LowerByValueTimes8.",
@@ -8497,25 +8496,18 @@
     "params": [
       {
         "name": "tag",
-        "type": "int"
+        "type": "int",
+        "optional": false
       },
       {
         "name": "unused",
-        "type": "int"
-      },
-      {
-        "name": "value",
-        "type": "int"
-      },
-      {
-        "name": "arg4",
         "type": "int",
-        "optional": true
+        "optional": false
       },
       {
-        "name": "arg5",
+        "name": "height",
         "type": "int",
-        "optional": true
+        "optional": false
       }
     ],
     "desc": "Instantly lowers the ceiling.",
@@ -8527,27 +8519,14 @@
   "Ceiling_LowerToFloor": {
     "params": [
       {
-        "name": "arg1",
-        "type": "int"
-      },
-      {
-        "name": "arg2",
-        "type": "int"
-      },
-      {
-        "name": "arg3",
+        "name": "tag",
         "type": "int",
-        "optional": true
+        "optional": false
       },
       {
-        "name": "arg4",
+        "name": "speed",
         "type": "int",
-        "optional": true
-      },
-      {
-        "name": "arg5",
-        "type": "int",
-        "optional": true
+        "optional": false
       }
     ],
     "desc": "Line special / ACS callable: Ceiling_LowerToFloor.",
@@ -8559,27 +8538,14 @@
   "Ceiling_LowerToHighestFloor": {
     "params": [
       {
-        "name": "arg1",
-        "type": "int"
-      },
-      {
-        "name": "arg2",
-        "type": "int"
-      },
-      {
-        "name": "arg3",
+        "name": "tag",
         "type": "int",
-        "optional": true
+        "optional": false
       },
       {
-        "name": "arg4",
+        "name": "speed",
         "type": "int",
-        "optional": true
-      },
-      {
-        "name": "arg5",
-        "type": "int",
-        "optional": true
+        "optional": false
       }
     ],
     "desc": "Line special / ACS callable: Ceiling_LowerToHighestFloor.",
@@ -8591,22 +8557,14 @@
   "Ceiling_LowerToLowest": {
     "params": [
       {
-        "name": "arg1",
-        "type": "int"
-      },
-      {
-        "name": "arg2",
-        "type": "int"
-      },
-      {
-        "name": "arg3",
+        "name": "tag",
         "type": "int",
-        "optional": true
+        "optional": false
       },
       {
-        "name": "arg4",
+        "name": "speed",
         "type": "int",
-        "optional": true
+        "optional": false
       }
     ],
     "desc": "Line special / ACS callable: Ceiling_LowerToLowest.",
@@ -8619,23 +8577,21 @@
     "params": [
       {
         "name": "tag",
-        "type": "int"
+        "type": "int",
+        "optional": false
       },
       {
         "name": "speed",
-        "type": "int"
+        "type": "int",
+        "optional": false
       },
       {
         "name": "height",
-        "type": "int"
-      },
-      {
-        "name": "negValue",
         "type": "int",
-        "optional": true
+        "optional": false
       },
       {
-        "name": "arg5",
+        "name": "negative",
         "type": "int",
         "optional": true
       }
@@ -8649,25 +8605,24 @@
   "Ceiling_MoveToValueTimes8": {
     "params": [
       {
-        "name": "arg1",
-        "type": "int"
-      },
-      {
-        "name": "arg2",
-        "type": "int"
-      },
-      {
-        "name": "arg3",
-        "type": "int"
-      },
-      {
-        "name": "arg4",
-        "type": "int"
-      },
-      {
-        "name": "arg5",
+        "name": "tag",
         "type": "int",
-        "optional": true
+        "optional": false
+      },
+      {
+        "name": "speed",
+        "type": "int",
+        "optional": false
+      },
+      {
+        "name": "height",
+        "type": "int",
+        "optional": false
+      },
+      {
+        "name": "negative",
+        "type": "int",
+        "optional": false
       }
     ],
     "desc": "Line special / ACS callable: Ceiling_MoveToValueTimes8.",
@@ -8680,20 +8635,18 @@
     "params": [
       {
         "name": "tag",
-        "type": "int"
+        "type": "int",
+        "optional": false
       },
       {
         "name": "speed",
-        "type": "int"
-      },
-      {
-        "name": "value",
-        "type": "int"
-      },
-      {
-        "name": "arg4",
         "type": "int",
-        "optional": true
+        "optional": false
+      },
+      {
+        "name": "height",
+        "type": "int",
+        "optional": false
       }
     ],
     "desc": "Raises the ceiling by the given value.",
@@ -8705,21 +8658,19 @@
   "Ceiling_RaiseByValueTimes8": {
     "params": [
       {
-        "name": "arg1",
-        "type": "int"
-      },
-      {
-        "name": "arg2",
-        "type": "int"
-      },
-      {
-        "name": "arg3",
-        "type": "int"
-      },
-      {
-        "name": "arg4",
+        "name": "tag",
         "type": "int",
-        "optional": true
+        "optional": false
+      },
+      {
+        "name": "speed",
+        "type": "int",
+        "optional": false
+      },
+      {
+        "name": "height",
+        "type": "int",
+        "optional": false
       }
     ],
     "desc": "Line special / ACS callable: Ceiling_RaiseByValueTimes8.",
@@ -8732,20 +8683,18 @@
     "params": [
       {
         "name": "tag",
-        "type": "int"
+        "type": "int",
+        "optional": false
       },
       {
         "name": "unused",
-        "type": "int"
-      },
-      {
-        "name": "value",
-        "type": "int"
-      },
-      {
-        "name": "arg4",
         "type": "int",
-        "optional": true
+        "optional": false
+      },
+      {
+        "name": "height",
+        "type": "int",
+        "optional": false
       }
     ],
     "desc": "Instantly raises the ceiling.",
@@ -8757,17 +8706,14 @@
   "Ceiling_RaiseToNearest": {
     "params": [
       {
-        "name": "arg1",
-        "type": "int"
-      },
-      {
-        "name": "arg2",
-        "type": "int"
-      },
-      {
-        "name": "arg3",
+        "name": "tag",
         "type": "int",
-        "optional": true
+        "optional": false
+      },
+      {
+        "name": "speed",
+        "type": "int",
+        "optional": false
       }
     ],
     "desc": "Line special / ACS callable: Ceiling_RaiseToNearest.",
@@ -8780,23 +8726,28 @@
     "params": [
       {
         "name": "tag",
-        "type": "int"
+        "type": "int",
+        "optional": false
       },
       {
         "name": "amplitude",
-        "type": "int"
+        "type": "int",
+        "optional": false
       },
       {
         "name": "frequency",
-        "type": "int"
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "startDelay",
-        "type": "int"
+        "name": "delay",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "phaseOffset",
-        "type": "int"
+        "name": "time",
+        "type": "int",
+        "optional": false
       }
     ],
     "desc": "Waggles the ceiling.",
@@ -8809,15 +8760,18 @@
     "params": [
       {
         "name": "tid",
-        "type": "int"
+        "type": "int",
+        "optional": false
       },
       {
         "name": "who",
-        "type": "int"
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "revert",
-        "type": "bool"
+        "name": "revert?",
+        "type": "bool",
+        "optional": false
       }
     ],
     "desc": "Changes the activator's camera to view from the given actor.",
@@ -8829,8 +8783,9 @@
   "ChangeSkill": {
     "params": [
       {
-        "name": "arg1",
-        "type": "int"
+        "name": "level",
+        "type": "int",
+        "optional": false
       }
     ],
     "desc": "Line special / ACS callable: ChangeSkill.",
@@ -8842,8 +8797,9 @@
   "ClearForceField": {
     "params": [
       {
-        "name": "arg1",
-        "type": "int"
+        "name": "tag",
+        "type": "int",
+        "optional": false
       }
     ],
     "desc": "Line special / ACS callable: ClearForceField.",
@@ -8855,11 +8811,12 @@
   "DamageThing": {
     "params": [
       {
-        "name": "arg1",
-        "type": "int"
+        "name": "damage",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg2",
+        "name": "mod",
         "type": "int",
         "optional": true
       }
@@ -8874,20 +8831,23 @@
     "params": [
       {
         "name": "tag",
-        "type": "int"
+        "type": "int",
+        "optional": false
       },
       {
         "name": "speed",
-        "type": "int"
+        "type": "int",
+        "optional": false
       },
       {
         "name": "delay",
-        "type": "int"
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg4",
+        "name": "lock",
         "type": "int",
-        "optional": true
+        "optional": false
       }
     ],
     "desc": "Opens an animated door and closes it after a delay.",
@@ -8900,14 +8860,16 @@
     "params": [
       {
         "name": "tag",
-        "type": "int"
+        "type": "int",
+        "optional": false
       },
       {
         "name": "speed",
-        "type": "int"
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "lightTag",
+        "name": "lighttag",
         "type": "int",
         "optional": true
       }
@@ -8921,19 +8883,22 @@
   "Door_CloseWaitOpen": {
     "params": [
       {
-        "name": "arg1",
-        "type": "int"
+        "name": "tag",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg2",
-        "type": "int"
+        "name": "speed",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg3",
-        "type": "int"
+        "name": "delay",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg4",
+        "name": "lighttag",
         "type": "int",
         "optional": true
       }
@@ -8948,22 +8913,26 @@
     "params": [
       {
         "name": "tag",
-        "type": "int"
+        "type": "int",
+        "optional": false
       },
       {
         "name": "speed",
-        "type": "int"
+        "type": "int",
+        "optional": false
       },
       {
         "name": "delay",
-        "type": "int"
-      },
-      {
-        "name": "lightTag",
-        "type": "int"
+        "type": "int",
+        "optional": false
       },
       {
         "name": "lock",
+        "type": "int",
+        "optional": false
+      },
+      {
+        "name": "lighttag",
         "type": "int",
         "optional": true
       }
@@ -8978,14 +8947,16 @@
     "params": [
       {
         "name": "tag",
-        "type": "int"
+        "type": "int",
+        "optional": false
       },
       {
         "name": "speed",
-        "type": "int"
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "lightTag",
+        "name": "lighttag",
         "type": "int",
         "optional": true
       }
@@ -9000,18 +8971,21 @@
     "params": [
       {
         "name": "tag",
-        "type": "int"
+        "type": "int",
+        "optional": false
       },
       {
         "name": "speed",
-        "type": "int"
+        "type": "int",
+        "optional": false
       },
       {
         "name": "delay",
-        "type": "int"
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "lightTag",
+        "name": "lighttag",
         "type": "int",
         "optional": true
       }
@@ -9025,12 +8999,14 @@
   "Elevator_LowerToNearest": {
     "params": [
       {
-        "name": "arg1",
-        "type": "int"
+        "name": "tag",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg2",
-        "type": "int"
+        "name": "speed",
+        "type": "int",
+        "optional": false
       }
     ],
     "desc": "Line special / ACS callable: Elevator_LowerToNearest.",
@@ -9042,12 +9018,14 @@
   "Elevator_MoveToFloor": {
     "params": [
       {
-        "name": "arg1",
-        "type": "int"
+        "name": "tag",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg2",
-        "type": "int"
+        "name": "speed",
+        "type": "int",
+        "optional": false
       }
     ],
     "desc": "Line special / ACS callable: Elevator_MoveToFloor.",
@@ -9059,12 +9037,14 @@
   "Elevator_RaiseToNearest": {
     "params": [
       {
-        "name": "arg1",
-        "type": "int"
+        "name": "tag",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg2",
-        "type": "int"
+        "name": "speed",
+        "type": "int",
+        "optional": false
       }
     ],
     "desc": "Line special / ACS callable: Elevator_RaiseToNearest.",
@@ -9077,7 +9057,8 @@
     "params": [
       {
         "name": "position",
-        "type": "int"
+        "type": "int",
+        "optional": false
       }
     ],
     "desc": "Exits the current level normally.",
@@ -9090,7 +9071,8 @@
     "params": [
       {
         "name": "position",
-        "type": "int"
+        "type": "int",
+        "optional": false
       }
     ],
     "desc": "Exits to the secret level.",
@@ -9102,8 +9084,9 @@
   "Floor_CrushStop": {
     "params": [
       {
-        "name": "arg1",
-        "type": "int"
+        "name": "tag",
+        "type": "int",
+        "optional": false
       }
     ],
     "desc": "Line special / ACS callable: Floor_CrushStop.",
@@ -9115,16 +9098,19 @@
   "Floor_Donut": {
     "params": [
       {
-        "name": "arg1",
-        "type": "int"
+        "name": "pillartag",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg2",
-        "type": "int"
+        "name": "pillarspeed",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg3",
-        "type": "int"
+        "name": "slimespeed",
+        "type": "int",
+        "optional": false
       }
     ],
     "desc": "Line special / ACS callable: Floor_Donut.",
@@ -9137,20 +9123,18 @@
     "params": [
       {
         "name": "tag",
-        "type": "int"
+        "type": "int",
+        "optional": false
       },
       {
         "name": "speed",
-        "type": "int"
-      },
-      {
-        "name": "value",
-        "type": "int"
-      },
-      {
-        "name": "arg4",
         "type": "int",
-        "optional": true
+        "optional": false
+      },
+      {
+        "name": "height",
+        "type": "int",
+        "optional": false
       }
     ],
     "desc": "Lowers the floor by the given value.",
@@ -9162,21 +9146,19 @@
   "Floor_LowerByValueTimes8": {
     "params": [
       {
-        "name": "arg1",
-        "type": "int"
-      },
-      {
-        "name": "arg2",
-        "type": "int"
-      },
-      {
-        "name": "arg3",
-        "type": "int"
-      },
-      {
-        "name": "arg4",
+        "name": "tag",
         "type": "int",
-        "optional": true
+        "optional": false
+      },
+      {
+        "name": "speed",
+        "type": "int",
+        "optional": false
+      },
+      {
+        "name": "height",
+        "type": "int",
+        "optional": false
       }
     ],
     "desc": "Line special / ACS callable: Floor_LowerByValueTimes8.",
@@ -9189,20 +9171,18 @@
     "params": [
       {
         "name": "tag",
-        "type": "int"
+        "type": "int",
+        "optional": false
       },
       {
         "name": "unused",
-        "type": "int"
-      },
-      {
-        "name": "value",
-        "type": "int"
-      },
-      {
-        "name": "arg4",
         "type": "int",
-        "optional": true
+        "optional": false
+      },
+      {
+        "name": "height",
+        "type": "int",
+        "optional": false
       }
     ],
     "desc": "Instantly lowers the floor.",
@@ -9214,19 +9194,22 @@
   "Floor_LowerToHighest": {
     "params": [
       {
-        "name": "arg1",
-        "type": "int"
+        "name": "tag",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg2",
-        "type": "int"
+        "name": "speed",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg3",
-        "type": "int"
+        "name": "adjust",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg4",
+        "name": "hereticlower",
         "type": "int",
         "optional": true
       }
@@ -9240,17 +9223,14 @@
   "Floor_LowerToLowest": {
     "params": [
       {
-        "name": "arg1",
-        "type": "int"
-      },
-      {
-        "name": "arg2",
-        "type": "int"
-      },
-      {
-        "name": "arg3",
+        "name": "tag",
         "type": "int",
-        "optional": true
+        "optional": false
+      },
+      {
+        "name": "speed",
+        "type": "int",
+        "optional": false
       }
     ],
     "desc": "Line special / ACS callable: Floor_LowerToLowest.",
@@ -9262,12 +9242,14 @@
   "Floor_LowerToLowestTxTy": {
     "params": [
       {
-        "name": "arg1",
-        "type": "int"
+        "name": "tag",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg2",
-        "type": "int"
+        "name": "speed",
+        "type": "int",
+        "optional": false
       }
     ],
     "desc": "Line special / ACS callable: Floor_LowerToLowestTxTy.",
@@ -9279,17 +9261,14 @@
   "Floor_LowerToNearest": {
     "params": [
       {
-        "name": "arg1",
-        "type": "int"
-      },
-      {
-        "name": "arg2",
-        "type": "int"
-      },
-      {
-        "name": "arg3",
+        "name": "tag",
         "type": "int",
-        "optional": true
+        "optional": false
+      },
+      {
+        "name": "speed",
+        "type": "int",
+        "optional": false
       }
     ],
     "desc": "Line special / ACS callable: Floor_LowerToNearest.",
@@ -9302,23 +9281,21 @@
     "params": [
       {
         "name": "tag",
-        "type": "int"
+        "type": "int",
+        "optional": false
       },
       {
         "name": "speed",
-        "type": "int"
+        "type": "int",
+        "optional": false
       },
       {
         "name": "height",
-        "type": "int"
-      },
-      {
-        "name": "negValue",
         "type": "int",
-        "optional": true
+        "optional": false
       },
       {
-        "name": "arg5",
+        "name": "negative",
         "type": "int",
         "optional": true
       }
@@ -9332,25 +9309,24 @@
   "Floor_MoveToValueTimes8": {
     "params": [
       {
-        "name": "arg1",
-        "type": "int"
-      },
-      {
-        "name": "arg2",
-        "type": "int"
-      },
-      {
-        "name": "arg3",
-        "type": "int"
-      },
-      {
-        "name": "arg4",
-        "type": "int"
-      },
-      {
-        "name": "arg5",
+        "name": "tag",
         "type": "int",
-        "optional": true
+        "optional": false
+      },
+      {
+        "name": "speed",
+        "type": "int",
+        "optional": false
+      },
+      {
+        "name": "height",
+        "type": "int",
+        "optional": false
+      },
+      {
+        "name": "negative",
+        "type": "int",
+        "optional": false
       }
     ],
     "desc": "Line special / ACS callable: Floor_MoveToValueTimes8.",
@@ -9362,19 +9338,22 @@
   "Floor_RaiseAndCrush": {
     "params": [
       {
-        "name": "arg1",
-        "type": "int"
+        "name": "tag",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg2",
-        "type": "int"
+        "name": "speed",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg3",
-        "type": "int"
+        "name": "crush",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg4",
+        "name": "crushmode",
         "type": "int",
         "optional": true
       }
@@ -9388,19 +9367,22 @@
   "Floor_RaiseAndCrushDoom": {
     "params": [
       {
-        "name": "arg1",
-        "type": "int"
+        "name": "tag",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg2",
-        "type": "int"
+        "name": "speed",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg3",
-        "type": "int"
+        "name": "crush",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg4",
+        "name": "crushmode",
         "type": "int",
         "optional": true
       }
@@ -9414,22 +9396,14 @@
   "Floor_RaiseByTexture": {
     "params": [
       {
-        "name": "arg1",
-        "type": "int"
-      },
-      {
-        "name": "arg2",
-        "type": "int"
-      },
-      {
-        "name": "arg3",
+        "name": "tag",
         "type": "int",
-        "optional": true
+        "optional": false
       },
       {
-        "name": "arg4",
+        "name": "speed",
         "type": "int",
-        "optional": true
+        "optional": false
       }
     ],
     "desc": "Line special / ACS callable: Floor_RaiseByTexture.",
@@ -9442,25 +9416,18 @@
     "params": [
       {
         "name": "tag",
-        "type": "int"
+        "type": "int",
+        "optional": false
       },
       {
         "name": "speed",
-        "type": "int"
-      },
-      {
-        "name": "value",
-        "type": "int"
-      },
-      {
-        "name": "arg4",
         "type": "int",
-        "optional": true
+        "optional": false
       },
       {
-        "name": "arg5",
+        "name": "height",
         "type": "int",
-        "optional": true
+        "optional": false
       }
     ],
     "desc": "Raises the floor by the given value.",
@@ -9472,26 +9439,19 @@
   "Floor_RaiseByValueTimes8": {
     "params": [
       {
-        "name": "arg1",
-        "type": "int"
-      },
-      {
-        "name": "arg2",
-        "type": "int"
-      },
-      {
-        "name": "arg3",
-        "type": "int"
-      },
-      {
-        "name": "arg4",
+        "name": "tag",
         "type": "int",
-        "optional": true
+        "optional": false
       },
       {
-        "name": "arg5",
+        "name": "speed",
         "type": "int",
-        "optional": true
+        "optional": false
+      },
+      {
+        "name": "height",
+        "type": "int",
+        "optional": false
       }
     ],
     "desc": "Line special / ACS callable: Floor_RaiseByValueTimes8.",
@@ -9503,16 +9463,19 @@
   "Floor_RaiseByValueTxTy": {
     "params": [
       {
-        "name": "arg1",
-        "type": "int"
+        "name": "tag",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg2",
-        "type": "int"
+        "name": "speed",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg3",
-        "type": "int"
+        "name": "height",
+        "type": "int",
+        "optional": false
       }
     ],
     "desc": "Line special / ACS callable: Floor_RaiseByValueTxTy.",
@@ -9525,25 +9488,18 @@
     "params": [
       {
         "name": "tag",
-        "type": "int"
+        "type": "int",
+        "optional": false
       },
       {
         "name": "unused",
-        "type": "int"
-      },
-      {
-        "name": "value",
-        "type": "int"
-      },
-      {
-        "name": "arg4",
         "type": "int",
-        "optional": true
+        "optional": false
       },
       {
-        "name": "arg5",
+        "name": "height",
         "type": "int",
-        "optional": true
+        "optional": false
       }
     ],
     "desc": "Instantly raises the floor.",
@@ -9555,27 +9511,14 @@
   "Floor_RaiseToHighest": {
     "params": [
       {
-        "name": "arg1",
-        "type": "int"
-      },
-      {
-        "name": "arg2",
-        "type": "int"
-      },
-      {
-        "name": "arg3",
+        "name": "tag",
         "type": "int",
-        "optional": true
+        "optional": false
       },
       {
-        "name": "arg4",
+        "name": "speed",
         "type": "int",
-        "optional": true
-      },
-      {
-        "name": "arg5",
-        "type": "int",
-        "optional": true
+        "optional": false
       }
     ],
     "desc": "Line special / ACS callable: Floor_RaiseToHighest.",
@@ -9587,27 +9530,14 @@
   "Floor_RaiseToLowestCeiling": {
     "params": [
       {
-        "name": "arg1",
-        "type": "int"
-      },
-      {
-        "name": "arg2",
-        "type": "int"
-      },
-      {
-        "name": "arg3",
+        "name": "tag",
         "type": "int",
-        "optional": true
+        "optional": false
       },
       {
-        "name": "arg4",
+        "name": "speed",
         "type": "int",
-        "optional": true
-      },
-      {
-        "name": "arg5",
-        "type": "int",
-        "optional": true
+        "optional": false
       }
     ],
     "desc": "Line special / ACS callable: Floor_RaiseToLowestCeiling.",
@@ -9619,22 +9549,14 @@
   "Floor_RaiseToNearest": {
     "params": [
       {
-        "name": "arg1",
-        "type": "int"
-      },
-      {
-        "name": "arg2",
-        "type": "int"
-      },
-      {
-        "name": "arg3",
+        "name": "tag",
         "type": "int",
-        "optional": true
+        "optional": false
       },
       {
-        "name": "arg4",
+        "name": "speed",
         "type": "int",
-        "optional": true
+        "optional": false
       }
     ],
     "desc": "Line special / ACS callable: Floor_RaiseToNearest.",
@@ -9646,8 +9568,9 @@
   "Floor_TransferNumeric": {
     "params": [
       {
-        "name": "arg1",
-        "type": "int"
+        "name": "tag",
+        "type": "int",
+        "optional": false
       }
     ],
     "desc": "Line special / ACS callable: Floor_TransferNumeric.",
@@ -9659,8 +9582,9 @@
   "Floor_TransferTrigger": {
     "params": [
       {
-        "name": "arg1",
-        "type": "int"
+        "name": "tag",
+        "type": "int",
+        "optional": false
       }
     ],
     "desc": "Line special / ACS callable: Floor_TransferTrigger.",
@@ -9673,23 +9597,28 @@
     "params": [
       {
         "name": "tag",
-        "type": "int"
+        "type": "int",
+        "optional": false
       },
       {
         "name": "amplitude",
-        "type": "int"
+        "type": "int",
+        "optional": false
       },
       {
         "name": "frequency",
-        "type": "int"
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "startDelay",
-        "type": "int"
+        "name": "delay",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "phaseOffset",
-        "type": "int"
+        "name": "time",
+        "type": "int",
+        "optional": false
       }
     ],
     "desc": "Waggles the floor.",
@@ -9701,16 +9630,19 @@
   "FloorAndCeiling_LowerByValue": {
     "params": [
       {
-        "name": "arg1",
-        "type": "int"
+        "name": "tag",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg2",
-        "type": "int"
+        "name": "speed",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg3",
-        "type": "int"
+        "name": "height",
+        "type": "int",
+        "optional": false
       }
     ],
     "desc": "Line special / ACS callable: FloorAndCeiling_LowerByValue.",
@@ -9722,19 +9654,22 @@
   "FloorAndCeiling_LowerRaise": {
     "params": [
       {
-        "name": "arg1",
-        "type": "int"
+        "name": "tag",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg2",
-        "type": "int"
+        "name": "fspeed",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg3",
-        "type": "int"
+        "name": "cspeed",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg4",
+        "name": "boomemu",
         "type": "int",
         "optional": true
       }
@@ -9748,16 +9683,19 @@
   "FloorAndCeiling_RaiseByValue": {
     "params": [
       {
-        "name": "arg1",
-        "type": "int"
+        "name": "tag",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg2",
-        "type": "int"
+        "name": "speed",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg3",
-        "type": "int"
+        "name": "height",
+        "type": "int",
+        "optional": false
       }
     ],
     "desc": "Line special / ACS callable: FloorAndCeiling_RaiseByValue.",
@@ -9777,21 +9715,22 @@
   "FS_Execute": {
     "params": [
       {
-        "name": "arg1",
-        "type": "int"
+        "name": "script",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg2",
+        "name": "frontonly",
         "type": "int",
         "optional": true
       },
       {
-        "name": "arg3",
+        "name": "lock",
         "type": "int",
         "optional": true
       },
       {
-        "name": "arg4",
+        "name": "lockedmessage",
         "type": "int",
         "optional": true
       }
@@ -9806,23 +9745,28 @@
     "params": [
       {
         "name": "tag",
-        "type": "int"
+        "type": "int",
+        "optional": false
       },
       {
         "name": "speed",
-        "type": "int"
+        "type": "int",
+        "optional": false
       },
       {
         "name": "height",
-        "type": "int"
+        "type": "int",
+        "optional": false
       },
       {
         "name": "target",
-        "type": "int"
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "flags",
-        "type": "int"
+        "name": "change/model/direct/crush",
+        "type": "int",
+        "optional": false
       }
     ],
     "desc": "Performs a generic ceiling action.",
@@ -9835,23 +9779,28 @@
     "params": [
       {
         "name": "tag",
-        "type": "int"
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "speed",
-        "type": "int"
+        "name": "dnspeed",
+        "type": "int",
+        "optional": false
+      },
+      {
+        "name": "upspeed",
+        "type": "int",
+        "optional": false
       },
       {
         "name": "silent",
-        "type": "int"
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg4",
-        "type": "int"
-      },
-      {
-        "name": "arg5",
-        "type": "int"
+        "name": "damage",
+        "type": "int",
+        "optional": false
       }
     ],
     "desc": "Performs a generic crusher action.",
@@ -9863,24 +9812,29 @@
   "Generic_Crusher2": {
     "params": [
       {
-        "name": "arg1",
-        "type": "int"
+        "name": "tag",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg2",
-        "type": "int"
+        "name": "dnspeed",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg3",
-        "type": "int"
+        "name": "upspeed",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg4",
-        "type": "int"
+        "name": "silent",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg5",
-        "type": "int"
+        "name": "damage",
+        "type": "int",
+        "optional": false
       }
     ],
     "desc": "Line special / ACS callable: Generic_Crusher2.",
@@ -9893,23 +9847,28 @@
     "params": [
       {
         "name": "tag",
-        "type": "int"
+        "type": "int",
+        "optional": false
       },
       {
         "name": "speed",
-        "type": "int"
+        "type": "int",
+        "optional": false
       },
       {
         "name": "kind",
-        "type": "int"
+        "type": "int",
+        "optional": false
       },
       {
         "name": "delay",
-        "type": "int"
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "lightTag",
-        "type": "int"
+        "name": "lock",
+        "type": "int",
+        "optional": false
       }
     ],
     "desc": "Performs a generic door action.",
@@ -9922,23 +9881,28 @@
     "params": [
       {
         "name": "tag",
-        "type": "int"
+        "type": "int",
+        "optional": false
       },
       {
         "name": "speed",
-        "type": "int"
+        "type": "int",
+        "optional": false
       },
       {
         "name": "height",
-        "type": "int"
+        "type": "int",
+        "optional": false
       },
       {
         "name": "target",
-        "type": "int"
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "flags",
-        "type": "int"
+        "name": "change/model/direct/crush",
+        "type": "int",
+        "optional": false
       }
     ],
     "desc": "Performs a generic floor action.",
@@ -9950,24 +9914,29 @@
   "Generic_Lift": {
     "params": [
       {
-        "name": "arg1",
-        "type": "int"
+        "name": "tag",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg2",
-        "type": "int"
+        "name": "speed",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg3",
-        "type": "int"
+        "name": "delay",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg4",
-        "type": "int"
+        "name": "target",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg5",
-        "type": "int"
+        "name": "height",
+        "type": "int",
+        "optional": false
       }
     ],
     "desc": "Line special / ACS callable: Generic_Lift.",
@@ -9979,24 +9948,29 @@
   "Generic_Stairs": {
     "params": [
       {
-        "name": "arg1",
-        "type": "int"
+        "name": "tag",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg2",
-        "type": "int"
+        "name": "speed",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg3",
-        "type": "int"
+        "name": "step",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg4",
-        "type": "int"
+        "name": "dir/igntxt",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg5",
-        "type": "int"
+        "name": "reset",
+        "type": "int",
+        "optional": false
       }
     ],
     "desc": "Line special / ACS callable: Generic_Stairs.",
@@ -10008,12 +9982,7 @@
   "GlassBreak": {
     "params": [
       {
-        "name": "arg1",
-        "type": "int",
-        "optional": true
-      },
-      {
-        "name": "arg2",
+        "name": "bNoJunk",
         "type": "int",
         "optional": true
       }
@@ -10027,11 +9996,12 @@
   "HealThing": {
     "params": [
       {
-        "name": "arg1",
-        "type": "int"
+        "name": "amount",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg2",
+        "name": "max",
         "type": "int",
         "optional": true
       }
@@ -10046,11 +10016,13 @@
     "params": [
       {
         "name": "tag",
-        "type": "int"
+        "type": "int",
+        "optional": false
       },
       {
         "name": "value",
-        "type": "int"
+        "type": "int",
+        "optional": false
       }
     ],
     "desc": "Sets the light level of the tagged sector.",
@@ -10063,15 +10035,18 @@
     "params": [
       {
         "name": "tag",
-        "type": "int"
+        "type": "int",
+        "optional": false
       },
       {
         "name": "value",
-        "type": "int"
+        "type": "int",
+        "optional": false
       },
       {
         "name": "tics",
-        "type": "int"
+        "type": "int",
+        "optional": false
       }
     ],
     "desc": "Fades the light level of the tagged sector.",
@@ -10083,16 +10058,19 @@
   "Light_Flicker": {
     "params": [
       {
-        "name": "arg1",
-        "type": "int"
+        "name": "tag",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg2",
-        "type": "int"
+        "name": "upper",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg3",
-        "type": "int"
+        "name": "lower",
+        "type": "int",
+        "optional": false
       }
     ],
     "desc": "Line special / ACS callable: Light_Flicker.",
@@ -10104,8 +10082,9 @@
   "Light_ForceLightning": {
     "params": [
       {
-        "name": "arg1",
-        "type": "int"
+        "name": "mode",
+        "type": "int",
+        "optional": false
       }
     ],
     "desc": "Line special / ACS callable: Light_ForceLightning.",
@@ -10118,19 +10097,23 @@
     "params": [
       {
         "name": "tag",
-        "type": "int"
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "type",
-        "type": "int"
+        "name": "upper",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "value",
-        "type": "int"
+        "name": "lower",
+        "type": "int",
+        "optional": false
       },
       {
         "name": "tics",
-        "type": "int"
+        "type": "int",
+        "optional": false
       }
     ],
     "desc": "Creates a glowing light effect in the tagged sector.",
@@ -10143,11 +10126,13 @@
     "params": [
       {
         "name": "tag",
-        "type": "int"
+        "type": "int",
+        "optional": false
       },
       {
         "name": "value",
-        "type": "int"
+        "type": "int",
+        "optional": false
       }
     ],
     "desc": "Lowers the light level of the tagged sector.",
@@ -10159,8 +10144,9 @@
   "Light_MaxNeighbor": {
     "params": [
       {
-        "name": "arg1",
-        "type": "int"
+        "name": "tag",
+        "type": "int",
+        "optional": false
       }
     ],
     "desc": "Line special / ACS callable: Light_MaxNeighbor.",
@@ -10172,8 +10158,9 @@
   "Light_MinNeighbor": {
     "params": [
       {
-        "name": "arg1",
-        "type": "int"
+        "name": "tag",
+        "type": "int",
+        "optional": false
       }
     ],
     "desc": "Line special / ACS callable: Light_MinNeighbor.",
@@ -10186,11 +10173,13 @@
     "params": [
       {
         "name": "tag",
-        "type": "int"
+        "type": "int",
+        "optional": false
       },
       {
         "name": "value",
-        "type": "int"
+        "type": "int",
+        "optional": false
       }
     ],
     "desc": "Raises the light level of the tagged sector.",
@@ -10203,7 +10192,8 @@
     "params": [
       {
         "name": "tag",
-        "type": "int"
+        "type": "int",
+        "optional": false
       }
     ],
     "desc": "Stops the light effect on the tagged sector.",
@@ -10216,23 +10206,28 @@
     "params": [
       {
         "name": "tag",
-        "type": "int"
+        "type": "int",
+        "optional": false
       },
       {
         "name": "upper",
-        "type": "int"
+        "type": "int",
+        "optional": false
       },
       {
         "name": "lower",
-        "type": "int"
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "tics",
-        "type": "int"
+        "name": "u-tics",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg5",
-        "type": "int"
+        "name": "l-tics",
+        "type": "int",
+        "optional": false
       }
     ],
     "desc": "Strobes the light level of the tagged sector.",
@@ -10244,16 +10239,19 @@
   "Light_StrobeDoom": {
     "params": [
       {
-        "name": "arg1",
-        "type": "int"
+        "name": "tag",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg2",
-        "type": "int"
+        "name": "u-tics",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg3",
-        "type": "int"
+        "name": "l-tics",
+        "type": "int",
+        "optional": false
       }
     ],
     "desc": "Line special / ACS callable: Light_StrobeDoom.",
@@ -10265,12 +10263,14 @@
   "Line_AlignCeiling": {
     "params": [
       {
-        "name": "arg1",
-        "type": "int"
+        "name": "lineid",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg2",
-        "type": "int"
+        "name": "side",
+        "type": "int",
+        "optional": false
       }
     ],
     "desc": "Line special / ACS callable: Line_AlignCeiling.",
@@ -10282,12 +10282,14 @@
   "Line_AlignFloor": {
     "params": [
       {
-        "name": "arg1",
-        "type": "int"
+        "name": "lineid",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg2",
-        "type": "int"
+        "name": "side",
+        "type": "int",
+        "optional": false
       }
     ],
     "desc": "Line special / ACS callable: Line_AlignFloor.",
@@ -10299,16 +10301,19 @@
   "Line_SetBlocking": {
     "params": [
       {
-        "name": "lineId",
-        "type": "int"
+        "name": "id",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "flags",
-        "type": "int"
+        "name": "setflags",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "flags2",
-        "type": "int"
+        "name": "clearflags",
+        "type": "int",
+        "optional": false
       }
     ],
     "desc": "Sets blocking flags for a line.",
@@ -10320,24 +10325,29 @@
   "Line_SetTextureOffset": {
     "params": [
       {
-        "name": "lineId",
-        "type": "int"
+        "name": "id",
+        "type": "int",
+        "optional": false
+      },
+      {
+        "name": "x",
+        "type": "int",
+        "optional": false
+      },
+      {
+        "name": "y",
+        "type": "int",
+        "optional": false
       },
       {
         "name": "side",
-        "type": "int"
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "offset",
-        "type": "int"
-      },
-      {
-        "name": "arg4",
-        "type": "int"
-      },
-      {
-        "name": "arg5",
-        "type": "int"
+        "name": "flags",
+        "type": "int",
+        "optional": false
       }
     ],
     "desc": "Sets texture offset for a line.",
@@ -10349,24 +10359,29 @@
   "Line_SetTextureScale": {
     "params": [
       {
-        "name": "lineId",
-        "type": "int"
+        "name": "id",
+        "type": "int",
+        "optional": false
+      },
+      {
+        "name": "x",
+        "type": "int",
+        "optional": false
+      },
+      {
+        "name": "y",
+        "type": "int",
+        "optional": false
       },
       {
         "name": "side",
-        "type": "int"
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "scale",
-        "type": "int"
-      },
-      {
-        "name": "scaleY",
-        "type": "int"
-      },
-      {
-        "name": "arg5",
-        "type": "int"
+        "name": "flags",
+        "type": "int",
+        "optional": false
       }
     ],
     "desc": "Sets texture scale for a line.",
@@ -10378,12 +10393,14 @@
   "NoiseAlert": {
     "params": [
       {
-        "name": "arg1",
-        "type": "int"
+        "name": "TID of target",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg2",
-        "type": "int"
+        "name": "TID of emitter",
+        "type": "int",
+        "optional": false
       }
     ],
     "desc": "Line special / ACS callable: NoiseAlert.",
@@ -10396,15 +10413,18 @@
     "params": [
       {
         "name": "tag",
-        "type": "int"
+        "type": "int",
+        "optional": false
       },
       {
         "name": "speed",
-        "type": "int"
+        "type": "int",
+        "optional": false
       },
       {
         "name": "height",
-        "type": "int"
+        "type": "int",
+        "optional": false
       }
     ],
     "desc": "Builds a pillar to the specified height.",
@@ -10417,22 +10437,26 @@
     "params": [
       {
         "name": "tag",
-        "type": "int"
+        "type": "int",
+        "optional": false
       },
       {
         "name": "speed",
-        "type": "int"
+        "type": "int",
+        "optional": false
       },
       {
         "name": "height",
-        "type": "int"
+        "type": "int",
+        "optional": false
       },
       {
         "name": "crush",
-        "type": "int"
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg5",
+        "name": "crushtype",
         "type": "int",
         "optional": true
       }
@@ -10447,19 +10471,23 @@
     "params": [
       {
         "name": "tag",
-        "type": "int"
+        "type": "int",
+        "optional": false
       },
       {
         "name": "speed",
-        "type": "int"
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "distFloor",
-        "type": "int"
+        "name": "f_height",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "distCeiling",
-        "type": "int"
+        "name": "c_height",
+        "type": "int",
+        "optional": false
       }
     ],
     "desc": "Opens a pillar.",
@@ -10471,20 +10499,24 @@
   "Plat_DownByValue": {
     "params": [
       {
-        "name": "arg1",
-        "type": "int"
+        "name": "tag",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg2",
-        "type": "int"
+        "name": "speed",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg3",
-        "type": "int"
+        "name": "delay",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg4",
-        "type": "int"
+        "name": "height",
+        "type": "int",
+        "optional": false
       }
     ],
     "desc": "Line special / ACS callable: Plat_DownByValue.",
@@ -10497,15 +10529,18 @@
     "params": [
       {
         "name": "tag",
-        "type": "int"
+        "type": "int",
+        "optional": false
       },
       {
         "name": "speed",
-        "type": "int"
+        "type": "int",
+        "optional": false
       },
       {
         "name": "delay",
-        "type": "int"
+        "type": "int",
+        "optional": false
       }
     ],
     "desc": "Lowers a platform, waits, then raises it.",
@@ -10517,23 +10552,27 @@
   "Plat_DownWaitUpStayLip": {
     "params": [
       {
-        "name": "arg1",
-        "type": "int"
+        "name": "tag",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg2",
-        "type": "int"
+        "name": "speed",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg3",
-        "type": "int"
+        "name": "delay",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg4",
-        "type": "int"
+        "name": "lip",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg5",
+        "name": "floor-sound?",
         "type": "int",
         "optional": true
       }
@@ -10548,15 +10587,18 @@
     "params": [
       {
         "name": "tag",
-        "type": "int"
+        "type": "int",
+        "optional": false
       },
       {
         "name": "speed",
-        "type": "int"
+        "type": "int",
+        "optional": false
       },
       {
         "name": "delay",
-        "type": "int"
+        "type": "int",
+        "optional": false
       }
     ],
     "desc": "Continuously raises a platform.",
@@ -10568,20 +10610,24 @@
   "Plat_PerpetualRaiseLip": {
     "params": [
       {
-        "name": "arg1",
-        "type": "int"
+        "name": "tag",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg2",
-        "type": "int"
+        "name": "speed",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg3",
-        "type": "int"
+        "name": "delay",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg4",
-        "type": "int"
+        "name": "lip",
+        "type": "int",
+        "optional": false
       }
     ],
     "desc": "Line special / ACS callable: Plat_PerpetualRaiseLip.",
@@ -10593,15 +10639,17 @@
   "Plat_RaiseAndStayTx0": {
     "params": [
       {
-        "name": "arg1",
-        "type": "int"
+        "name": "tag",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg2",
-        "type": "int"
+        "name": "speed",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg3",
+        "name": "lockout",
         "type": "int",
         "optional": true
       }
@@ -10615,13 +10663,9 @@
   "Plat_Stop": {
     "params": [
       {
-        "name": "arg1",
-        "type": "int"
-      },
-      {
-        "name": "arg2",
+        "name": "tag",
         "type": "int",
-        "optional": true
+        "optional": false
       }
     ],
     "desc": "Line special / ACS callable: Plat_Stop.",
@@ -10633,8 +10677,9 @@
   "Plat_ToggleCeiling": {
     "params": [
       {
-        "name": "arg1",
-        "type": "int"
+        "name": "tag",
+        "type": "int",
+        "optional": false
       }
     ],
     "desc": "Line special / ACS callable: Plat_ToggleCeiling.",
@@ -10646,20 +10691,24 @@
   "Plat_UpByValue": {
     "params": [
       {
-        "name": "arg1",
-        "type": "int"
+        "name": "tag",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg2",
-        "type": "int"
+        "name": "speed",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg3",
-        "type": "int"
+        "name": "delay",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg4",
-        "type": "int"
+        "name": "height",
+        "type": "int",
+        "optional": false
       }
     ],
     "desc": "Line special / ACS callable: Plat_UpByValue.",
@@ -10671,16 +10720,19 @@
   "Plat_UpByValueStayTx": {
     "params": [
       {
-        "name": "arg1",
-        "type": "int"
+        "name": "tag",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg2",
-        "type": "int"
+        "name": "speed",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg3",
-        "type": "int"
+        "name": "height",
+        "type": "int",
+        "optional": false
       }
     ],
     "desc": "Line special / ACS callable: Plat_UpByValueStayTx.",
@@ -10692,16 +10744,19 @@
   "Plat_UpNearestWaitDownStay": {
     "params": [
       {
-        "name": "arg1",
-        "type": "int"
+        "name": "tag",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg2",
-        "type": "int"
+        "name": "speed",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg3",
-        "type": "int"
+        "name": "delay",
+        "type": "int",
+        "optional": false
       }
     ],
     "desc": "Line special / ACS callable: Plat_UpNearestWaitDownStay.",
@@ -10713,16 +10768,19 @@
   "Plat_UpWaitDownStay": {
     "params": [
       {
-        "name": "arg1",
-        "type": "int"
+        "name": "tag",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg2",
-        "type": "int"
+        "name": "speed",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg3",
-        "type": "int"
+        "name": "delay",
+        "type": "int",
+        "optional": false
       }
     ],
     "desc": "Line special / ACS callable: Plat_UpWaitDownStay.",
@@ -10734,24 +10792,29 @@
   "Polyobj_DoorSlide": {
     "params": [
       {
-        "name": "arg1",
-        "type": "int"
+        "name": "po",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg2",
-        "type": "int"
+        "name": "speed",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg3",
-        "type": "int"
+        "name": "angle",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg4",
-        "type": "int"
+        "name": "distance",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg5",
-        "type": "int"
+        "name": "delay",
+        "type": "int",
+        "optional": false
       }
     ],
     "desc": "Line special / ACS callable: Polyobj_DoorSlide.",
@@ -10763,20 +10826,24 @@
   "Polyobj_DoorSwing": {
     "params": [
       {
-        "name": "arg1",
-        "type": "int"
+        "name": "po",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg2",
-        "type": "int"
+        "name": "speed",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg3",
-        "type": "int"
+        "name": "angle",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg4",
-        "type": "int"
+        "name": "delay",
+        "type": "int",
+        "optional": false
       }
     ],
     "desc": "Line special / ACS callable: Polyobj_DoorSwing.",
@@ -10788,20 +10855,24 @@
   "Polyobj_Move": {
     "params": [
       {
-        "name": "arg1",
-        "type": "int"
+        "name": "po",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg2",
-        "type": "int"
+        "name": "speed",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg3",
-        "type": "int"
+        "name": "angle",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg4",
-        "type": "int"
+        "name": "distance",
+        "type": "int",
+        "optional": false
       }
     ],
     "desc": "Line special / ACS callable: Polyobj_Move.",
@@ -10813,20 +10884,24 @@
   "Polyobj_MoveTimes8": {
     "params": [
       {
-        "name": "arg1",
-        "type": "int"
+        "name": "po",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg2",
-        "type": "int"
+        "name": "speed",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg3",
-        "type": "int"
+        "name": "angle",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg4",
-        "type": "int"
+        "name": "distance",
+        "type": "int",
+        "optional": false
       }
     ],
     "desc": "Line special / ACS callable: Polyobj_MoveTimes8.",
@@ -10838,20 +10913,24 @@
   "Polyobj_MoveTo": {
     "params": [
       {
-        "name": "arg1",
-        "type": "int"
+        "name": "po",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg2",
-        "type": "int"
+        "name": "speed",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg3",
-        "type": "int"
+        "name": "x",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg4",
-        "type": "int"
+        "name": "y",
+        "type": "int",
+        "optional": false
       }
     ],
     "desc": "Line special / ACS callable: Polyobj_MoveTo.",
@@ -10863,16 +10942,19 @@
   "Polyobj_MoveToSpot": {
     "params": [
       {
-        "name": "arg1",
-        "type": "int"
+        "name": "po",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg2",
-        "type": "int"
+        "name": "speed",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg3",
-        "type": "int"
+        "name": "tid",
+        "type": "int",
+        "optional": false
       }
     ],
     "desc": "Line special / ACS callable: Polyobj_MoveToSpot.",
@@ -10884,20 +10966,24 @@
   "Polyobj_OR_Move": {
     "params": [
       {
-        "name": "arg1",
-        "type": "int"
+        "name": "po",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg2",
-        "type": "int"
+        "name": "speed",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg3",
-        "type": "int"
+        "name": "angle",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg4",
-        "type": "int"
+        "name": "distance",
+        "type": "int",
+        "optional": false
       }
     ],
     "desc": "Line special / ACS callable: Polyobj_OR_Move.",
@@ -10909,20 +10995,24 @@
   "Polyobj_OR_MoveTimes8": {
     "params": [
       {
-        "name": "arg1",
-        "type": "int"
+        "name": "po",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg2",
-        "type": "int"
+        "name": "speed",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg3",
-        "type": "int"
+        "name": "angle",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg4",
-        "type": "int"
+        "name": "distance",
+        "type": "int",
+        "optional": false
       }
     ],
     "desc": "Line special / ACS callable: Polyobj_OR_MoveTimes8.",
@@ -10934,20 +11024,24 @@
   "Polyobj_OR_MoveTo": {
     "params": [
       {
-        "name": "arg1",
-        "type": "int"
+        "name": "po",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg2",
-        "type": "int"
+        "name": "speed",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg3",
-        "type": "int"
+        "name": "x",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg4",
-        "type": "int"
+        "name": "y",
+        "type": "int",
+        "optional": false
       }
     ],
     "desc": "Line special / ACS callable: Polyobj_OR_MoveTo.",
@@ -10959,16 +11053,19 @@
   "Polyobj_OR_MoveToSpot": {
     "params": [
       {
-        "name": "arg1",
-        "type": "int"
+        "name": "po",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg2",
-        "type": "int"
+        "name": "speed",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg3",
-        "type": "int"
+        "name": "tid",
+        "type": "int",
+        "optional": false
       }
     ],
     "desc": "Line special / ACS callable: Polyobj_OR_MoveToSpot.",
@@ -10980,16 +11077,19 @@
   "Polyobj_OR_RotateLeft": {
     "params": [
       {
-        "name": "arg1",
-        "type": "int"
+        "name": "po",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg2",
-        "type": "int"
+        "name": "speed",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg3",
-        "type": "int"
+        "name": "angle",
+        "type": "int",
+        "optional": false
       }
     ],
     "desc": "Line special / ACS callable: Polyobj_OR_RotateLeft.",
@@ -11001,16 +11101,19 @@
   "Polyobj_OR_RotateRight": {
     "params": [
       {
-        "name": "arg1",
-        "type": "int"
+        "name": "po",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg2",
-        "type": "int"
+        "name": "speed",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg3",
-        "type": "int"
+        "name": "angle",
+        "type": "int",
+        "optional": false
       }
     ],
     "desc": "Line special / ACS callable: Polyobj_OR_RotateRight.",
@@ -11022,16 +11125,19 @@
   "Polyobj_RotateLeft": {
     "params": [
       {
-        "name": "arg1",
-        "type": "int"
+        "name": "po",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg2",
-        "type": "int"
+        "name": "speed",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg3",
-        "type": "int"
+        "name": "angle",
+        "type": "int",
+        "optional": false
       }
     ],
     "desc": "Line special / ACS callable: Polyobj_RotateLeft.",
@@ -11043,16 +11149,19 @@
   "Polyobj_RotateRight": {
     "params": [
       {
-        "name": "arg1",
-        "type": "int"
+        "name": "po",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg2",
-        "type": "int"
+        "name": "speed",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg3",
-        "type": "int"
+        "name": "angle",
+        "type": "int",
+        "optional": false
       }
     ],
     "desc": "Line special / ACS callable: Polyobj_RotateRight.",
@@ -11064,8 +11173,9 @@
   "Polyobj_Stop": {
     "params": [
       {
-        "name": "arg1",
-        "type": "int"
+        "name": "po",
+        "type": "int",
+        "optional": false
       }
     ],
     "desc": "Line special / ACS callable: Polyobj_Stop.",
@@ -11077,24 +11187,29 @@
   "Radius_Quake": {
     "params": [
       {
-        "name": "arg1",
-        "type": "int"
+        "name": "intensity",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg2",
-        "type": "int"
+        "name": "duration",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg3",
-        "type": "int"
+        "name": "damrad",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg4",
-        "type": "int"
+        "name": "tremrad",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg5",
-        "type": "int"
+        "name": "tid",
+        "type": "int",
+        "optional": false
       }
     ],
     "desc": "Line special / ACS callable: Radius_Quake.",
@@ -11106,20 +11221,24 @@
   "Scroll_Ceiling": {
     "params": [
       {
-        "name": "arg1",
-        "type": "int"
+        "name": "tag",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg2",
-        "type": "int"
+        "name": "x-move",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg3",
-        "type": "int"
+        "name": "y-move",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg4",
-        "type": "int"
+        "name": "0",
+        "type": "int",
+        "optional": false
       }
     ],
     "desc": "Line special / ACS callable: Scroll_Ceiling.",
@@ -11131,20 +11250,24 @@
   "Scroll_Floor": {
     "params": [
       {
-        "name": "arg1",
-        "type": "int"
+        "name": "tag",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg2",
-        "type": "int"
+        "name": "x-move",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg3",
-        "type": "int"
+        "name": "y-move",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg4",
-        "type": "int"
+        "name": "s/c",
+        "type": "int",
+        "optional": false
       }
     ],
     "desc": "Line special / ACS callable: Scroll_Floor.",
@@ -11156,24 +11279,29 @@
   "Scroll_Texture_Both": {
     "params": [
       {
-        "name": "arg1",
-        "type": "int"
+        "name": "id",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg2",
-        "type": "int"
+        "name": "left",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg3",
-        "type": "int"
+        "name": "right",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg4",
-        "type": "int"
+        "name": "up",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg5",
-        "type": "int"
+        "name": "down",
+        "type": "int",
+        "optional": false
       }
     ],
     "desc": "Line special / ACS callable: Scroll_Texture_Both.",
@@ -11185,24 +11313,29 @@
   "Scroll_Wall": {
     "params": [
       {
-        "name": "arg1",
-        "type": "int"
+        "name": "id",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg2",
-        "type": "int"
+        "name": "x",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg3",
-        "type": "int"
+        "name": "y",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg4",
-        "type": "int"
+        "name": "side",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg5",
-        "type": "int"
+        "name": "flags",
+        "type": "int",
+        "optional": false
       }
     ],
     "desc": "Line special / ACS callable: Scroll_Wall.",
@@ -11214,16 +11347,19 @@
   "Sector_ChangeFlags": {
     "params": [
       {
-        "name": "arg1",
-        "type": "int"
+        "name": "tag",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg2",
-        "type": "int"
+        "name": "set",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg3",
-        "type": "int"
+        "name": "clear",
+        "type": "int",
+        "optional": false
       }
     ],
     "desc": "Line special / ACS callable: Sector_ChangeFlags.",
@@ -11235,12 +11371,14 @@
   "Sector_ChangeSound": {
     "params": [
       {
-        "name": "arg1",
-        "type": "int"
+        "name": "tag",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg2",
-        "type": "int"
+        "name": "sound",
+        "type": "int",
+        "optional": false
       }
     ],
     "desc": "Line special / ACS callable: Sector_ChangeSound.",
@@ -11253,23 +11391,28 @@
     "params": [
       {
         "name": "tag",
-        "type": "int"
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "xInt",
-        "type": "int"
+        "name": "x-int",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "xFrac",
-        "type": "int"
+        "name": "x-frac",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "yInt",
-        "type": "int"
+        "name": "y-int",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "yFrac",
-        "type": "int"
+        "name": "y-frac",
+        "type": "int",
+        "optional": false
       }
     ],
     "desc": "Sets ceiling texture panning for a sector.",
@@ -11282,23 +11425,28 @@
     "params": [
       {
         "name": "tag",
-        "type": "int"
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "xInt",
-        "type": "int"
+        "name": "x-int",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "xFrac",
-        "type": "int"
+        "name": "x-frac",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "yInt",
-        "type": "int"
+        "name": "y-int",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "yFrac",
-        "type": "int"
+        "name": "y-frac",
+        "type": "int",
+        "optional": false
       }
     ],
     "desc": "Sets ceiling texture scale for a sector.",
@@ -11310,16 +11458,19 @@
   "Sector_SetCeilingScale2": {
     "params": [
       {
-        "name": "arg1",
-        "type": "int"
+        "name": "tag",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg2",
-        "type": "int"
+        "name": "x-factor",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg3",
-        "type": "int"
+        "name": "y-factor",
+        "type": "int",
+        "optional": false
       }
     ],
     "desc": "Line special / ACS callable: Sector_SetCeilingScale2.",
@@ -11332,19 +11483,23 @@
     "params": [
       {
         "name": "tag",
-        "type": "int"
+        "type": "int",
+        "optional": false
       },
       {
         "name": "r",
-        "type": "int"
+        "type": "int",
+        "optional": false
       },
       {
         "name": "g",
-        "type": "int"
+        "type": "int",
+        "optional": false
       },
       {
         "name": "b",
-        "type": "int"
+        "type": "int",
+        "optional": false
       },
       {
         "name": "desaturate",
@@ -11361,20 +11516,24 @@
   "Sector_SetCurrent": {
     "params": [
       {
-        "name": "arg1",
-        "type": "int"
+        "name": "tag",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg2",
-        "type": "int"
+        "name": "amount",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg3",
-        "type": "int"
+        "name": "angle",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg4",
-        "type": "int"
+        "name": "useline",
+        "type": "int",
+        "optional": false
       }
     ],
     "desc": "Line special / ACS callable: Sector_SetCurrent.",
@@ -11387,25 +11546,18 @@
     "params": [
       {
         "name": "tag",
-        "type": "int"
+        "type": "int",
+        "optional": false
       },
       {
         "name": "amount",
-        "type": "int"
-      },
-      {
-        "name": "name",
-        "type": "string"
-      },
-      {
-        "name": "arg4",
         "type": "int",
-        "optional": true
+        "optional": false
       },
       {
-        "name": "arg5",
-        "type": "int",
-        "optional": true
+        "name": "mod",
+        "type": "string",
+        "optional": false
       }
     ],
     "desc": "Sets damage for a tagged sector.",
@@ -11418,19 +11570,23 @@
     "params": [
       {
         "name": "tag",
-        "type": "int"
+        "type": "int",
+        "optional": false
       },
       {
         "name": "r",
-        "type": "int"
+        "type": "int",
+        "optional": false
       },
       {
         "name": "g",
-        "type": "int"
+        "type": "int",
+        "optional": false
       },
       {
         "name": "b",
-        "type": "int"
+        "type": "int",
+        "optional": false
       }
     ],
     "desc": "Sets the fade color of a tagged sector.",
@@ -11443,23 +11599,28 @@
     "params": [
       {
         "name": "tag",
-        "type": "int"
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "xInt",
-        "type": "int"
+        "name": "x-int",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "xFrac",
-        "type": "int"
+        "name": "x-frac",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "yInt",
-        "type": "int"
+        "name": "y-int",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "yFrac",
-        "type": "int"
+        "name": "y-frac",
+        "type": "int",
+        "optional": false
       }
     ],
     "desc": "Sets floor texture panning for a sector.",
@@ -11472,23 +11633,28 @@
     "params": [
       {
         "name": "tag",
-        "type": "int"
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "xInt",
-        "type": "int"
+        "name": "x-int",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "xFrac",
-        "type": "int"
+        "name": "x-frac",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "yInt",
-        "type": "int"
+        "name": "y-int",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "yFrac",
-        "type": "int"
+        "name": "y-frac",
+        "type": "int",
+        "optional": false
       }
     ],
     "desc": "Sets floor texture scale for a sector.",
@@ -11500,16 +11666,19 @@
   "Sector_SetFloorScale2": {
     "params": [
       {
-        "name": "arg1",
-        "type": "int"
+        "name": "tag",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg2",
-        "type": "int"
+        "name": "x-factor",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg3",
-        "type": "int"
+        "name": "y-factor",
+        "type": "int",
+        "optional": false
       }
     ],
     "desc": "Line special / ACS callable: Sector_SetFloorScale2.",
@@ -11521,12 +11690,14 @@
   "Sector_SetFriction": {
     "params": [
       {
-        "name": "arg1",
-        "type": "int"
+        "name": "tag",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg2",
-        "type": "int"
+        "name": "amount",
+        "type": "int",
+        "optional": false
       }
     ],
     "desc": "Line special / ACS callable: Sector_SetFriction.",
@@ -11539,15 +11710,18 @@
     "params": [
       {
         "name": "tag",
-        "type": "int"
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "xInt",
-        "type": "int"
+        "name": "intpart",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "xFrac",
-        "type": "int"
+        "name": "fracpart",
+        "type": "int",
+        "optional": false
       }
     ],
     "desc": "Sets gravity for a sector.",
@@ -11559,20 +11733,24 @@
   "Sector_SetLink": {
     "params": [
       {
-        "name": "controlTag",
-        "type": "int"
+        "name": "controltag",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "linkTag",
-        "type": "int"
+        "name": "linktag",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "controlType",
-        "type": "int"
+        "name": "floor/ceiling",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "linkType",
-        "type": "int"
+        "name": "movetype",
+        "type": "int",
+        "optional": false
       }
     ],
     "desc": "Links two sectors together.",
@@ -11584,16 +11762,19 @@
   "Sector_SetPlaneReflection": {
     "params": [
       {
-        "name": "arg1",
-        "type": "int"
+        "name": "tag",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg2",
-        "type": "int"
+        "name": "floor",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg3",
-        "type": "int"
+        "name": "ceiling",
+        "type": "int",
+        "optional": false
       }
     ],
     "desc": "Line special / ACS callable: Sector_SetPlaneReflection.",
@@ -11605,16 +11786,19 @@
   "Sector_SetRotation": {
     "params": [
       {
-        "name": "arg1",
-        "type": "int"
+        "name": "tag",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg2",
-        "type": "int"
+        "name": "floor-angle",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg3",
-        "type": "int"
+        "name": "ceiling-angle",
+        "type": "int",
+        "optional": false
       }
     ],
     "desc": "Line special / ACS callable: Sector_SetRotation.",
@@ -11626,19 +11810,22 @@
   "Sector_SetTranslucent": {
     "params": [
       {
-        "name": "arg1",
-        "type": "int"
+        "name": "tag",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg2",
-        "type": "int"
+        "name": "plane",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg3",
-        "type": "int"
+        "name": "amount",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg4",
+        "name": "type",
         "type": "int",
         "optional": true
       }
@@ -11652,20 +11839,24 @@
   "Sector_SetWind": {
     "params": [
       {
-        "name": "arg1",
-        "type": "int"
+        "name": "tag",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg2",
-        "type": "int"
+        "name": "amount",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg3",
-        "type": "int"
+        "name": "angle",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg4",
-        "type": "int"
+        "name": "useline",
+        "type": "int",
+        "optional": false
       }
     ],
     "desc": "Line special / ACS callable: Sector_SetWind.",
@@ -11677,20 +11868,24 @@
   "SendToCommunicator": {
     "params": [
       {
-        "name": "arg1",
-        "type": "int"
+        "name": "voc #",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg2",
-        "type": "int"
+        "name": "front-only",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg3",
-        "type": "int"
+        "name": "identify",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg4",
-        "type": "int"
+        "name": "nolog",
+        "type": "int",
+        "optional": false
       }
     ],
     "desc": "Line special / ACS callable: SendToCommunicator.",
@@ -11702,12 +11897,14 @@
   "SetGlobalFogParameter": {
     "params": [
       {
-        "name": "arg1",
-        "type": "int"
+        "name": "type",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg2",
-        "type": "int"
+        "name": "value",
+        "type": "int",
+        "optional": false
       }
     ],
     "desc": "Line special / ACS callable: SetGlobalFogParameter.",
@@ -11720,15 +11917,18 @@
     "params": [
       {
         "name": "who",
-        "type": "int"
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "set",
-        "type": "bool"
+        "name": "value",
+        "type": "bool",
+        "optional": false
       },
       {
-        "name": "property",
-        "type": "int"
+        "name": "which",
+        "type": "int",
+        "optional": false
       }
     ],
     "desc": "Sets a player property for the given player.",
@@ -11741,23 +11941,28 @@
     "params": [
       {
         "name": "tag",
-        "type": "int"
+        "type": "int",
+        "optional": false
       },
       {
         "name": "speed",
-        "type": "int"
+        "type": "int",
+        "optional": false
       },
       {
         "name": "height",
-        "type": "int"
+        "type": "int",
+        "optional": false
       },
       {
         "name": "delay",
-        "type": "int"
+        "type": "int",
+        "optional": false
       },
       {
         "name": "reset",
-        "type": "int"
+        "type": "int",
+        "optional": false
       }
     ],
     "desc": "Builds stairs going down.",
@@ -11769,20 +11974,24 @@
   "Stairs_BuildDownSync": {
     "params": [
       {
-        "name": "arg1",
-        "type": "int"
+        "name": "tag",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg2",
-        "type": "int"
+        "name": "speed",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg3",
-        "type": "int"
+        "name": "height",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg4",
-        "type": "int"
+        "name": "reset",
+        "type": "int",
+        "optional": false
       }
     ],
     "desc": "Line special / ACS callable: Stairs_BuildDownSync.",
@@ -11795,23 +12004,28 @@
     "params": [
       {
         "name": "tag",
-        "type": "int"
+        "type": "int",
+        "optional": false
       },
       {
         "name": "speed",
-        "type": "int"
+        "type": "int",
+        "optional": false
       },
       {
         "name": "height",
-        "type": "int"
+        "type": "int",
+        "optional": false
       },
       {
         "name": "delay",
-        "type": "int"
+        "type": "int",
+        "optional": false
       },
       {
         "name": "reset",
-        "type": "int"
+        "type": "int",
+        "optional": false
       }
     ],
     "desc": "Builds stairs going up.",
@@ -11823,24 +12037,29 @@
   "Stairs_BuildUpDoom": {
     "params": [
       {
-        "name": "arg1",
-        "type": "int"
+        "name": "tag",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg2",
-        "type": "int"
+        "name": "speed",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg3",
-        "type": "int"
+        "name": "height",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg4",
-        "type": "int"
+        "name": "delay",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg5",
-        "type": "int"
+        "name": "reset",
+        "type": "int",
+        "optional": false
       }
     ],
     "desc": "Line special / ACS callable: Stairs_BuildUpDoom.",
@@ -11852,20 +12071,24 @@
   "Stairs_BuildUpSync": {
     "params": [
       {
-        "name": "arg1",
-        "type": "int"
+        "name": "tag",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg2",
-        "type": "int"
+        "name": "speed",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg3",
-        "type": "int"
+        "name": "height",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg4",
-        "type": "int"
+        "name": "reset",
+        "type": "int",
+        "optional": false
       }
     ],
     "desc": "Line special / ACS callable: Stairs_BuildUpSync.",
@@ -11877,11 +12100,12 @@
   "StartConversation": {
     "params": [
       {
-        "name": "arg1",
-        "type": "int"
+        "name": "tid",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg2",
+        "name": "facetalker",
         "type": "int",
         "optional": true
       }
@@ -11896,15 +12120,16 @@
     "params": [
       {
         "name": "tid",
-        "type": "int"
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "targetTid",
+        "name": "sectortag",
         "type": "int",
         "optional": true
       },
       {
-        "name": "fog",
+        "name": "bNoSourceFog",
         "type": "bool",
         "optional": true
       }
@@ -11926,15 +12151,17 @@
   "Teleport_Line": {
     "params": [
       {
-        "name": "arg1",
-        "type": "int"
+        "name": "thisid",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg2",
-        "type": "int"
+        "name": "destid",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg3",
+        "name": "reversed",
         "type": "int",
         "optional": true
       }
@@ -11949,14 +12176,16 @@
     "params": [
       {
         "name": "map",
-        "type": "string"
+        "type": "string",
+        "optional": false
       },
       {
         "name": "position",
-        "type": "int"
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "face",
+        "name": "keepFacing?",
         "type": "bool",
         "optional": true
       }
@@ -11970,21 +12199,22 @@
   "Teleport_NoFog": {
     "params": [
       {
-        "name": "arg1",
-        "type": "int"
+        "name": "tid",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg2",
+        "name": "useang",
         "type": "int",
         "optional": true
       },
       {
-        "name": "arg3",
+        "name": "sectortag",
         "type": "int",
         "optional": true
       },
       {
-        "name": "arg4",
+        "name": "keepheight",
         "type": "int",
         "optional": true
       }
@@ -11998,15 +12228,17 @@
   "Teleport_NoStop": {
     "params": [
       {
-        "name": "arg1",
-        "type": "int"
+        "name": "tid",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg2",
-        "type": "int"
+        "name": "sectortag",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg3",
+        "name": "bNoSourceFog",
         "type": "int",
         "optional": true
       }
@@ -12020,12 +12252,14 @@
   "Teleport_ZombieChanger": {
     "params": [
       {
-        "name": "arg1",
-        "type": "int"
+        "name": "tid",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg2",
-        "type": "int"
+        "name": "sectortag",
+        "type": "int",
+        "optional": false
       }
     ],
     "desc": "Line special / ACS callable: Teleport_ZombieChanger.",
@@ -12037,24 +12271,29 @@
   "TeleportGroup": {
     "params": [
       {
-        "name": "groupTid",
-        "type": "int"
+        "name": "group_tid",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "sourceTid",
-        "type": "int"
+        "name": "source_tid",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "destTid",
-        "type": "int"
+        "name": "dest_tid",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "moveSource",
-        "type": "bool"
+        "name": "move_source?",
+        "type": "bool",
+        "optional": false
       },
       {
-        "name": "fog",
-        "type": "bool"
+        "name": "fog?",
+        "type": "bool",
+        "optional": false
       }
     ],
     "desc": "Teleports all members of a group to a destination.",
@@ -12067,22 +12306,26 @@
     "params": [
       {
         "name": "tag",
-        "type": "int"
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "sourceTid",
-        "type": "int"
+        "name": "source_tid",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "destTid",
-        "type": "int"
+        "name": "dest_tid",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "fog",
-        "type": "bool"
+        "name": "bFog",
+        "type": "bool",
+        "optional": false
       },
       {
-        "name": "group",
+        "name": "group_tid",
         "type": "int",
         "optional": true
       }
@@ -12096,16 +12339,19 @@
   "TeleportOther": {
     "params": [
       {
-        "name": "tid",
-        "type": "int"
+        "name": "other_tid",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "targetTid",
-        "type": "int"
+        "name": "dest_tid",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "fog",
-        "type": "bool"
+        "name": "fog?",
+        "type": "bool",
+        "optional": false
       }
     ],
     "desc": "Teleports an actor to a target thing.",
@@ -12117,8 +12363,9 @@
   "Thing_Activate": {
     "params": [
       {
-        "name": "arg1",
-        "type": "int"
+        "name": "tid",
+        "type": "int",
+        "optional": false
       }
     ],
     "desc": "Line special / ACS callable: Thing_Activate.",
@@ -12130,12 +12377,14 @@
   "Thing_ChangeTID": {
     "params": [
       {
-        "name": "arg1",
-        "type": "int"
+        "name": "oldtid",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg2",
-        "type": "int"
+        "name": "newtid",
+        "type": "int",
+        "optional": false
       }
     ],
     "desc": "Line special / ACS callable: Thing_ChangeTID.",
@@ -12148,14 +12397,16 @@
     "params": [
       {
         "name": "tid",
-        "type": "int"
+        "type": "int",
+        "optional": false
       },
       {
         "name": "amount",
-        "type": "int"
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "mod",
+        "name": "MOD",
         "type": "string",
         "optional": true
       }
@@ -12169,8 +12420,9 @@
   "Thing_Deactivate": {
     "params": [
       {
-        "name": "arg1",
-        "type": "int"
+        "name": "tid",
+        "type": "int",
+        "optional": false
       }
     ],
     "desc": "Line special / ACS callable: Thing_Deactivate.",
@@ -12183,7 +12435,8 @@
     "params": [
       {
         "name": "tid",
-        "type": "int"
+        "type": "int",
+        "optional": false
       },
       {
         "name": "extreme",
@@ -12191,7 +12444,7 @@
         "optional": true
       },
       {
-        "name": "arg3",
+        "name": "tag",
         "type": "int",
         "optional": true
       }
@@ -12205,15 +12458,17 @@
   "Thing_Hate": {
     "params": [
       {
-        "name": "arg1",
-        "type": "int"
+        "name": "hater",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg2",
-        "type": "int"
+        "name": "hatee",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg3",
+        "name": "group/\"xray\"?",
         "type": "int",
         "optional": true
       }
@@ -12227,15 +12482,17 @@
   "Thing_Move": {
     "params": [
       {
-        "name": "arg1",
-        "type": "int"
+        "name": "tid",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg2",
-        "type": "int"
+        "name": "mapspot",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg3",
+        "name": "nofog",
         "type": "int",
         "optional": true
       }
@@ -12249,24 +12506,29 @@
   "Thing_Projectile": {
     "params": [
       {
-        "name": "arg1",
-        "type": "int"
+        "name": "tid",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg2",
-        "type": "int"
+        "name": "type",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg3",
-        "type": "int"
+        "name": "angle",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg4",
-        "type": "int"
+        "name": "speed",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg5",
-        "type": "int"
+        "name": "vspeed",
+        "type": "int",
+        "optional": false
       }
     ],
     "desc": "Line special / ACS callable: Thing_Projectile.",
@@ -12278,23 +12540,27 @@
   "Thing_ProjectileAimed": {
     "params": [
       {
-        "name": "arg1",
-        "type": "int"
+        "name": "tid",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg2",
-        "type": "int"
+        "name": "type",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg3",
-        "type": "int"
+        "name": "speed",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg4",
-        "type": "int"
+        "name": "target",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg5",
+        "name": "newtid",
         "type": "int",
         "optional": true
       }
@@ -12308,24 +12574,29 @@
   "Thing_ProjectileGravity": {
     "params": [
       {
-        "name": "arg1",
-        "type": "int"
+        "name": "tid",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg2",
-        "type": "int"
+        "name": "type",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg3",
-        "type": "int"
+        "name": "angle",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg4",
-        "type": "int"
+        "name": "speed",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg5",
-        "type": "int"
+        "name": "vspeed",
+        "type": "int",
+        "optional": false
       }
     ],
     "desc": "Line special / ACS callable: Thing_ProjectileGravity.",
@@ -12337,24 +12608,29 @@
   "Thing_ProjectileIntercept": {
     "params": [
       {
-        "name": "arg1",
-        "type": "int"
+        "name": "tid",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg2",
-        "type": "int"
+        "name": "type",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg3",
-        "type": "int"
+        "name": "speed",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg4",
-        "type": "int"
+        "name": "target",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg5",
-        "type": "int"
+        "name": "newtid",
+        "type": "int",
+        "optional": false
       }
     ],
     "desc": "Line special / ACS callable: Thing_ProjectileIntercept.",
@@ -12366,13 +12642,9 @@
   "Thing_Raise": {
     "params": [
       {
-        "name": "arg1",
-        "type": "int"
-      },
-      {
-        "name": "arg2",
+        "name": "tid",
         "type": "int",
-        "optional": true
+        "optional": false
       }
     ],
     "desc": "Line special / ACS callable: Thing_Raise.",
@@ -12385,7 +12657,8 @@
     "params": [
       {
         "name": "tid",
-        "type": "int"
+        "type": "int",
+        "optional": false
       }
     ],
     "desc": "Removes all things with the given TID.",
@@ -12397,12 +12670,14 @@
   "Thing_SetConversation": {
     "params": [
       {
-        "name": "arg1",
-        "type": "int"
+        "name": "tid",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg2",
-        "type": "int"
+        "name": "dlg_id",
+        "type": "int",
+        "optional": false
       }
     ],
     "desc": "Line special / ACS callable: Thing_SetConversation.",
@@ -12414,19 +12689,22 @@
   "Thing_SetGoal": {
     "params": [
       {
-        "name": "arg1",
-        "type": "int"
+        "name": "tid",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg2",
-        "type": "int"
+        "name": "goal",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg3",
-        "type": "int"
+        "name": "delay",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg4",
+        "name": "chasegoal",
         "type": "int",
         "optional": true
       }
@@ -12440,24 +12718,29 @@
   "Thing_SetSpecial": {
     "params": [
       {
+        "name": "tid",
+        "type": "int",
+        "optional": false
+      },
+      {
+        "name": "special",
+        "type": "int",
+        "optional": false
+      },
+      {
         "name": "arg1",
-        "type": "int"
+        "type": "int",
+        "optional": false
       },
       {
         "name": "arg2",
-        "type": "int"
+        "type": "int",
+        "optional": false
       },
       {
         "name": "arg3",
-        "type": "int"
-      },
-      {
-        "name": "arg4",
-        "type": "int"
-      },
-      {
-        "name": "arg5",
-        "type": "int"
+        "type": "int",
+        "optional": false
       }
     ],
     "desc": "Line special / ACS callable: Thing_SetSpecial.",
@@ -12469,12 +12752,14 @@
   "Thing_SetTranslation": {
     "params": [
       {
-        "name": "arg1",
-        "type": "int"
+        "name": "tid",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg2",
-        "type": "int"
+        "name": "range",
+        "type": "int",
+        "optional": false
       }
     ],
     "desc": "Line special / ACS callable: Thing_SetTranslation.",
@@ -12487,18 +12772,21 @@
     "params": [
       {
         "name": "tid",
-        "type": "int"
+        "type": "int",
+        "optional": false
       },
       {
         "name": "type",
-        "type": "string"
+        "type": "string",
+        "optional": false
       },
       {
         "name": "angle",
-        "type": "int"
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "newTid",
+        "name": "newtid",
         "type": "int",
         "optional": true
       }
@@ -12513,19 +12801,21 @@
     "params": [
       {
         "name": "tid",
-        "type": "int"
+        "type": "int",
+        "optional": false
       },
       {
         "name": "type",
-        "type": "string"
+        "type": "string",
+        "optional": false
       },
       {
-        "name": "nomonsters",
+        "name": "nofog",
         "type": "bool",
         "optional": true
       },
       {
-        "name": "newTid",
+        "name": "newtid",
         "type": "int",
         "optional": true
       }
@@ -12540,18 +12830,21 @@
     "params": [
       {
         "name": "tid",
-        "type": "int"
+        "type": "int",
+        "optional": false
       },
       {
         "name": "type",
-        "type": "string"
+        "type": "string",
+        "optional": false
       },
       {
         "name": "angle",
-        "type": "int"
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "newTid",
+        "name": "newtid",
         "type": "int",
         "optional": true
       }
@@ -12565,8 +12858,9 @@
   "Thing_Stop": {
     "params": [
       {
-        "name": "arg1",
-        "type": "int"
+        "name": "tid",
+        "type": "int",
+        "optional": false
       }
     ],
     "desc": "Line special / ACS callable: Thing_Stop.",
@@ -12578,15 +12872,17 @@
   "TranslucentLine": {
     "params": [
       {
-        "name": "arg1",
-        "type": "int"
+        "name": "id",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg2",
-        "type": "int"
+        "name": "amount",
+        "type": "int",
+        "optional": false
       },
       {
-        "name": "arg3",
+        "name": "type",
         "type": "int",
         "optional": true
       }
@@ -12598,7 +12894,33 @@
     ]
   },
   "UsePuzzleItem": {
-    "params": [],
+    "params": [
+      {
+        "name": "item",
+        "type": "int",
+        "optional": false
+      },
+      {
+        "name": "script",
+        "type": "int",
+        "optional": false
+      },
+      {
+        "name": "arg3",
+        "type": "int",
+        "optional": true
+      },
+      {
+        "name": "arg4",
+        "type": "int",
+        "optional": true
+      },
+      {
+        "name": "arg5",
+        "type": "int",
+        "optional": true
+      }
+    ],
     "desc": "Line special / ACS callable: UsePuzzleItem.",
     "usage": [
       "state",

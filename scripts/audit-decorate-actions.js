@@ -11,6 +11,7 @@ const path = require('path');
 const ROOT = path.resolve(__dirname, '..');
 const REF = path.join(ROOT, 'ref', 'zandronum-stable-branch-default');
 const ACTIONS_PATH = path.join(ROOT, 'data', 'decorate', 'actions.json');
+const { callableSpecials, buildLineSpecialEntry } = require('./import-line-special-param-names.js');
 
 const SOURCE_FILES = [
     path.join(REF, 'wadsrc', 'static', 'actors', 'actor.txt'),
@@ -200,85 +201,6 @@ function fixDesc(name, desc) {
 /** Line specials / duals that are both state actions and expression calls. */
 const DUAL_USAGE = ['state', 'expression'];
 
-/** ACS line specials usable as DECORATE state actions (DEFINE_SPECIAL min>=0). */
-function acsSpecialEntries() {
-    // Names from actionspecials.h; arg layouts follow ZDoom ACS_* special conventions.
-    const usage = DUAL_USAGE;
-    return {
-        ACS_Execute: {
-            params: [
-                { name: 'script', type: 'int', optional: false },
-                { name: 'mapnum', type: 'int', optional: true, default: '0' },
-                { name: 'arg1', type: 'int', optional: true, default: '0' },
-                { name: 'arg2', type: 'int', optional: true, default: '0' },
-                { name: 'arg3', type: 'int', optional: true, default: '0' },
-            ],
-            usage,
-            desc: 'Action function: ACS_Execute',
-        },
-        ACS_ExecuteAlways: {
-            params: [
-                { name: 'script', type: 'int', optional: false },
-                { name: 'mapnum', type: 'int', optional: true, default: '0' },
-                { name: 'arg1', type: 'int', optional: true, default: '0' },
-                { name: 'arg2', type: 'int', optional: true, default: '0' },
-                { name: 'arg3', type: 'int', optional: true, default: '0' },
-            ],
-            usage,
-            desc: 'Action function: ACS_ExecuteAlways',
-        },
-        ACS_ExecuteWithResult: {
-            params: [
-                { name: 'script', type: 'int', optional: false },
-                { name: 'arg1', type: 'int', optional: true, default: '0' },
-                { name: 'arg2', type: 'int', optional: true, default: '0' },
-                { name: 'arg3', type: 'int', optional: true, default: '0' },
-                { name: 'arg4', type: 'int', optional: true, default: '0' },
-            ],
-            usage,
-            desc: 'Action function: ACS_ExecuteWithResult',
-        },
-        ACS_Suspend: {
-            params: [
-                { name: 'script', type: 'int', optional: false },
-                { name: 'mapnum', type: 'int', optional: false },
-            ],
-            usage,
-            desc: 'Action function: ACS_Suspend',
-        },
-        ACS_Terminate: {
-            params: [
-                { name: 'script', type: 'int', optional: false },
-                { name: 'mapnum', type: 'int', optional: false },
-            ],
-            usage,
-            desc: 'Action function: ACS_Terminate',
-        },
-        ACS_LockedExecute: {
-            params: [
-                { name: 'script', type: 'int', optional: false },
-                { name: 'mapnum', type: 'int', optional: false },
-                { name: 'arg1', type: 'int', optional: false },
-                { name: 'arg2', type: 'int', optional: false },
-                { name: 'lock', type: 'int', optional: false },
-            ],
-            usage,
-            desc: 'Action function: ACS_LockedExecute',
-        },
-        ACS_LockedExecuteDoor: {
-            params: [
-                { name: 'script', type: 'int', optional: false },
-                { name: 'mapnum', type: 'int', optional: false },
-                { name: 'arg1', type: 'int', optional: false },
-                { name: 'arg2', type: 'int', optional: false },
-                { name: 'lock', type: 'int', optional: false },
-            ],
-            usage,
-            desc: 'Action function: ACS_LockedExecuteDoor',
-        },
-    };
-}
-
 /** All line specials callable from DECORATE (actionspecials.h, min args >= 0). */
 function lineSpecialNames() {
     const h = path.join(REF, 'src', 'actionspecials.h');
@@ -298,13 +220,9 @@ function lineSpecialEntries() {
     const acs = JSON.parse(fs.readFileSync(acsPath, 'utf8'));
     const usage = DUAL_USAGE;
     const out = {};
-    for (const name of lineSpecialNames()) {
-        const src = acs[name] || {};
-        out[name] = {
-            params: Array.isArray(src.params) ? src.params : [],
-            desc: src.desc || `Line special / ACS callable: ${name}.`,
-            usage,
-        };
+    for (const [, special] of callableSpecials()) {
+        const src = acs[special.name] || {};
+        out[special.name] = { ...buildLineSpecialEntry(special.name, special, src), usage };
     }
     return out;
 }
@@ -326,10 +244,7 @@ const EXPRESSION_ONLY = new Set([
 /** Duals that must have usage: ["state","expression"] in actions.json. */
 function dualActionNames() {
     return new Set([
-        'ThrustThing',
-        'ThrustThingZ',
         'ACS_NamedExecuteWithResult',
-        ...Object.keys(acsSpecialEntries()),
         ...lineSpecialNames(),
     ]);
 }
@@ -586,30 +501,12 @@ function main() {
             report.added.push('A_RandomPowerupFrame');
         }
 
-        // Add ACS specials (duals); never add CallACS to actions.json
-        const acs = acsSpecialEntries();
-        for (const [name, entry] of Object.entries(acs)) {
-            if (!actions[name]) {
-                actions[name] = entry;
-                report.added.push(name);
-            } else if (!sameUsage(actions[name], DUAL_USAGE)) {
-                actions[name].usage = DUAL_USAGE.slice();
-            }
-        }
-        // Add remaining line specials (duals); metadata comes from data/acs/functions.json
+        // Add line specials (duals); metadata comes from the shared builder.
         const lspec = lineSpecialEntries();
         for (const [name, entry] of Object.entries(lspec)) {
             if (!actions[name]) {
                 actions[name] = entry;
                 report.added.push(name);
-            }
-        }
-        if (actions.ACS_NamedExecuteWithResult) {
-            actions.ACS_NamedExecuteWithResult.usage = DUAL_USAGE.slice();
-        }
-        for (const name of ['ThrustThing', 'ThrustThingZ']) {
-            if (actions[name]) {
-                actions[name].usage = DUAL_USAGE.slice();
             }
         }
 

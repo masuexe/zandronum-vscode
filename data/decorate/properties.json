@@ -134,6 +134,301 @@
     "desc": "DeathType property",
     "for": "Actor"
   },
+  "Accuracy": {
+    "type": "int",
+    "desc": "Base attack accuracy",
+    "for": "Actor"
+  },
+  "Activation": {
+    "type": "int",
+    "desc": "Thing activation flags",
+    "for": "Actor"
+  },
+  "ActiveSound": {
+    "type": "string",
+    "desc": "Sound played while active",
+    "for": "Actor"
+  },
+  "Args": {
+    "type": "int",
+    "desc": "Spawn arguments (up to 5)",
+    "for": "Actor"
+  },
+  "AttackSound": {
+    "type": "string",
+    "desc": "Sound played on attack",
+    "for": "Actor"
+  },
+  "BloodColor": {
+    "type": "string",
+    "desc": "Blood color",
+    "for": "Actor"
+  },
+  "BloodType": {
+    "type": "string",
+    "desc": "Blood actor class(es)",
+    "for": "Actor"
+  },
+  "BounceSound": {
+    "type": "string",
+    "desc": "Sound played on bounce",
+    "for": "Actor"
+  },
+  "BounceType": {
+    "type": "string",
+    "desc": "Bounce behavior (Doom/Hexen/Gravity)",
+    "for": "Actor"
+  },
+  "BurnHeight": {
+    "type": "int",
+    "desc": "Height of the burning corpse",
+    "for": "Actor"
+  },
+  "CameraHeight": {
+    "type": "int",
+    "desc": "Camera view height",
+    "for": "Actor"
+  },
+  "ClearFlags": {
+    "type": "bool",
+    "desc": "Clear all actor flags before applying new ones",
+    "for": "Actor"
+  },
+  "CrushPainSound": {
+    "type": "string",
+    "desc": "Sound played when crushed",
+    "for": "Actor"
+  },
+  "Damage": {
+    "type": "int",
+    "desc": "Base damage dealt by attacks; parenthesized expressions allowed",
+    "for": "Actor"
+  },
+  "DamageType": {
+    "type": "string",
+    "desc": "Damage type applied by attacks",
+    "for": "Actor"
+  },
+  "DeathHeight": {
+    "type": "int",
+    "desc": "Height of the death corpse",
+    "for": "Actor"
+  },
+  "DeathSound": {
+    "type": "string",
+    "desc": "Sound played on death",
+    "for": "Actor"
+  },
+  "Decal": {
+    "type": "string",
+    "desc": "Decal applied on impact",
+    "for": "Actor"
+  },
+  "DefaultAlpha": {
+    "type": "int",
+    "desc": "Default alpha for translucent render styles",
+    "for": "Actor"
+  },
+  "DontHurtShooter": {
+    "type": "bool",
+    "desc": "Projectile does not hurt its shooter",
+    "for": "Actor"
+  },
+  "DropItem": {
+    "type": "string",
+    "desc": "Item dropped on death (class, amount, chance)",
+    "for": "Actor"
+  },
+  "ExplosionDamage": {
+    "type": "int",
+    "desc": "Radius damage dealt on death",
+    "for": "Actor"
+  },
+  "ExplosionRadius": {
+    "type": "int",
+    "desc": "Radius of the death explosion",
+    "for": "Actor"
+  },
+  "FastSpeed": {
+    "type": "int",
+    "desc": "Speed when fast monsters are enabled",
+    "for": "Actor"
+  },
+  "HitObituary": {
+    "type": "string",
+    "desc": "Message when killed by a melee/hitscan attack of this actor",
+    "for": "Actor"
+  },
+  "HowlSound": {
+    "type": "string",
+    "desc": "Sound played by the Doom player when hurt",
+    "for": "Actor"
+  },
+  "LimitedToTeam": {
+    "type": "int",
+    "desc": "Restricts the actor to the given team number",
+    "for": "Actor"
+  },
+  "MaxTargetRange": {
+    "type": "int",
+    "desc": "Maximum target acquisition range",
+    "for": "Actor"
+  },
+  "MeleeDamage": {
+    "type": "int",
+    "desc": "Damage dealt in melee",
+    "for": "Actor"
+  },
+  "MeleeSound": {
+    "type": "string",
+    "desc": "Sound played on melee attack",
+    "for": "Actor"
+  },
+  "MeleeThreshold": {
+    "type": "int",
+    "desc": "Distance at which the actor switches to melee",
+    "for": "Actor"
+  },
+  "MissileHeight": {
+    "type": "int",
+    "desc": "Height at which missiles are fired",
+    "for": "Actor"
+  },
+  "MissileType": {
+    "type": "string",
+    "desc": "Missile actor class",
+    "for": "Actor"
+  },
+  "Monster": {
+    "type": "bool",
+    "desc": "Marks the actor as a monster",
+    "for": "Actor"
+  },
+  "Obituary": {
+    "type": "string",
+    "desc": "Obituary message when killed by this actor",
+    "for": "Actor"
+  },
+  "PainChance": {
+    "type": "int",
+    "desc": "Chance to enter the Pain state (per damage type)",
+    "for": "Actor"
+  },
+  "PainSound": {
+    "type": "string",
+    "desc": "Sound played on pain",
+    "for": "Actor"
+  },
+  "PainThreshold": {
+    "type": "int",
+    "desc": "Damage required to enter the Pain state",
+    "for": "Actor"
+  },
+  "PoisonDamage": {
+    "type": "int",
+    "desc": "Poison damage over time (damage, period, ticker)",
+    "for": "Actor"
+  },
+  "PoisonDamageType": {
+    "type": "string",
+    "desc": "Poison damage type",
+    "for": "Actor"
+  },
+  "Projectile": {
+    "type": "bool",
+    "desc": "Marks the actor as a projectile",
+    "for": "Actor"
+  },
+  "ProjectileKickback": {
+    "type": "int",
+    "desc": "Kickback applied to hit actors",
+    "for": "Actor"
+  },
+  "ProjectilePassHeight": {
+    "type": "int",
+    "desc": "Height limit for passing over/under obstacles",
+    "for": "Actor"
+  },
+  "RadiusDamageFactor": {
+    "type": "float",
+    "desc": "Multiplier for radius damage taken",
+    "for": "Actor"
+  },
+  "SeeSound": {
+    "type": "string",
+    "desc": "Sound played when acquiring a target",
+    "for": "Actor"
+  },
+  "SelfObituary": {
+    "type": "string",
+    "desc": "Obituary when killed by the actor's own attack",
+    "for": "Actor"
+  },
+  "Skip_Super": {
+    "type": "bool",
+    "desc": "Skip inherited properties of the parent class",
+    "for": "Actor"
+  },
+  "Species": {
+    "type": "string",
+    "desc": "Species name used for infighting checks",
+    "for": "Actor"
+  },
+  "Speed": {
+    "type": "int",
+    "desc": "Movement speed",
+    "for": "Actor"
+  },
+  "Stamina": {
+    "type": "int",
+    "desc": "Base stamina",
+    "for": "Actor"
+  },
+  "StencilColor": {
+    "type": "string",
+    "desc": "Color used with Stencil render style",
+    "for": "Actor"
+  },
+  "Tag": {
+    "type": "string",
+    "desc": "Actor tag",
+    "for": "Actor"
+  },
+  "Translation": {
+    "type": "string",
+    "desc": "Translation string or range",
+    "for": "Actor"
+  },
+  "VisibleToPlayerClass": {
+    "type": "string",
+    "desc": "Player classes that can see this actor",
+    "for": "Actor"
+  },
+  "VisibleToTeam": {
+    "type": "int",
+    "desc": "Team number that can see this actor",
+    "for": "Actor"
+  },
+  "VSpeed": {
+    "type": "int",
+    "desc": "Vertical speed (for projectiles)",
+    "for": "Actor"
+  },
+  "WallBounceSound": {
+    "type": "string",
+    "desc": "Sound played on wall bounce",
+    "for": "Actor"
+  },
+  "XScale": {
+    "type": "int",
+    "desc": "Horizontal scale",
+    "for": "Actor"
+  },
+  "YScale": {
+    "type": "int",
+    "desc": "Vertical scale",
+    "for": "Actor"
+  },
   "Inventory.Amount": {
     "type": "int",
     "desc": "Number of items given",

@@ -24,10 +24,10 @@
 			"include": "#constants"
 		},
 		{
-			"include": "#action-functions"
+			"include": "#actor-properties"
 		},
 		{
-			"include": "#actor-properties"
+			"include": "#action-functions"
 		},
 		{
 			"include": "#keywords"
@@ -158,6 +158,10 @@
 		},
 		"actor-properties": {
 			"patterns": [
+				{
+					"match": "(?i)\\b(?:Scale|Health|GibHealth|WoundHealth|Reactiontime|Radius|Height|Mass|RenderStyle|Alpha|MinMissileChance|MeleeRange|MaxDropoffHeight|MaxStepHeight|BounceFactor|WallBounceFactor|BounceCount|FloatSpeed|FloatBobPhase|Gravity|DamageFactor|PushFactor|WeaveIndexXY|WeaveIndexZ|DesignatedTeam|PainType|DeathType|Accuracy|Activation|ActiveSound|Args|AttackSound|BloodColor|BloodType|BounceSound|BounceType|BurnHeight|CameraHeight|ClearFlags|CrushPainSound|Damage|DamageType|DeathHeight|DeathSound|Decal|DefaultAlpha|DontHurtShooter|DropItem|ExplosionDamage|ExplosionRadius|FastSpeed|HitObituary|HowlSound|LimitedToTeam|MaxTargetRange|MeleeDamage|MeleeSound|MeleeThreshold|MissileHeight|MissileType|Monster|Obituary|PainChance|PainSound|PainThreshold|PoisonDamage|PoisonDamageType|Projectile|ProjectileKickback|ProjectilePassHeight|RadiusDamageFactor|SeeSound|SelfObituary|Skip_Super|Species|Speed|Stamina|StencilColor|Tag|Translation|VisibleToPlayerClass|VisibleToTeam|VSpeed|WallBounceSound|XScale|YScale|Inventory\\.Amount|Inventory\\.DefMaxAmount|Inventory\\.MaxAmount|Inventory\\.Icon|Inventory\\.PickupMessage|Inventory\\.PickupSound|Inventory\\.UseSound|Inventory\\.RespawnTics|Inventory\\.GiveQuest|Inventory\\.InterHubAmount|Inventory\\.PickupFlash|Weapon\\.AmmoType|Weapon\\.AmmoType1|Weapon\\.AmmoType2|Weapon\\.AmmoGive|Weapon\\.AmmoGive1|Weapon\\.AmmoGive2|Weapon\\.AmmoUse|Weapon\\.AmmoUse1|Weapon\\.AmmoUse2|Weapon\\.Kickback|Weapon\\.SlotNumber|Weapon\\.SisterWeapon|Weapon\\.SelectionOrder|Weapon\\.UpSound|Weapon\\.ReadySound|Weapon\\.AttackSound|Weapon\\.YAdjust|Weapon\\.BobStyle|Weapon\\.BobSpeed|Weapon\\.BobRangeX|Weapon\\.BobRangeY|Weapon\\.WeaponScaleX|Weapon\\.WeaponScaleY|Ammo\\.BackpackAmount|Ammo\\.BackpackMaxAmount|Ammo\\.DropAmount|Armor\\.SavePercent|Armor\\.SaveAmount|Armor\\.MaxSaveAmount|Health\\.LowMessage|HealthPickup\\.AutoUse|PuzzleItem\\.Number|WeaponPiece\\.Number|WeaponPiece\\.Weapon|Powerup\\.Duration|Powerup\\.Color|Powerup\\.Type|Powerup\\.Strength|Player\\.DisplayName|Player\\.JumpZ|Player\\.ViewHeight|Player\\.ForwardMove|Player\\.SideMove|Player\\.ColorRange|Player\\.SoundClass|Player\\.StartItem|Player\\.WeaponSlot|Player\\.CrouchSprite|Player\\.MaxHealth|Player\\.RunHealth|Player\\.ScoreIcon|Player\\.Portrait|Player\\.HexenArmor)\\b(?=\\s*\\()",
+					"name": "storage.type.decorate"
+				},
 				{
 					"match": "\\b(var|const)\\s+(int|float)\\s+([a-zA-Z_][a-zA-Z0-9_]*)",
 					"captures": {

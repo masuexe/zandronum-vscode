@@ -12,7 +12,9 @@ import {
 	isStateLabelParam,
 	isStateLabelParamAtIndex,
 	parseSimpleStateLabel,
+	resolveParentClass,
 	resolveStateLabelInLines,
+	findStateLabelInAnyActor,
 	shiftLabelByOffset,
 } from '../language/decorate/stateLabelResolve';
 
@@ -304,6 +306,122 @@ suite('stateLabelResolve — inheritance walk', () => {
 		const hit = resolveStateLabelInLines(lines, 'Child', childSpan!, 'Missile');
 		assert.ok(hit);
 		assert.strictEqual(hit!.line, 3);
+	});
+
+	test('three-level chain: Child → Mid → BossBase finds MegamanDeath', () => {
+		const lines = [
+			'actor BossBase',
+			'{',
+			'  States {',
+			'  MegamanDeath:',
+			'    TROO H 5 stop',
+			'  MegamanGib:',
+			'    TROO I 5 stop',
+			'  }',
+			'}',
+			'actor Mid : BossBase',
+			'{',
+			'  States {',
+			'  Spawn:',
+			'    TROO A 1 loop',
+			'  }',
+			'}',
+			'actor Child : Mid',
+			'{',
+			'  States {',
+			'  Death:',
+			'    TROO A 1 goto MegamanDeath',
+			'  }',
+			'}',
+		];
+		const childSpan = findActorSpanInLines(lines, 19);
+		assert.ok(childSpan);
+		const death = resolveStateLabelInLines(lines, 'Child', childSpan!, 'MegamanDeath');
+		assert.ok(death);
+		assert.strictEqual(death!.line, 3);
+		const gib = resolveStateLabelInLines(lines, 'Child', childSpan!, 'MegamanGib');
+		assert.ok(gib);
+		assert.strictEqual(gib!.line, 5);
+	});
+
+	test('resolveParentClass uses Mid header when Mid is absent from DB', () => {
+		const lines = [
+			'actor BossBase',
+			'{',
+			'  States {',
+			'  MegamanDeath:',
+			'    TROO A 1 stop',
+			'  }',
+			'}',
+			'actor Mid : BossBase',
+			'{',
+			'  States {',
+			'  Spawn:',
+			'    TROO A 1 loop',
+			'  }',
+			'}',
+			'actor Child : Mid',
+			'{',
+			'  States {',
+			'  Death:',
+			'    TROO A 1 goto MegamanDeath',
+			'  }',
+			'}',
+		];
+		// No SymbolDatabase — parent must come from open buffer headers
+		assert.strictEqual(
+			resolveParentClass('Child', { openLines: lines }),
+			'Mid'
+		);
+		assert.strictEqual(
+			resolveParentClass('Mid', { openLines: lines, symbolDb: undefined }),
+			'BossBase'
+		);
+		assert.strictEqual(
+			resolveParentClass('BossBase', { openLines: lines }),
+			undefined
+		);
+
+		const childSpan = findActorSpanInLines(lines, 18);
+		assert.ok(childSpan);
+		const hit = resolveStateLabelInLines(lines, 'Child', childSpan!, 'MegamanDeath');
+		assert.ok(hit);
+		assert.strictEqual(hit!.line, 3);
+	});
+
+	test('findStateLabelInAnyActor finds label when inheritance chain is broken', () => {
+		// Simulates: Child → MissingMid (not in buffer) while ClassBaseU0 holds the label
+		const lines = [
+			'actor ClassBaseU0 : ClassBase0',
+			'{',
+			'  States {',
+			'  MegamanPain:',
+			'    TROO A 1 stop',
+			'  MegamanDeath:',
+			'    TROO H 5 stop',
+			'  }',
+			'}',
+			'actor Child : MissingMid',
+			'{',
+			'  States {',
+			'  Death:',
+			'    TROO A 1 goto MegamanDeath',
+			'  }',
+			'}',
+		];
+		const childSpan = findActorSpanInLines(lines, 9);
+		assert.ok(childSpan);
+		// Inheritance-only resolve fails (MissingMid absent)
+		assert.strictEqual(
+			resolveStateLabelInLines(lines, 'Child', childSpan!, 'MegamanDeath'),
+			undefined
+		);
+		const anyDeath = findStateLabelInAnyActor(lines, 'MegamanDeath');
+		assert.ok(anyDeath);
+		assert.strictEqual(anyDeath!.line, 5);
+		const anyPain = findStateLabelInAnyActor(lines, 'MegamanPain');
+		assert.ok(anyPain);
+		assert.strictEqual(anyPain!.line, 3);
 	});
 });
 

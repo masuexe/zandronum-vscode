@@ -10,6 +10,7 @@ import {
 import { SymbolDatabase } from '../../base/symbolDatabase';
 import { ActorSymbol, SymbolKind } from '../../base/types';
 import { locationFromSymbol } from '../../base/symbolLocation';
+import { getPk3Root } from '../../shared/pk3Root';
 import { findActorSpanInLines } from './renameProvider';
 import { parseActorHeader } from './actorUserVars';
 import { findLabelAtLine } from './offsetPreviewParser';
@@ -165,6 +166,47 @@ export function findStateLabelInLines(
     label: string
 ): LabelPos | undefined {
     return collectStateLabelsInActor(lines, actorSpan).get(label.toLowerCase());
+}
+
+/**
+ * Search every actor in a buffer for `label` (States only).
+ * Used when the inheritance chain is incomplete (e.g. mid-tier only in an
+ * unconfigured base PK3) so F12 can still reach a workspace override that
+ * defines the label.
+ */
+export function findStateLabelInAnyActor(
+    lines: string[],
+    label: string
+): LabelPos | undefined {
+    const labelLower = label.toLowerCase();
+    let mayExist = false;
+    for (const line of lines) {
+        const lm = LABEL_RE.exec(stripLineComment(line));
+        if (lm && lm[1].toLowerCase() === labelLower) {
+            mayExist = true;
+            break;
+        }
+    }
+    if (!mayExist) {
+        return undefined;
+    }
+
+    const actorHdr = /^\s*actor\s+/i;
+    for (let i = 0; i < lines.length; i++) {
+        if (!actorHdr.test(lines[i])) {
+            continue;
+        }
+        const span = findActorSpanInLines(lines, i);
+        if (!span) {
+            continue;
+        }
+        const hit = findStateLabelInLines(lines, span, label);
+        if (hit) {
+            return hit;
+        }
+        i = span.endLine;
+    }
+    return undefined;
 }
 
 /**
@@ -625,6 +667,62 @@ function escapeRegex(str: string): string {
     return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
+export interface ParentResolveContext {
+    /** Lines of the currently open editor buffer. */
+    openLines?: string[];
+    /** Lines of a just-opened ancestor file (preferred for the next hop). */
+    ancestorLines?: string[];
+    symbolDb?: SymbolDatabase;
+}
+
+function parentFromLines(lines: string[], className: string): string | undefined {
+    const span = findActorSpanByName(lines, className);
+    if (!span) {
+        return undefined;
+    }
+    const parent = parseActorHeader(lines[span.startLine] ?? '')?.parentClass;
+    if (!parent || /^Actor$/i.test(parent)) {
+        return undefined;
+    }
+    return parent;
+}
+
+/**
+ * Next parent class for `className`: open buffer header, then ancestor file header, then SymbolDatabase.
+ * Returns undefined at Actor / missing / cycles (caller tracks visited).
+ */
+export function resolveParentClass(
+    className: string,
+    ctx: ParentResolveContext
+): string | undefined {
+    if (ctx.openLines) {
+        const fromOpen = parentFromLines(ctx.openLines, className);
+        if (fromOpen) {
+            return fromOpen;
+        }
+        // Actor found with no parent → stop (do not invent from DB)
+        if (findActorSpanByName(ctx.openLines, className)) {
+            return undefined;
+        }
+    }
+
+    if (ctx.ancestorLines) {
+        const fromAncestor = parentFromLines(ctx.ancestorLines, className);
+        if (fromAncestor) {
+            return fromAncestor;
+        }
+        if (findActorSpanByName(ctx.ancestorLines, className)) {
+            return undefined;
+        }
+    }
+
+    const parent = ctx.symbolDb?.query<ActorSymbol>(SymbolKind.Actor, className)?.parentClass;
+    if (!parent || /^Actor$/i.test(parent)) {
+        return undefined;
+    }
+    return parent;
+}
+
 /**
  * Pure same-document resolve: `startClass` then ancestors by header `parentClass`.
  * Never searches descendants (Goto-static / Jump FindState from owning class).
@@ -640,10 +738,10 @@ export function resolveStateLabelInLines(
         return local;
     }
 
-    let parent = parseActorHeader(lines[startSpan.startLine] ?? '')?.parentClass;
     const visited = new Set<string>([startClass.toLowerCase()]);
+    let parent = resolveParentClass(startClass, { openLines: lines });
 
-    while (parent && !/^Actor$/i.test(parent)) {
+    while (parent) {
         const key = parent.toLowerCase();
         if (visited.has(key)) {
             break;
@@ -658,7 +756,7 @@ export function resolveStateLabelInLines(
         if (hit) {
             return hit;
         }
-        parent = parseActorHeader(lines[span.startLine] ?? '')?.parentClass;
+        parent = resolveParentClass(parent, { openLines: lines });
     }
 
     return undefined;
@@ -667,6 +765,9 @@ export function resolveStateLabelInLines(
 /**
  * Resolve label in `startClass` then ancestors (FindState-style / static Goto owning class).
  * Both Goto and A_Jump* use this walk for IDE F12; never searches descendants.
+ *
+ * Parent links come from open-document headers first, then SymbolDatabase — so a mid-tier
+ * actor present only in the buffer still reaches BossBase in another file.
  */
 export async function resolveStateLabelInChain(
     document: vscode.TextDocument,
@@ -676,77 +777,194 @@ export async function resolveStateLabelInChain(
     symbolDb?: SymbolDatabase,
     token?: vscode.CancellationToken
 ): Promise<vscode.Location | undefined> {
-    const lines = documentLines(document);
-    const sameDoc = resolveStateLabelInLines(lines, startClass, startSpan, label);
-    if (sameDoc) {
+    const openLines = documentLines(document);
+    const visited = new Set<string>();
+
+    const local = findStateLabelInLines(openLines, startSpan, label);
+    if (local) {
         return new vscode.Location(
             document.uri,
-            new vscode.Position(sameDoc.line, sameDoc.character)
+            new vscode.Position(local.line, local.character)
         );
     }
+    visited.add(startClass.toLowerCase());
 
-    if (!symbolDb) {
-        return undefined;
-    }
+    let current = resolveParentClass(startClass, { openLines, symbolDb });
+    let lastOpenedLines: string[] | undefined;
 
-    // Ancestors already present in this document were covered; walk DB for other files.
-    const visited = new Set<string>([startClass.toLowerCase()]);
-    // Mark same-doc ancestors visited so we do not reopen them
-    {
-        let p = parseActorHeader(lines[startSpan.startLine] ?? '')?.parentClass;
-        while (p && !/^Actor$/i.test(p)) {
-            const k = p.toLowerCase();
-            if (visited.has(k)) {
-                break;
-            }
-            visited.add(k);
-            const span = findActorSpanByName(lines, p);
-            if (!span) {
-                break;
-            }
-            p = parseActorHeader(lines[span.startLine] ?? '')?.parentClass;
-        }
-    }
-
-    let current: string | undefined =
-        symbolDb.query<ActorSymbol>(SymbolKind.Actor, startClass)?.parentClass ??
-        parseActorHeader(lines[startSpan.startLine] ?? '')?.parentClass;
-
-    while (current && !/^Actor$/i.test(current)) {
+    while (current) {
         if (token?.isCancellationRequested) {
             return undefined;
         }
-        const key = current.toLowerCase();
+        // Local const survives await narrowing of `current`
+        const className = current;
+        const key = className.toLowerCase();
         if (visited.has(key)) {
-            const symSkip = symbolDb.query<ActorSymbol>(SymbolKind.Actor, current);
-            current = symSkip?.parentClass;
-            continue;
+            break;
         }
         visited.add(key);
 
-        const sym = symbolDb.query<ActorSymbol>(SymbolKind.Actor, current);
-        if (!sym || sym.packageId === 'builtin') {
-            current = sym?.parentClass;
+        const parentCtx: ParentResolveContext = {
+            openLines,
+            ancestorLines: lastOpenedLines,
+            symbolDb
+        };
+
+        // Prefer actor body in the open editor
+        const openSpan = findActorSpanByName(openLines, className);
+        if (openSpan) {
+            const hit = findStateLabelInLines(openLines, openSpan, label);
+            if (hit) {
+                return new vscode.Location(
+                    document.uri,
+                    new vscode.Position(hit.line, hit.character)
+                );
+            }
+            current = resolveParentClass(className, parentCtx);
             continue;
         }
 
-        try {
-            const loc = locationFromSymbol(sym);
-            const parentDoc = await vscode.workspace.openTextDocument(loc.uri);
-            const parentLines = documentLines(parentDoc);
-            const span = findActorSpanByName(parentLines, current);
-            if (span) {
-                const hit = findStateLabelInLines(parentLines, span, label);
-                if (hit) {
-                    return new vscode.Location(
-                        parentDoc.uri,
-                        new vscode.Position(hit.line, hit.character)
-                    );
+        const sym = symbolDb?.query<ActorSymbol>(SymbolKind.Actor, className);
+        if (sym && sym.packageId !== 'builtin') {
+            try {
+                const loc = locationFromSymbol(sym);
+                const parentDoc = await vscode.workspace.openTextDocument(loc.uri);
+                const parentLines = documentLines(parentDoc);
+                lastOpenedLines = parentLines;
+                const span = findActorSpanByName(parentLines, className);
+                if (span) {
+                    const hit = findStateLabelInLines(parentLines, span, label);
+                    if (hit) {
+                        return new vscode.Location(
+                            parentDoc.uri,
+                            new vscode.Position(hit.line, hit.character)
+                        );
+                    }
+                    current = resolveParentClass(className, {
+                        openLines,
+                        ancestorLines: parentLines,
+                        symbolDb
+                    });
+                    continue;
                 }
+            } catch {
+                // Fall through: still try to advance via parent name
             }
-            current = sym.parentClass;
+        }
+
+        // No searchable body — keep walking so a later indexed ancestor can be opened
+        current = resolveParentClass(className, parentCtx);
+    }
+
+    // Inheritance chain incomplete (common when mid-tier actors live only in an
+    // unconfigured base PK3). Fall back to a workspace / indexed-package label search.
+    return findStateLabelFallback(label, document.uri, symbolDb, token);
+}
+
+/**
+ * Best-effort label lookup when ancestor walk cannot reach the defining actor.
+ * Order: indexed workspace actors → pk3Root DECORATE scan → indexed base packages.
+ */
+async function findStateLabelFallback(
+    label: string,
+    openUri: vscode.Uri | undefined,
+    symbolDb: SymbolDatabase | undefined,
+    token?: vscode.CancellationToken
+): Promise<vscode.Location | undefined> {
+    const tried = new Set<string>();
+
+    const tryDoc = async (uri: vscode.Uri): Promise<vscode.Location | undefined> => {
+        const key = uri.toString();
+        if (tried.has(key)) {
+            return undefined;
+        }
+        tried.add(key);
+        try {
+            const doc = await vscode.workspace.openTextDocument(uri);
+            const hit = findStateLabelInAnyActor(documentLines(doc), label);
+            if (hit) {
+                return new vscode.Location(
+                    uri,
+                    new vscode.Position(hit.line, hit.character)
+                );
+            }
         } catch {
-            current = sym.parentClass;
+            // skip unreadable / missing
+        }
+        return undefined;
+    };
+
+    // 1) Indexed workspace actor files (typically includes ClassBase_U0 overrides)
+    if (symbolDb) {
+        for (const sym of symbolDb.queryAll(SymbolKind.Actor)) {
+            if (token?.isCancellationRequested) {
+                return undefined;
+            }
+            if (sym.packageId !== 'workspace') {
+                continue;
+            }
+            try {
+                const loc = locationFromSymbol(sym as ActorSymbol);
+                const hit = await tryDoc(loc.uri);
+                if (hit) {
+                    return hit;
+                }
+            } catch {
+                // skip
+            }
+        }
+    }
+
+    // 2) Full pk3Root scan — covers actors not yet in SymbolDatabase
+    const workspaceFolders = vscode.workspace.workspaceFolders;
+    if (workspaceFolders?.length) {
+        const pk3RootUri = vscode.Uri.joinPath(workspaceFolders[0].uri, getPk3Root());
+        const decFiles = await vscode.workspace.findFiles(
+            new vscode.RelativePattern(pk3RootUri, '**/*.{dec,decorate,txt}')
+        );
+        const namedFiles = await vscode.workspace.findFiles(
+            new vscode.RelativePattern(pk3RootUri, '**/DECORATE{,.txt}')
+        );
+        const seenFs = new Set<string>();
+        for (const uri of [...decFiles, ...namedFiles]) {
+            if (token?.isCancellationRequested) {
+                return undefined;
+            }
+            const fsKey = uri.fsPath.toLowerCase();
+            if (seenFs.has(fsKey)) {
+                continue;
+            }
+            seenFs.add(fsKey);
+            const hit = await tryDoc(uri);
+            if (hit) {
+                return hit;
+            }
+        }
+    } else if (openUri) {
+        const hit = await tryDoc(openUri);
+        if (hit) {
+            return hit;
+        }
+    }
+
+    // 3) Base-package actor files (zandronum-base: URI)
+    if (symbolDb) {
+        for (const sym of symbolDb.queryAll(SymbolKind.Actor)) {
+            if (token?.isCancellationRequested) {
+                return undefined;
+            }
+            if (sym.packageId === 'builtin' || sym.packageId === 'workspace') {
+                continue;
+            }
+            try {
+                const loc = locationFromSymbol(sym as ActorSymbol);
+                const hit = await tryDoc(loc.uri);
+                if (hit) {
+                    return hit;
+                }
+            } catch {
+                // skip
+            }
         }
     }
 

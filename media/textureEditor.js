@@ -962,14 +962,20 @@
 
     function buildTextureList() {
         textureList.innerHTML = '';
+        let selectedEl = null;
         for (const name of textures) {
             const el = document.createElement('div');
-            el.className = 'item' + (currentTexture && currentTexture.name === name ? ' selected' : '');
+            const isSelected = currentTexture && currentTexture.name === name;
+            el.className = 'item' + (isSelected ? ' selected' : '');
             el.textContent = name;
             el.addEventListener('click', () => {
                 vscode.postMessage({ type: 'selectTexture', name });
             });
             textureList.appendChild(el);
+            if (isSelected) { selectedEl = el; }
+        }
+        if (selectedEl) {
+            selectedEl.scrollIntoView({ block: 'center' });
         }
     }
 

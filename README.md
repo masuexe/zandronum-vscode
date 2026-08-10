@@ -102,6 +102,7 @@ Legacy aliases (`Build PK3`, `Run Zandronum`, and older compile/build combinatio
 |---|---|---|
 | `zandronum-vscode.zandronumPath` | `""` | Path to the Zandronum executable (uses system PATH if empty) |
 | `zandronum-vscode.pk3Root` | `"src"` | Content root packed into the PK3; resources inside get higher lookup priority |
+| `zandronum-vscode.pk3LeanPack` | `false` | When true, apply `<pk3Root>/.pk3ignore` (gitignore syntax) while packaging. Default packs everything under `pk3Root` |
 
 ### ACC Compiler
 
@@ -172,3 +173,15 @@ npm test             # extension tests (compile + lint + vscode-test)
 ```
 
 Content root for PK3 packaging defaults to `src/` (`pk3Root`); build output is `out/build.pk3`. The PK3 is a store (uncompressed) ZIP of **files only**, with entry paths using `/` — empty directory entries are never written (ZDoom/Zandronum would otherwise treat Windows-style `\` directory entries as zero-byte texture lumps).
+
+### Lean pack (`.pk3ignore`)
+
+Set `zandronum-vscode.pk3LeanPack` to `true` to filter the archive with `<pk3Root>/.pk3ignore` (same syntax as `.gitignore`; paths relative to `pk3Root`). There is no built-in exclude list — add your own rules. Example:
+
+```gitignore
+# ACS sources — engine loads acs/*.o via LOADACS only
+acs_source/
+**/*.acs
+```
+
+Do not blanket-exclude `*.txt` (special lumps like `DECORATE.txt` / `LOADACS.txt` must remain). `.pk3ignore` itself is never packed. If lean pack is on but the file is missing, packaging stays full (no error).

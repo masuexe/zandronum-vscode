@@ -411,6 +411,8 @@ Build logic should remain independent from language providers.
 
 PK3 packaging (`src/tools/build.ts`) writes a store ZIP via `fflate`: **file entries only**, paths always `/`. Never emit empty directory entries (especially with `\`) — the engine skips dirs only when the name ends with `/` before path normalization, so backslash directory stubs become invalid texture lumps.
 
+Optional lean pack (`zandronum-vscode.pk3LeanPack`, default false): when enabled, apply `<pk3Root>/.pk3ignore` (gitignore syntax) during the file walk (directory prune). No built-in excludes; `.pk3ignore` is never packed.
+
 ---
 
 # Recommended Project Structure

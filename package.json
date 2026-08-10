@@ -301,6 +301,11 @@
           "default": "src",
           "description": "PK3 content root directory relative to workspace root. Resources and ACS files inside this directory get higher lookup priority."
         },
+        "zandronum-vscode.pk3LeanPack": {
+          "type": "boolean",
+          "default": false,
+          "description": "When true, apply <pk3Root>/.pk3ignore (gitignore syntax) while packaging the PK3. When false, pack all files under pk3Root. .pk3ignore itself is never packed."
+        },
         "zandronum-vscode.baseResources": {
           "type": "array",
           "items": {
@@ -415,6 +420,7 @@
     "typescript-eslint": "^8.56.1"
   },
   "dependencies": {
-    "fflate": "^0.8.3"
+    "fflate": "^0.8.3",
+    "ignore": "^7.0.6"
   }
 }

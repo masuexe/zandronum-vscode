@@ -1,11 +1,14 @@
 import * as vscode from 'vscode';
 import * as fs from 'fs';
 import * as path from 'path';
+import ignore, { type Ignore } from 'ignore';
 import { Zip, ZipPassThrough } from 'fflate';
 import { getPk3Root } from '../shared/pk3Root';
 
 let currentGen = 0;
 let isBuilding = false;
+
+const PK3_IGNORE_FILENAME = '.pk3ignore';
 
 /** @returns true when a fresh PK3 was written successfully */
 export async function buildPK3(options: { quiet?: boolean } = {}): Promise<boolean> {
@@ -34,6 +37,11 @@ export async function buildPK3(options: { quiet?: boolean } = {}): Promise<boole
 
     isBuilding = true;
     const outPath = path.join(root, 'out', 'build.pk3');
+    const leanPack = vscode.workspace.getConfiguration('zandronum-vscode').get<boolean>('pk3LeanPack') === true;
+    const filter = leanPack ? loadPk3Ignore(srcPath) : null;
+    const leanNote = leanPack
+        ? (filter ? 'lean' : 'lean: no .pk3ignore')
+        : null;
 
     try {
         await vscode.window.withProgress({
@@ -41,13 +49,15 @@ export async function buildPK3(options: { quiet?: boolean } = {}): Promise<boole
             title: 'Building PK3...',
             cancellable: false
         }, async (progress) => {
-            await packDirectoryToPk3(srcPath, outPath, (message) => {
-                progress.report({ message });
+            await packDirectoryToPk3(srcPath, outPath, {
+                onProgress: (message) => { progress.report({ message }); },
+                filter,
             });
         });
         if (gen !== currentGen) { return false; }
         if (!options.quiet) {
-            vscode.window.showInformationMessage('Build complete: out/build.pk3');
+            const suffix = leanNote ? ` (${leanNote})` : '';
+            vscode.window.showInformationMessage(`Build complete: out/build.pk3${suffix}`);
         }
         return true;
     } catch (err) {
@@ -103,6 +113,12 @@ interface FileEntry {
     diskPath: string;
 }
 
+export interface PackPk3Options {
+    onProgress?: (message: string) => void;
+    /** When set, skip paths ignored by this filter (gitignore semantics relative to pk3 root). */
+    filter?: Ignore | null;
+}
+
 const MAX_CONCURRENT_READS = 64;
 
 /** Normalize ZIP entry path: forward slashes only, no trailing slash (not a directory). */
@@ -114,17 +130,61 @@ export function normalizeZipEntryName(name: string): string | null {
     return normalized;
 }
 
-async function walkFiles(dir: string, base: string): Promise<FileEntry[]> {
+/**
+ * Load `<pk3Root>/.pk3ignore`. Returns null when missing/unreadable (no rules).
+ * Always ignores `.pk3ignore` itself so it is never packed.
+ */
+export function loadPk3Ignore(pk3RootAbs: string): Ignore | null {
+    const ignorePath = path.join(pk3RootAbs, PK3_IGNORE_FILENAME);
+    const ig = ignore();
+    ig.add(PK3_IGNORE_FILENAME);
+    if (!fs.existsSync(ignorePath)) {
+        return null;
+    }
+    try {
+        const text = fs.readFileSync(ignorePath, 'utf8');
+        ig.add(text);
+        return ig;
+    } catch {
+        return null;
+    }
+}
+
+function shouldSkipPath(relPosix: string, isDirectory: boolean, filter: Ignore | null | undefined): boolean {
+    if (!relPosix) {
+        return false;
+    }
+    // Always skip the ignore file itself even when lean is off / no filter loaded.
+    if (relPosix === PK3_IGNORE_FILENAME || relPosix.endsWith('/' + PK3_IGNORE_FILENAME)) {
+        return true;
+    }
+    if (!filter) {
+        return false;
+    }
+    const check = isDirectory && !relPosix.endsWith('/') ? `${relPosix}/` : relPosix;
+    return filter.ignores(check);
+}
+
+async function walkFiles(
+    dir: string,
+    base: string,
+    filter?: Ignore | null
+): Promise<FileEntry[]> {
     const entries = await fs.promises.readdir(dir, { withFileTypes: true });
     const result: FileEntry[][] = await Promise.all(
         entries.map(async (e): Promise<FileEntry[]> => {
             const fullPath = path.join(dir, e.name);
+            const relPosix = path.relative(base, fullPath).replace(/\\/g, '/');
             if (e.isDirectory()) {
-                return walkFiles(fullPath, base);
+                if (shouldSkipPath(relPosix, true, filter)) {
+                    return [];
+                }
+                return walkFiles(fullPath, base, filter);
             }
-            const archiveName = normalizeZipEntryName(
-                path.relative(base, fullPath).replace(/\\/g, '/')
-            );
+            if (shouldSkipPath(relPosix, false, filter)) {
+                return [];
+            }
+            const archiveName = normalizeZipEntryName(relPosix);
             if (!archiveName) {
                 return [];
             }
@@ -149,15 +209,20 @@ async function readBatch(files: FileEntry[]): Promise<Array<{ archiveName: strin
 export async function packDirectoryToPk3(
     srcPath: string,
     outPath: string,
-    onProgress?: (message: string) => void
+    onProgressOrOptions?: ((message: string) => void) | PackPk3Options
 ): Promise<number> {
+    const options: PackPk3Options = typeof onProgressOrOptions === 'function'
+        ? { onProgress: onProgressOrOptions }
+        : (onProgressOrOptions ?? {});
+    const { onProgress, filter } = options;
+
     const outDir = path.dirname(outPath);
     if (!fs.existsSync(outDir)) {
         fs.mkdirSync(outDir, { recursive: true });
     }
 
     onProgress?.('Scanning files...');
-    const fileEntries = await walkFiles(srcPath, srcPath);
+    const fileEntries = await walkFiles(srcPath, srcPath, filter);
 
     const tmpPath = `${outPath}.tmp`;
     try {

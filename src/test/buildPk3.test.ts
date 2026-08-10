@@ -3,7 +3,7 @@ import * as fs from 'fs';
 import * as os from 'os';
 import * as path from 'path';
 import { unzipSync } from 'fflate';
-import { normalizeZipEntryName, packDirectoryToPk3 } from '../tools/build';
+import { normalizeZipEntryName, packDirectoryToPk3, loadPk3Ignore } from '../tools/build';
 
 /** Filenames from the ZIP central directory (authoritative entry list). */
 function listZipCentralDirectoryNames(data: Buffer): string[] {
@@ -71,6 +71,42 @@ suite('PK3 packaging', () => {
 			]);
 			assert.ok(unzipped['sprites/skins/core_flipx/a.png'].length > 0);
 			assert.ok(unzipped['DECORATE.txt'].length > 0);
+		} finally {
+			fs.rmSync(tmpRoot, { recursive: true, force: true });
+		}
+	});
+
+	test('lean filter via .pk3ignore excludes ACS sources but keeps .o', async () => {
+		const tmpRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'zandro-pk3-lean-'));
+		try {
+			const src = path.join(tmpRoot, 'src');
+			fs.mkdirSync(path.join(src, 'acs_source', 'unholy'), { recursive: true });
+			fs.mkdirSync(path.join(src, 'acs'), { recursive: true });
+			fs.writeFileSync(path.join(src, 'acs_source', 'unholy', 'UNHOLY.acs'), '#library "UNHOLY"\n');
+			fs.writeFileSync(path.join(src, 'acs', 'UNHOLY.o'), Buffer.from([0, 1, 2]));
+			fs.writeFileSync(path.join(src, 'LOADACS'), 'UNHOLY\n');
+			fs.writeFileSync(path.join(src, 'notes.acs'), '// stray\n');
+			fs.writeFileSync(
+				path.join(src, '.pk3ignore'),
+				['acs_source/', '**/*.acs', ''].join('\n')
+			);
+
+			const leanOut = path.join(tmpRoot, 'out', 'lean.pk3');
+			const filter = loadPk3Ignore(src);
+			assert.ok(filter, 'expected .pk3ignore to load');
+			const leanCount = await packDirectoryToPk3(src, leanOut, { filter });
+			assert.strictEqual(leanCount, 2);
+
+			const leanKeys = Object.keys(unzipSync(new Uint8Array(fs.readFileSync(leanOut)))).sort();
+			assert.deepStrictEqual(leanKeys, ['LOADACS', 'acs/UNHOLY.o']);
+
+			const fullOut = path.join(tmpRoot, 'out', 'full.pk3');
+			const fullCount = await packDirectoryToPk3(src, fullOut);
+			assert.ok(fullCount >= 4, `expected sources packed when lean off, got ${fullCount}`);
+			const fullKeys = Object.keys(unzipSync(new Uint8Array(fs.readFileSync(fullOut))));
+			assert.ok(fullKeys.includes('acs_source/unholy/UNHOLY.acs'));
+			assert.ok(fullKeys.includes('notes.acs'));
+			assert.ok(!fullKeys.includes('.pk3ignore'), '.pk3ignore must never be packed');
 		} finally {
 			fs.rmSync(tmpRoot, { recursive: true, force: true });
 		}

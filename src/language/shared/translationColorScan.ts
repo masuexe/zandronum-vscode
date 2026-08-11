@@ -40,16 +40,192 @@ export function findNearestPaletteIndex(color: vscode.Color, palette: RgbColor[]
     return best;
 }
 
+/** Strip `//` comments, ignoring `//` inside double-quoted strings. */
+export function stripLineComment(line: string): string {
+    let inString = false;
+    for (let i = 0; i < line.length; i++) {
+        const ch = line[i];
+        if (ch === '"') {
+            inString = !inString;
+            continue;
+        }
+        if (!inString && ch === '/' && line[i + 1] === '/') {
+            return line.slice(0, i);
+        }
+    }
+    return line;
+}
+
+function endsWithContinuationComma(line: string): boolean {
+    return stripLineComment(line).trimEnd().endsWith(',');
+}
+
+function hasUnclosedQuote(line: string): boolean {
+    let count = 0;
+    for (const ch of stripLineComment(line)) {
+        if (ch === '"') {
+            count++;
+        }
+    }
+    return count % 2 === 1;
+}
+
+/** True when the line is (or ends with) the Translation keyword and has no value yet. */
+export function isTranslationKeywordOnlyLine(line: string, keywordRe: RegExp): boolean {
+    const stripped = stripLineComment(line);
+    const kwIndex = stripped.search(keywordRe);
+    if (kwIndex < 0) {
+        return false;
+    }
+    const after = stripped.slice(kwIndex).replace(keywordRe, '').replace(/[{}]/g, '').trim();
+    return after.length === 0;
+}
+
+/** Quoted remaps / bare palette ranges / RGB brackets that continue a Translation value. */
+export function isTranslationValueLine(line: string): boolean {
+    let t = stripLineComment(line).trim();
+    if (!t || t.startsWith('}')) {
+        return false;
+    }
+    // Values may sit before closing braces: `"0:0=1:1"}}`
+    return t.startsWith('"')
+        || /^\d{1,3}\s*:/.test(t)
+        || t.startsWith('%[')
+        || t.startsWith('[');
+}
+
+function shouldContinueTranslationProperty(
+    prevLine: string,
+    nextLine: string,
+    keywordRe: RegExp
+): boolean {
+    if (!isTranslationValueLine(nextLine)) {
+        return false;
+    }
+    return endsWithContinuationComma(prevLine)
+        || hasUnclosedQuote(prevLine)
+        || isTranslationKeywordOnlyLine(prevLine, keywordRe);
+}
+
+/**
+ * DECORATE/TEXTURES-style property: after a line matching `keywordRe`, keep scanning
+ * following value lines (trailing comma, unclosed quote, or keyword-only then quoted remaps).
+ * On the keyword line, only text at/after the keyword is scanned (avoids patch x,y false hits).
+ */
+export function collectKeywordPropertyTranslationColors(
+    document: vscode.TextDocument,
+    keywordRe: RegExp,
+    palette: RgbColor[] | null,
+    token?: vscode.CancellationToken
+): vscode.ColorInformation[] {
+    const colors: vscode.ColorInformation[] = [];
+    let i = 0;
+    while (i < document.lineCount) {
+        if (token?.isCancellationRequested) {
+            break;
+        }
+        const lineText = document.lineAt(i).text;
+        const kwIndex = lineText.search(keywordRe);
+        if (kwIndex < 0) {
+            i++;
+            continue;
+        }
+
+        let j = i;
+        while (j < document.lineCount) {
+            if (token?.isCancellationRequested) {
+                break;
+            }
+            const text = document.lineAt(j).text;
+            const fromCol = j === i ? kwIndex : 0;
+            colors.push(...collectTranslationColorsOnLine(text, j, palette, fromCol));
+            if (j + 1 >= document.lineCount) {
+                break;
+            }
+            if (!shouldContinueTranslationProperty(text, document.lineAt(j + 1).text, keywordRe)) {
+                break;
+            }
+            j++;
+        }
+        i = j + 1;
+    }
+    return colors;
+}
+
+/**
+ * ACS CreateTranslation(...): scan from the keyword line through the closing `)`.
+ */
+export function collectCreateTranslationColors(
+    document: vscode.TextDocument,
+    palette: RgbColor[] | null,
+    token?: vscode.CancellationToken
+): vscode.ColorInformation[] {
+    const keywordRe = /\bCreateTranslation\b/i;
+    const colors: vscode.ColorInformation[] = [];
+    let i = 0;
+    while (i < document.lineCount) {
+        if (token?.isCancellationRequested) {
+            break;
+        }
+        const lineText = document.lineAt(i).text;
+        const kwIndex = lineText.search(keywordRe);
+        if (kwIndex < 0) {
+            i++;
+            continue;
+        }
+
+        let depth = 0;
+        let seenParen = false;
+        let endLine = i;
+        outer: for (let j = i; j < document.lineCount; j++) {
+            if (token?.isCancellationRequested) {
+                break;
+            }
+            const code = stripLineComment(document.lineAt(j).text);
+            const from = j === i ? kwIndex : 0;
+            for (let c = from; c < code.length; c++) {
+                const ch = code[c];
+                if (ch === '(') {
+                    depth++;
+                    seenParen = true;
+                } else if (ch === ')') {
+                    depth--;
+                    if (seenParen && depth <= 0) {
+                        endLine = j;
+                        break outer;
+                    }
+                }
+            }
+            endLine = j;
+            if (seenParen && depth === 0) {
+                break;
+            }
+        }
+
+        for (let j = i; j <= endLine; j++) {
+            if (token?.isCancellationRequested) {
+                break;
+            }
+            colors.push(...collectTranslationColorsOnLine(document.lineAt(j).text, j, palette));
+        }
+        i = endLine + 1;
+    }
+    return colors;
+}
+
 /** Collect ColorInformation for palette indices and [r,g,b] / %[…] values on one line. */
 export function collectTranslationColorsOnLine(
     lineText: string,
     lineNumber: number,
-    palette: RgbColor[] | null
+    palette: RgbColor[] | null,
+    fromColumn = 0
 ): vscode.ColorInformation[] {
     const colors: vscode.ColorInformation[] = [];
+    const segment = fromColumn > 0 ? lineText.slice(fromColumn) : lineText;
+    const colBase = fromColumn > 0 ? fromColumn : 0;
     let match: RegExpExecArray | null;
     COLOR_VALUE_RE.lastIndex = 0;
-    while ((match = COLOR_VALUE_RE.exec(lineText)) !== null) {
+    while ((match = COLOR_VALUE_RE.exec(segment)) !== null) {
         if (isPaletteMatch(match)) {
             if (!palette) {
                 continue;
@@ -60,8 +236,8 @@ export function collectTranslationColorsOnLine(
             }
             const pal = palette[idx];
             const color = new vscode.Color(pal.r / 255, pal.g / 255, pal.b / 255, 1);
-            const startPos = new vscode.Position(lineNumber, match.index);
-            const endPos = new vscode.Position(lineNumber, match.index + match[0].length);
+            const startPos = new vscode.Position(lineNumber, colBase + match.index);
+            const endPos = new vscode.Position(lineNumber, colBase + match.index + match[0].length);
             colors.push(new vscode.ColorInformation(new vscode.Range(startPos, endPos), color));
             continue;
         }
@@ -74,7 +250,7 @@ export function collectTranslationColorsOnLine(
             continue;
         }
 
-        const floatMode = isFloatContext(lineText, match.index);
+        const floatMode = isFloatContext(segment, match.index);
 
         if (floatMode) {
             if (r < 0 || r > 2 || g < 0 || g > 2 || b < 0 || b > 2) {
@@ -85,9 +261,9 @@ export function collectTranslationColorsOnLine(
         }
 
         const hasPercent = match[1] === '%';
-        const colorStart = match.index + (hasPercent ? 1 : 0);
+        const colorStart = colBase + match.index + (hasPercent ? 1 : 0);
         const startPos = new vscode.Position(lineNumber, colorStart);
-        const endPos = new vscode.Position(lineNumber, match.index + match[0].length);
+        const endPos = new vscode.Position(lineNumber, colBase + match.index + match[0].length);
         const color = floatMode
             ? new vscode.Color(Math.min(r / 2, 1), Math.min(g / 2, 1), Math.min(b / 2, 1), 1)
             : new vscode.Color(r / 255, g / 255, b / 255, 1);

@@ -1,11 +1,9 @@
 import * as vscode from 'vscode';
 import { loadPlaypal } from '../../tools/playpalReader';
 import {
-    collectTranslationColorsOnLine,
+    collectCreateTranslationColors,
     provideTranslationColorPresentations,
 } from '../shared/translationColorScan';
-
-const CREATE_TRANSLATION_RE = /\bCreateTranslation\b/i;
 
 export function registerAcsColorProvider(context: vscode.ExtensionContext) {
     const provider = vscode.languages.registerColorProvider(
@@ -16,23 +14,8 @@ export function registerAcsColorProvider(context: vscode.ExtensionContext) {
         ],
         {
             async provideDocumentColors(document, token) {
-                const colors: vscode.ColorInformation[] = [];
                 const palette = await loadPlaypal();
-
-                for (let i = 0; i < document.lineCount; i++) {
-                    if (token.isCancellationRequested) {
-                        break;
-                    }
-
-                    const line = document.lineAt(i);
-                    if (!CREATE_TRANSLATION_RE.test(line.text)) {
-                        continue;
-                    }
-
-                    colors.push(...collectTranslationColorsOnLine(line.text, i, palette));
-                }
-
-                return colors;
+                return collectCreateTranslationColors(document, palette, token);
             },
 
             async provideColorPresentations(color, context) {

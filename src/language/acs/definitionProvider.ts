@@ -6,6 +6,7 @@ import { SymbolDatabase } from '../../base/symbolDatabase';
 import { SymbolKind } from '../../base/types';
 import { locationFromSymbol } from '../../base/symbolLocation';
 import { getBaseAcsIncludeDirs } from '../../base/baseAcsIncludes';
+import { resolveActorDefinition } from '../decorate/actorResolve';
 
 /** Named/numbered script callables used by goto-definition and hover/signature enrichment. */
 export const SCRIPT_EXEC_FUNCTIONS = new Set([
@@ -21,6 +22,14 @@ export const SCRIPT_ARG_OVERLAY_FUNCTIONS = new Set([
     'acs_execute', 'acs_executealways', 'acs_executewithresult',
     'acs_namedexecute', 'acs_namedexecutealways', 'acs_namedexecutewithresult',
     'callacs',
+]);
+
+/** ACS callables whose first string arg is an actor / inventory class name. */
+export const ACTOR_CLASS_ARG_FUNCTIONS = new Set([
+    'giveinventory', 'takeinventory', 'checkinventory',
+    'spawn', 'spawnforced',
+    'spawnspot', 'spawnspotforced',
+    'spawnspotfacing', 'spawnspotfacingforced',
 ]);
 
 function extractIncludePath(lineText: string, cursorCol: number): string | null {
@@ -231,6 +240,125 @@ export function extractScriptRef(
     return extractScriptArgAtCursor(lineText, cursorCol)?.key ?? null;
 }
 
+export interface ActorClassArgAtCursor {
+    /** Unquoted actor / inventory class name. */
+    className: string;
+    calleeName: string;
+    argStart: number;
+    argEnd: number;
+}
+
+/**
+ * When the cursor is on the first (string) argument of GiveInventory / Spawn / etc.,
+ * return that class name. Otherwise null.
+ */
+export function extractActorClassArgAtCursor(
+    lineText: string,
+    cursorCol: number
+): ActorClassArgAtCursor | null {
+    let openParen = -1;
+    let depth = 0;
+
+    for (let i = cursorCol - 1; i >= 0; i--) {
+        if (lineText[i] === ')') {
+            depth++;
+        } else if (lineText[i] === '(') {
+            if (depth === 0) {
+                openParen = i;
+                break;
+            }
+            depth--;
+        }
+    }
+
+    if (openParen === -1) {
+        return null;
+    }
+
+    let fnEnd = openParen - 1;
+    while (fnEnd >= 0 && /\s/.test(lineText[fnEnd])) {
+        fnEnd--;
+    }
+
+    let fnStart = fnEnd;
+    while (fnStart >= 0 && /[A-Za-z0-9_]/.test(lineText[fnStart])) {
+        fnStart--;
+    }
+    fnStart++;
+
+    if (fnStart > fnEnd) {
+        return null;
+    }
+
+    const calleeName = lineText.substring(fnStart, fnEnd + 1);
+    if (!ACTOR_CLASS_ARG_FUNCTIONS.has(calleeName.toLowerCase())) {
+        return null;
+    }
+
+    let commaCount = 0;
+    let inString = false;
+
+    for (let i = openParen + 1; i < cursorCol; i++) {
+        const ch = lineText[i];
+        if (ch === '"' && !inString) {
+            inString = true;
+            continue;
+        }
+        if (ch === '"' && inString) {
+            inString = false;
+            continue;
+        }
+        if (ch === ',' && !inString) {
+            commaCount++;
+        }
+    }
+
+    if (commaCount !== 0) {
+        return null;
+    }
+
+    let argStart = openParen + 1;
+    while (argStart < lineText.length && /\s/.test(lineText[argStart])) {
+        argStart++;
+    }
+
+    let argEnd = argStart;
+    let inStr = false;
+
+    while (argEnd < lineText.length) {
+        const ch = lineText[argEnd];
+        if (ch === '"') {
+            inStr = !inStr;
+            argEnd++;
+            continue;
+        }
+        if (inStr) {
+            argEnd++;
+            continue;
+        }
+        if (ch === ',' || ch === ')') {
+            break;
+        }
+        argEnd++;
+    }
+
+    if (cursorCol < argStart || cursorCol > argEnd) {
+        return null;
+    }
+
+    const firstArg = lineText.substring(argStart, argEnd).trim();
+    if (!(firstArg.startsWith('"') && firstArg.endsWith('"') && firstArg.length >= 2)) {
+        return null;
+    }
+
+    const className = firstArg.slice(1, -1);
+    if (!className) {
+        return null;
+    }
+
+    return { className, calleeName, argStart, argEnd };
+}
+
 export async function findScriptDefinition(
     scriptRef: string,
     excludeUri: vscode.Uri,
@@ -338,6 +466,16 @@ export function registerAcsDefinitionProvider(
                 const scriptRef = extractScriptRef(lineText, position.character);
                 if (scriptRef !== null) {
                     return findScriptDefinition(scriptRef, document.uri, token);
+                }
+
+                const actorArg = extractActorClassArgAtCursor(lineText, position.character);
+                if (actorArg !== null) {
+                    return resolveActorDefinition(
+                        actorArg.className,
+                        document.uri,
+                        token,
+                        symbolDb
+                    );
                 }
 
                 if (symbolDb) {

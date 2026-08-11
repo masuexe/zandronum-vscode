@@ -17,6 +17,7 @@ import { registerAcsSemanticTokens } from './semantic/acsSemanticTokensProvider'
 import { WorkspaceIndex, defaultIncludeResolver } from './language/acs/compilationUnit';
 import { registerDefinitionProvider } from './language/decorate/definitionProvider';
 import { registerAcsDefinitionProvider } from './language/acs/definitionProvider';
+import { registerAcsColorProvider } from './language/acs/colorProvider';
 import { registerAcsSymbolProvider } from './language/acs/symbolProvider';
 import { registerColorProvider } from './language/decorate/colorProvider';
 import { registerDecorateSymbolProvider } from './language/decorate/symbolProvider';
@@ -247,6 +248,7 @@ export function activate(context: vscode.ExtensionContext) {
     registerAcsHoverProvider(context, acsFunctionsData, symbolDatabase);
     registerAcsSemanticTokens(context, acsConstantsData, workspaceIndex);
     registerAcsDefinitionProvider(context, symbolDatabase);
+    registerAcsColorProvider(context);
     registerAcsSymbolProvider(context);
     registerAcsRenameAndReferences(context, acsFunctionsData, acsConstantsData);
 

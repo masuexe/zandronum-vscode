@@ -960,7 +960,12 @@
         panY = 0;
     }
 
-    function buildTextureList() {
+    /**
+     * @param {{ centerSelected?: boolean }} [options]
+     * centerSelected: only on first init — later rebuilds keep scroll position.
+     */
+    function buildTextureList(options) {
+        const prevScrollTop = textureList.scrollTop;
         textureList.innerHTML = '';
         let selectedEl = null;
         for (const name of textures) {
@@ -974,8 +979,10 @@
             textureList.appendChild(el);
             if (isSelected) { selectedEl = el; }
         }
-        if (selectedEl) {
+        if (options && options.centerSelected && selectedEl) {
             selectedEl.scrollIntoView({ block: 'center' });
+        } else {
+            textureList.scrollTop = prevScrollTop;
         }
     }
 
@@ -1606,7 +1613,7 @@
                 textures = msg.textures;
                 currentTexture = msg.selected;
                 selectedPatchId = null;
-                buildTextureList();
+                buildTextureList({ centerSelected: true });
                 buildPatchList();
                 buildToolbar();
                 ensureResources();

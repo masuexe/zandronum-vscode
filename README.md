@@ -139,12 +139,30 @@ Optional per-workspace launch configs for IWAD and extra args. Variables: `${wor
       "program": "C:/Games/Zandronum/zandronum.exe",
       "preArgs": ["-iwad", "C:/Games/Doom2/doom2.wad"],
       "postArgs": ["+map", "MAP01"]
+    },
+    {
+      "name": "Host local",
+      "preArgs": ["-iwad", "C:/Games/Doom2/doom2.wad"],
+      "postArgs": ["-host", "-port", "10666", "+map", "MAP01"]
+    },
+    {
+      "name": "Join local",
+      "preArgs": ["-iwad", "C:/Games/Doom2/doom2.wad"],
+      "postArgs": ["-connect", "127.0.0.1:10666"]
+    }
+  ],
+  "compounds": [
+    {
+      "name": "Local net test",
+      "configurations": ["Host local", "Join local"]
     }
   ]
 }
 ```
 
 The extension always inserts `-file <workspace>/out/build.pk3` between `preArgs` and `postArgs`. If `.vscode/zandronum.json` is missing or empty, **Run Project** / legacy Run use the executable from settings/PATH with no extra IWAD args.
+
+**Compounds** (optional): list exactly two configuration names — first is Host, second is Client. Choosing a compound from **Run Project** starts Host in terminal `Zandronum Host`, waits 2 seconds, then starts Client in `Zandronum Client`. Invalid compounds (wrong count or unknown names) show an error and do not launch.
 
 ## Supported Languages
 

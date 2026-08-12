@@ -1,19 +1,34 @@
 import * as vscode from 'vscode';
 import { ActionData } from '../../shared/dataLoader';
 
-function getWordPrefix(lineText: string, position: vscode.Position): string {
-    let prefix = '';
+/** Prefix from '$' through the cursor, plus the range that completion must replace. */
+function getCommandPrefixAt(
+    lineText: string,
+    position: vscode.Position
+): { prefix: string; range: vscode.Range } | undefined {
     let i = position.character - 1;
-    while (i >= 0 && /[A-Za-z0-9_$]/.test(lineText[i])) {
-        prefix = lineText[i] + prefix;
+    while (i >= 0 && /[A-Za-z0-9_]/.test(lineText[i])) {
         i--;
     }
-    return prefix;
+    if (i < 0 || lineText[i] !== '$') {
+        return undefined;
+    }
+    // '$' must not be mid-identifier
+    if (i > 0 && /[A-Za-z0-9_]/.test(lineText[i - 1])) {
+        return undefined;
+    }
+
+    const start = i;
+    return {
+        prefix: lineText.substring(start, position.character),
+        range: new vscode.Range(position.line, start, position.line, position.character)
+    };
 }
 
 function provideCommandItems(
     commandsData: Record<string, ActionData>,
-    prefix: string
+    prefix: string,
+    range: vscode.Range
 ): vscode.CompletionItem[] {
     const items: vscode.CompletionItem[] = [];
 
@@ -25,6 +40,7 @@ function provideCommandItems(
         const item = new vscode.CompletionItem(name, vscode.CompletionItemKind.Function);
         item.detail = data.desc || 'SNDINFO command';
         item.insertText = name;
+        item.range = range;
         item.sortText = '0_' + name;
 
         items.push(item);
@@ -41,18 +57,13 @@ export function registerSndinfoCompletionProvider(
         [{ language: 'sndinfo' }],
         {
             provideCompletionItems(document, position) {
-                const line = document.lineAt(position.line);
-                const lineText = line.text;
-                const wordPrefix = getWordPrefix(lineText, position);
-
-                const textBefore = lineText.substring(0, position.character);
-
-                // Only trigger when $ is preceded by whitespace or line start
-                if (!/(?:^|\s)\$/.test(textBefore)) {
+                const lineText = document.lineAt(position.line).text;
+                const at = getCommandPrefixAt(lineText, position);
+                if (!at) {
                     return [];
                 }
 
-                return provideCommandItems(commandsData, wordPrefix);
+                return provideCommandItems(commandsData, at.prefix, at.range);
             }
         },
         '$'

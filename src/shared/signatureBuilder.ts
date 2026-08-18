@@ -1,13 +1,25 @@
-import { ParamData } from './dataLoader';
+import { AcsReturnType, ParamData } from './dataLoader';
 
 /** Non-zero defaults are stored in metadata; zero defaults are intentionally absent. */
 function defaultSuffix(param: ParamData): string {
     return param.default !== undefined ? ` = ${param.default}` : '';
 }
 
-export function buildSignature(functionName: string, params?: ParamData[]): string {
+function returnPrefix(returns?: AcsReturnType | string): string {
+    if (!returns) {
+        return '';
+    }
+    return `${returns} `;
+}
+
+export function buildSignature(
+    functionName: string,
+    params?: ParamData[],
+    returns?: AcsReturnType | string
+): string {
+    const prefix = returnPrefix(returns);
     if (!Array.isArray(params) || params.length === 0) {
-        return `${functionName}()`;
+        return `${prefix}${functionName}()`;
     }
 
     const paramStrings = params.map((param) => {
@@ -15,16 +27,24 @@ export function buildSignature(functionName: string, params?: ParamData[]): stri
         return param.optional ? `[${typeAndName}]` : typeAndName;
     });
 
-    return `${functionName}(${paramStrings.join(', ')})`;
+    return `${prefix}${functionName}(${paramStrings.join(', ')})`;
 }
 
-export function buildSignatureLabel(functionName: string, params?: ParamData[]): string {
-    return buildSignature(functionName, params);
+export function buildSignatureLabel(
+    functionName: string,
+    params?: ParamData[],
+    returns?: AcsReturnType | string
+): string {
+    return buildSignature(functionName, params, returns);
 }
 
-export function formatCompletionDetail(params?: ParamData[]): string {
+export function formatCompletionDetail(
+    params?: ParamData[],
+    returns?: AcsReturnType | string
+): string {
+    const prefix = returnPrefix(returns);
     if (!Array.isArray(params) || params.length === 0) {
-        return '()';
+        return `${prefix}()`;
     }
 
     const paramStrings = params
@@ -33,7 +53,7 @@ export function formatCompletionDetail(params?: ParamData[]): string {
             ? `[${p.name}: ${p.type}${defaultSuffix(p)}]`
             : `${p.name}: ${p.type}${defaultSuffix(p)}`);
 
-    return `(${paramStrings.join(', ')})`;
+    return `${prefix}(${paramStrings.join(', ')})`;
 }
 
 export function buildParamLabel(param: ParamData): string {

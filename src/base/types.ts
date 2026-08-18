@@ -35,6 +35,8 @@ export interface AcsConstantSymbol extends SymbolEntry {
 
 export interface AcsFunctionSymbol extends SymbolEntry {
     kind: SymbolKind.AcsFunction;
+    /** Declared return type (`int`/`str`/`bool`/`fixed`/`void`), if present. */
+    returns?: string;
 }
 
 export interface AcsScriptParam {

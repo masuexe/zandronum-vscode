@@ -109,12 +109,14 @@ export class AcsSymbolProvider implements SymbolProvider {
 
     private scanFunctions(effective: string, lineNumber: number, symbols: SymbolEntry[]): void {
         // function returnType Name( or function Name(
-        const fnRe = /^\s*function\s+(?:(?:int|str|bool|fixed|void)\s+)?([A-Za-z_][A-Za-z0-9_]*)\s*\(/i;
+        const fnRe =
+            /^\s*function\s+(?:(int|str|bool|fixed|void)\s+)?([A-Za-z_][A-Za-z0-9_]*)\s*\(/i;
         const m = fnRe.exec(effective);
         if (!m) {
             return;
         }
-        const name = m[1];
+        const returns = m[1]?.toLowerCase();
+        const name = m[2];
         if (ACS_KEYWORDS.has(name.toLowerCase())) {
             return;
         }
@@ -125,7 +127,8 @@ export class AcsSymbolProvider implements SymbolProvider {
             source: '',
             packageId: '',
             entryPath: '',
-            location: { line: lineNumber, character: Math.max(0, character) }
+            location: { line: lineNumber, character: Math.max(0, character) },
+            ...(returns ? { returns } : {}),
         };
         symbols.push(sym);
     }

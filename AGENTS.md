@@ -378,7 +378,7 @@ Built-in ACS callable names come from Zandronum-ACC + engine cross-check (not th
 
 | Source | Path under `ref/` | Role |
 |--------|-------------------|------|
-| PCD builtins | `acc-branch-zandronum/symbol.c` `InternalFunctions[]` | name + fixed arity |
+| PCD builtins | `acc-branch-zandronum/symbol.c` `InternalFunctions[]` | name + fixed arity + `hasReturnValue` |
 | CALLFUNC / line specials | `acc-branch-zandronum/zspecial.acs` | negative = CALLFUNC (`min,max`); positive = line specials callable as functions |
 | Engine | `zandronum-stable-branch-default/src/p_acs.cpp` `EACSFunctions` / `CallFunction` | verify Zandronum-only APIs; warn on mismatches |
 | Language constructs | ACC `token.h` / `token.c` | `Print`, `PrintBold`, `Log`, `HudMessage`, `HudMessageBold`, `StrParam`, plus HudMessage PCD helpers |
@@ -387,6 +387,15 @@ Extension data:
 
 - [`data/acs/functions.json`](data/acs/functions.json) — completion / hover / signature
 - [`data/acs/constants.json`](data/acs/constants.json) — built-in constants
+
+`returns` field (`void` \| `int` \| `str` \| `fixed`) comes from ACC, not the wiki:
+
+- Internal: `hasReturnValue == NO` → `void`; `YES` → `int` (except `sin`/`cos`/`fixedmul`/`fixeddiv` → `fixed`)
+- CALLFUNC: always leaves a stack value → default `int`; a small name table marks string getters as `str`
+- Line specials: expression form uses `LSPEC*RESULT` → `int`
+- Language: `Print`/`Log`/`HudMessage*` → `void`; `StrParam` → `str`
+
+Do not invent void CALLFUNCs. Hover/signature/completion show the return type; `void` means “Returns: none” (cannot be used in expressions).
 
 Maintain with:
 

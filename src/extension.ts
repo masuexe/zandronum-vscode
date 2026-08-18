@@ -22,6 +22,7 @@ import { registerAcsSymbolProvider } from './language/acs/symbolProvider';
 import { registerColorProvider } from './language/decorate/colorProvider';
 import { registerDecorateSymbolProvider } from './language/decorate/symbolProvider';
 import { registerDecorateRenameAndReferences } from './language/decorate/renameProvider';
+import { registerDecorateFormattingProvider } from './language/decorate/formattingProvider';
 import { registerAcsRenameAndReferences } from './language/acs/renameProvider';
 import { registerSpriteOffsetEditor } from './editors/spriteOffsetEditorProvider';
 import { getTexturesKeywords } from './shared/dataLoader';
@@ -235,6 +236,7 @@ export function activate(context: vscode.ExtensionContext) {
     registerColorProvider(context);
     registerDecorateSymbolProvider(context);
     registerDecorateRenameAndReferences(context);
+    registerDecorateFormattingProvider(context);
 
     const acsFunctionsData = getAcsFunctions(context);
     const acsConstantsData = getAcsConstants(context);

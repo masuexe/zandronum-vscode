@@ -2,7 +2,12 @@ import * as vscode from 'vscode';
 import { ActionData, findActionCaseInsensitive, ParamData } from '../../shared/dataLoader';
 import { buildSignatureLabel, buildParamLabel } from '../../shared/signatureBuilder';
 import { SymbolDatabase } from '../../base/symbolDatabase';
-import { AcsConstantSymbol, AcsScriptSymbol, SymbolKind } from '../../base/types';
+import {
+    AcsConstantSymbol,
+    AcsFunctionSymbol,
+    AcsScriptSymbol,
+    SymbolKind,
+} from '../../base/types';
 import { symbolSourceDetail } from '../../base/symbolLocation';
 import {
     callTextFromLine,
@@ -27,18 +32,27 @@ function buildHoverContent(
             ? functionData.params.filter((p): p is ParamData => typeof p === 'object')
             : []);
 
+    const returns = functionData.returns;
+    const customSig =
+        typeof functionData.signature === 'string' && functionData.signature.length > 0
+            ? functionData.signature
+            : undefined;
     const signature =
         options?.params
-            ? buildSignatureLabel(functionName, params)
-            : (typeof functionData.signature === 'string' && functionData.signature.length > 0
-                ? functionData.signature
-                : buildSignatureLabel(functionName, params));
+            ? buildSignatureLabel(functionName, params, returns)
+            : (customSig ?? buildSignatureLabel(functionName, params, returns));
     md.appendCodeblock(signature, 'acs');
 
     if (options?.script) {
         md.appendMarkdown(
             `\n\n**Script:** \`${options.script.scriptKey}\` (${symbolSourceDetail(options.script)})\n\n`
         );
+    }
+
+    if (returns === 'void') {
+        md.appendMarkdown(`\n\n**Returns:** none\n\n`);
+    } else if (returns) {
+        md.appendMarkdown(`\n\n**Returns:** \`${returns}\`\n\n`);
     }
 
     if (functionData.desc) {
@@ -131,10 +145,16 @@ export function registerAcsHoverProvider(
                 }
 
                 if (symbolDb) {
-                    const fn = symbolDb.query(SymbolKind.AcsFunction, word);
+                    const fn = symbolDb.query<AcsFunctionSymbol>(SymbolKind.AcsFunction, word);
                     if (fn) {
                         const md = new vscode.MarkdownString();
-                        md.appendCodeblock(`function ${fn.name}(...)`, 'acs');
+                        const ret = fn.returns ? `${fn.returns} ` : '';
+                        md.appendCodeblock(`function ${ret}${fn.name}(...)`, 'acs');
+                        if (fn.returns === 'void') {
+                            md.appendMarkdown(`\n\n**Returns:** none\n\n`);
+                        } else if (fn.returns) {
+                            md.appendMarkdown(`\n\n**Returns:** \`${fn.returns}\`\n\n`);
+                        }
                         md.appendMarkdown(`\n\n**Source:** ${symbolSourceDetail(fn)}`);
                         if (fn.entryPath) {
                             md.appendMarkdown(`\n\n\`${fn.entryPath}\``);

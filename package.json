@@ -3,6 +3,7 @@
   "displayName": "zandronum-vscode",
   "description": "VS Code extension for Zandronum modding — DECORATE, ACS, lump syntax, build tools, and visual editors.",
   "version": "0.0.1",
+  "publisher": "zandronum",
   "engines": {
     "vscode": "^1.116.0"
   },
@@ -329,6 +330,15 @@
           "type": "string",
           "default": "",
           "description": "Path to an external PLAYPAL lump file or directory containing one. Supports relative paths (to workspace root) and absolute paths. Used for palette color preview in Translation properties."
+        },
+        "zandronum-vscode.decorate.format.stateLabelStyle": {
+          "type": "string",
+          "enum": [
+            "outdent",
+            "indent"
+          ],
+          "default": "outdent",
+          "description": "DECORATE States label indent relative to the States block. \"outdent\" matches ZDoom wiki style (labels one level left of frames); \"indent\" keeps labels at the same level as frames."
         }
       }
     },
@@ -396,7 +406,8 @@
         "editor.colorDecoratorsLimit": 10000
       },
       "[decorate]": {
-        "editor.colorDecoratorsLimit": 10000
+        "editor.colorDecoratorsLimit": 10000,
+        "editor.defaultFormatter": "zandronum.zandronum-vscode"
       }
     }
   },

@@ -25,7 +25,8 @@
         "optional": true
       }
     ],
-    "desc": "Executes a script on the specified map."
+    "desc": "Executes a script on the specified map.",
+    "returns": "int"
   },
   "ACS_ExecuteAlways": {
     "params": [
@@ -53,7 +54,8 @@
         "optional": true
       }
     ],
-    "desc": "Executes a script on the specified map, allowing concurrent instances."
+    "desc": "Executes a script on the specified map, allowing concurrent instances.",
+    "returns": "int"
   },
   "ACS_ExecuteWithResult": {
     "params": [
@@ -82,7 +84,8 @@
         "optional": true
       }
     ],
-    "desc": "Executes a script and returns its result value."
+    "desc": "Executes a script and returns its result value.",
+    "returns": "int"
   },
   "ACS_LockedExecute": {
     "params": [
@@ -107,7 +110,8 @@
         "type": "int"
       }
     ],
-    "desc": "Line special / ACS callable: ACS_LockedExecute."
+    "desc": "Line special / ACS callable: ACS_LockedExecute.",
+    "returns": "int"
   },
   "ACS_LockedExecuteDoor": {
     "params": [
@@ -132,7 +136,8 @@
         "type": "int"
       }
     ],
-    "desc": "Line special / ACS callable: ACS_LockedExecuteDoor."
+    "desc": "Line special / ACS callable: ACS_LockedExecuteDoor.",
+    "returns": "int"
   },
   "ACS_NamedExecute": {
     "params": [
@@ -160,7 +165,8 @@
         "optional": true
       }
     ],
-    "desc": "Executes a named script on the specified map."
+    "desc": "Executes a named script on the specified map.",
+    "returns": "int"
   },
   "ACS_NamedExecuteAlways": {
     "params": [
@@ -188,7 +194,8 @@
         "optional": true
       }
     ],
-    "desc": "Executes a named script on the specified map, allowing concurrent instances."
+    "desc": "Executes a named script on the specified map, allowing concurrent instances.",
+    "returns": "int"
   },
   "ACS_NamedExecuteWithResult": {
     "params": [
@@ -217,7 +224,8 @@
         "optional": true
       }
     ],
-    "desc": "Executes a named script and returns its result value."
+    "desc": "Executes a named script and returns its result value.",
+    "returns": "int"
   },
   "ACS_NamedLockedExecute": {
     "params": [
@@ -242,7 +250,8 @@
         "type": "int"
       }
     ],
-    "desc": "Executes a named script with a lock check."
+    "desc": "Executes a named script with a lock check.",
+    "returns": "int"
   },
   "ACS_NamedLockedExecuteDoor": {
     "params": [
@@ -267,7 +276,8 @@
         "type": "int"
       }
     ],
-    "desc": "Executes a named script with a lock check (door variant)."
+    "desc": "Executes a named script with a lock check (door variant).",
+    "returns": "int"
   },
   "ACS_NamedSuspend": {
     "params": [
@@ -280,7 +290,8 @@
         "type": "int"
       }
     ],
-    "desc": "Suspends a named script on the specified map."
+    "desc": "Suspends a named script on the specified map.",
+    "returns": "int"
   },
   "ACS_NamedTerminate": {
     "params": [
@@ -293,7 +304,8 @@
         "type": "int"
       }
     ],
-    "desc": "Terminates a named script on the specified map."
+    "desc": "Terminates a named script on the specified map.",
+    "returns": "int"
   },
   "ACS_Suspend": {
     "params": [
@@ -306,7 +318,8 @@
         "type": "int"
       }
     ],
-    "desc": "Suspends a script on the specified map."
+    "desc": "Suspends a script on the specified map.",
+    "returns": "int"
   },
   "ACS_Terminate": {
     "params": [
@@ -319,7 +332,8 @@
         "type": "int"
       }
     ],
-    "desc": "Terminates a script on the specified map."
+    "desc": "Terminates a script on the specified map.",
+    "returns": "int"
   },
   "ActivatorSound": {
     "params": [
@@ -332,11 +346,13 @@
         "type": "int"
       }
     ],
-    "desc": "ACS built-in: ActivatorSound."
+    "desc": "ACS built-in: ActivatorSound.",
+    "returns": "void"
   },
   "ActivatorTID": {
     "params": [],
-    "desc": "Returns the TID of the activator."
+    "desc": "Returns the TID of the activator.",
+    "returns": "int"
   },
   "AddBot": {
     "params": [
@@ -351,7 +367,8 @@
         "optional": true
       }
     ],
-    "desc": "ACS function: AddBot."
+    "desc": "ACS function: AddBot.",
+    "returns": "int"
   },
   "AmbientSound": {
     "params": [
@@ -364,7 +381,8 @@
         "type": "float"
       }
     ],
-    "desc": "Plays an ambient sound globally."
+    "desc": "Plays an ambient sound globally.",
+    "returns": "void"
   },
   "AnnouncerSound": {
     "params": [
@@ -377,11 +395,13 @@
         "type": "int"
       }
     ],
-    "desc": "ACS function: AnnouncerSound."
+    "desc": "ACS function: AnnouncerSound.",
+    "returns": "int"
   },
   "Autosave": {
     "params": [],
-    "desc": "Line special / ACS callable: Autosave."
+    "desc": "Line special / ACS callable: Autosave.",
+    "returns": "int"
   },
   "BanFromGame": {
     "params": [
@@ -399,27 +419,33 @@
         "optional": true
       }
     ],
-    "desc": "ACS function: BanFromGame."
+    "desc": "ACS function: BanFromGame.",
+    "returns": "int"
   },
   "BeginDBTransaction": {
     "params": [],
-    "desc": "ACS function: BeginDBTransaction."
+    "desc": "ACS function: BeginDBTransaction.",
+    "returns": "int"
   },
   "BeginPrint": {
     "params": [],
-    "desc": "Begins a print block for scripted HUD drawing."
+    "desc": "Begins a print block for scripted HUD drawing.",
+    "returns": "void"
   },
   "BlueCount": {
     "params": [],
-    "desc": "ACS built-in: BlueCount."
+    "desc": "ACS built-in: BlueCount.",
+    "returns": "int"
   },
   "BlueScore": {
     "params": [],
-    "desc": "ACS built-in: BlueScore."
+    "desc": "ACS built-in: BlueScore.",
+    "returns": "int"
   },
   "CancelFade": {
     "params": [],
-    "desc": "ACS built-in: CancelFade."
+    "desc": "ACS built-in: CancelFade.",
+    "returns": "void"
   },
   "CanRaiseActor": {
     "params": [
@@ -428,7 +454,8 @@
         "type": "int"
       }
     ],
-    "desc": "ACS function: CanRaiseActor."
+    "desc": "ACS function: CanRaiseActor.",
+    "returns": "int"
   },
   "Ceil": {
     "params": [
@@ -437,7 +464,8 @@
         "type": "int"
       }
     ],
-    "desc": "ACS function: Ceil."
+    "desc": "ACS function: Ceil.",
+    "returns": "int"
   },
   "Ceiling_CrushAndRaise": {
     "params": [
@@ -459,7 +487,8 @@
         "optional": true
       }
     ],
-    "desc": "Line special / ACS callable: Ceiling_CrushAndRaise."
+    "desc": "Line special / ACS callable: Ceiling_CrushAndRaise.",
+    "returns": "int"
   },
   "Ceiling_CrushAndRaiseA": {
     "params": [
@@ -485,7 +514,8 @@
         "optional": true
       }
     ],
-    "desc": "Line special / ACS callable: Ceiling_CrushAndRaiseA."
+    "desc": "Line special / ACS callable: Ceiling_CrushAndRaiseA.",
+    "returns": "int"
   },
   "Ceiling_CrushAndRaiseDist": {
     "params": [
@@ -512,7 +542,8 @@
         "optional": true
       }
     ],
-    "desc": "Line special / ACS callable: Ceiling_CrushAndRaiseDist."
+    "desc": "Line special / ACS callable: Ceiling_CrushAndRaiseDist.",
+    "returns": "int"
   },
   "Ceiling_CrushAndRaiseSilentA": {
     "params": [
@@ -538,7 +569,8 @@
         "optional": true
       }
     ],
-    "desc": "Line special / ACS callable: Ceiling_CrushAndRaiseSilentA."
+    "desc": "Line special / ACS callable: Ceiling_CrushAndRaiseSilentA.",
+    "returns": "int"
   },
   "Ceiling_CrushAndRaiseSilentDist": {
     "params": [
@@ -564,7 +596,8 @@
         "optional": true
       }
     ],
-    "desc": "Line special / ACS callable: Ceiling_CrushAndRaiseSilentDist."
+    "desc": "Line special / ACS callable: Ceiling_CrushAndRaiseSilentDist.",
+    "returns": "int"
   },
   "Ceiling_CrushRaiseAndStay": {
     "params": [
@@ -586,7 +619,8 @@
         "optional": true
       }
     ],
-    "desc": "Line special / ACS callable: Ceiling_CrushRaiseAndStay."
+    "desc": "Line special / ACS callable: Ceiling_CrushRaiseAndStay.",
+    "returns": "int"
   },
   "Ceiling_CrushRaiseAndStayA": {
     "params": [
@@ -612,7 +646,8 @@
         "optional": true
       }
     ],
-    "desc": "Line special / ACS callable: Ceiling_CrushRaiseAndStayA."
+    "desc": "Line special / ACS callable: Ceiling_CrushRaiseAndStayA.",
+    "returns": "int"
   },
   "Ceiling_CrushRaiseAndStaySilA": {
     "params": [
@@ -638,7 +673,8 @@
         "optional": true
       }
     ],
-    "desc": "Line special / ACS callable: Ceiling_CrushRaiseAndStaySilA."
+    "desc": "Line special / ACS callable: Ceiling_CrushRaiseAndStaySilA.",
+    "returns": "int"
   },
   "Ceiling_CrushStop": {
     "params": [
@@ -652,7 +688,8 @@
         "optional": true
       }
     ],
-    "desc": "Line special / ACS callable: Ceiling_CrushStop."
+    "desc": "Line special / ACS callable: Ceiling_CrushStop.",
+    "returns": "int"
   },
   "Ceiling_LowerAndCrush": {
     "params": [
@@ -674,7 +711,8 @@
         "optional": true
       }
     ],
-    "desc": "Line special / ACS callable: Ceiling_LowerAndCrush."
+    "desc": "Line special / ACS callable: Ceiling_LowerAndCrush.",
+    "returns": "int"
   },
   "Ceiling_LowerAndCrushDist": {
     "params": [
@@ -701,7 +739,8 @@
         "optional": true
       }
     ],
-    "desc": "Line special / ACS callable: Ceiling_LowerAndCrushDist."
+    "desc": "Line special / ACS callable: Ceiling_LowerAndCrushDist.",
+    "returns": "int"
   },
   "Ceiling_LowerByTexture": {
     "params": [
@@ -724,7 +763,8 @@
         "optional": true
       }
     ],
-    "desc": "Line special / ACS callable: Ceiling_LowerByTexture."
+    "desc": "Line special / ACS callable: Ceiling_LowerByTexture.",
+    "returns": "int"
   },
   "Ceiling_LowerByValue": {
     "params": [
@@ -751,7 +791,8 @@
         "optional": true
       }
     ],
-    "desc": "Lowers the ceiling by the given value."
+    "desc": "Lowers the ceiling by the given value.",
+    "returns": "int"
   },
   "Ceiling_LowerByValueTimes8": {
     "params": [
@@ -778,7 +819,8 @@
         "optional": true
       }
     ],
-    "desc": "Line special / ACS callable: Ceiling_LowerByValueTimes8."
+    "desc": "Line special / ACS callable: Ceiling_LowerByValueTimes8.",
+    "returns": "int"
   },
   "Ceiling_LowerInstant": {
     "params": [
@@ -805,7 +847,8 @@
         "optional": true
       }
     ],
-    "desc": "Instantly lowers the ceiling."
+    "desc": "Instantly lowers the ceiling.",
+    "returns": "int"
   },
   "Ceiling_LowerToFloor": {
     "params": [
@@ -833,7 +876,8 @@
         "optional": true
       }
     ],
-    "desc": "Line special / ACS callable: Ceiling_LowerToFloor."
+    "desc": "Line special / ACS callable: Ceiling_LowerToFloor.",
+    "returns": "int"
   },
   "Ceiling_LowerToHighestFloor": {
     "params": [
@@ -861,7 +905,8 @@
         "optional": true
       }
     ],
-    "desc": "Line special / ACS callable: Ceiling_LowerToHighestFloor."
+    "desc": "Line special / ACS callable: Ceiling_LowerToHighestFloor.",
+    "returns": "int"
   },
   "Ceiling_LowerToLowest": {
     "params": [
@@ -884,7 +929,8 @@
         "optional": true
       }
     ],
-    "desc": "Line special / ACS callable: Ceiling_LowerToLowest."
+    "desc": "Line special / ACS callable: Ceiling_LowerToLowest.",
+    "returns": "int"
   },
   "Ceiling_LowerToNearest": {
     "params": [
@@ -907,7 +953,8 @@
         "optional": true
       }
     ],
-    "desc": "Line special / ACS callable: Ceiling_LowerToNearest."
+    "desc": "Line special / ACS callable: Ceiling_LowerToNearest.",
+    "returns": "int"
   },
   "Ceiling_MoveToValue": {
     "params": [
@@ -934,7 +981,8 @@
         "optional": true
       }
     ],
-    "desc": "Moves the ceiling to the given absolute height."
+    "desc": "Moves the ceiling to the given absolute height.",
+    "returns": "int"
   },
   "Ceiling_MoveToValueAndCrush": {
     "params": [
@@ -960,7 +1008,8 @@
         "optional": true
       }
     ],
-    "desc": "Line special / ACS callable: Ceiling_MoveToValueAndCrush."
+    "desc": "Line special / ACS callable: Ceiling_MoveToValueAndCrush.",
+    "returns": "int"
   },
   "Ceiling_MoveToValueTimes8": {
     "params": [
@@ -986,7 +1035,8 @@
         "optional": true
       }
     ],
-    "desc": "Line special / ACS callable: Ceiling_MoveToValueTimes8."
+    "desc": "Line special / ACS callable: Ceiling_MoveToValueTimes8.",
+    "returns": "int"
   },
   "Ceiling_RaiseByTexture": {
     "params": [
@@ -1004,7 +1054,8 @@
         "optional": true
       }
     ],
-    "desc": "Line special / ACS callable: Ceiling_RaiseByTexture."
+    "desc": "Line special / ACS callable: Ceiling_RaiseByTexture.",
+    "returns": "int"
   },
   "Ceiling_RaiseByValue": {
     "params": [
@@ -1026,7 +1077,8 @@
         "optional": true
       }
     ],
-    "desc": "Raises the ceiling by the given value."
+    "desc": "Raises the ceiling by the given value.",
+    "returns": "int"
   },
   "Ceiling_RaiseByValueTimes8": {
     "params": [
@@ -1048,7 +1100,8 @@
         "optional": true
       }
     ],
-    "desc": "Line special / ACS callable: Ceiling_RaiseByValueTimes8."
+    "desc": "Line special / ACS callable: Ceiling_RaiseByValueTimes8.",
+    "returns": "int"
   },
   "Ceiling_RaiseInstant": {
     "params": [
@@ -1070,7 +1123,8 @@
         "optional": true
       }
     ],
-    "desc": "Instantly raises the ceiling."
+    "desc": "Instantly raises the ceiling.",
+    "returns": "int"
   },
   "Ceiling_RaiseToHighest": {
     "params": [
@@ -1088,7 +1142,8 @@
         "optional": true
       }
     ],
-    "desc": "Line special / ACS callable: Ceiling_RaiseToHighest."
+    "desc": "Line special / ACS callable: Ceiling_RaiseToHighest.",
+    "returns": "int"
   },
   "Ceiling_RaiseToHighestFloor": {
     "params": [
@@ -1106,7 +1161,8 @@
         "optional": true
       }
     ],
-    "desc": "Line special / ACS callable: Ceiling_RaiseToHighestFloor."
+    "desc": "Line special / ACS callable: Ceiling_RaiseToHighestFloor.",
+    "returns": "int"
   },
   "Ceiling_RaiseToLowest": {
     "params": [
@@ -1124,7 +1180,8 @@
         "optional": true
       }
     ],
-    "desc": "Line special / ACS callable: Ceiling_RaiseToLowest."
+    "desc": "Line special / ACS callable: Ceiling_RaiseToLowest.",
+    "returns": "int"
   },
   "Ceiling_RaiseToNearest": {
     "params": [
@@ -1142,7 +1199,8 @@
         "optional": true
       }
     ],
-    "desc": "Line special / ACS callable: Ceiling_RaiseToNearest."
+    "desc": "Line special / ACS callable: Ceiling_RaiseToNearest.",
+    "returns": "int"
   },
   "Ceiling_Stop": {
     "params": [
@@ -1151,7 +1209,8 @@
         "type": "int"
       }
     ],
-    "desc": "Line special / ACS callable: Ceiling_Stop."
+    "desc": "Line special / ACS callable: Ceiling_Stop.",
+    "returns": "int"
   },
   "Ceiling_ToFloorInstant": {
     "params": [
@@ -1175,7 +1234,8 @@
         "optional": true
       }
     ],
-    "desc": "Line special / ACS callable: Ceiling_ToFloorInstant."
+    "desc": "Line special / ACS callable: Ceiling_ToFloorInstant.",
+    "returns": "int"
   },
   "Ceiling_ToHighestInstant": {
     "params": [
@@ -1194,7 +1254,8 @@
         "optional": true
       }
     ],
-    "desc": "Line special / ACS callable: Ceiling_ToHighestInstant."
+    "desc": "Line special / ACS callable: Ceiling_ToHighestInstant.",
+    "returns": "int"
   },
   "Ceiling_Waggle": {
     "params": [
@@ -1219,7 +1280,8 @@
         "type": "int"
       }
     ],
-    "desc": "Waggles the ceiling."
+    "desc": "Waggles the ceiling.",
+    "returns": "int"
   },
   "ChangeActorAngle": {
     "params": [
@@ -1237,7 +1299,8 @@
         "optional": true
       }
     ],
-    "desc": "ACS function: ChangeActorAngle."
+    "desc": "ACS function: ChangeActorAngle.",
+    "returns": "int"
   },
   "ChangeActorPitch": {
     "params": [
@@ -1255,7 +1318,8 @@
         "optional": true
       }
     ],
-    "desc": "ACS function: ChangeActorPitch."
+    "desc": "ACS function: ChangeActorPitch.",
+    "returns": "int"
   },
   "ChangeActorRoll": {
     "params": [
@@ -1273,7 +1337,8 @@
         "optional": true
       }
     ],
-    "desc": "ACS function: ChangeActorRoll."
+    "desc": "ACS function: ChangeActorRoll.",
+    "returns": "int"
   },
   "ChangeCamera": {
     "params": [
@@ -1290,7 +1355,8 @@
         "type": "bool"
       }
     ],
-    "desc": "Changes the activator's camera to view from the given actor."
+    "desc": "Changes the activator's camera to view from the given actor.",
+    "returns": "int"
   },
   "ChangeCeiling": {
     "params": [
@@ -1303,7 +1369,8 @@
         "type": "int"
       }
     ],
-    "desc": "ACS built-in: ChangeCeiling."
+    "desc": "ACS built-in: ChangeCeiling.",
+    "returns": "void"
   },
   "ChangeFloor": {
     "params": [
@@ -1316,7 +1383,8 @@
         "type": "int"
       }
     ],
-    "desc": "ACS built-in: ChangeFloor."
+    "desc": "ACS built-in: ChangeFloor.",
+    "returns": "void"
   },
   "ChangeLevel": {
     "params": [
@@ -1337,7 +1405,8 @@
         "type": "int"
       }
     ],
-    "desc": "Changes to the specified level."
+    "desc": "Changes to the specified level.",
+    "returns": "void"
   },
   "ChangeSkill": {
     "params": [
@@ -1346,7 +1415,8 @@
         "type": "int"
       }
     ],
-    "desc": "Line special / ACS callable: ChangeSkill."
+    "desc": "Line special / ACS callable: ChangeSkill.",
+    "returns": "int"
   },
   "ChangeSky": {
     "params": [
@@ -1359,7 +1429,8 @@
         "type": "string"
       }
     ],
-    "desc": "Changes the sky texture."
+    "desc": "Changes the sky texture.",
+    "returns": "void"
   },
   "ChangeTeamScore": {
     "params": [
@@ -1381,7 +1452,8 @@
         "optional": true
       }
     ],
-    "desc": "ACS function: ChangeTeamScore."
+    "desc": "ACS function: ChangeTeamScore.",
+    "returns": "int"
   },
   "CheckActorCeilingTexture": {
     "params": [
@@ -1394,7 +1466,8 @@
         "type": "int"
       }
     ],
-    "desc": "ACS built-in: CheckActorCeilingTexture."
+    "desc": "ACS built-in: CheckActorCeilingTexture.",
+    "returns": "int"
   },
   "CheckActorClass": {
     "params": [
@@ -1407,7 +1480,8 @@
         "type": "string"
       }
     ],
-    "desc": "Returns true if the actor is of the given class."
+    "desc": "Returns true if the actor is of the given class.",
+    "returns": "int"
   },
   "CheckActorFloorTexture": {
     "params": [
@@ -1420,7 +1494,8 @@
         "type": "int"
       }
     ],
-    "desc": "ACS built-in: CheckActorFloorTexture."
+    "desc": "ACS built-in: CheckActorFloorTexture.",
+    "returns": "int"
   },
   "CheckActorInventory": {
     "params": [
@@ -1433,7 +1508,8 @@
         "type": "string"
       }
     ],
-    "desc": "Returns the amount of an inventory item the actor has."
+    "desc": "Returns the amount of an inventory item the actor has.",
+    "returns": "int"
   },
   "CheckActorProperty": {
     "params": [
@@ -1450,7 +1526,8 @@
         "type": "int"
       }
     ],
-    "desc": "ACS function: CheckActorProperty."
+    "desc": "ACS function: CheckActorProperty.",
+    "returns": "int"
   },
   "CheckActorState": {
     "params": [
@@ -1468,7 +1545,8 @@
         "optional": true
       }
     ],
-    "desc": "Returns true if the actor is in the given state."
+    "desc": "Returns true if the actor is in the given state.",
+    "returns": "int"
   },
   "CheckClass": {
     "params": [
@@ -1477,7 +1555,8 @@
         "type": "int"
       }
     ],
-    "desc": "ACS function: CheckClass."
+    "desc": "ACS function: CheckClass.",
+    "returns": "int"
   },
   "CheckFlag": {
     "params": [
@@ -1490,7 +1569,8 @@
         "type": "string"
       }
     ],
-    "desc": "Returns true if the actor has the given flag set."
+    "desc": "Returns true if the actor has the given flag set.",
+    "returns": "int"
   },
   "CheckFont": {
     "params": [
@@ -1499,7 +1579,8 @@
         "type": "int"
       }
     ],
-    "desc": "ACS function: CheckFont."
+    "desc": "ACS function: CheckFont.",
+    "returns": "int"
   },
   "CheckInventory": {
     "params": [
@@ -1508,7 +1589,8 @@
         "type": "string"
       }
     ],
-    "desc": "Returns the amount of an inventory item the activator has."
+    "desc": "Returns the amount of an inventory item the activator has.",
+    "returns": "int"
   },
   "CheckPlayerCamera": {
     "params": [
@@ -1517,7 +1599,8 @@
         "type": "int"
       }
     ],
-    "desc": "Returns true if the player is viewing through a camera."
+    "desc": "Returns true if the player is viewing through a camera.",
+    "returns": "int"
   },
   "CheckProximity": {
     "params": [
@@ -1549,7 +1632,8 @@
         "optional": true
       }
     ],
-    "desc": "ACS function: CheckProximity."
+    "desc": "ACS function: CheckProximity.",
+    "returns": "int"
   },
   "CheckScript": {
     "params": [
@@ -1562,7 +1646,8 @@
         "type": "int"
       }
     ],
-    "desc": "ACS function: CheckScript."
+    "desc": "ACS function: CheckScript.",
+    "returns": "int"
   },
   "CheckSight": {
     "params": [
@@ -1579,7 +1664,8 @@
         "type": "int"
       }
     ],
-    "desc": "Returns true if there's a line of sight between two actors."
+    "desc": "Returns true if there's a line of sight between two actors.",
+    "returns": "int"
   },
   "CheckWeapon": {
     "params": [
@@ -1588,7 +1674,8 @@
         "type": "string"
       }
     ],
-    "desc": "Returns true if the activator has the specified weapon."
+    "desc": "Returns true if the activator has the specified weapon.",
+    "returns": "int"
   },
   "ClassifyActor": {
     "params": [
@@ -1597,7 +1684,8 @@
         "type": "int"
       }
     ],
-    "desc": "Returns the classification of an actor (player, monster, etc.)."
+    "desc": "Returns the classification of an actor (player, monster, etc.).",
+    "returns": "int"
   },
   "ClearActorInventory": {
     "params": [
@@ -1606,7 +1694,8 @@
         "type": "int"
       }
     ],
-    "desc": "Clears the entire inventory of the specified actor."
+    "desc": "Clears the entire inventory of the specified actor.",
+    "returns": "void"
   },
   "ClearForceField": {
     "params": [
@@ -1615,19 +1704,23 @@
         "type": "int"
       }
     ],
-    "desc": "Line special / ACS callable: ClearForceField."
+    "desc": "Line special / ACS callable: ClearForceField.",
+    "returns": "int"
   },
   "ClearInventory": {
     "params": [],
-    "desc": "Clears the activator's entire inventory."
+    "desc": "Clears the activator's entire inventory.",
+    "returns": "void"
   },
   "ClearLineSpecial": {
     "params": [],
-    "desc": "ACS built-in: ClearLineSpecial."
+    "desc": "ACS built-in: ClearLineSpecial.",
+    "returns": "void"
   },
   "CloseMenu": {
     "params": [],
-    "desc": "ACS function: CloseMenu."
+    "desc": "ACS function: CloseMenu.",
+    "returns": "int"
   },
   "ConsoleCommand": {
     "params": [
@@ -1644,11 +1737,13 @@
         "type": "int"
       }
     ],
-    "desc": "Executes a console command on the server."
+    "desc": "Executes a console command on the server.",
+    "returns": "void"
   },
   "ConsolePlayerNumber": {
     "params": [],
-    "desc": "ACS function: ConsolePlayerNumber."
+    "desc": "ACS function: ConsolePlayerNumber.",
+    "returns": "int"
   },
   "cos": {
     "params": [
@@ -1657,7 +1752,8 @@
         "type": "int"
       }
     ],
-    "desc": "Returns the cosine of the angle (fixed-point angle)."
+    "desc": "Returns the cosine of the angle (fixed-point angle).",
+    "returns": "fixed"
   },
   "CountDBResults": {
     "params": [
@@ -1666,7 +1762,8 @@
         "type": "int"
       }
     ],
-    "desc": "ACS function: CountDBResults."
+    "desc": "ACS function: CountDBResults.",
+    "returns": "int"
   },
   "DamageActor": {
     "params": [
@@ -1695,7 +1792,8 @@
         "type": "int"
       }
     ],
-    "desc": "ACS function: DamageActor."
+    "desc": "ACS function: DamageActor.",
+    "returns": "int"
   },
   "DamageThing": {
     "params": [
@@ -1709,7 +1807,8 @@
         "optional": true
       }
     ],
-    "desc": "Line special / ACS callable: DamageThing."
+    "desc": "Line special / ACS callable: DamageThing.",
+    "returns": "int"
   },
   "Delay": {
     "params": [
@@ -1718,7 +1817,8 @@
         "type": "int"
       }
     ],
-    "desc": "Pauses script execution for the specified number of tics."
+    "desc": "Pauses script execution for the specified number of tics.",
+    "returns": "void"
   },
   "Door_Animated": {
     "params": [
@@ -1740,7 +1840,8 @@
         "optional": true
       }
     ],
-    "desc": "Opens an animated door and closes it after a delay."
+    "desc": "Opens an animated door and closes it after a delay.",
+    "returns": "int"
   },
   "Door_AnimatedClose": {
     "params": [
@@ -1753,7 +1854,8 @@
         "type": "int"
       }
     ],
-    "desc": "Line special / ACS callable: Door_AnimatedClose."
+    "desc": "Line special / ACS callable: Door_AnimatedClose.",
+    "returns": "int"
   },
   "Door_Close": {
     "params": [
@@ -1771,7 +1873,8 @@
         "optional": true
       }
     ],
-    "desc": "Closes a door."
+    "desc": "Closes a door.",
+    "returns": "int"
   },
   "Door_CloseWaitOpen": {
     "params": [
@@ -1793,7 +1896,8 @@
         "optional": true
       }
     ],
-    "desc": "Line special / ACS callable: Door_CloseWaitOpen."
+    "desc": "Line special / ACS callable: Door_CloseWaitOpen.",
+    "returns": "int"
   },
   "Door_LockedRaise": {
     "params": [
@@ -1819,7 +1923,8 @@
         "optional": true
       }
     ],
-    "desc": "Raises a locked door."
+    "desc": "Raises a locked door.",
+    "returns": "int"
   },
   "Door_Open": {
     "params": [
@@ -1837,7 +1942,8 @@
         "optional": true
       }
     ],
-    "desc": "Opens a door."
+    "desc": "Opens a door.",
+    "returns": "int"
   },
   "Door_Raise": {
     "params": [
@@ -1859,7 +1965,8 @@
         "optional": true
       }
     ],
-    "desc": "Raises a door and then closes it after a delay."
+    "desc": "Raises a door and then closes it after a delay.",
+    "returns": "int"
   },
   "Door_WaitClose": {
     "params": [
@@ -1881,7 +1988,8 @@
         "optional": true
       }
     ],
-    "desc": "Line special / ACS callable: Door_WaitClose."
+    "desc": "Line special / ACS callable: Door_WaitClose.",
+    "returns": "int"
   },
   "Door_WaitRaise": {
     "params": [
@@ -1907,7 +2015,8 @@
         "optional": true
       }
     ],
-    "desc": "Line special / ACS callable: Door_WaitRaise."
+    "desc": "Line special / ACS callable: Door_WaitRaise.",
+    "returns": "int"
   },
   "DropInventory": {
     "params": [
@@ -1920,7 +2029,8 @@
         "type": "string"
       }
     ],
-    "desc": "Drops an inventory item from the actor (tid 0 = activator)."
+    "desc": "Drops an inventory item from the actor (tid 0 = activator).",
+    "returns": "int"
   },
   "DropItem": {
     "params": [
@@ -1943,7 +2053,8 @@
         "optional": true
       }
     ],
-    "desc": "ACS function: DropItem."
+    "desc": "ACS function: DropItem.",
+    "returns": "int"
   },
   "Elevator_LowerToNearest": {
     "params": [
@@ -1956,7 +2067,8 @@
         "type": "int"
       }
     ],
-    "desc": "Line special / ACS callable: Elevator_LowerToNearest."
+    "desc": "Line special / ACS callable: Elevator_LowerToNearest.",
+    "returns": "int"
   },
   "Elevator_MoveToFloor": {
     "params": [
@@ -1969,7 +2081,8 @@
         "type": "int"
       }
     ],
-    "desc": "Line special / ACS callable: Elevator_MoveToFloor."
+    "desc": "Line special / ACS callable: Elevator_MoveToFloor.",
+    "returns": "int"
   },
   "Elevator_RaiseToNearest": {
     "params": [
@@ -1982,15 +2095,18 @@
         "type": "int"
       }
     ],
-    "desc": "Line special / ACS callable: Elevator_RaiseToNearest."
+    "desc": "Line special / ACS callable: Elevator_RaiseToNearest.",
+    "returns": "int"
   },
   "EndDBTransaction": {
     "params": [],
-    "desc": "ACS function: EndDBTransaction."
+    "desc": "ACS function: EndDBTransaction.",
+    "returns": "int"
   },
   "EndPrint": {
     "params": [],
-    "desc": "Ends a print block."
+    "desc": "Ends a print block.",
+    "returns": "void"
   },
   "ExecuteClientScript": {
     "params": [
@@ -2023,7 +2139,8 @@
         "optional": true
       }
     ],
-    "desc": "ACS function: ExecuteClientScript."
+    "desc": "ACS function: ExecuteClientScript.",
+    "returns": "int"
   },
   "Exit_Normal": {
     "params": [
@@ -2032,7 +2149,8 @@
         "type": "int"
       }
     ],
-    "desc": "Exits the current level normally."
+    "desc": "Exits the current level normally.",
+    "returns": "int"
   },
   "Exit_Secret": {
     "params": [
@@ -2041,7 +2159,8 @@
         "type": "int"
       }
     ],
-    "desc": "Exits to the secret level."
+    "desc": "Exits to the secret level.",
+    "returns": "int"
   },
   "FadeRange": {
     "params": [
@@ -2082,7 +2201,8 @@
         "type": "int"
       }
     ],
-    "desc": "ACS built-in: FadeRange."
+    "desc": "ACS built-in: FadeRange.",
+    "returns": "void"
   },
   "FadeTo": {
     "params": [
@@ -2107,7 +2227,8 @@
         "type": "int"
       }
     ],
-    "desc": "ACS built-in: FadeTo."
+    "desc": "ACS built-in: FadeTo.",
+    "returns": "void"
   },
   "FixedDiv": {
     "params": [
@@ -2120,7 +2241,8 @@
         "type": "int"
       }
     ],
-    "desc": "Divides two fixed-point numbers."
+    "desc": "Divides two fixed-point numbers.",
+    "returns": "fixed"
   },
   "FixedMul": {
     "params": [
@@ -2133,7 +2255,8 @@
         "type": "int"
       }
     ],
-    "desc": "Multiplies two fixed-point numbers."
+    "desc": "Multiplies two fixed-point numbers.",
+    "returns": "fixed"
   },
   "FixedSqrt": {
     "params": [
@@ -2142,7 +2265,8 @@
         "type": "int"
       }
     ],
-    "desc": "ACS function: FixedSqrt."
+    "desc": "ACS function: FixedSqrt.",
+    "returns": "int"
   },
   "Floor": {
     "params": [
@@ -2151,7 +2275,8 @@
         "type": "int"
       }
     ],
-    "desc": "ACS function: Floor."
+    "desc": "ACS function: Floor.",
+    "returns": "int"
   },
   "Floor_CrushStop": {
     "params": [
@@ -2160,7 +2285,8 @@
         "type": "int"
       }
     ],
-    "desc": "Line special / ACS callable: Floor_CrushStop."
+    "desc": "Line special / ACS callable: Floor_CrushStop.",
+    "returns": "int"
   },
   "Floor_Donut": {
     "params": [
@@ -2177,7 +2303,8 @@
         "type": "int"
       }
     ],
-    "desc": "Line special / ACS callable: Floor_Donut."
+    "desc": "Line special / ACS callable: Floor_Donut.",
+    "returns": "int"
   },
   "Floor_LowerByTexture": {
     "params": [
@@ -2195,7 +2322,8 @@
         "optional": true
       }
     ],
-    "desc": "Line special / ACS callable: Floor_LowerByTexture."
+    "desc": "Line special / ACS callable: Floor_LowerByTexture.",
+    "returns": "int"
   },
   "Floor_LowerByValue": {
     "params": [
@@ -2217,7 +2345,8 @@
         "optional": true
       }
     ],
-    "desc": "Lowers the floor by the given value."
+    "desc": "Lowers the floor by the given value.",
+    "returns": "int"
   },
   "Floor_LowerByValueTimes8": {
     "params": [
@@ -2239,7 +2368,8 @@
         "optional": true
       }
     ],
-    "desc": "Line special / ACS callable: Floor_LowerByValueTimes8."
+    "desc": "Line special / ACS callable: Floor_LowerByValueTimes8.",
+    "returns": "int"
   },
   "Floor_LowerInstant": {
     "params": [
@@ -2261,7 +2391,8 @@
         "optional": true
       }
     ],
-    "desc": "Instantly lowers the floor."
+    "desc": "Instantly lowers the floor.",
+    "returns": "int"
   },
   "Floor_LowerToHighest": {
     "params": [
@@ -2283,7 +2414,8 @@
         "optional": true
       }
     ],
-    "desc": "Line special / ACS callable: Floor_LowerToHighest."
+    "desc": "Line special / ACS callable: Floor_LowerToHighest.",
+    "returns": "int"
   },
   "Floor_LowerToHighestEE": {
     "params": [
@@ -2301,7 +2433,8 @@
         "optional": true
       }
     ],
-    "desc": "Line special / ACS callable: Floor_LowerToHighestEE."
+    "desc": "Line special / ACS callable: Floor_LowerToHighestEE.",
+    "returns": "int"
   },
   "Floor_LowerToLowest": {
     "params": [
@@ -2319,7 +2452,8 @@
         "optional": true
       }
     ],
-    "desc": "Line special / ACS callable: Floor_LowerToLowest."
+    "desc": "Line special / ACS callable: Floor_LowerToLowest.",
+    "returns": "int"
   },
   "Floor_LowerToLowestCeiling": {
     "params": [
@@ -2337,7 +2471,8 @@
         "optional": true
       }
     ],
-    "desc": "Line special / ACS callable: Floor_LowerToLowestCeiling."
+    "desc": "Line special / ACS callable: Floor_LowerToLowestCeiling.",
+    "returns": "int"
   },
   "Floor_LowerToLowestTxTy": {
     "params": [
@@ -2350,7 +2485,8 @@
         "type": "int"
       }
     ],
-    "desc": "Line special / ACS callable: Floor_LowerToLowestTxTy."
+    "desc": "Line special / ACS callable: Floor_LowerToLowestTxTy.",
+    "returns": "int"
   },
   "Floor_LowerToNearest": {
     "params": [
@@ -2368,7 +2504,8 @@
         "optional": true
       }
     ],
-    "desc": "Line special / ACS callable: Floor_LowerToNearest."
+    "desc": "Line special / ACS callable: Floor_LowerToNearest.",
+    "returns": "int"
   },
   "Floor_MoveToValue": {
     "params": [
@@ -2395,7 +2532,8 @@
         "optional": true
       }
     ],
-    "desc": "Moves the floor to the given absolute height."
+    "desc": "Moves the floor to the given absolute height.",
+    "returns": "int"
   },
   "Floor_MoveToValueAndCrush": {
     "params": [
@@ -2421,7 +2559,8 @@
         "optional": true
       }
     ],
-    "desc": "Line special / ACS callable: Floor_MoveToValueAndCrush."
+    "desc": "Line special / ACS callable: Floor_MoveToValueAndCrush.",
+    "returns": "int"
   },
   "Floor_MoveToValueTimes8": {
     "params": [
@@ -2447,7 +2586,8 @@
         "optional": true
       }
     ],
-    "desc": "Line special / ACS callable: Floor_MoveToValueTimes8."
+    "desc": "Line special / ACS callable: Floor_MoveToValueTimes8.",
+    "returns": "int"
   },
   "Floor_RaiseAndCrush": {
     "params": [
@@ -2469,7 +2609,8 @@
         "optional": true
       }
     ],
-    "desc": "Line special / ACS callable: Floor_RaiseAndCrush."
+    "desc": "Line special / ACS callable: Floor_RaiseAndCrush.",
+    "returns": "int"
   },
   "Floor_RaiseAndCrushDoom": {
     "params": [
@@ -2491,7 +2632,8 @@
         "optional": true
       }
     ],
-    "desc": "Line special / ACS callable: Floor_RaiseAndCrushDoom."
+    "desc": "Line special / ACS callable: Floor_RaiseAndCrushDoom.",
+    "returns": "int"
   },
   "Floor_RaiseByTexture": {
     "params": [
@@ -2514,7 +2656,8 @@
         "optional": true
       }
     ],
-    "desc": "Line special / ACS callable: Floor_RaiseByTexture."
+    "desc": "Line special / ACS callable: Floor_RaiseByTexture.",
+    "returns": "int"
   },
   "Floor_RaiseByValue": {
     "params": [
@@ -2541,7 +2684,8 @@
         "optional": true
       }
     ],
-    "desc": "Raises the floor by the given value."
+    "desc": "Raises the floor by the given value.",
+    "returns": "int"
   },
   "Floor_RaiseByValueTimes8": {
     "params": [
@@ -2568,7 +2712,8 @@
         "optional": true
       }
     ],
-    "desc": "Line special / ACS callable: Floor_RaiseByValueTimes8."
+    "desc": "Line special / ACS callable: Floor_RaiseByValueTimes8.",
+    "returns": "int"
   },
   "Floor_RaiseByValueTxTy": {
     "params": [
@@ -2585,7 +2730,8 @@
         "type": "int"
       }
     ],
-    "desc": "Line special / ACS callable: Floor_RaiseByValueTxTy."
+    "desc": "Line special / ACS callable: Floor_RaiseByValueTxTy.",
+    "returns": "int"
   },
   "Floor_RaiseInstant": {
     "params": [
@@ -2612,7 +2758,8 @@
         "optional": true
       }
     ],
-    "desc": "Instantly raises the floor."
+    "desc": "Instantly raises the floor.",
+    "returns": "int"
   },
   "Floor_RaiseToCeiling": {
     "params": [
@@ -2640,7 +2787,8 @@
         "optional": true
       }
     ],
-    "desc": "Line special / ACS callable: Floor_RaiseToCeiling."
+    "desc": "Line special / ACS callable: Floor_RaiseToCeiling.",
+    "returns": "int"
   },
   "Floor_RaiseToHighest": {
     "params": [
@@ -2668,7 +2816,8 @@
         "optional": true
       }
     ],
-    "desc": "Line special / ACS callable: Floor_RaiseToHighest."
+    "desc": "Line special / ACS callable: Floor_RaiseToHighest.",
+    "returns": "int"
   },
   "Floor_RaiseToLowest": {
     "params": [
@@ -2686,7 +2835,8 @@
         "optional": true
       }
     ],
-    "desc": "Line special / ACS callable: Floor_RaiseToLowest."
+    "desc": "Line special / ACS callable: Floor_RaiseToLowest.",
+    "returns": "int"
   },
   "Floor_RaiseToLowestCeiling": {
     "params": [
@@ -2714,7 +2864,8 @@
         "optional": true
       }
     ],
-    "desc": "Line special / ACS callable: Floor_RaiseToLowestCeiling."
+    "desc": "Line special / ACS callable: Floor_RaiseToLowestCeiling.",
+    "returns": "int"
   },
   "Floor_RaiseToNearest": {
     "params": [
@@ -2737,7 +2888,8 @@
         "optional": true
       }
     ],
-    "desc": "Line special / ACS callable: Floor_RaiseToNearest."
+    "desc": "Line special / ACS callable: Floor_RaiseToNearest.",
+    "returns": "int"
   },
   "Floor_Stop": {
     "params": [
@@ -2746,7 +2898,8 @@
         "type": "int"
       }
     ],
-    "desc": "Line special / ACS callable: Floor_Stop."
+    "desc": "Line special / ACS callable: Floor_Stop.",
+    "returns": "int"
   },
   "Floor_ToCeilingInstant": {
     "params": [
@@ -2770,7 +2923,8 @@
         "optional": true
       }
     ],
-    "desc": "Line special / ACS callable: Floor_ToCeilingInstant."
+    "desc": "Line special / ACS callable: Floor_ToCeilingInstant.",
+    "returns": "int"
   },
   "Floor_TransferNumeric": {
     "params": [
@@ -2779,7 +2933,8 @@
         "type": "int"
       }
     ],
-    "desc": "Line special / ACS callable: Floor_TransferNumeric."
+    "desc": "Line special / ACS callable: Floor_TransferNumeric.",
+    "returns": "int"
   },
   "Floor_TransferTrigger": {
     "params": [
@@ -2788,7 +2943,8 @@
         "type": "int"
       }
     ],
-    "desc": "Line special / ACS callable: Floor_TransferTrigger."
+    "desc": "Line special / ACS callable: Floor_TransferTrigger.",
+    "returns": "int"
   },
   "Floor_Waggle": {
     "params": [
@@ -2813,7 +2969,8 @@
         "type": "int"
       }
     ],
-    "desc": "Waggles the floor."
+    "desc": "Waggles the floor.",
+    "returns": "int"
   },
   "FloorAndCeiling_LowerByValue": {
     "params": [
@@ -2830,7 +2987,8 @@
         "type": "int"
       }
     ],
-    "desc": "Line special / ACS callable: FloorAndCeiling_LowerByValue."
+    "desc": "Line special / ACS callable: FloorAndCeiling_LowerByValue.",
+    "returns": "int"
   },
   "FloorAndCeiling_LowerRaise": {
     "params": [
@@ -2852,7 +3010,8 @@
         "optional": true
       }
     ],
-    "desc": "Line special / ACS callable: FloorAndCeiling_LowerRaise."
+    "desc": "Line special / ACS callable: FloorAndCeiling_LowerRaise.",
+    "returns": "int"
   },
   "FloorAndCeiling_RaiseByValue": {
     "params": [
@@ -2869,11 +3028,13 @@
         "type": "int"
       }
     ],
-    "desc": "Line special / ACS callable: FloorAndCeiling_RaiseByValue."
+    "desc": "Line special / ACS callable: FloorAndCeiling_RaiseByValue.",
+    "returns": "int"
   },
   "ForceField": {
     "params": [],
-    "desc": "Line special / ACS callable: ForceField."
+    "desc": "Line special / ACS callable: ForceField.",
+    "returns": "int"
   },
   "FreeDBResults": {
     "params": [
@@ -2882,7 +3043,8 @@
         "type": "int"
       }
     ],
-    "desc": "ACS function: FreeDBResults."
+    "desc": "ACS function: FreeDBResults.",
+    "returns": "int"
   },
   "FS_Execute": {
     "params": [
@@ -2906,15 +3068,18 @@
         "optional": true
       }
     ],
-    "desc": "Line special / ACS callable: FS_Execute."
+    "desc": "Line special / ACS callable: FS_Execute.",
+    "returns": "int"
   },
   "GameSkill": {
     "params": [],
-    "desc": "ACS built-in: GameSkill."
+    "desc": "ACS built-in: GameSkill.",
+    "returns": "int"
   },
   "GameType": {
     "params": [],
-    "desc": "ACS built-in: GameType."
+    "desc": "ACS built-in: GameType.",
+    "returns": "int"
   },
   "Generic_Ceiling": {
     "params": [
@@ -2939,7 +3104,8 @@
         "type": "int"
       }
     ],
-    "desc": "Performs a generic ceiling action."
+    "desc": "Performs a generic ceiling action.",
+    "returns": "int"
   },
   "Generic_Crusher": {
     "params": [
@@ -2964,7 +3130,8 @@
         "type": "int"
       }
     ],
-    "desc": "Performs a generic crusher action."
+    "desc": "Performs a generic crusher action.",
+    "returns": "int"
   },
   "Generic_Crusher2": {
     "params": [
@@ -2989,7 +3156,8 @@
         "type": "int"
       }
     ],
-    "desc": "Line special / ACS callable: Generic_Crusher2."
+    "desc": "Line special / ACS callable: Generic_Crusher2.",
+    "returns": "int"
   },
   "Generic_Door": {
     "params": [
@@ -3014,7 +3182,8 @@
         "type": "int"
       }
     ],
-    "desc": "Performs a generic door action."
+    "desc": "Performs a generic door action.",
+    "returns": "int"
   },
   "Generic_Floor": {
     "params": [
@@ -3039,7 +3208,8 @@
         "type": "int"
       }
     ],
-    "desc": "Performs a generic floor action."
+    "desc": "Performs a generic floor action.",
+    "returns": "int"
   },
   "Generic_Lift": {
     "params": [
@@ -3064,7 +3234,8 @@
         "type": "int"
       }
     ],
-    "desc": "Line special / ACS callable: Generic_Lift."
+    "desc": "Line special / ACS callable: Generic_Lift.",
+    "returns": "int"
   },
   "Generic_Stairs": {
     "params": [
@@ -3089,7 +3260,8 @@
         "type": "int"
       }
     ],
-    "desc": "Line special / ACS callable: Generic_Stairs."
+    "desc": "Line special / ACS callable: Generic_Stairs.",
+    "returns": "int"
   },
   "GetActorAngle": {
     "params": [
@@ -3098,7 +3270,8 @@
         "type": "int"
       }
     ],
-    "desc": "Returns the angle of the actor."
+    "desc": "Returns the angle of the actor.",
+    "returns": "int"
   },
   "GetActorCeilingZ": {
     "params": [
@@ -3107,7 +3280,8 @@
         "type": "int"
       }
     ],
-    "desc": "Returns the Z ceiling height above the actor."
+    "desc": "Returns the Z ceiling height above the actor.",
+    "returns": "int"
   },
   "GetActorClass": {
     "params": [
@@ -3116,7 +3290,8 @@
         "type": "int"
       }
     ],
-    "desc": "ACS function: GetActorClass."
+    "desc": "ACS function: GetActorClass.",
+    "returns": "str"
   },
   "GetActorFloorTerrain": {
     "params": [
@@ -3125,7 +3300,8 @@
         "type": "int"
       }
     ],
-    "desc": "ACS function: GetActorFloorTerrain."
+    "desc": "ACS function: GetActorFloorTerrain.",
+    "returns": "str"
   },
   "GetActorFloorTexture": {
     "params": [
@@ -3134,7 +3310,8 @@
         "type": "int"
       }
     ],
-    "desc": "ACS function: GetActorFloorTexture."
+    "desc": "ACS function: GetActorFloorTexture.",
+    "returns": "str"
   },
   "GetActorFloorZ": {
     "params": [
@@ -3143,7 +3320,8 @@
         "type": "int"
       }
     ],
-    "desc": "Returns the Z floor height underneath the actor."
+    "desc": "Returns the Z floor height underneath the actor.",
+    "returns": "int"
   },
   "GetActorLightLevel": {
     "params": [
@@ -3152,7 +3330,8 @@
         "type": "int"
       }
     ],
-    "desc": "ACS built-in: GetActorLightLevel."
+    "desc": "ACS built-in: GetActorLightLevel.",
+    "returns": "int"
   },
   "GetActorPitch": {
     "params": [
@@ -3161,7 +3340,8 @@
         "type": "int"
       }
     ],
-    "desc": "Returns the pitch of the actor."
+    "desc": "Returns the pitch of the actor.",
+    "returns": "int"
   },
   "GetActorPowerupTics": {
     "params": [
@@ -3174,7 +3354,8 @@
         "type": "int"
       }
     ],
-    "desc": "ACS function: GetActorPowerupTics."
+    "desc": "ACS function: GetActorPowerupTics.",
+    "returns": "int"
   },
   "GetActorProperty": {
     "params": [
@@ -3187,7 +3368,8 @@
         "type": "int"
       }
     ],
-    "desc": "Returns a property value of the actor with the given TID."
+    "desc": "Returns a property value of the actor with the given TID.",
+    "returns": "int"
   },
   "GetActorRoll": {
     "params": [
@@ -3196,7 +3378,8 @@
         "type": "int"
       }
     ],
-    "desc": "ACS function: GetActorRoll."
+    "desc": "ACS function: GetActorRoll.",
+    "returns": "int"
   },
   "GetActorSectorLocation": {
     "params": [
@@ -3209,7 +3392,8 @@
         "type": "int"
       }
     ],
-    "desc": "ACS function: GetActorSectorLocation."
+    "desc": "ACS function: GetActorSectorLocation.",
+    "returns": "int"
   },
   "GetActorVelX": {
     "params": [
@@ -3218,7 +3402,8 @@
         "type": "int"
       }
     ],
-    "desc": "Returns the X velocity of the actor."
+    "desc": "Returns the X velocity of the actor.",
+    "returns": "int"
   },
   "GetActorVelY": {
     "params": [
@@ -3227,7 +3412,8 @@
         "type": "int"
       }
     ],
-    "desc": "Returns the Y velocity of the actor."
+    "desc": "Returns the Y velocity of the actor.",
+    "returns": "int"
   },
   "GetActorVelZ": {
     "params": [
@@ -3236,7 +3422,8 @@
         "type": "int"
       }
     ],
-    "desc": "Returns the Z velocity of the actor."
+    "desc": "Returns the Z velocity of the actor.",
+    "returns": "int"
   },
   "GetActorViewHeight": {
     "params": [
@@ -3245,7 +3432,8 @@
         "type": "int"
       }
     ],
-    "desc": "Returns the view height of the actor."
+    "desc": "Returns the view height of the actor.",
+    "returns": "int"
   },
   "GetActorX": {
     "params": [
@@ -3254,7 +3442,8 @@
         "type": "int"
       }
     ],
-    "desc": "Returns the X coordinate of the actor."
+    "desc": "Returns the X coordinate of the actor.",
+    "returns": "int"
   },
   "GetActorY": {
     "params": [
@@ -3263,7 +3452,8 @@
         "type": "int"
       }
     ],
-    "desc": "Returns the Y coordinate of the actor."
+    "desc": "Returns the Y coordinate of the actor.",
+    "returns": "int"
   },
   "GetActorZ": {
     "params": [
@@ -3272,7 +3462,8 @@
         "type": "int"
       }
     ],
-    "desc": "Returns the Z coordinate of the actor."
+    "desc": "Returns the Z coordinate of the actor.",
+    "returns": "int"
   },
   "GetAirSupply": {
     "params": [
@@ -3281,7 +3472,8 @@
         "type": "int"
       }
     ],
-    "desc": "ACS function: GetAirSupply."
+    "desc": "ACS function: GetAirSupply.",
+    "returns": "int"
   },
   "GetAmmoCapacity": {
     "params": [
@@ -3290,7 +3482,8 @@
         "type": "string"
       }
     ],
-    "desc": "Returns the max ammo capacity for an ammo type."
+    "desc": "Returns the max ammo capacity for an ammo type.",
+    "returns": "int"
   },
   "GetArmorInfo": {
     "params": [
@@ -3299,7 +3492,8 @@
         "type": "int"
       }
     ],
-    "desc": "ACS function: GetArmorInfo."
+    "desc": "ACS function: GetArmorInfo.",
+    "returns": "int"
   },
   "GetArmorType": {
     "params": [
@@ -3312,7 +3506,8 @@
         "type": "int"
       }
     ],
-    "desc": "ACS function: GetArmorType."
+    "desc": "ACS function: GetArmorType.",
+    "returns": "int"
   },
   "GetChar": {
     "params": [
@@ -3325,7 +3520,8 @@
         "type": "int"
       }
     ],
-    "desc": "ACS function: GetChar."
+    "desc": "ACS function: GetChar.",
+    "returns": "int"
   },
   "GetChatMessage": {
     "params": [
@@ -3338,7 +3534,8 @@
         "type": "int"
       }
     ],
-    "desc": "ACS function: GetChatMessage."
+    "desc": "ACS function: GetChatMessage.",
+    "returns": "str"
   },
   "GetControlPointInfo": {
     "params": [
@@ -3351,11 +3548,13 @@
         "type": "int"
       }
     ],
-    "desc": "ACS function: GetControlPointInfo."
+    "desc": "ACS function: GetControlPointInfo.",
+    "returns": "int"
   },
   "GetCurrentGamemode": {
     "params": [],
-    "desc": "Returns the name of the current game mode."
+    "desc": "Returns the name of the current game mode.",
+    "returns": "str"
   },
   "GetCustomPlayerValue": {
     "params": [
@@ -3368,7 +3567,8 @@
         "type": "int"
       }
     ],
-    "desc": "ACS function: GetCustomPlayerValue."
+    "desc": "ACS function: GetCustomPlayerValue.",
+    "returns": "int"
   },
   "GetCVar": {
     "params": [
@@ -3377,7 +3577,8 @@
         "type": "string"
       }
     ],
-    "desc": "Returns the integer value of a server CVar."
+    "desc": "Returns the integer value of a server CVar.",
+    "returns": "int"
   },
   "GetCVarString": {
     "params": [
@@ -3386,7 +3587,8 @@
         "type": "string"
       }
     ],
-    "desc": "Returns the string value of a server CVar."
+    "desc": "Returns the string value of a server CVar.",
+    "returns": "str"
   },
   "GetDBEntries": {
     "params": [
@@ -3395,7 +3597,8 @@
         "type": "int"
       }
     ],
-    "desc": "ACS function: GetDBEntries."
+    "desc": "ACS function: GetDBEntries.",
+    "returns": "int"
   },
   "GetDBEntry": {
     "params": [
@@ -3408,7 +3611,8 @@
         "type": "int"
       }
     ],
-    "desc": "ACS function: GetDBEntry."
+    "desc": "ACS function: GetDBEntry.",
+    "returns": "int"
   },
   "GetDBEntryRank": {
     "params": [
@@ -3425,7 +3629,8 @@
         "type": "int"
       }
     ],
-    "desc": "ACS function: GetDBEntryRank."
+    "desc": "ACS function: GetDBEntryRank.",
+    "returns": "int"
   },
   "GetDBEntryString": {
     "params": [
@@ -3438,7 +3643,8 @@
         "type": "int"
       }
     ],
-    "desc": "ACS function: GetDBEntryString."
+    "desc": "ACS function: GetDBEntryString.",
+    "returns": "str"
   },
   "GetDBResultKeyString": {
     "params": [
@@ -3451,7 +3657,8 @@
         "type": "int"
       }
     ],
-    "desc": "ACS function: GetDBResultKeyString."
+    "desc": "ACS function: GetDBResultKeyString.",
+    "returns": "str"
   },
   "GetDBResultValue": {
     "params": [
@@ -3464,7 +3671,8 @@
         "type": "int"
       }
     ],
-    "desc": "ACS function: GetDBResultValue."
+    "desc": "ACS function: GetDBResultValue.",
+    "returns": "int"
   },
   "GetDBResultValueString": {
     "params": [
@@ -3477,11 +3685,13 @@
         "type": "int"
       }
     ],
-    "desc": "ACS function: GetDBResultValueString."
+    "desc": "ACS function: GetDBResultValueString.",
+    "returns": "str"
   },
   "GetEventResult": {
     "params": [],
-    "desc": "ACS function: GetEventResult."
+    "desc": "ACS function: GetEventResult.",
+    "returns": "int"
   },
   "GetFromINI": {
     "params": [
@@ -3498,19 +3708,23 @@
         "type": "int"
       }
     ],
-    "desc": "ACS built-in: GetFromINI."
+    "desc": "ACS built-in: GetFromINI.",
+    "returns": "int"
   },
   "GetGameModeState": {
     "params": [],
-    "desc": "Returns the current game mode state."
+    "desc": "Returns the current game mode state.",
+    "returns": "int"
   },
   "GetInvasionState": {
     "params": [],
-    "desc": "ACS built-in: GetInvasionState."
+    "desc": "ACS built-in: GetInvasionState.",
+    "returns": "int"
   },
   "GetInvasionWave": {
     "params": [],
-    "desc": "ACS built-in: GetInvasionWave."
+    "desc": "ACS built-in: GetInvasionWave.",
+    "returns": "int"
   },
   "GetLevelInfo": {
     "params": [
@@ -3519,7 +3733,8 @@
         "type": "int"
       }
     ],
-    "desc": "Returns level information."
+    "desc": "Returns level information.",
+    "returns": "int"
   },
   "GetLineActivation": {
     "params": [
@@ -3528,7 +3743,8 @@
         "type": "int"
       }
     ],
-    "desc": "ACS function: GetLineActivation."
+    "desc": "ACS function: GetLineActivation.",
+    "returns": "int"
   },
   "GetLineHealth": {
     "params": [
@@ -3537,11 +3753,13 @@
         "type": "int"
       }
     ],
-    "desc": "ACS function: GetLineHealth."
+    "desc": "ACS function: GetLineHealth.",
+    "returns": "int"
   },
   "GetLineRowOffset": {
     "params": [],
-    "desc": "Returns the current line's row offset."
+    "desc": "Returns the current line's row offset.",
+    "returns": "int"
   },
   "GetLineUDMFFixed": {
     "params": [
@@ -3554,7 +3772,8 @@
         "type": "int"
       }
     ],
-    "desc": "ACS function: GetLineUDMFFixed."
+    "desc": "ACS function: GetLineUDMFFixed.",
+    "returns": "int"
   },
   "GetLineUDMFInt": {
     "params": [
@@ -3567,7 +3786,8 @@
         "type": "int"
       }
     ],
-    "desc": "ACS function: GetLineUDMFInt."
+    "desc": "ACS function: GetLineUDMFInt.",
+    "returns": "int"
   },
   "GetLineX": {
     "params": [
@@ -3584,7 +3804,8 @@
         "type": "int"
       }
     ],
-    "desc": "ACS function: GetLineX."
+    "desc": "ACS function: GetLineX.",
+    "returns": "int"
   },
   "GetLineY": {
     "params": [
@@ -3601,7 +3822,8 @@
         "type": "int"
       }
     ],
-    "desc": "ACS function: GetLineY."
+    "desc": "ACS function: GetLineY.",
+    "returns": "int"
   },
   "GetMapPosition": {
     "params": [
@@ -3610,7 +3832,8 @@
         "type": "int"
       }
     ],
-    "desc": "ACS function: GetMapPosition."
+    "desc": "ACS function: GetMapPosition.",
+    "returns": "int"
   },
   "GetMapRotationInfo": {
     "params": [
@@ -3623,11 +3846,13 @@
         "type": "int"
       }
     ],
-    "desc": "ACS function: GetMapRotationInfo."
+    "desc": "ACS function: GetMapRotationInfo.",
+    "returns": "int"
   },
   "GetMapRotationSize": {
     "params": [],
-    "desc": "ACS function: GetMapRotationSize."
+    "desc": "ACS function: GetMapRotationSize.",
+    "returns": "int"
   },
   "GetMaxInventory": {
     "params": [
@@ -3640,7 +3865,8 @@
         "type": "int"
       }
     ],
-    "desc": "ACS function: GetMaxInventory."
+    "desc": "ACS function: GetMaxInventory.",
+    "returns": "int"
   },
   "GetNetID": {
     "params": [
@@ -3658,7 +3884,8 @@
         "optional": true
       }
     ],
-    "desc": "Returns the network ID for an actor (Zandronum)."
+    "desc": "Returns the network ID for an actor (Zandronum).",
+    "returns": "int"
   },
   "GetPlayerAccountName": {
     "params": [
@@ -3667,7 +3894,8 @@
         "type": "int"
       }
     ],
-    "desc": "Returns the player's account/login name."
+    "desc": "Returns the player's account/login name.",
+    "returns": "str"
   },
   "GetPlayerChasecam": {
     "params": [
@@ -3676,7 +3904,8 @@
         "type": "int"
       }
     ],
-    "desc": "ACS function: GetPlayerChasecam."
+    "desc": "ACS function: GetPlayerChasecam.",
+    "returns": "int"
   },
   "GetPlayerCountry": {
     "params": [
@@ -3689,7 +3918,8 @@
         "type": "int"
       }
     ],
-    "desc": "ACS function: GetPlayerCountry."
+    "desc": "ACS function: GetPlayerCountry.",
+    "returns": "str"
   },
   "GetPlayerInfo": {
     "params": [
@@ -3702,7 +3932,8 @@
         "type": "int"
       }
     ],
-    "desc": "ACS built-in: GetPlayerInfo."
+    "desc": "ACS built-in: GetPlayerInfo.",
+    "returns": "int"
   },
   "GetPlayerInput": {
     "params": [
@@ -3715,7 +3946,8 @@
         "type": "int"
       }
     ],
-    "desc": "Returns the player's input state."
+    "desc": "Returns the player's input state.",
+    "returns": "int"
   },
   "GetPlayerJoinQueuePosition": {
     "params": [
@@ -3724,7 +3956,8 @@
         "type": "int"
       }
     ],
-    "desc": "ACS function: GetPlayerJoinQueuePosition."
+    "desc": "ACS function: GetPlayerJoinQueuePosition.",
+    "returns": "int"
   },
   "GetPlayerLivesLeft": {
     "params": [
@@ -3733,7 +3966,8 @@
         "type": "int"
       }
     ],
-    "desc": "ACS function: GetPlayerLivesLeft."
+    "desc": "ACS function: GetPlayerLivesLeft.",
+    "returns": "int"
   },
   "GetPlayerScore": {
     "params": [
@@ -3746,7 +3980,8 @@
         "type": "int"
       }
     ],
-    "desc": "ACS function: GetPlayerScore."
+    "desc": "ACS function: GetPlayerScore.",
+    "returns": "int"
   },
   "GetPlayerSkin": {
     "params": [
@@ -3759,7 +3994,8 @@
         "type": "int"
       }
     ],
-    "desc": "ACS function: GetPlayerSkin."
+    "desc": "ACS function: GetPlayerSkin.",
+    "returns": "str"
   },
   "GetPlayerStatus": {
     "params": [
@@ -3768,7 +4004,8 @@
         "type": "int"
       }
     ],
-    "desc": "ACS function: GetPlayerStatus."
+    "desc": "ACS function: GetPlayerStatus.",
+    "returns": "int"
   },
   "GetPolyobjX": {
     "params": [
@@ -3777,7 +4014,8 @@
         "type": "int"
       }
     ],
-    "desc": "ACS function: GetPolyobjX."
+    "desc": "ACS function: GetPolyobjX.",
+    "returns": "int"
   },
   "GetPolyobjY": {
     "params": [
@@ -3786,15 +4024,18 @@
         "type": "int"
       }
     ],
-    "desc": "ACS function: GetPolyobjY."
+    "desc": "ACS function: GetPolyobjY.",
+    "returns": "int"
   },
   "GetScreenHeight": {
     "params": [],
-    "desc": "ACS built-in: GetScreenHeight."
+    "desc": "ACS built-in: GetScreenHeight.",
+    "returns": "int"
   },
   "GetScreenWidth": {
     "params": [],
-    "desc": "ACS built-in: GetScreenWidth."
+    "desc": "ACS built-in: GetScreenWidth.",
+    "returns": "int"
   },
   "GetSectorCeilingZ": {
     "params": [
@@ -3811,7 +4052,8 @@
         "type": "int"
       }
     ],
-    "desc": "Returns the ceiling Z of a tagged sector."
+    "desc": "Returns the ceiling Z of a tagged sector.",
+    "returns": "int"
   },
   "GetSectorFloorZ": {
     "params": [
@@ -3828,7 +4070,8 @@
         "type": "int"
       }
     ],
-    "desc": "Returns the floor Z of a tagged sector."
+    "desc": "Returns the floor Z of a tagged sector.",
+    "returns": "int"
   },
   "GetSectorHealth": {
     "params": [
@@ -3841,7 +4084,8 @@
         "type": "int"
       }
     ],
-    "desc": "ACS function: GetSectorHealth."
+    "desc": "ACS function: GetSectorHealth.",
+    "returns": "int"
   },
   "GetSectorLightLevel": {
     "params": [
@@ -3850,7 +4094,8 @@
         "type": "int"
       }
     ],
-    "desc": "Returns the light level of a tagged sector."
+    "desc": "Returns the light level of a tagged sector.",
+    "returns": "int"
   },
   "GetSectorUDMFFixed": {
     "params": [
@@ -3863,7 +4108,8 @@
         "type": "int"
       }
     ],
-    "desc": "ACS function: GetSectorUDMFFixed."
+    "desc": "ACS function: GetSectorUDMFFixed.",
+    "returns": "int"
   },
   "GetSectorUDMFInt": {
     "params": [
@@ -3876,7 +4122,8 @@
         "type": "int"
       }
     ],
-    "desc": "ACS function: GetSectorUDMFInt."
+    "desc": "ACS function: GetSectorUDMFInt.",
+    "returns": "int"
   },
   "GetSideUDMFFixed": {
     "params": [
@@ -3893,7 +4140,8 @@
         "type": "int"
       }
     ],
-    "desc": "ACS function: GetSideUDMFFixed."
+    "desc": "ACS function: GetSideUDMFFixed.",
+    "returns": "int"
   },
   "GetSideUDMFInt": {
     "params": [
@@ -3910,11 +4158,13 @@
         "type": "int"
       }
     ],
-    "desc": "ACS function: GetSideUDMFInt."
+    "desc": "ACS function: GetSideUDMFInt.",
+    "returns": "int"
   },
   "GetSigilPieces": {
     "params": [],
-    "desc": "ACS built-in: GetSigilPieces."
+    "desc": "ACS built-in: GetSigilPieces.",
+    "returns": "int"
   },
   "GetSkinProperty": {
     "params": [
@@ -3937,7 +4187,8 @@
         "optional": true
       }
     ],
-    "desc": "ACS function: GetSkinProperty."
+    "desc": "ACS function: GetSkinProperty.",
+    "returns": "str"
   },
   "GetTeamProperty": {
     "params": [
@@ -3950,7 +4201,8 @@
         "type": "int"
       }
     ],
-    "desc": "Returns a property value of the given team."
+    "desc": "Returns a property value of the given team.",
+    "returns": "int"
   },
   "GetTeamScore": {
     "params": [
@@ -3959,7 +4211,8 @@
         "type": "int"
       }
     ],
-    "desc": "ACS function: GetTeamScore."
+    "desc": "ACS function: GetTeamScore.",
+    "returns": "int"
   },
   "GetThingUDMFFixed": {
     "params": [
@@ -3972,7 +4225,8 @@
         "type": "int"
       }
     ],
-    "desc": "ACS function: GetThingUDMFFixed."
+    "desc": "ACS function: GetThingUDMFFixed.",
+    "returns": "int"
   },
   "GetThingUDMFInt": {
     "params": [
@@ -3985,7 +4239,8 @@
         "type": "int"
       }
     ],
-    "desc": "ACS function: GetThingUDMFInt."
+    "desc": "ACS function: GetThingUDMFInt.",
+    "returns": "int"
   },
   "GetTimeProperty": {
     "params": [
@@ -4003,7 +4258,8 @@
         "optional": true
       }
     ],
-    "desc": "ACS function: GetTimeProperty."
+    "desc": "ACS function: GetTimeProperty.",
+    "returns": "int"
   },
   "GetUserArray": {
     "params": [
@@ -4020,7 +4276,8 @@
         "type": "int"
       }
     ],
-    "desc": "ACS function: GetUserArray."
+    "desc": "ACS function: GetUserArray.",
+    "returns": "int"
   },
   "GetUserCVar": {
     "params": [
@@ -4033,7 +4290,8 @@
         "type": "int"
       }
     ],
-    "desc": "ACS function: GetUserCVar."
+    "desc": "ACS function: GetUserCVar.",
+    "returns": "int"
   },
   "GetUserCVarString": {
     "params": [
@@ -4046,7 +4304,8 @@
         "type": "int"
       }
     ],
-    "desc": "ACS function: GetUserCVarString."
+    "desc": "ACS function: GetUserCVarString.",
+    "returns": "str"
   },
   "GetUserVariable": {
     "params": [
@@ -4059,7 +4318,8 @@
         "type": "int"
       }
     ],
-    "desc": "ACS function: GetUserVariable."
+    "desc": "ACS function: GetUserVariable.",
+    "returns": "int"
   },
   "GetWadInfo": {
     "params": [
@@ -4072,11 +4332,13 @@
         "type": "int"
       }
     ],
-    "desc": "ACS function: GetWadInfo."
+    "desc": "ACS function: GetWadInfo.",
+    "returns": "str"
   },
   "GetWeapon": {
     "params": [],
-    "desc": "ACS function: GetWeapon."
+    "desc": "ACS function: GetWeapon.",
+    "returns": "str"
   },
   "GiveActorInventory": {
     "params": [
@@ -4093,7 +4355,8 @@
         "type": "int"
       }
     ],
-    "desc": "Gives an inventory item to the specified actor."
+    "desc": "Gives an inventory item to the specified actor.",
+    "returns": "void"
   },
   "GiveInventory": {
     "params": [
@@ -4106,7 +4369,8 @@
         "type": "int"
       }
     ],
-    "desc": "Gives an inventory item to the activator."
+    "desc": "Gives an inventory item to the activator.",
+    "returns": "void"
   },
   "GivePlayerMedal": {
     "params": [
@@ -4123,7 +4387,8 @@
         "type": "int"
       }
     ],
-    "desc": "ACS function: GivePlayerMedal."
+    "desc": "ACS function: GivePlayerMedal.",
+    "returns": "int"
   },
   "GlassBreak": {
     "params": [
@@ -4138,7 +4403,8 @@
         "optional": true
       }
     ],
-    "desc": "Line special / ACS callable: GlassBreak."
+    "desc": "Line special / ACS callable: GlassBreak.",
+    "returns": "int"
   },
   "GrabInput": {
     "params": [
@@ -4151,7 +4417,8 @@
         "type": "int"
       }
     ],
-    "desc": "ACS built-in: GrabInput."
+    "desc": "ACS built-in: GrabInput.",
+    "returns": "void"
   },
   "HealThing": {
     "params": [
@@ -4165,17 +4432,20 @@
         "optional": true
       }
     ],
-    "desc": "Line special / ACS callable: HealThing."
+    "desc": "Line special / ACS callable: HealThing.",
+    "returns": "int"
   },
   "HudMessage": {
-    "signature": "HudMessage(text...; type, id, color, x, y, holdtime [, ...])",
     "params": [],
-    "desc": "Displays a HUD message on screen.\n\n**Text** (before `;`): Print cast list (`s:`, `d:`/`i:`, `f:`, …).\n\n**Required after `;`:** `type`, `id`, `color`, `x`, `y`, `holdtime`.\n\n**Extras by type** (low byte of `type`; then optional `alpha` if `HUDMSG_ALPHA` is set):\n- `HUDMSG_PLAIN`: `[alpha]`\n- `HUDMSG_FADEOUT`: `fadetime [, alpha]`\n- `HUDMSG_TYPEON`: `typetime, fadetime [, alpha]`\n- `HUDMSG_FADEINOUT`: `inTime, outTime [, alpha]`\n\n`type` may OR flags such as `HUDMSG_LOG`, `HUDMSG_COLORSTRING`, `HUDMSG_ALPHA`.\n\nExample: `HudMessage(s:\"Hi\"; HUDMSG_PLAIN, 0, CR_GOLD, 0.5, 0.5, 3.0);`"
+    "desc": "Displays a HUD message on screen.\n\n**Text** (before `;`): Print cast list (`s:`, `d:`/`i:`, `f:`, …).\n\n**Required after `;`:** `type`, `id`, `color`, `x`, `y`, `holdtime`.\n\n**Extras by type** (low byte of `type`; then optional `alpha` if `HUDMSG_ALPHA` is set):\n- `HUDMSG_PLAIN`: `[alpha]`\n- `HUDMSG_FADEOUT`: `fadetime [, alpha]`\n- `HUDMSG_TYPEON`: `typetime, fadetime [, alpha]`\n- `HUDMSG_FADEINOUT`: `inTime, outTime [, alpha]`\n\n`type` may OR flags such as `HUDMSG_LOG`, `HUDMSG_COLORSTRING`, `HUDMSG_ALPHA`.\n\nExample: `HudMessage(s:\"Hi\"; HUDMSG_PLAIN, 0, CR_GOLD, 0.5, 0.5, 3.0);`",
+    "returns": "void",
+    "signature": "void HudMessage(text...; type, id, color, x, y, holdtime [, ...])"
   },
   "HudMessageBold": {
-    "signature": "HudMessageBold(text...; type, id, color, x, y, holdtime [, ...])",
     "params": [],
-    "desc": "Like `HudMessage`, but bold (all players).\n\n**Text** (before `;`): Print cast list (`s:`, `d:`/`i:`, `f:`, …).\n\n**Required after `;`:** `type`, `id`, `color`, `x`, `y`, `holdtime`.\n\n**Extras by type** (low byte of `type`; then optional `alpha` if `HUDMSG_ALPHA` is set):\n- `HUDMSG_PLAIN`: `[alpha]`\n- `HUDMSG_FADEOUT`: `fadetime [, alpha]`\n- `HUDMSG_TYPEON`: `typetime, fadetime [, alpha]`\n- `HUDMSG_FADEINOUT`: `inTime, outTime [, alpha]`\n\nExample: `HudMessageBold(s:\"Go!\"; HUDMSG_FADEOUT, 1, CR_RED, 0.5, 0.3, 2.0, 0.5);`"
+    "desc": "Like `HudMessage`, but bold (all players).\n\n**Text** (before `;`): Print cast list (`s:`, `d:`/`i:`, `f:`, …).\n\n**Required after `;`:** `type`, `id`, `color`, `x`, `y`, `holdtime`.\n\n**Extras by type** (low byte of `type`; then optional `alpha` if `HUDMSG_ALPHA` is set):\n- `HUDMSG_PLAIN`: `[alpha]`\n- `HUDMSG_FADEOUT`: `fadetime [, alpha]`\n- `HUDMSG_TYPEON`: `typetime, fadetime [, alpha]`\n- `HUDMSG_FADEINOUT`: `inTime, outTime [, alpha]`\n\nExample: `HudMessageBold(s:\"Go!\"; HUDMSG_FADEOUT, 1, CR_RED, 0.5, 0.3, 2.0, 0.5);`",
+    "returns": "void",
+    "signature": "void HudMessageBold(text...; type, id, color, x, y, holdtime [, ...])"
   },
   "IncrementDBEntry": {
     "params": [
@@ -4192,19 +4462,23 @@
         "type": "int"
       }
     ],
-    "desc": "ACS function: IncrementDBEntry."
+    "desc": "ACS function: IncrementDBEntry.",
+    "returns": "int"
   },
   "InDemoMode": {
     "params": [],
-    "desc": "ACS function: InDemoMode."
+    "desc": "ACS function: InDemoMode.",
+    "returns": "int"
   },
   "IsNetworkGame": {
     "params": [],
-    "desc": "ACS built-in: IsNetworkGame."
+    "desc": "ACS built-in: IsNetworkGame.",
+    "returns": "int"
   },
   "IsOneFlagCTF": {
     "params": [],
-    "desc": "ACS built-in: IsOneFlagCTF."
+    "desc": "ACS built-in: IsOneFlagCTF.",
+    "returns": "int"
   },
   "IsPlayerContestingControlPoint": {
     "params": [
@@ -4217,7 +4491,8 @@
         "type": "int"
       }
     ],
-    "desc": "ACS function: IsPlayerContestingControlPoint."
+    "desc": "ACS function: IsPlayerContestingControlPoint.",
+    "returns": "int"
   },
   "IsPointerEqual": {
     "params": [
@@ -4240,7 +4515,8 @@
         "optional": true
       }
     ],
-    "desc": "ACS function: IsPointerEqual."
+    "desc": "ACS function: IsPointerEqual.",
+    "returns": "int"
   },
   "IsTIDUsed": {
     "params": [
@@ -4249,7 +4525,8 @@
         "type": "int"
       }
     ],
-    "desc": "ACS function: IsTIDUsed."
+    "desc": "ACS function: IsTIDUsed.",
+    "returns": "int"
   },
   "KickFromGame": {
     "params": [
@@ -4262,7 +4539,8 @@
         "type": "int"
       }
     ],
-    "desc": "ACS function: KickFromGame."
+    "desc": "ACS function: KickFromGame.",
+    "returns": "int"
   },
   "Light_ChangeToValue": {
     "params": [
@@ -4275,7 +4553,8 @@
         "type": "int"
       }
     ],
-    "desc": "Sets the light level of the tagged sector."
+    "desc": "Sets the light level of the tagged sector.",
+    "returns": "int"
   },
   "Light_Fade": {
     "params": [
@@ -4292,7 +4571,8 @@
         "type": "int"
       }
     ],
-    "desc": "Fades the light level of the tagged sector."
+    "desc": "Fades the light level of the tagged sector.",
+    "returns": "int"
   },
   "Light_Flicker": {
     "params": [
@@ -4309,7 +4589,8 @@
         "type": "int"
       }
     ],
-    "desc": "Line special / ACS callable: Light_Flicker."
+    "desc": "Line special / ACS callable: Light_Flicker.",
+    "returns": "int"
   },
   "Light_ForceLightning": {
     "params": [
@@ -4318,7 +4599,8 @@
         "type": "int"
       }
     ],
-    "desc": "Line special / ACS callable: Light_ForceLightning."
+    "desc": "Line special / ACS callable: Light_ForceLightning.",
+    "returns": "int"
   },
   "Light_Glow": {
     "params": [
@@ -4339,7 +4621,8 @@
         "type": "int"
       }
     ],
-    "desc": "Creates a glowing light effect in the tagged sector."
+    "desc": "Creates a glowing light effect in the tagged sector.",
+    "returns": "int"
   },
   "Light_LowerByValue": {
     "params": [
@@ -4352,7 +4635,8 @@
         "type": "int"
       }
     ],
-    "desc": "Lowers the light level of the tagged sector."
+    "desc": "Lowers the light level of the tagged sector.",
+    "returns": "int"
   },
   "Light_MaxNeighbor": {
     "params": [
@@ -4361,7 +4645,8 @@
         "type": "int"
       }
     ],
-    "desc": "Line special / ACS callable: Light_MaxNeighbor."
+    "desc": "Line special / ACS callable: Light_MaxNeighbor.",
+    "returns": "int"
   },
   "Light_MinNeighbor": {
     "params": [
@@ -4370,7 +4655,8 @@
         "type": "int"
       }
     ],
-    "desc": "Line special / ACS callable: Light_MinNeighbor."
+    "desc": "Line special / ACS callable: Light_MinNeighbor.",
+    "returns": "int"
   },
   "Light_RaiseByValue": {
     "params": [
@@ -4383,7 +4669,8 @@
         "type": "int"
       }
     ],
-    "desc": "Raises the light level of the tagged sector."
+    "desc": "Raises the light level of the tagged sector.",
+    "returns": "int"
   },
   "Light_Stop": {
     "params": [
@@ -4392,7 +4679,8 @@
         "type": "int"
       }
     ],
-    "desc": "Stops the light effect on the tagged sector."
+    "desc": "Stops the light effect on the tagged sector.",
+    "returns": "int"
   },
   "Light_Strobe": {
     "params": [
@@ -4417,7 +4705,8 @@
         "type": "int"
       }
     ],
-    "desc": "Strobes the light level of the tagged sector."
+    "desc": "Strobes the light level of the tagged sector.",
+    "returns": "int"
   },
   "Light_StrobeDoom": {
     "params": [
@@ -4434,7 +4723,8 @@
         "type": "int"
       }
     ],
-    "desc": "Line special / ACS callable: Light_StrobeDoom."
+    "desc": "Line special / ACS callable: Light_StrobeDoom.",
+    "returns": "int"
   },
   "Line_AlignCeiling": {
     "params": [
@@ -4447,7 +4737,8 @@
         "type": "int"
       }
     ],
-    "desc": "Line special / ACS callable: Line_AlignCeiling."
+    "desc": "Line special / ACS callable: Line_AlignCeiling.",
+    "returns": "int"
   },
   "Line_AlignFloor": {
     "params": [
@@ -4460,15 +4751,18 @@
         "type": "int"
       }
     ],
-    "desc": "Line special / ACS callable: Line_AlignFloor."
+    "desc": "Line special / ACS callable: Line_AlignFloor.",
+    "returns": "int"
   },
   "Line_Horizon": {
     "params": [],
-    "desc": "Line special / ACS callable: Line_Horizon."
+    "desc": "Line special / ACS callable: Line_Horizon.",
+    "returns": "int"
   },
   "Line_Mirror": {
     "params": [],
-    "desc": "Line special / ACS callable: Line_Mirror."
+    "desc": "Line special / ACS callable: Line_Mirror.",
+    "returns": "int"
   },
   "Line_SetAutomapFlags": {
     "params": [
@@ -4485,7 +4779,8 @@
         "type": "int"
       }
     ],
-    "desc": "Line special / ACS callable: Line_SetAutomapFlags."
+    "desc": "Line special / ACS callable: Line_SetAutomapFlags.",
+    "returns": "int"
   },
   "Line_SetAutomapStyle": {
     "params": [
@@ -4498,7 +4793,8 @@
         "type": "int"
       }
     ],
-    "desc": "Line special / ACS callable: Line_SetAutomapStyle."
+    "desc": "Line special / ACS callable: Line_SetAutomapStyle.",
+    "returns": "int"
   },
   "Line_SetBlocking": {
     "params": [
@@ -4515,7 +4811,8 @@
         "type": "int"
       }
     ],
-    "desc": "Sets blocking flags for a line."
+    "desc": "Sets blocking flags for a line.",
+    "returns": "int"
   },
   "Line_SetHealth": {
     "params": [
@@ -4528,7 +4825,8 @@
         "type": "int"
       }
     ],
-    "desc": "Line special / ACS callable: Line_SetHealth."
+    "desc": "Line special / ACS callable: Line_SetHealth.",
+    "returns": "int"
   },
   "Line_SetPortalTarget": {
     "params": [
@@ -4541,7 +4839,8 @@
         "type": "int"
       }
     ],
-    "desc": "Line special / ACS callable: Line_SetPortalTarget."
+    "desc": "Line special / ACS callable: Line_SetPortalTarget.",
+    "returns": "int"
   },
   "Line_SetTextureOffset": {
     "params": [
@@ -4566,7 +4865,8 @@
         "type": "int"
       }
     ],
-    "desc": "Sets texture offset for a line."
+    "desc": "Sets texture offset for a line.",
+    "returns": "int"
   },
   "Line_SetTextureScale": {
     "params": [
@@ -4591,7 +4891,8 @@
         "type": "int"
       }
     ],
-    "desc": "Sets texture scale for a line."
+    "desc": "Sets texture scale for a line.",
+    "returns": "int"
   },
   "LineAttack": {
     "params": [
@@ -4637,11 +4938,13 @@
         "optional": true
       }
     ],
-    "desc": "ACS function: LineAttack."
+    "desc": "ACS function: LineAttack.",
+    "returns": "int"
   },
   "LineSide": {
     "params": [],
-    "desc": "ACS built-in: LineSide."
+    "desc": "ACS built-in: LineSide.",
+    "returns": "int"
   },
   "LocalAmbientSound": {
     "params": [
@@ -4654,7 +4957,8 @@
         "type": "int"
       }
     ],
-    "desc": "ACS built-in: LocalAmbientSound."
+    "desc": "ACS built-in: LocalAmbientSound.",
+    "returns": "void"
   },
   "LocalSetMusic": {
     "params": [
@@ -4671,12 +4975,14 @@
         "type": "int"
       }
     ],
-    "desc": "Changes the music for the activator only (client-side)."
+    "desc": "Changes the music for the activator only (client-side).",
+    "returns": "void"
   },
   "Log": {
-    "signature": "Log(cast:expression, ...)",
     "params": [],
-    "desc": "Prints to the console using Print cast syntax: comma-separated `cast:expression` items (`s`, `d`/`i`, `f`, `c`, `n`, `l`, `k`, `b`, `x`, `a`).\n\nExample: `Log(s:\"Health: \", d:health)`"
+    "desc": "Prints to the console using Print cast syntax: comma-separated `cast:expression` items (`s`, `d`/`i`, `f`, `c`, `n`, `l`, `k`, `b`, `x`, `a`).\n\nExample: `Log(s:\"Health: \", d:health)`",
+    "returns": "void",
+    "signature": "void Log(cast:expression, ...)"
   },
   "LumpClose": {
     "params": [
@@ -4685,7 +4991,8 @@
         "type": "int"
       }
     ],
-    "desc": "ACS function: LumpClose."
+    "desc": "ACS function: LumpClose.",
+    "returns": "int"
   },
   "LumpGetInfo": {
     "params": [
@@ -4698,7 +5005,8 @@
         "type": "int"
       }
     ],
-    "desc": "ACS function: LumpGetInfo."
+    "desc": "ACS function: LumpGetInfo.",
+    "returns": "int"
   },
   "LumpOpen": {
     "params": [
@@ -4717,7 +5025,8 @@
         "optional": true
       }
     ],
-    "desc": "ACS function: LumpOpen."
+    "desc": "ACS function: LumpOpen.",
+    "returns": "int"
   },
   "LumpRead": {
     "params": [
@@ -4735,7 +5044,8 @@
         "optional": true
       }
     ],
-    "desc": "ACS function: LumpRead."
+    "desc": "ACS function: LumpRead.",
+    "returns": "int"
   },
   "LumpReadString": {
     "params": [
@@ -4753,11 +5063,13 @@
         "optional": true
       }
     ],
-    "desc": "ACS function: LumpReadString."
+    "desc": "ACS function: LumpReadString.",
+    "returns": "str"
   },
   "MoreHudMessage": {
     "params": [],
-    "desc": "Allows more HUD messages on screen simultaneously."
+    "desc": "Allows more HUD messages on screen simultaneously.",
+    "returns": "void"
   },
   "Movemousepointer": {
     "params": [
@@ -4770,7 +5082,8 @@
         "type": "int"
       }
     ],
-    "desc": "ACS built-in: Movemousepointer."
+    "desc": "ACS built-in: Movemousepointer.",
+    "returns": "void"
   },
   "MusicChange": {
     "params": [
@@ -4783,7 +5096,8 @@
         "type": "int"
       }
     ],
-    "desc": "ACS built-in: MusicChange."
+    "desc": "ACS built-in: MusicChange.",
+    "returns": "void"
   },
   "NamedExecuteClientScript": {
     "params": [
@@ -4816,7 +5130,8 @@
         "optional": true
       }
     ],
-    "desc": "ACS function: NamedExecuteClientScript."
+    "desc": "ACS function: NamedExecuteClientScript.",
+    "returns": "int"
   },
   "NamedRequestScriptPuke": {
     "params": [
@@ -4845,7 +5160,8 @@
         "optional": true
       }
     ],
-    "desc": "Requests a client to puke a named script."
+    "desc": "Requests a client to puke a named script.",
+    "returns": "int"
   },
   "NamedScriptWait": {
     "params": [
@@ -4854,7 +5170,8 @@
         "type": "string"
       }
     ],
-    "desc": "Waits until the named script finishes."
+    "desc": "Waits until the named script finishes.",
+    "returns": "void"
   },
   "NamedSendNetworkString": {
     "params": [
@@ -4872,7 +5189,8 @@
         "optional": true
       }
     ],
-    "desc": "ACS function: NamedSendNetworkString."
+    "desc": "ACS function: NamedSendNetworkString.",
+    "returns": "int"
   },
   "NoiseAlert": {
     "params": [
@@ -4885,7 +5203,8 @@
         "type": "int"
       }
     ],
-    "desc": "Line special / ACS callable: NoiseAlert."
+    "desc": "Line special / ACS callable: NoiseAlert.",
+    "returns": "int"
   },
   "OpenMenu": {
     "params": [
@@ -4894,11 +5213,13 @@
         "type": "int"
       }
     ],
-    "desc": "ACS function: OpenMenu."
+    "desc": "ACS function: OpenMenu.",
+    "returns": "int"
   },
   "OptHudMessage": {
     "params": [],
-    "desc": "Sets HUD message options."
+    "desc": "Sets HUD message options.",
+    "returns": "void"
   },
   "PickActor": {
     "params": [
@@ -4938,7 +5259,8 @@
         "optional": true
       }
     ],
-    "desc": "ACS function: PickActor."
+    "desc": "ACS function: PickActor.",
+    "returns": "int"
   },
   "Pillar_Build": {
     "params": [
@@ -4955,7 +5277,8 @@
         "type": "int"
       }
     ],
-    "desc": "Builds a pillar to the specified height."
+    "desc": "Builds a pillar to the specified height.",
+    "returns": "int"
   },
   "Pillar_BuildAndCrush": {
     "params": [
@@ -4981,7 +5304,8 @@
         "optional": true
       }
     ],
-    "desc": "Builds a pillar and crushes."
+    "desc": "Builds a pillar and crushes.",
+    "returns": "int"
   },
   "Pillar_Open": {
     "params": [
@@ -5002,7 +5326,8 @@
         "type": "int"
       }
     ],
-    "desc": "Opens a pillar."
+    "desc": "Opens a pillar.",
+    "returns": "int"
   },
   "Plat_DownByValue": {
     "params": [
@@ -5023,7 +5348,8 @@
         "type": "int"
       }
     ],
-    "desc": "Line special / ACS callable: Plat_DownByValue."
+    "desc": "Line special / ACS callable: Plat_DownByValue.",
+    "returns": "int"
   },
   "Plat_DownWaitUpStay": {
     "params": [
@@ -5040,7 +5366,8 @@
         "type": "int"
       }
     ],
-    "desc": "Lowers a platform, waits, then raises it."
+    "desc": "Lowers a platform, waits, then raises it.",
+    "returns": "int"
   },
   "Plat_DownWaitUpStayLip": {
     "params": [
@@ -5066,7 +5393,8 @@
         "optional": true
       }
     ],
-    "desc": "Line special / ACS callable: Plat_DownWaitUpStayLip."
+    "desc": "Line special / ACS callable: Plat_DownWaitUpStayLip.",
+    "returns": "int"
   },
   "Plat_PerpetualRaise": {
     "params": [
@@ -5083,7 +5411,8 @@
         "type": "int"
       }
     ],
-    "desc": "Continuously raises a platform."
+    "desc": "Continuously raises a platform.",
+    "returns": "int"
   },
   "Plat_PerpetualRaiseLip": {
     "params": [
@@ -5104,7 +5433,8 @@
         "type": "int"
       }
     ],
-    "desc": "Line special / ACS callable: Plat_PerpetualRaiseLip."
+    "desc": "Line special / ACS callable: Plat_PerpetualRaiseLip.",
+    "returns": "int"
   },
   "Plat_RaiseAndStayTx0": {
     "params": [
@@ -5122,7 +5452,8 @@
         "optional": true
       }
     ],
-    "desc": "Line special / ACS callable: Plat_RaiseAndStayTx0."
+    "desc": "Line special / ACS callable: Plat_RaiseAndStayTx0.",
+    "returns": "int"
   },
   "Plat_Stop": {
     "params": [
@@ -5136,7 +5467,8 @@
         "optional": true
       }
     ],
-    "desc": "Line special / ACS callable: Plat_Stop."
+    "desc": "Line special / ACS callable: Plat_Stop.",
+    "returns": "int"
   },
   "Plat_ToggleCeiling": {
     "params": [
@@ -5145,7 +5477,8 @@
         "type": "int"
       }
     ],
-    "desc": "Line special / ACS callable: Plat_ToggleCeiling."
+    "desc": "Line special / ACS callable: Plat_ToggleCeiling.",
+    "returns": "int"
   },
   "Plat_UpByValue": {
     "params": [
@@ -5166,7 +5499,8 @@
         "type": "int"
       }
     ],
-    "desc": "Line special / ACS callable: Plat_UpByValue."
+    "desc": "Line special / ACS callable: Plat_UpByValue.",
+    "returns": "int"
   },
   "Plat_UpByValueStayTx": {
     "params": [
@@ -5183,7 +5517,8 @@
         "type": "int"
       }
     ],
-    "desc": "Line special / ACS callable: Plat_UpByValueStayTx."
+    "desc": "Line special / ACS callable: Plat_UpByValueStayTx.",
+    "returns": "int"
   },
   "Plat_UpNearestWaitDownStay": {
     "params": [
@@ -5200,7 +5535,8 @@
         "type": "int"
       }
     ],
-    "desc": "Line special / ACS callable: Plat_UpNearestWaitDownStay."
+    "desc": "Line special / ACS callable: Plat_UpNearestWaitDownStay.",
+    "returns": "int"
   },
   "Plat_UpWaitDownStay": {
     "params": [
@@ -5217,7 +5553,8 @@
         "type": "int"
       }
     ],
-    "desc": "Line special / ACS callable: Plat_UpWaitDownStay."
+    "desc": "Line special / ACS callable: Plat_UpWaitDownStay.",
+    "returns": "int"
   },
   "PlayActorSound": {
     "params": [
@@ -5250,7 +5587,8 @@
         "optional": true
       }
     ],
-    "desc": "ACS function: PlayActorSound."
+    "desc": "ACS function: PlayActorSound.",
+    "returns": "int"
   },
   "Player_GiveItem": {
     "params": [
@@ -5263,7 +5601,8 @@
         "type": "int"
       }
     ],
-    "desc": "Line special / ACS callable: Player_GiveItem."
+    "desc": "Line special / ACS callable: Player_GiveItem.",
+    "returns": "int"
   },
   "Player_RemoveItem": {
     "params": [
@@ -5276,7 +5615,8 @@
         "type": "int"
       }
     ],
-    "desc": "Line special / ACS callable: Player_RemoveItem."
+    "desc": "Line special / ACS callable: Player_RemoveItem.",
+    "returns": "int"
   },
   "Player_SetTeam": {
     "params": [
@@ -5290,19 +5630,23 @@
         "optional": true
       }
     ],
-    "desc": "Line special / ACS callable: Player_SetTeam."
+    "desc": "Line special / ACS callable: Player_SetTeam.",
+    "returns": "int"
   },
   "PlayerArmorPoints": {
     "params": [],
-    "desc": "ACS built-in: PlayerArmorPoints."
+    "desc": "ACS built-in: PlayerArmorPoints.",
+    "returns": "int"
   },
   "PlayerBlueCard": {
     "params": [],
-    "desc": "ACS built-in: PlayerBlueCard."
+    "desc": "ACS built-in: PlayerBlueCard.",
+    "returns": "int"
   },
   "PlayerBlueSkull": {
     "params": [],
-    "desc": "ACS built-in: PlayerBlueSkull."
+    "desc": "ACS built-in: PlayerBlueSkull.",
+    "returns": "int"
   },
   "PlayerClass": {
     "params": [
@@ -5311,23 +5655,28 @@
         "type": "int"
       }
     ],
-    "desc": "ACS built-in: PlayerClass."
+    "desc": "ACS built-in: PlayerClass.",
+    "returns": "int"
   },
   "PlayerCount": {
     "params": [],
-    "desc": "Returns the number of players currently in the game."
+    "desc": "Returns the number of players currently in the game.",
+    "returns": "int"
   },
   "PlayerExpert": {
     "params": [],
-    "desc": "ACS built-in: PlayerExpert."
+    "desc": "ACS built-in: PlayerExpert.",
+    "returns": "int"
   },
   "PlayerFrags": {
     "params": [],
-    "desc": "ACS built-in: PlayerFrags."
+    "desc": "ACS built-in: PlayerFrags.",
+    "returns": "int"
   },
   "PlayerHealth": {
     "params": [],
-    "desc": "ACS built-in: PlayerHealth."
+    "desc": "ACS built-in: PlayerHealth.",
+    "returns": "int"
   },
   "PlayerInGame": {
     "params": [
@@ -5336,7 +5685,8 @@
         "type": "int"
       }
     ],
-    "desc": "ACS built-in: PlayerInGame."
+    "desc": "ACS built-in: PlayerInGame.",
+    "returns": "int"
   },
   "PlayerIsBot": {
     "params": [
@@ -5345,7 +5695,8 @@
         "type": "int"
       }
     ],
-    "desc": "Returns true if the player is a bot."
+    "desc": "Returns true if the player is a bot.",
+    "returns": "int"
   },
   "PlayerIsLoggedIn": {
     "params": [
@@ -5354,7 +5705,8 @@
         "type": "int"
       }
     ],
-    "desc": "ACS function: PlayerIsLoggedIn."
+    "desc": "ACS function: PlayerIsLoggedIn.",
+    "returns": "int"
   },
   "PlayerIsSpectator": {
     "params": [
@@ -5363,31 +5715,38 @@
         "type": "int"
       }
     ],
-    "desc": "Returns true if the player is spectating."
+    "desc": "Returns true if the player is spectating.",
+    "returns": "int"
   },
   "PlayerNumber": {
     "params": [],
-    "desc": "Returns the player number of the activator."
+    "desc": "Returns the player number of the activator.",
+    "returns": "int"
   },
   "PlayerRedCard": {
     "params": [],
-    "desc": "ACS built-in: PlayerRedCard."
+    "desc": "ACS built-in: PlayerRedCard.",
+    "returns": "int"
   },
   "PlayerRedSkull": {
     "params": [],
-    "desc": "ACS built-in: PlayerRedSkull."
+    "desc": "ACS built-in: PlayerRedSkull.",
+    "returns": "int"
   },
   "PlayerTeam": {
     "params": [],
-    "desc": "ACS built-in: PlayerTeam."
+    "desc": "ACS built-in: PlayerTeam.",
+    "returns": "int"
   },
   "PlayerYellowCard": {
     "params": [],
-    "desc": "ACS built-in: PlayerYellowCard."
+    "desc": "ACS built-in: PlayerYellowCard.",
+    "returns": "int"
   },
   "PlayerYellowSkull": {
     "params": [],
-    "desc": "ACS built-in: PlayerYellowSkull."
+    "desc": "ACS built-in: PlayerYellowSkull.",
+    "returns": "int"
   },
   "Playmovie": {
     "params": [
@@ -5396,7 +5755,8 @@
         "type": "int"
       }
     ],
-    "desc": "ACS built-in: Playmovie."
+    "desc": "ACS built-in: Playmovie.",
+    "returns": "int"
   },
   "PlaySound": {
     "params": [
@@ -5434,7 +5794,8 @@
         "optional": true
       }
     ],
-    "desc": "Plays a sound from the given actor."
+    "desc": "Plays a sound from the given actor.",
+    "returns": "int"
   },
   "Polyobj_DoorSlide": {
     "params": [
@@ -5459,7 +5820,8 @@
         "type": "int"
       }
     ],
-    "desc": "Line special / ACS callable: Polyobj_DoorSlide."
+    "desc": "Line special / ACS callable: Polyobj_DoorSlide.",
+    "returns": "int"
   },
   "Polyobj_DoorSwing": {
     "params": [
@@ -5480,7 +5842,8 @@
         "type": "int"
       }
     ],
-    "desc": "Line special / ACS callable: Polyobj_DoorSwing."
+    "desc": "Line special / ACS callable: Polyobj_DoorSwing.",
+    "returns": "int"
   },
   "Polyobj_Move": {
     "params": [
@@ -5501,7 +5864,8 @@
         "type": "int"
       }
     ],
-    "desc": "Line special / ACS callable: Polyobj_Move."
+    "desc": "Line special / ACS callable: Polyobj_Move.",
+    "returns": "int"
   },
   "Polyobj_MoveTimes8": {
     "params": [
@@ -5522,7 +5886,8 @@
         "type": "int"
       }
     ],
-    "desc": "Line special / ACS callable: Polyobj_MoveTimes8."
+    "desc": "Line special / ACS callable: Polyobj_MoveTimes8.",
+    "returns": "int"
   },
   "Polyobj_MoveTo": {
     "params": [
@@ -5543,7 +5908,8 @@
         "type": "int"
       }
     ],
-    "desc": "Line special / ACS callable: Polyobj_MoveTo."
+    "desc": "Line special / ACS callable: Polyobj_MoveTo.",
+    "returns": "int"
   },
   "Polyobj_MoveToSpot": {
     "params": [
@@ -5560,7 +5926,8 @@
         "type": "int"
       }
     ],
-    "desc": "Line special / ACS callable: Polyobj_MoveToSpot."
+    "desc": "Line special / ACS callable: Polyobj_MoveToSpot.",
+    "returns": "int"
   },
   "Polyobj_OR_Move": {
     "params": [
@@ -5581,7 +5948,8 @@
         "type": "int"
       }
     ],
-    "desc": "Line special / ACS callable: Polyobj_OR_Move."
+    "desc": "Line special / ACS callable: Polyobj_OR_Move.",
+    "returns": "int"
   },
   "Polyobj_OR_MoveTimes8": {
     "params": [
@@ -5602,7 +5970,8 @@
         "type": "int"
       }
     ],
-    "desc": "Line special / ACS callable: Polyobj_OR_MoveTimes8."
+    "desc": "Line special / ACS callable: Polyobj_OR_MoveTimes8.",
+    "returns": "int"
   },
   "Polyobj_OR_MoveTo": {
     "params": [
@@ -5623,7 +5992,8 @@
         "type": "int"
       }
     ],
-    "desc": "Line special / ACS callable: Polyobj_OR_MoveTo."
+    "desc": "Line special / ACS callable: Polyobj_OR_MoveTo.",
+    "returns": "int"
   },
   "Polyobj_OR_MoveToSpot": {
     "params": [
@@ -5640,7 +6010,8 @@
         "type": "int"
       }
     ],
-    "desc": "Line special / ACS callable: Polyobj_OR_MoveToSpot."
+    "desc": "Line special / ACS callable: Polyobj_OR_MoveToSpot.",
+    "returns": "int"
   },
   "Polyobj_OR_RotateLeft": {
     "params": [
@@ -5657,7 +6028,8 @@
         "type": "int"
       }
     ],
-    "desc": "Line special / ACS callable: Polyobj_OR_RotateLeft."
+    "desc": "Line special / ACS callable: Polyobj_OR_RotateLeft.",
+    "returns": "int"
   },
   "Polyobj_OR_RotateRight": {
     "params": [
@@ -5674,7 +6046,8 @@
         "type": "int"
       }
     ],
-    "desc": "Line special / ACS callable: Polyobj_OR_RotateRight."
+    "desc": "Line special / ACS callable: Polyobj_OR_RotateRight.",
+    "returns": "int"
   },
   "Polyobj_RotateLeft": {
     "params": [
@@ -5691,7 +6064,8 @@
         "type": "int"
       }
     ],
-    "desc": "Line special / ACS callable: Polyobj_RotateLeft."
+    "desc": "Line special / ACS callable: Polyobj_RotateLeft.",
+    "returns": "int"
   },
   "Polyobj_RotateRight": {
     "params": [
@@ -5708,7 +6082,8 @@
         "type": "int"
       }
     ],
-    "desc": "Line special / ACS callable: Polyobj_RotateRight."
+    "desc": "Line special / ACS callable: Polyobj_RotateRight.",
+    "returns": "int"
   },
   "Polyobj_Stop": {
     "params": [
@@ -5717,7 +6092,8 @@
         "type": "int"
       }
     ],
-    "desc": "Line special / ACS callable: Polyobj_Stop."
+    "desc": "Line special / ACS callable: Polyobj_Stop.",
+    "returns": "int"
   },
   "PolyWait": {
     "params": [
@@ -5726,17 +6102,20 @@
         "type": "int"
       }
     ],
-    "desc": "Waits until the polyobject finishes moving."
+    "desc": "Waits until the polyobject finishes moving.",
+    "returns": "void"
   },
   "Print": {
-    "signature": "Print(cast:expression, ...)",
     "params": [],
-    "desc": "Prints to the screen and console using cast syntax: comma-separated `cast:expression` items (`s`, `d`/`i`, `f`, `c`, `n`, `l`, `k`, `b`, `x`, `a`).\n\nExample: `Print(s:\"Health: \", d:health)`"
+    "desc": "Prints to the screen and console using cast syntax: comma-separated `cast:expression` items (`s`, `d`/`i`, `f`, `c`, `n`, `l`, `k`, `b`, `x`, `a`).\n\nExample: `Print(s:\"Health: \", d:health)`",
+    "returns": "void",
+    "signature": "void Print(cast:expression, ...)"
   },
   "PrintBold": {
-    "signature": "PrintBold(cast:expression, ...)",
     "params": [],
-    "desc": "Prints in bold using Print cast syntax: comma-separated `cast:expression` items (`s`, `d`/`i`, `f`, `c`, `n`, `l`, `k`, `b`, `x`, `a`).\n\nExample: `PrintBold(s:\"Wave \", d:wave)`"
+    "desc": "Prints in bold using Print cast syntax: comma-separated `cast:expression` items (`s`, `d`/`i`, `f`, `c`, `n`, `l`, `k`, `b`, `x`, `a`).\n\nExample: `PrintBold(s:\"Wave \", d:wave)`",
+    "returns": "void",
+    "signature": "void PrintBold(cast:expression, ...)"
   },
   "QuakeEx": {
     "params": [
@@ -5813,7 +6192,8 @@
         "optional": true
       }
     ],
-    "desc": "ACS function: QuakeEx."
+    "desc": "ACS function: QuakeEx.",
+    "returns": "int"
   },
   "Radius_Quake": {
     "params": [
@@ -5838,7 +6218,8 @@
         "type": "int"
       }
     ],
-    "desc": "Line special / ACS callable: Radius_Quake."
+    "desc": "Line special / ACS callable: Radius_Quake.",
+    "returns": "int"
   },
   "Radius_Quake2": {
     "params": [
@@ -5867,7 +6248,8 @@
         "type": "int"
       }
     ],
-    "desc": "ACS function: Radius_Quake2."
+    "desc": "ACS function: Radius_Quake2.",
+    "returns": "int"
   },
   "Random": {
     "params": [
@@ -5880,15 +6262,18 @@
         "type": "int"
       }
     ],
-    "desc": "Returns a random integer between min and max inclusive."
+    "desc": "Returns a random integer between min and max inclusive.",
+    "returns": "int"
   },
   "RedCount": {
     "params": [],
-    "desc": "ACS built-in: RedCount."
+    "desc": "ACS built-in: RedCount.",
+    "returns": "int"
   },
   "RedScore": {
     "params": [],
-    "desc": "ACS built-in: RedScore."
+    "desc": "ACS built-in: RedScore.",
+    "returns": "int"
   },
   "RemoveBot": {
     "params": [
@@ -5898,7 +6283,8 @@
         "optional": true
       }
     ],
-    "desc": "ACS function: RemoveBot."
+    "desc": "ACS function: RemoveBot.",
+    "returns": "int"
   },
   "ReplaceTextures": {
     "params": [
@@ -5915,7 +6301,8 @@
         "type": "int"
       }
     ],
-    "desc": "ACS built-in: ReplaceTextures."
+    "desc": "ACS built-in: ReplaceTextures.",
+    "returns": "void"
   },
   "RequestScriptPuke": {
     "params": [
@@ -5944,7 +6331,8 @@
         "optional": true
       }
     ],
-    "desc": "Requests a client to puke (execute) a script."
+    "desc": "Requests a client to puke (execute) a script.",
+    "returns": "int"
   },
   "ResetCustomDataToDefault": {
     "params": [
@@ -5957,11 +6345,13 @@
         "type": "int"
       }
     ],
-    "desc": "ACS function: ResetCustomDataToDefault."
+    "desc": "ACS function: ResetCustomDataToDefault.",
+    "returns": "int"
   },
   "ResetMap": {
     "params": [],
-    "desc": "ACS function: ResetMap."
+    "desc": "ACS function: ResetMap.",
+    "returns": "int"
   },
   "Round": {
     "params": [
@@ -5970,7 +6360,8 @@
         "type": "int"
       }
     ],
-    "desc": "ACS function: Round."
+    "desc": "ACS function: Round.",
+    "returns": "int"
   },
   "ScriptCall": {
     "params": [
@@ -6473,7 +6864,8 @@
         "optional": true
       }
     ],
-    "desc": "ACS function: ScriptCall."
+    "desc": "ACS function: ScriptCall.",
+    "returns": "int"
   },
   "ScriptWait": {
     "params": [
@@ -6482,7 +6874,8 @@
         "type": "int"
       }
     ],
-    "desc": "Waits until the specified script finishes."
+    "desc": "Waits until the specified script finishes.",
+    "returns": "void"
   },
   "Scroll_Ceiling": {
     "params": [
@@ -6503,7 +6896,8 @@
         "type": "int"
       }
     ],
-    "desc": "Line special / ACS callable: Scroll_Ceiling."
+    "desc": "Line special / ACS callable: Scroll_Ceiling.",
+    "returns": "int"
   },
   "Scroll_Floor": {
     "params": [
@@ -6524,7 +6918,8 @@
         "type": "int"
       }
     ],
-    "desc": "Line special / ACS callable: Scroll_Floor."
+    "desc": "Line special / ACS callable: Scroll_Floor.",
+    "returns": "int"
   },
   "Scroll_Texture_Both": {
     "params": [
@@ -6549,7 +6944,8 @@
         "type": "int"
       }
     ],
-    "desc": "Line special / ACS callable: Scroll_Texture_Both."
+    "desc": "Line special / ACS callable: Scroll_Texture_Both.",
+    "returns": "int"
   },
   "Scroll_Wall": {
     "params": [
@@ -6574,7 +6970,8 @@
         "type": "int"
       }
     ],
-    "desc": "Line special / ACS callable: Scroll_Wall."
+    "desc": "Line special / ACS callable: Scroll_Wall.",
+    "returns": "int"
   },
   "Sector_ChangeFlags": {
     "params": [
@@ -6591,7 +6988,8 @@
         "type": "int"
       }
     ],
-    "desc": "Line special / ACS callable: Sector_ChangeFlags."
+    "desc": "Line special / ACS callable: Sector_ChangeFlags.",
+    "returns": "int"
   },
   "Sector_ChangeSound": {
     "params": [
@@ -6604,7 +7002,8 @@
         "type": "int"
       }
     ],
-    "desc": "Line special / ACS callable: Sector_ChangeSound."
+    "desc": "Line special / ACS callable: Sector_ChangeSound.",
+    "returns": "int"
   },
   "Sector_SetCeilingGlow": {
     "params": [
@@ -6629,7 +7028,8 @@
         "type": "int"
       }
     ],
-    "desc": "Line special / ACS callable: Sector_SetCeilingGlow."
+    "desc": "Line special / ACS callable: Sector_SetCeilingGlow.",
+    "returns": "int"
   },
   "Sector_SetCeilingPanning": {
     "params": [
@@ -6654,7 +7054,8 @@
         "type": "int"
       }
     ],
-    "desc": "Sets ceiling texture panning for a sector."
+    "desc": "Sets ceiling texture panning for a sector.",
+    "returns": "int"
   },
   "Sector_SetCeilingScale": {
     "params": [
@@ -6679,7 +7080,8 @@
         "type": "int"
       }
     ],
-    "desc": "Sets ceiling texture scale for a sector."
+    "desc": "Sets ceiling texture scale for a sector.",
+    "returns": "int"
   },
   "Sector_SetCeilingScale2": {
     "params": [
@@ -6696,7 +7098,8 @@
         "type": "int"
       }
     ],
-    "desc": "Line special / ACS callable: Sector_SetCeilingScale2."
+    "desc": "Line special / ACS callable: Sector_SetCeilingScale2.",
+    "returns": "int"
   },
   "Sector_SetColor": {
     "params": [
@@ -6722,7 +7125,8 @@
         "optional": true
       }
     ],
-    "desc": "Sets the color of a tagged sector."
+    "desc": "Sets the color of a tagged sector.",
+    "returns": "int"
   },
   "Sector_SetCurrent": {
     "params": [
@@ -6743,7 +7147,8 @@
         "type": "int"
       }
     ],
-    "desc": "Line special / ACS callable: Sector_SetCurrent."
+    "desc": "Line special / ACS callable: Sector_SetCurrent.",
+    "returns": "int"
   },
   "Sector_SetDamage": {
     "params": [
@@ -6770,7 +7175,8 @@
         "optional": true
       }
     ],
-    "desc": "Sets damage for a tagged sector."
+    "desc": "Sets damage for a tagged sector.",
+    "returns": "int"
   },
   "Sector_SetFade": {
     "params": [
@@ -6791,7 +7197,8 @@
         "type": "int"
       }
     ],
-    "desc": "Sets the fade color of a tagged sector."
+    "desc": "Sets the fade color of a tagged sector.",
+    "returns": "int"
   },
   "Sector_SetFloorGlow": {
     "params": [
@@ -6816,7 +7223,8 @@
         "type": "int"
       }
     ],
-    "desc": "Line special / ACS callable: Sector_SetFloorGlow."
+    "desc": "Line special / ACS callable: Sector_SetFloorGlow.",
+    "returns": "int"
   },
   "Sector_SetFloorPanning": {
     "params": [
@@ -6841,7 +7249,8 @@
         "type": "int"
       }
     ],
-    "desc": "Sets floor texture panning for a sector."
+    "desc": "Sets floor texture panning for a sector.",
+    "returns": "int"
   },
   "Sector_SetFloorScale": {
     "params": [
@@ -6866,7 +7275,8 @@
         "type": "int"
       }
     ],
-    "desc": "Sets floor texture scale for a sector."
+    "desc": "Sets floor texture scale for a sector.",
+    "returns": "int"
   },
   "Sector_SetFloorScale2": {
     "params": [
@@ -6883,7 +7293,8 @@
         "type": "int"
       }
     ],
-    "desc": "Line special / ACS callable: Sector_SetFloorScale2."
+    "desc": "Line special / ACS callable: Sector_SetFloorScale2.",
+    "returns": "int"
   },
   "Sector_SetFriction": {
     "params": [
@@ -6896,7 +7307,8 @@
         "type": "int"
       }
     ],
-    "desc": "Line special / ACS callable: Sector_SetFriction."
+    "desc": "Line special / ACS callable: Sector_SetFriction.",
+    "returns": "int"
   },
   "Sector_SetGravity": {
     "params": [
@@ -6913,7 +7325,8 @@
         "type": "int"
       }
     ],
-    "desc": "Sets gravity for a sector."
+    "desc": "Sets gravity for a sector.",
+    "returns": "int"
   },
   "Sector_SetHealth": {
     "params": [
@@ -6930,7 +7343,8 @@
         "type": "int"
       }
     ],
-    "desc": "Line special / ACS callable: Sector_SetHealth."
+    "desc": "Line special / ACS callable: Sector_SetHealth.",
+    "returns": "int"
   },
   "Sector_SetLink": {
     "params": [
@@ -6951,7 +7365,8 @@
         "type": "int"
       }
     ],
-    "desc": "Links two sectors together."
+    "desc": "Links two sectors together.",
+    "returns": "int"
   },
   "Sector_SetPlaneReflection": {
     "params": [
@@ -6968,7 +7383,8 @@
         "type": "int"
       }
     ],
-    "desc": "Line special / ACS callable: Sector_SetPlaneReflection."
+    "desc": "Line special / ACS callable: Sector_SetPlaneReflection.",
+    "returns": "int"
   },
   "Sector_SetRotation": {
     "params": [
@@ -6985,7 +7401,8 @@
         "type": "int"
       }
     ],
-    "desc": "Line special / ACS callable: Sector_SetRotation."
+    "desc": "Line special / ACS callable: Sector_SetRotation.",
+    "returns": "int"
   },
   "Sector_SetTranslucent": {
     "params": [
@@ -7007,7 +7424,8 @@
         "optional": true
       }
     ],
-    "desc": "Line special / ACS callable: Sector_SetTranslucent."
+    "desc": "Line special / ACS callable: Sector_SetTranslucent.",
+    "returns": "int"
   },
   "Sector_SetWind": {
     "params": [
@@ -7028,7 +7446,8 @@
         "type": "int"
       }
     ],
-    "desc": "Line special / ACS callable: Sector_SetWind."
+    "desc": "Line special / ACS callable: Sector_SetWind.",
+    "returns": "int"
   },
   "SectorDamage": {
     "params": [
@@ -7053,7 +7472,8 @@
         "type": "int"
       }
     ],
-    "desc": "ACS built-in: SectorDamage."
+    "desc": "ACS built-in: SectorDamage.",
+    "returns": "void"
   },
   "SectorSound": {
     "params": [
@@ -7066,7 +7486,8 @@
         "type": "int"
       }
     ],
-    "desc": "ACS built-in: SectorSound."
+    "desc": "ACS built-in: SectorSound.",
+    "returns": "void"
   },
   "SendNetworkString": {
     "params": [
@@ -7084,7 +7505,8 @@
         "optional": true
       }
     ],
-    "desc": "Sends a string across the network, then runs a script with the string id as an argument."
+    "desc": "Sends a string across the network, then runs a script with the string id as an argument.",
+    "returns": "int"
   },
   "SendToCommunicator": {
     "params": [
@@ -7105,7 +7527,8 @@
         "type": "int"
       }
     ],
-    "desc": "Line special / ACS callable: SendToCommunicator."
+    "desc": "Line special / ACS callable: SendToCommunicator.",
+    "returns": "int"
   },
   "SetActivator": {
     "params": [
@@ -7119,7 +7542,8 @@
         "optional": true
       }
     ],
-    "desc": "Changes the activator to the specified actor."
+    "desc": "Changes the activator to the specified actor.",
+    "returns": "int"
   },
   "SetActivatorByNetID": {
     "params": [
@@ -7133,7 +7557,8 @@
         "optional": true
       }
     ],
-    "desc": "Sets the script activator from a network ID (Zandronum)."
+    "desc": "Sets the script activator from a network ID (Zandronum).",
+    "returns": "int"
   },
   "SetActivatorToPlayer": {
     "params": [
@@ -7142,7 +7567,8 @@
         "type": "int"
       }
     ],
-    "desc": "Changes the activator to the specified player."
+    "desc": "Changes the activator to the specified player.",
+    "returns": "int"
   },
   "SetActivatorToTarget": {
     "params": [
@@ -7151,7 +7577,8 @@
         "type": "int"
       }
     ],
-    "desc": "ACS function: SetActivatorToTarget."
+    "desc": "ACS function: SetActivatorToTarget.",
+    "returns": "int"
   },
   "SetActorAngle": {
     "params": [
@@ -7164,7 +7591,8 @@
         "type": "int"
       }
     ],
-    "desc": "Sets the angle of the actor."
+    "desc": "Sets the angle of the actor.",
+    "returns": "void"
   },
   "SetActorFlag": {
     "params": [
@@ -7181,7 +7609,8 @@
         "type": "bool"
       }
     ],
-    "desc": "Sets a flag on the actor with the given TID."
+    "desc": "Sets a flag on the actor with the given TID.",
+    "returns": "int"
   },
   "SetActorPitch": {
     "params": [
@@ -7194,7 +7623,8 @@
         "type": "int"
       }
     ],
-    "desc": "Sets the pitch of the actor."
+    "desc": "Sets the pitch of the actor.",
+    "returns": "void"
   },
   "SetActorPosition": {
     "params": [
@@ -7219,7 +7649,8 @@
         "type": "bool"
       }
     ],
-    "desc": "Sets the position of the actor."
+    "desc": "Sets the position of the actor.",
+    "returns": "int"
   },
   "SetActorProperty": {
     "params": [
@@ -7236,7 +7667,8 @@
         "type": "int"
       }
     ],
-    "desc": "Sets a property on the actor with the given TID."
+    "desc": "Sets a property on the actor with the given TID.",
+    "returns": "void"
   },
   "SetActorRoll": {
     "params": [
@@ -7249,7 +7681,8 @@
         "type": "int"
       }
     ],
-    "desc": "ACS function: SetActorRoll."
+    "desc": "ACS function: SetActorRoll.",
+    "returns": "int"
   },
   "SetActorState": {
     "params": [
@@ -7266,7 +7699,8 @@
         "type": "bool"
       }
     ],
-    "desc": "Sets the state of the actor to a named state."
+    "desc": "Sets the state of the actor to a named state.",
+    "returns": "int"
   },
   "SetActorTeleFog": {
     "params": [
@@ -7283,7 +7717,8 @@
         "type": "int"
       }
     ],
-    "desc": "ACS function: SetActorTeleFog."
+    "desc": "ACS function: SetActorTeleFog.",
+    "returns": "int"
   },
   "SetActorVelocity": {
     "params": [
@@ -7312,7 +7747,8 @@
         "type": "bool"
       }
     ],
-    "desc": "Sets the velocity of the actor."
+    "desc": "Sets the velocity of the actor.",
+    "returns": "int"
   },
   "SetAirControl": {
     "params": [
@@ -7321,7 +7757,8 @@
         "type": "int"
       }
     ],
-    "desc": "ACS built-in: SetAirControl."
+    "desc": "ACS built-in: SetAirControl.",
+    "returns": "void"
   },
   "SetAirFriction": {
     "params": [
@@ -7330,7 +7767,8 @@
         "type": "int"
       }
     ],
-    "desc": "ACS function: SetAirFriction."
+    "desc": "ACS function: SetAirFriction.",
+    "returns": "int"
   },
   "SetAirSupply": {
     "params": [
@@ -7343,7 +7781,8 @@
         "type": "int"
       }
     ],
-    "desc": "ACS function: SetAirSupply."
+    "desc": "ACS function: SetAirSupply.",
+    "returns": "int"
   },
   "SetAmmoCapacity": {
     "params": [
@@ -7356,7 +7795,8 @@
         "type": "int"
       }
     ],
-    "desc": "Sets the maximum ammo capacity for an ammo type."
+    "desc": "Sets the maximum ammo capacity for an ammo type.",
+    "returns": "void"
   },
   "SetCameraToTexture": {
     "params": [
@@ -7373,7 +7813,8 @@
         "type": "int"
       }
     ],
-    "desc": "Sets a camera texture view to follow a thing."
+    "desc": "Sets a camera texture view to follow a thing.",
+    "returns": "void"
   },
   "SetCeilingTrigger": {
     "params": [
@@ -7410,7 +7851,8 @@
         "type": "int"
       }
     ],
-    "desc": "ACS built-in: SetCeilingTrigger."
+    "desc": "ACS built-in: SetCeilingTrigger.",
+    "returns": "void"
   },
   "SetControlPointInfo": {
     "params": [
@@ -7427,7 +7869,8 @@
         "type": "int"
       }
     ],
-    "desc": "ACS function: SetControlPointInfo."
+    "desc": "ACS function: SetControlPointInfo.",
+    "returns": "int"
   },
   "SetCurrentGameMode": {
     "params": [
@@ -7436,7 +7879,8 @@
         "type": "int"
       }
     ],
-    "desc": "Changes the current game mode."
+    "desc": "Changes the current game mode.",
+    "returns": "int"
   },
   "SetCustomPlayerValue": {
     "params": [
@@ -7453,7 +7897,8 @@
         "type": "int"
       }
     ],
-    "desc": "ACS function: SetCustomPlayerValue."
+    "desc": "ACS function: SetCustomPlayerValue.",
+    "returns": "int"
   },
   "SetCVar": {
     "params": [
@@ -7466,7 +7911,8 @@
         "type": "int"
       }
     ],
-    "desc": "Sets a server CVar to the given value."
+    "desc": "Sets a server CVar to the given value.",
+    "returns": "int"
   },
   "SetCVarString": {
     "params": [
@@ -7479,7 +7925,8 @@
         "type": "string"
       }
     ],
-    "desc": "Sets a server CVar to the given string value."
+    "desc": "Sets a server CVar to the given string value.",
+    "returns": "int"
   },
   "SetDBEntry": {
     "params": [
@@ -7496,7 +7943,8 @@
         "type": "int"
       }
     ],
-    "desc": "ACS function: SetDBEntry."
+    "desc": "ACS function: SetDBEntry.",
+    "returns": "int"
   },
   "SetDBEntryString": {
     "params": [
@@ -7513,7 +7961,8 @@
         "type": "int"
       }
     ],
-    "desc": "ACS function: SetDBEntryString."
+    "desc": "ACS function: SetDBEntryString.",
+    "returns": "int"
   },
   "SetDeadSpectator": {
     "params": [
@@ -7526,7 +7975,8 @@
         "type": "int"
       }
     ],
-    "desc": "ACS function: SetDeadSpectator."
+    "desc": "ACS function: SetDeadSpectator.",
+    "returns": "int"
   },
   "SetFloorTrigger": {
     "params": [
@@ -7563,7 +8013,8 @@
         "type": "int"
       }
     ],
-    "desc": "ACS built-in: SetFloorTrigger."
+    "desc": "ACS built-in: SetFloorTrigger.",
+    "returns": "void"
   },
   "SetFogDensity": {
     "params": [
@@ -7576,7 +8027,8 @@
         "type": "int"
       }
     ],
-    "desc": "ACS function: SetFogDensity."
+    "desc": "ACS function: SetFogDensity.",
+    "returns": "int"
   },
   "SetFont": {
     "params": [
@@ -7585,7 +8037,8 @@
         "type": "string"
       }
     ],
-    "desc": "Sets the font for subsequent HUD messages."
+    "desc": "Sets the font for subsequent HUD messages.",
+    "returns": "void"
   },
   "SetGameModeLimit": {
     "params": [
@@ -7598,7 +8051,8 @@
         "type": "int"
       }
     ],
-    "desc": "Sets a game mode limit."
+    "desc": "Sets a game mode limit.",
+    "returns": "int"
   },
   "SetGameplaySetting": {
     "params": [
@@ -7611,7 +8065,8 @@
         "type": "int"
       }
     ],
-    "desc": "ACS function: SetGameplaySetting."
+    "desc": "ACS function: SetGameplaySetting.",
+    "returns": "int"
   },
   "SetGlobalFogParameter": {
     "params": [
@@ -7624,7 +8079,8 @@
         "type": "int"
       }
     ],
-    "desc": "Line special / ACS callable: SetGlobalFogParameter."
+    "desc": "Line special / ACS callable: SetGlobalFogParameter.",
+    "returns": "int"
   },
   "SetGravity": {
     "params": [
@@ -7633,7 +8089,8 @@
         "type": "int"
       }
     ],
-    "desc": "ACS built-in: SetGravity."
+    "desc": "ACS built-in: SetGravity.",
+    "returns": "void"
   },
   "SetHUDClipRect": {
     "params": [
@@ -7664,7 +8121,8 @@
         "optional": true
       }
     ],
-    "desc": "ACS function: SetHUDClipRect."
+    "desc": "ACS function: SetHUDClipRect.",
+    "returns": "int"
   },
   "SetHudSize": {
     "params": [
@@ -7681,7 +8139,8 @@
         "type": "bool"
       }
     ],
-    "desc": "Sets the virtual HUD coordinate space."
+    "desc": "Sets the virtual HUD coordinate space.",
+    "returns": "void"
   },
   "SetHUDWrapWidth": {
     "params": [
@@ -7690,7 +8149,8 @@
         "type": "int"
       }
     ],
-    "desc": "ACS function: SetHUDWrapWidth."
+    "desc": "ACS function: SetHUDWrapWidth.",
+    "returns": "int"
   },
   "SetLineActivation": {
     "params": [
@@ -7703,7 +8163,8 @@
         "type": "int"
       }
     ],
-    "desc": "ACS function: SetLineActivation."
+    "desc": "ACS function: SetLineActivation.",
+    "returns": "int"
   },
   "SetLineBlocking": {
     "params": [
@@ -7716,7 +8177,8 @@
         "type": "int"
       }
     ],
-    "desc": "ACS built-in: SetLineBlocking."
+    "desc": "ACS built-in: SetLineBlocking.",
+    "returns": "void"
   },
   "SetLineMonsterBlocking": {
     "params": [
@@ -7729,7 +8191,8 @@
         "type": "int"
       }
     ],
-    "desc": "ACS built-in: SetLineMonsterBlocking."
+    "desc": "ACS built-in: SetLineMonsterBlocking.",
+    "returns": "void"
   },
   "SetLineSpecial": {
     "params": [
@@ -7762,7 +8225,8 @@
         "type": "int"
       }
     ],
-    "desc": "ACS built-in: SetLineSpecial."
+    "desc": "ACS built-in: SetLineSpecial.",
+    "returns": "void"
   },
   "SetLineTexture": {
     "params": [
@@ -7783,7 +8247,8 @@
         "type": "int"
       }
     ],
-    "desc": "ACS built-in: SetLineTexture."
+    "desc": "ACS built-in: SetLineTexture.",
+    "returns": "void"
   },
   "SetMapUsedStatus": {
     "params": [
@@ -7796,7 +8261,8 @@
         "type": "int"
       }
     ],
-    "desc": "ACS function: SetMapUsedStatus."
+    "desc": "ACS function: SetMapUsedStatus.",
+    "returns": "int"
   },
   "SetMarineSprite": {
     "params": [
@@ -7809,7 +8275,8 @@
         "type": "int"
       }
     ],
-    "desc": "ACS built-in: SetMarineSprite."
+    "desc": "ACS built-in: SetMarineSprite.",
+    "returns": "void"
   },
   "SetMarineWeapon": {
     "params": [
@@ -7822,7 +8289,8 @@
         "type": "int"
       }
     ],
-    "desc": "ACS built-in: SetMarineWeapon."
+    "desc": "ACS built-in: SetMarineWeapon.",
+    "returns": "void"
   },
   "SetMousePointer": {
     "params": [
@@ -7839,7 +8307,8 @@
         "type": "int"
       }
     ],
-    "desc": "ACS built-in: SetMousePointer."
+    "desc": "ACS built-in: SetMousePointer.",
+    "returns": "void"
   },
   "SetMugShotState": {
     "params": [
@@ -7848,7 +8317,8 @@
         "type": "int"
       }
     ],
-    "desc": "ACS built-in: SetMugShotState."
+    "desc": "ACS built-in: SetMugShotState.",
+    "returns": "void"
   },
   "SetMusic": {
     "params": [
@@ -7865,7 +8335,8 @@
         "type": "int"
       }
     ],
-    "desc": "Changes the music."
+    "desc": "Changes the music.",
+    "returns": "void"
   },
   "SetMusicVolume": {
     "params": [
@@ -7874,7 +8345,8 @@
         "type": "float"
       }
     ],
-    "desc": "Sets the music volume."
+    "desc": "Sets the music volume.",
+    "returns": "int"
   },
   "SetNextMapPosition": {
     "params": [
@@ -7887,7 +8359,8 @@
         "type": "int"
       }
     ],
-    "desc": "ACS function: SetNextMapPosition."
+    "desc": "ACS function: SetNextMapPosition.",
+    "returns": "int"
   },
   "SetPlayerChasecam": {
     "params": [
@@ -7900,7 +8373,8 @@
         "type": "int"
       }
     ],
-    "desc": "ACS function: SetPlayerChasecam."
+    "desc": "ACS function: SetPlayerChasecam.",
+    "returns": "int"
   },
   "SetPlayerClass": {
     "params": [
@@ -7917,7 +8391,8 @@
         "type": "int"
       }
     ],
-    "desc": "ACS function: SetPlayerClass."
+    "desc": "ACS function: SetPlayerClass.",
+    "returns": "int"
   },
   "SetPlayerLivesLeft": {
     "params": [
@@ -7930,7 +8405,8 @@
         "type": "int"
       }
     ],
-    "desc": "ACS function: SetPlayerLivesLeft."
+    "desc": "ACS function: SetPlayerLivesLeft.",
+    "returns": "int"
   },
   "SetPlayerProperty": {
     "params": [
@@ -7947,7 +8423,8 @@
         "type": "int"
       }
     ],
-    "desc": "Sets a player property for the given player."
+    "desc": "Sets a player property for the given player.",
+    "returns": "int"
   },
   "SetPlayerScore": {
     "params": [
@@ -7964,7 +8441,8 @@
         "type": "int"
       }
     ],
-    "desc": "ACS function: SetPlayerScore."
+    "desc": "ACS function: SetPlayerScore.",
+    "returns": "int"
   },
   "SetPlayerSkin": {
     "params": [
@@ -7982,7 +8460,8 @@
         "optional": true
       }
     ],
-    "desc": "ACS function: SetPlayerSkin."
+    "desc": "ACS function: SetPlayerSkin.",
+    "returns": "int"
   },
   "SetPlayerWeaponZoomFactor": {
     "params": [
@@ -8000,7 +8479,8 @@
         "optional": true
       }
     ],
-    "desc": "ACS function: SetPlayerWeaponZoomFactor."
+    "desc": "ACS function: SetPlayerWeaponZoomFactor.",
+    "returns": "int"
   },
   "SetPointer": {
     "params": [
@@ -8023,7 +8503,8 @@
         "optional": true
       }
     ],
-    "desc": "ACS function: SetPointer."
+    "desc": "ACS function: SetPointer.",
+    "returns": "int"
   },
   "SetResultValue": {
     "params": [
@@ -8032,7 +8513,8 @@
         "type": "int"
       }
     ],
-    "desc": "Sets the return value for the current script."
+    "desc": "Sets the return value for the current script.",
+    "returns": "void"
   },
   "SetSectorDamage": {
     "params": [
@@ -8060,7 +8542,8 @@
         "optional": true
       }
     ],
-    "desc": "ACS function: SetSectorDamage."
+    "desc": "ACS function: SetSectorDamage.",
+    "returns": "int"
   },
   "SetSectorGlow": {
     "params": [
@@ -8089,7 +8572,8 @@
         "type": "int"
       }
     ],
-    "desc": "ACS function: SetSectorGlow."
+    "desc": "ACS function: SetSectorGlow.",
+    "returns": "int"
   },
   "SetSectorTerrain": {
     "params": [
@@ -8106,7 +8590,8 @@
         "type": "int"
       }
     ],
-    "desc": "ACS function: SetSectorTerrain."
+    "desc": "ACS function: SetSectorTerrain.",
+    "returns": "int"
   },
   "SetSkyScrollSpeed": {
     "params": [
@@ -8119,7 +8604,8 @@
         "type": "int"
       }
     ],
-    "desc": "ACS function: SetSkyScrollSpeed."
+    "desc": "ACS function: SetSkyScrollSpeed.",
+    "returns": "int"
   },
   "SetStyle": {
     "params": [
@@ -8128,7 +8614,8 @@
         "type": "int"
       }
     ],
-    "desc": "ACS built-in: SetStyle."
+    "desc": "ACS built-in: SetStyle.",
+    "returns": "void"
   },
   "SetTeamScore": {
     "params": [
@@ -8141,7 +8628,8 @@
         "type": "int"
       }
     ],
-    "desc": "ACS function: SetTeamScore."
+    "desc": "ACS function: SetTeamScore.",
+    "returns": "int"
   },
   "SetThingSpecial": {
     "params": [
@@ -8174,7 +8662,8 @@
         "type": "int"
       }
     ],
-    "desc": "Sets the special for things with the given TID."
+    "desc": "Sets the special for things with the given TID.",
+    "returns": "void"
   },
   "SetTranslation": {
     "params": [
@@ -8187,7 +8676,8 @@
         "type": "int"
       }
     ],
-    "desc": "ACS function: SetTranslation."
+    "desc": "ACS function: SetTranslation.",
+    "returns": "int"
   },
   "SetUserArray": {
     "params": [
@@ -8208,7 +8698,8 @@
         "type": "int"
       }
     ],
-    "desc": "ACS function: SetUserArray."
+    "desc": "ACS function: SetUserArray.",
+    "returns": "int"
   },
   "SetUserCVar": {
     "params": [
@@ -8225,7 +8716,8 @@
         "type": "int"
       }
     ],
-    "desc": "ACS function: SetUserCVar."
+    "desc": "ACS function: SetUserCVar.",
+    "returns": "int"
   },
   "SetUserCVarString": {
     "params": [
@@ -8242,7 +8734,8 @@
         "type": "int"
       }
     ],
-    "desc": "ACS function: SetUserCVarString."
+    "desc": "ACS function: SetUserCVarString.",
+    "returns": "int"
   },
   "SetUserVariable": {
     "params": [
@@ -8259,7 +8752,8 @@
         "type": "int"
       }
     ],
-    "desc": "ACS function: SetUserVariable."
+    "desc": "ACS function: SetUserVariable.",
+    "returns": "int"
   },
   "SetWeapon": {
     "params": [
@@ -8268,7 +8762,8 @@
         "type": "string"
       }
     ],
-    "desc": "Selects the specified weapon for the activator."
+    "desc": "Selects the specified weapon for the activator.",
+    "returns": "int"
   },
   "sin": {
     "params": [
@@ -8277,11 +8772,13 @@
         "type": "int"
       }
     ],
-    "desc": "Returns the sine of the angle (fixed-point angle)."
+    "desc": "Returns the sine of the angle (fixed-point angle).",
+    "returns": "fixed"
   },
   "SinglePlayer": {
     "params": [],
-    "desc": "ACS built-in: SinglePlayer."
+    "desc": "ACS built-in: SinglePlayer.",
+    "returns": "int"
   },
   "SkipJoinQueue": {
     "params": [
@@ -8290,7 +8787,8 @@
         "type": "int"
       }
     ],
-    "desc": "ACS function: SkipJoinQueue."
+    "desc": "ACS function: SkipJoinQueue.",
+    "returns": "int"
   },
   "SortDBEntries": {
     "params": [
@@ -8311,7 +8809,8 @@
         "type": "int"
       }
     ],
-    "desc": "ACS function: SortDBEntries."
+    "desc": "ACS function: SortDBEntries.",
+    "returns": "int"
   },
   "SoundSequence": {
     "params": [
@@ -8320,7 +8819,8 @@
         "type": "int"
       }
     ],
-    "desc": "Plays a sound sequence on a sector."
+    "desc": "Plays a sound sequence on a sector.",
+    "returns": "void"
   },
   "SoundSequenceOnActor": {
     "params": [
@@ -8333,7 +8833,8 @@
         "type": "int"
       }
     ],
-    "desc": "ACS function: SoundSequenceOnActor."
+    "desc": "ACS function: SoundSequenceOnActor.",
+    "returns": "int"
   },
   "SoundSequenceOnPolyobj": {
     "params": [
@@ -8346,7 +8847,8 @@
         "type": "int"
       }
     ],
-    "desc": "ACS function: SoundSequenceOnPolyobj."
+    "desc": "ACS function: SoundSequenceOnPolyobj.",
+    "returns": "int"
   },
   "SoundSequenceOnSector": {
     "params": [
@@ -8363,7 +8865,8 @@
         "type": "int"
       }
     ],
-    "desc": "ACS function: SoundSequenceOnSector."
+    "desc": "ACS function: SoundSequenceOnSector.",
+    "returns": "int"
   },
   "SoundVolume": {
     "params": [
@@ -8380,7 +8883,8 @@
         "type": "int"
       }
     ],
-    "desc": "ACS function: SoundVolume."
+    "desc": "ACS function: SoundVolume.",
+    "returns": "int"
   },
   "Spawn": {
     "params": [
@@ -8409,7 +8913,8 @@
         "type": "int"
       }
     ],
-    "desc": "Spawns an actor at the given fixed-point coordinates."
+    "desc": "Spawns an actor at the given fixed-point coordinates.",
+    "returns": "int"
   },
   "SpawnDecal": {
     "params": [
@@ -8442,7 +8947,8 @@
         "optional": true
       }
     ],
-    "desc": "ACS function: SpawnDecal."
+    "desc": "ACS function: SpawnDecal.",
+    "returns": "int"
   },
   "SpawnForced": {
     "params": [
@@ -8473,7 +8979,8 @@
         "optional": true
       }
     ],
-    "desc": "ACS function: SpawnForced."
+    "desc": "ACS function: SpawnForced.",
+    "returns": "int"
   },
   "SpawnParticle": {
     "params": [
@@ -8557,7 +9064,8 @@
         "optional": true
       }
     ],
-    "desc": "ACS function: SpawnParticle."
+    "desc": "ACS function: SpawnParticle.",
+    "returns": "int"
   },
   "SpawnProjectile": {
     "params": [
@@ -8590,7 +9098,8 @@
         "type": "int"
       }
     ],
-    "desc": "ACS built-in: SpawnProjectile."
+    "desc": "ACS built-in: SpawnProjectile.",
+    "returns": "void"
   },
   "SpawnSpot": {
     "params": [
@@ -8611,7 +9120,8 @@
         "type": "int"
       }
     ],
-    "desc": "Spawns an actor at a map spot with the given TID."
+    "desc": "Spawns an actor at a map spot with the given TID.",
+    "returns": "int"
   },
   "SpawnSpotFacing": {
     "params": [
@@ -8628,7 +9138,8 @@
         "type": "int"
       }
     ],
-    "desc": "Spawns an actor at a map spot, facing the spot's direction."
+    "desc": "Spawns an actor at a map spot, facing the spot's direction.",
+    "returns": "int"
   },
   "SpawnSpotFacingForced": {
     "params": [
@@ -8645,7 +9156,8 @@
         "type": "int"
       }
     ],
-    "desc": "Spawns an actor at a map spot facing it, even if blocked."
+    "desc": "Spawns an actor at a map spot facing it, even if blocked.",
+    "returns": "int"
   },
   "SpawnSpotForced": {
     "params": [
@@ -8666,7 +9178,8 @@
         "type": "int"
       }
     ],
-    "desc": "Spawns an actor at a map spot, even if blocked."
+    "desc": "Spawns an actor at a map spot, even if blocked.",
+    "returns": "int"
   },
   "Sqrt": {
     "params": [
@@ -8675,7 +9188,8 @@
         "type": "int"
       }
     ],
-    "desc": "ACS function: Sqrt."
+    "desc": "ACS function: Sqrt.",
+    "returns": "int"
   },
   "Stairs_BuildDown": {
     "params": [
@@ -8700,7 +9214,8 @@
         "type": "int"
       }
     ],
-    "desc": "Builds stairs going down."
+    "desc": "Builds stairs going down.",
+    "returns": "int"
   },
   "Stairs_BuildDownDoom": {
     "params": [
@@ -8725,7 +9240,8 @@
         "type": "int"
       }
     ],
-    "desc": "Line special / ACS callable: Stairs_BuildDownDoom."
+    "desc": "Line special / ACS callable: Stairs_BuildDownDoom.",
+    "returns": "int"
   },
   "Stairs_BuildDownDoomSync": {
     "params": [
@@ -8746,7 +9262,8 @@
         "type": "int"
       }
     ],
-    "desc": "Line special / ACS callable: Stairs_BuildDownDoomSync."
+    "desc": "Line special / ACS callable: Stairs_BuildDownDoomSync.",
+    "returns": "int"
   },
   "Stairs_BuildDownSync": {
     "params": [
@@ -8767,7 +9284,8 @@
         "type": "int"
       }
     ],
-    "desc": "Line special / ACS callable: Stairs_BuildDownSync."
+    "desc": "Line special / ACS callable: Stairs_BuildDownSync.",
+    "returns": "int"
   },
   "Stairs_BuildUp": {
     "params": [
@@ -8792,7 +9310,8 @@
         "type": "int"
       }
     ],
-    "desc": "Builds stairs going up."
+    "desc": "Builds stairs going up.",
+    "returns": "int"
   },
   "Stairs_BuildUpDoom": {
     "params": [
@@ -8817,7 +9336,8 @@
         "type": "int"
       }
     ],
-    "desc": "Line special / ACS callable: Stairs_BuildUpDoom."
+    "desc": "Line special / ACS callable: Stairs_BuildUpDoom.",
+    "returns": "int"
   },
   "Stairs_BuildUpDoomCrush": {
     "params": [
@@ -8842,7 +9362,8 @@
         "type": "int"
       }
     ],
-    "desc": "Line special / ACS callable: Stairs_BuildUpDoomCrush."
+    "desc": "Line special / ACS callable: Stairs_BuildUpDoomCrush.",
+    "returns": "int"
   },
   "Stairs_BuildUpDoomSync": {
     "params": [
@@ -8863,7 +9384,8 @@
         "type": "int"
       }
     ],
-    "desc": "Line special / ACS callable: Stairs_BuildUpDoomSync."
+    "desc": "Line special / ACS callable: Stairs_BuildUpDoomSync.",
+    "returns": "int"
   },
   "Stairs_BuildUpSync": {
     "params": [
@@ -8884,7 +9406,8 @@
         "type": "int"
       }
     ],
-    "desc": "Line special / ACS callable: Stairs_BuildUpSync."
+    "desc": "Line special / ACS callable: Stairs_BuildUpSync.",
+    "returns": "int"
   },
   "StartConversation": {
     "params": [
@@ -8898,7 +9421,8 @@
         "optional": true
       }
     ],
-    "desc": "Line special / ACS callable: StartConversation."
+    "desc": "Line special / ACS callable: StartConversation.",
+    "returns": "int"
   },
   "StartSlideshow": {
     "params": [
@@ -8907,7 +9431,8 @@
         "type": "int"
       }
     ],
-    "desc": "ACS function: StartSlideshow."
+    "desc": "ACS function: StartSlideshow.",
+    "returns": "int"
   },
   "StopSound": {
     "params": [
@@ -8921,7 +9446,8 @@
         "optional": true
       }
     ],
-    "desc": "ACS function: StopSound."
+    "desc": "ACS function: StopSound.",
+    "returns": "int"
   },
   "StrArg": {
     "params": [
@@ -8930,7 +9456,8 @@
         "type": "int"
       }
     ],
-    "desc": "ACS function: StrArg."
+    "desc": "ACS function: StrArg.",
+    "returns": "str"
   },
   "strcasecmp": {
     "params": [
@@ -8948,7 +9475,8 @@
         "optional": true
       }
     ],
-    "desc": "ACS function: strcasecmp."
+    "desc": "ACS function: strcasecmp.",
+    "returns": "int"
   },
   "strcmp": {
     "params": [
@@ -8966,7 +9494,8 @@
         "optional": true
       }
     ],
-    "desc": "ACS function: strcmp."
+    "desc": "ACS function: strcmp.",
+    "returns": "int"
   },
   "Strftime": {
     "params": [
@@ -8984,7 +9513,8 @@
         "optional": true
       }
     ],
-    "desc": "ACS function: Strftime."
+    "desc": "ACS function: Strftime.",
+    "returns": "str"
   },
   "stricmp": {
     "params": [
@@ -9002,7 +9532,8 @@
         "optional": true
       }
     ],
-    "desc": "ACS function: stricmp."
+    "desc": "ACS function: stricmp.",
+    "returns": "int"
   },
   "StrLeft": {
     "params": [
@@ -9015,7 +9546,8 @@
         "type": "int"
       }
     ],
-    "desc": "ACS function: StrLeft."
+    "desc": "ACS function: StrLeft.",
+    "returns": "str"
   },
   "StrLen": {
     "params": [
@@ -9024,7 +9556,8 @@
         "type": "string"
       }
     ],
-    "desc": "Returns the length of a string."
+    "desc": "Returns the length of a string.",
+    "returns": "int"
   },
   "StrMid": {
     "params": [
@@ -9041,12 +9574,14 @@
         "type": "int"
       }
     ],
-    "desc": "ACS function: StrMid."
+    "desc": "ACS function: StrMid.",
+    "returns": "str"
   },
   "StrParam": {
-    "signature": "StrParam(cast:expression, ...)",
     "params": [],
-    "desc": "Builds and returns a `str` using Print cast syntax: comma-separated `cast:expression` items (`s`, `d`/`i`, `f`, `c`, `n`, `l`, `k`, `b`, `x`, `a`).\n\nExample: `str msg = StrParam(s:\"Score: \", d:score);`"
+    "desc": "Builds and returns a `str` using Print cast syntax: comma-separated `cast:expression` items (`s`, `d`/`i`, `f`, `c`, `n`, `l`, `k`, `b`, `x`, `a`).\n\nExample: `str msg = StrParam(s:\"Score: \", d:score);`",
+    "returns": "str",
+    "signature": "str StrParam(cast:expression, ...)"
   },
   "StrRight": {
     "params": [
@@ -9059,7 +9594,8 @@
         "type": "int"
       }
     ],
-    "desc": "ACS function: StrRight."
+    "desc": "ACS function: StrRight.",
+    "returns": "str"
   },
   "SwapActorTeleFog": {
     "params": [
@@ -9068,11 +9604,13 @@
         "type": "int"
       }
     ],
-    "desc": "ACS function: SwapActorTeleFog."
+    "desc": "ACS function: SwapActorTeleFog.",
+    "returns": "int"
   },
   "SystemTime": {
     "params": [],
-    "desc": "ACS function: SystemTime."
+    "desc": "ACS function: SystemTime.",
+    "returns": "int"
   },
   "TagWait": {
     "params": [
@@ -9081,7 +9619,8 @@
         "type": "int"
       }
     ],
-    "desc": "Waits until the tagged sector(s) finish moving."
+    "desc": "Waits until the tagged sector(s) finish moving.",
+    "returns": "void"
   },
   "TakeActorInventory": {
     "params": [
@@ -9098,7 +9637,8 @@
         "type": "int"
       }
     ],
-    "desc": "Takes an inventory item from the specified actor."
+    "desc": "Takes an inventory item from the specified actor.",
+    "returns": "void"
   },
   "TakeInventory": {
     "params": [
@@ -9111,7 +9651,8 @@
         "type": "int"
       }
     ],
-    "desc": "Takes an inventory item from the activator."
+    "desc": "Takes an inventory item from the activator.",
+    "returns": "void"
   },
   "Team_GivePoints": {
     "params": [
@@ -9128,7 +9669,8 @@
         "type": "int"
       }
     ],
-    "desc": "Line special / ACS callable: Team_GivePoints."
+    "desc": "Line special / ACS callable: Team_GivePoints.",
+    "returns": "int"
   },
   "Team_Score": {
     "params": [
@@ -9141,7 +9683,8 @@
         "type": "int"
       }
     ],
-    "desc": "Returns the current score of the given team (count mode)."
+    "desc": "Returns the current score of the given team (count mode).",
+    "returns": "int"
   },
   "Teleport": {
     "params": [
@@ -9160,11 +9703,13 @@
         "optional": true
       }
     ],
-    "desc": "Teleports the actor to the target thing."
+    "desc": "Teleports the actor to the target thing.",
+    "returns": "int"
   },
   "Teleport_EndGame": {
     "params": [],
-    "desc": "Ends the game and shows the finale."
+    "desc": "Ends the game and shows the finale.",
+    "returns": "int"
   },
   "Teleport_Line": {
     "params": [
@@ -9182,7 +9727,8 @@
         "optional": true
       }
     ],
-    "desc": "Line special / ACS callable: Teleport_Line."
+    "desc": "Line special / ACS callable: Teleport_Line.",
+    "returns": "int"
   },
   "Teleport_NewMap": {
     "params": [
@@ -9200,7 +9746,8 @@
         "optional": true
       }
     ],
-    "desc": "Teleports to a new map."
+    "desc": "Teleports to a new map.",
+    "returns": "int"
   },
   "Teleport_NoFog": {
     "params": [
@@ -9224,7 +9771,8 @@
         "optional": true
       }
     ],
-    "desc": "Line special / ACS callable: Teleport_NoFog."
+    "desc": "Line special / ACS callable: Teleport_NoFog.",
+    "returns": "int"
   },
   "Teleport_NoStop": {
     "params": [
@@ -9242,7 +9790,8 @@
         "optional": true
       }
     ],
-    "desc": "Line special / ACS callable: Teleport_NoStop."
+    "desc": "Line special / ACS callable: Teleport_NoStop.",
+    "returns": "int"
   },
   "Teleport_ZombieChanger": {
     "params": [
@@ -9255,7 +9804,8 @@
         "type": "int"
       }
     ],
-    "desc": "Line special / ACS callable: Teleport_ZombieChanger."
+    "desc": "Line special / ACS callable: Teleport_ZombieChanger.",
+    "returns": "int"
   },
   "TeleportGroup": {
     "params": [
@@ -9280,7 +9830,8 @@
         "type": "bool"
       }
     ],
-    "desc": "Teleports all members of a group to a destination."
+    "desc": "Teleports all members of a group to a destination.",
+    "returns": "int"
   },
   "TeleportInSector": {
     "params": [
@@ -9306,7 +9857,8 @@
         "optional": true
       }
     ],
-    "desc": "Teleports things from one tagged sector to another."
+    "desc": "Teleports things from one tagged sector to another.",
+    "returns": "int"
   },
   "TeleportOther": {
     "params": [
@@ -9323,7 +9875,8 @@
         "type": "bool"
       }
     ],
-    "desc": "Teleports an actor to a target thing."
+    "desc": "Teleports an actor to a target thing.",
+    "returns": "int"
   },
   "Thing_Activate": {
     "params": [
@@ -9332,7 +9885,8 @@
         "type": "int"
       }
     ],
-    "desc": "Line special / ACS callable: Thing_Activate."
+    "desc": "Line special / ACS callable: Thing_Activate.",
+    "returns": "int"
   },
   "Thing_ChangeTID": {
     "params": [
@@ -9345,7 +9899,8 @@
         "type": "int"
       }
     ],
-    "desc": "Line special / ACS callable: Thing_ChangeTID."
+    "desc": "Line special / ACS callable: Thing_ChangeTID.",
+    "returns": "int"
   },
   "Thing_Damage": {
     "params": [
@@ -9363,7 +9918,8 @@
         "optional": true
       }
     ],
-    "desc": "Damages all things with the given TID."
+    "desc": "Damages all things with the given TID.",
+    "returns": "int"
   },
   "Thing_Deactivate": {
     "params": [
@@ -9372,7 +9928,8 @@
         "type": "int"
       }
     ],
-    "desc": "Line special / ACS callable: Thing_Deactivate."
+    "desc": "Line special / ACS callable: Thing_Deactivate.",
+    "returns": "int"
   },
   "Thing_Destroy": {
     "params": [
@@ -9391,7 +9948,8 @@
         "optional": true
       }
     ],
-    "desc": "Destroys all things with the given TID (plays death animation)."
+    "desc": "Destroys all things with the given TID (plays death animation).",
+    "returns": "int"
   },
   "Thing_Hate": {
     "params": [
@@ -9409,7 +9967,8 @@
         "optional": true
       }
     ],
-    "desc": "Line special / ACS callable: Thing_Hate."
+    "desc": "Line special / ACS callable: Thing_Hate.",
+    "returns": "int"
   },
   "Thing_Move": {
     "params": [
@@ -9427,7 +9986,8 @@
         "optional": true
       }
     ],
-    "desc": "Line special / ACS callable: Thing_Move."
+    "desc": "Line special / ACS callable: Thing_Move.",
+    "returns": "int"
   },
   "Thing_Projectile": {
     "params": [
@@ -9452,7 +10012,8 @@
         "type": "int"
       }
     ],
-    "desc": "Line special / ACS callable: Thing_Projectile."
+    "desc": "Line special / ACS callable: Thing_Projectile.",
+    "returns": "int"
   },
   "Thing_ProjectileAimed": {
     "params": [
@@ -9478,7 +10039,8 @@
         "optional": true
       }
     ],
-    "desc": "Line special / ACS callable: Thing_ProjectileAimed."
+    "desc": "Line special / ACS callable: Thing_ProjectileAimed.",
+    "returns": "int"
   },
   "Thing_ProjectileGravity": {
     "params": [
@@ -9503,7 +10065,8 @@
         "type": "int"
       }
     ],
-    "desc": "Line special / ACS callable: Thing_ProjectileGravity."
+    "desc": "Line special / ACS callable: Thing_ProjectileGravity.",
+    "returns": "int"
   },
   "Thing_ProjectileIntercept": {
     "params": [
@@ -9528,7 +10091,8 @@
         "type": "int"
       }
     ],
-    "desc": "Line special / ACS callable: Thing_ProjectileIntercept."
+    "desc": "Line special / ACS callable: Thing_ProjectileIntercept.",
+    "returns": "int"
   },
   "Thing_Raise": {
     "params": [
@@ -9542,7 +10106,8 @@
         "optional": true
       }
     ],
-    "desc": "Line special / ACS callable: Thing_Raise."
+    "desc": "Line special / ACS callable: Thing_Raise.",
+    "returns": "int"
   },
   "Thing_Remove": {
     "params": [
@@ -9551,7 +10116,8 @@
         "type": "int"
       }
     ],
-    "desc": "Removes all things with the given TID."
+    "desc": "Removes all things with the given TID.",
+    "returns": "int"
   },
   "Thing_SetConversation": {
     "params": [
@@ -9564,7 +10130,8 @@
         "type": "int"
       }
     ],
-    "desc": "Line special / ACS callable: Thing_SetConversation."
+    "desc": "Line special / ACS callable: Thing_SetConversation.",
+    "returns": "int"
   },
   "Thing_SetGoal": {
     "params": [
@@ -9586,7 +10153,8 @@
         "optional": true
       }
     ],
-    "desc": "Line special / ACS callable: Thing_SetGoal."
+    "desc": "Line special / ACS callable: Thing_SetGoal.",
+    "returns": "int"
   },
   "Thing_SetSpecial": {
     "params": [
@@ -9611,7 +10179,8 @@
         "type": "int"
       }
     ],
-    "desc": "Line special / ACS callable: Thing_SetSpecial."
+    "desc": "Line special / ACS callable: Thing_SetSpecial.",
+    "returns": "int"
   },
   "Thing_SetTranslation": {
     "params": [
@@ -9624,7 +10193,8 @@
         "type": "int"
       }
     ],
-    "desc": "Line special / ACS callable: Thing_SetTranslation."
+    "desc": "Line special / ACS callable: Thing_SetTranslation.",
+    "returns": "int"
   },
   "Thing_Spawn": {
     "params": [
@@ -9646,7 +10216,8 @@
         "optional": true
       }
     ],
-    "desc": "Spawns a thing at the location of the actor with the given TID."
+    "desc": "Spawns a thing at the location of the actor with the given TID.",
+    "returns": "int"
   },
   "Thing_SpawnFacing": {
     "params": [
@@ -9669,7 +10240,8 @@
         "optional": true
       }
     ],
-    "desc": "Spawns a thing facing the same direction as the spawn spot."
+    "desc": "Spawns a thing facing the same direction as the spawn spot.",
+    "returns": "int"
   },
   "Thing_SpawnNoFog": {
     "params": [
@@ -9691,7 +10263,8 @@
         "optional": true
       }
     ],
-    "desc": "Spawns a thing without teleport fog."
+    "desc": "Spawns a thing without teleport fog.",
+    "returns": "int"
   },
   "Thing_Stop": {
     "params": [
@@ -9700,7 +10273,8 @@
         "type": "int"
       }
     ],
-    "desc": "Line special / ACS callable: Thing_Stop."
+    "desc": "Line special / ACS callable: Thing_Stop.",
+    "returns": "int"
   },
   "ThingCount": {
     "params": [
@@ -9713,7 +10287,8 @@
         "type": "int"
       }
     ],
-    "desc": "Returns the count of things of a given type/TID."
+    "desc": "Returns the count of things of a given type/TID.",
+    "returns": "int"
   },
   "ThingCountName": {
     "params": [
@@ -9726,7 +10301,8 @@
         "type": "int"
       }
     ],
-    "desc": "Returns the count of things of a given actor class."
+    "desc": "Returns the count of things of a given actor class.",
+    "returns": "int"
   },
   "ThingCountNameSector": {
     "params": [
@@ -9743,7 +10319,8 @@
         "type": "int"
       }
     ],
-    "desc": "ACS built-in: ThingCountNameSector."
+    "desc": "ACS built-in: ThingCountNameSector.",
+    "returns": "int"
   },
   "ThingCountSector": {
     "params": [
@@ -9760,7 +10337,8 @@
         "type": "int"
       }
     ],
-    "desc": "Returns the count of things in a tagged sector."
+    "desc": "Returns the count of things in a tagged sector.",
+    "returns": "int"
   },
   "ThingDamage2": {
     "params": [
@@ -9777,7 +10355,8 @@
         "type": "int"
       }
     ],
-    "desc": "ACS built-in: ThingDamage2."
+    "desc": "ACS built-in: ThingDamage2.",
+    "returns": "int"
   },
   "ThingProjectile2": {
     "params": [
@@ -9810,7 +10389,8 @@
         "type": "int"
       }
     ],
-    "desc": "ACS built-in: ThingProjectile2."
+    "desc": "ACS built-in: ThingProjectile2.",
+    "returns": "void"
   },
   "ThingSound": {
     "params": [
@@ -9827,7 +10407,8 @@
         "type": "float"
       }
     ],
-    "desc": "Plays a sound from a thing."
+    "desc": "Plays a sound from a thing.",
+    "returns": "void"
   },
   "ThrustThing": {
     "params": [
@@ -9850,7 +10431,8 @@
         "optional": true
       }
     ],
-    "desc": "Line special / ACS callable: ThrustThing."
+    "desc": "Line special / ACS callable: ThrustThing.",
+    "returns": "int"
   },
   "ThrustThingZ": {
     "params": [
@@ -9871,11 +10453,13 @@
         "type": "int"
       }
     ],
-    "desc": "Line special / ACS callable: ThrustThingZ."
+    "desc": "Line special / ACS callable: ThrustThingZ.",
+    "returns": "int"
   },
   "Timer": {
     "params": [],
-    "desc": "ACS built-in: Timer."
+    "desc": "ACS built-in: Timer.",
+    "returns": "int"
   },
   "TranslucentLine": {
     "params": [
@@ -9893,7 +10477,8 @@
         "optional": true
       }
     ],
-    "desc": "Line special / ACS callable: TranslucentLine."
+    "desc": "Line special / ACS callable: TranslucentLine.",
+    "returns": "int"
   },
   "UniqueTID": {
     "params": [
@@ -9908,7 +10493,8 @@
         "optional": true
       }
     ],
-    "desc": "ACS function: UniqueTID."
+    "desc": "ACS function: UniqueTID.",
+    "returns": "int"
   },
   "UnmorphActor": {
     "params": [
@@ -9921,7 +10507,8 @@
         "type": "int"
       }
     ],
-    "desc": "ACS built-in: UnmorphActor."
+    "desc": "ACS built-in: UnmorphActor.",
+    "returns": "int"
   },
   "UseActorInventory": {
     "params": [
@@ -9934,7 +10521,8 @@
         "type": "int"
       }
     ],
-    "desc": "ACS built-in: UseActorInventory."
+    "desc": "ACS built-in: UseActorInventory.",
+    "returns": "int"
   },
   "UseInventory": {
     "params": [
@@ -9943,11 +10531,13 @@
         "type": "string"
       }
     ],
-    "desc": "Forces the activator to use an inventory item."
+    "desc": "Forces the activator to use an inventory item.",
+    "returns": "int"
   },
   "UsePuzzleItem": {
     "params": [],
-    "desc": "Line special / ACS callable: UsePuzzleItem."
+    "desc": "Line special / ACS callable: UsePuzzleItem.",
+    "returns": "int"
   },
   "VectorAngle": {
     "params": [
@@ -9960,7 +10550,8 @@
         "type": "int"
       }
     ],
-    "desc": "Returns the angle vector from origin to (x, y)."
+    "desc": "Returns the angle vector from origin to (x, y).",
+    "returns": "int"
   },
   "VectorLength": {
     "params": [
@@ -9973,7 +10564,8 @@
         "type": "int"
       }
     ],
-    "desc": "ACS function: VectorLength."
+    "desc": "ACS function: VectorLength.",
+    "returns": "int"
   },
   "Warp": {
     "params": [
@@ -10027,7 +10619,8 @@
         "optional": true
       }
     ],
-    "desc": "ACS function: Warp."
+    "desc": "ACS function: Warp.",
+    "returns": "int"
   },
   "WriteToINI": {
     "params": [
@@ -10044,6 +10637,7 @@
         "type": "int"
       }
     ],
-    "desc": "ACS built-in: WriteToINI."
+    "desc": "ACS built-in: WriteToINI.",
+    "returns": "void"
   }
 }

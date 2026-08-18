@@ -40,9 +40,16 @@ interface SignatureParts {
     docs: string[];
 }
 
-function buildSignatureParts(fnName: string, params?: any[]): SignatureParts {
+function buildSignatureParts(
+    fnName: string,
+    params?: any[],
+    returns?: string
+): SignatureParts {
+    const prefix = returns ? `${returns} ` : '';
+    const nameOffset = prefix.length;
+
     if (!Array.isArray(params) || params.length === 0) {
-        return { label: `${fnName}()`, paramRanges: [], docs: [] };
+        return { label: `${prefix}${fnName}()`, paramRanges: [], docs: [] };
     }
 
     const objectParams = params.filter((p: any) => typeof p === 'object');
@@ -64,7 +71,7 @@ function buildSignatureParts(fnName: string, params?: any[]): SignatureParts {
         if (i > 0) {
             inner += ', ';
         }
-        const start = fnName.length + 1 + inner.length;
+        const start = nameOffset + fnName.length + 1 + inner.length;
         inner += segment;
         paramRanges.push([start, start + segment.length]);
         const docBase = `Parameter: ${p.name} (${p.type})`;
@@ -72,7 +79,7 @@ function buildSignatureParts(fnName: string, params?: any[]): SignatureParts {
     }
 
     return {
-        label: `${fnName}(${inner})`,
+        label: `${prefix}${fnName}(${inner})`,
         paramRanges,
         docs
     };
@@ -142,10 +149,17 @@ export function registerAcsSignatureHelp(
                     callTextFromLine(fullLineText, fnNameStart),
                     symbolDb
                 );
-                const { label, paramRanges, docs } = buildSignatureParts(
-                    functionName,
-                    overlay.params
-                );
+                const customSig =
+                    typeof functionData.signature === 'string' && functionData.signature.length > 0
+                        ? functionData.signature
+                        : undefined;
+                const { label, paramRanges, docs } = customSig
+                    ? { label: customSig, paramRanges: [] as Array<[number, number]>, docs: [] as string[] }
+                    : buildSignatureParts(
+                        functionName,
+                        overlay.params,
+                        functionData.returns
+                    );
                 const signature = new vscode.SignatureInformation(label, functionData.desc);
                 signature.parameters = paramRanges.map(
                     (range, i) => new vscode.ParameterInformation(range, docs[i])

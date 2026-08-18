@@ -35,4 +35,13 @@ suite('signatureBuilder - defaults', () => {
         const p: ParamData = { name: 'numrays', type: 'int', optional: true, default: '40' };
         assert.ok(buildParamDocumentation(p).includes('**Default:** `40`'));
     });
+
+    test('return type prefixes signature and completion detail', () => {
+        assert.strictEqual(buildSignature('Delay', [{ name: 'tics', type: 'int' }], 'void'), 'void Delay(int tics)');
+        assert.strictEqual(buildSignature('Random', [{ name: 'min', type: 'int' }, { name: 'max', type: 'int' }], 'int'), 'int Random(int min, int max)');
+        assert.strictEqual(formatCompletionDetail([], 'void'), 'void ()');
+        assert.strictEqual(formatCompletionDetail([{ name: 'x', type: 'int' }], 'fixed'), 'fixed (x: int)');
+        // Omit returns → unchanged for DECORATE
+        assert.strictEqual(buildSignature('A_Turn', [{ name: 'angle', type: 'float', optional: true }]), 'A_Turn([float angle])');
+    });
 });

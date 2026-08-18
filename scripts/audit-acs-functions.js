@@ -21,18 +21,51 @@ const FUNCTIONS_PATH = path.join(ROOT, 'data', 'acs', 'functions.json');
 /** ACC language constructs (token.h) — not in InternalFunctions / zspecial tables. */
 const LANGUAGE_ALLOWLIST = new Map([
     // Print-family: cast:expression list (not typed params). Keep max:0 so --apply does not invent fake args.
-    ['print', { name: 'Print', min: 0, max: 0, kind: 'language' }],
-    ['printbold', { name: 'PrintBold', min: 0, max: 0, kind: 'language' }],
-    ['log', { name: 'Log', min: 0, max: 0, kind: 'language' }],
-    ['strparam', { name: 'StrParam', min: 0, max: 0, kind: 'language' }],
+    ['print', { name: 'Print', min: 0, max: 0, kind: 'language', returns: 'void' }],
+    ['printbold', { name: 'PrintBold', min: 0, max: 0, kind: 'language', returns: 'void' }],
+    ['log', { name: 'Log', min: 0, max: 0, kind: 'language', returns: 'void' }],
+    ['strparam', { name: 'StrParam', min: 0, max: 0, kind: 'language', returns: 'str' }],
     // HudMessage: cast list + ';' + fixed 6 + type-dependent opts (not ordinary typed params).
-    ['hudmessage', { name: 'HudMessage', min: 0, max: 0, kind: 'language' }],
-    ['hudmessagebold', { name: 'HudMessageBold', min: 0, max: 0, kind: 'language' }],
-    ['beginprint', { name: 'BeginPrint', min: 0, max: 0, kind: 'language' }],
-    ['endprint', { name: 'EndPrint', min: 0, max: 0, kind: 'language' }],
-    ['morehudmessage', { name: 'MoreHudMessage', min: 0, max: 0, kind: 'language' }],
-    ['opthudmessage', { name: 'OptHudMessage', min: 0, max: 0, kind: 'language' }],
+    ['hudmessage', { name: 'HudMessage', min: 0, max: 0, kind: 'language', returns: 'void' }],
+    ['hudmessagebold', { name: 'HudMessageBold', min: 0, max: 0, kind: 'language', returns: 'void' }],
+    ['beginprint', { name: 'BeginPrint', min: 0, max: 0, kind: 'language', returns: 'void' }],
+    ['endprint', { name: 'EndPrint', min: 0, max: 0, kind: 'language', returns: 'void' }],
+    ['morehudmessage', { name: 'MoreHudMessage', min: 0, max: 0, kind: 'language', returns: 'void' }],
+    ['opthudmessage', { name: 'OptHudMessage', min: 0, max: 0, kind: 'language', returns: 'void' }],
 ]);
+
+/** Internal PCD builtins that return fixed (ACC hasReturnValue YES, fixed convention). */
+const INTERNAL_FIXED_RETURNS = new Set(['sin', 'cos', 'fixedmul', 'fixeddiv']);
+
+/**
+ * CALLFUNC names that return str (ACS string table index). Everything else CALLFUNC → int.
+ * Keys are normKey (no underscores, lower).
+ */
+const CALLFUNC_STR_RETURNS = new Set([
+    'getcvarstring',
+    'getusercvarstring',
+    'getactorclass',
+    'getweapon',
+    'strleft',
+    'strmid',
+    'strright',
+    'strarg',
+    'getplayeraccountname',
+    'getchatmessage',
+    'strftime',
+    'getactorfloortexture',
+    'getactorfloorterrain',
+    'lumpreadstring',
+    'getdbentrystring',
+    'getdbresultkeystring',
+    'getdbresultvaluestring',
+    'getcurrentgamemode',
+    'getplayerskin',
+    'getplayercountry',
+    'getskinproperty',
+    'getwadinfo',
+    'getcustomplayervalue', // may be int depending on usage; keep int default — omit
+].filter((k) => k !== 'getcustomplayervalue'));
 
 /** Atomic tokens for PascalCase (longest first). Underscores are split separately. */
 const ACS_WORDS = [
@@ -128,12 +161,20 @@ function parseInternalFunctions(symbolC) {
     const m = /InternalFunctions\s*\[\s*\]\s*=\s*\{([\s\S]*?)\n\s*\};/.exec(symbolC);
     if (!m) throw new Error('InternalFunctions[] not found in symbol.c');
     const map = new Map();
-    const re = /\{\s*"([A-Za-z_][A-Za-z0-9_]*)"\s*,\s*[A-Z0-9_]+\s*,\s*[A-Z0-9_]+\s*,\s*(\d+)/g;
+    // { "name", PCD_A, PCD_B, argCount, optMask, outMask, hasReturnValue, latent }
+    // optMask may be a bitwise expression (e.g. 4|8|16|32|64).
+    const re =
+        /\{\s*"([A-Za-z_][A-Za-z0-9_]*)"\s*,\s*[A-Z0-9_]+\s*,\s*[A-Z0-9_]+\s*,\s*(\d+)\s*,\s*[^,]+,\s*[^,]+,\s*(YES|NO)\s*,\s*(YES|NO)\s*\}/g;
     let entry;
     while ((entry = re.exec(m[1])) !== null) {
         const raw = entry[1];
         const args = Number(entry[2]);
+        const hasReturn = entry[3] === 'YES';
         const key = normKey(raw);
+        let returns = 'void';
+        if (hasReturn) {
+            returns = INTERNAL_FIXED_RETURNS.has(key) ? 'fixed' : 'int';
+        }
         map.set(key, {
             key,
             name: toAcsPascalCase(raw),
@@ -141,9 +182,37 @@ function parseInternalFunctions(symbolC) {
             max: args,
             kind: 'internal',
             idx: null,
+            returns,
         });
     }
+    if (map.size < 100) {
+        throw new Error(`InternalFunctions parse expected ~139 entries, got ${map.size}`);
+    }
     return map;
+}
+
+function resolveReturns(rec) {
+    if (rec.returns) return rec.returns;
+    if (rec.kind === 'linespecial') return 'int';
+    if (rec.kind === 'callfunc') {
+        return CALLFUNC_STR_RETURNS.has(rec.key) ? 'str' : 'int';
+    }
+    if (rec.kind === 'language') return 'void';
+    return 'int';
+}
+
+/** Ensure hand-authored signature starts with return type when missing. */
+function ensureSignatureReturns(signature, returns, displayName) {
+    if (!signature || typeof signature !== 'string') return undefined;
+    const trimmed = signature.trim();
+    if (/^(void|int|str|fixed|bool)\s+/i.test(trimmed)) {
+        return trimmed;
+    }
+    // Already looks like "Name(...)" — prefix returns
+    if (trimmed.toLowerCase().startsWith(displayName.toLowerCase())) {
+        return `${returns} ${trimmed}`;
+    }
+    return trimmed;
 }
 
 function parseZSpecial(zspecial) {
@@ -163,7 +232,11 @@ function parseZSpecial(zspecial) {
         const min = argNums[0] ?? 0;
         const max = argNums.length > 1 ? argNums[1] : min;
         const key = normKey(name);
-        const rec = { key, name, min, max, kind: idx < 0 ? 'callfunc' : 'linespecial', idx };
+        const kind = idx < 0 ? 'callfunc' : 'linespecial';
+        const returns = kind === 'callfunc'
+            ? (CALLFUNC_STR_RETURNS.has(key) ? 'str' : 'int')
+            : 'int';
+        const rec = { key, name, min, max, kind, idx, returns };
         if (idx < 0) {
             // Keep first spelling; aliases (strcasecmp) still get an entry if different key.
             if (!callfuncs.has(key)) callfuncs.set(key, rec);
@@ -356,7 +429,7 @@ function main() {
         return;
     }
 
-    /** @type {Record<string, {params: any[], desc: string, signature?: string}>} */
+    /** @type {Record<string, {params: any[], desc: string, signature?: string, returns?: string}>} */
     const next = {};
 
     // Prefer existing display names when present.
@@ -369,6 +442,7 @@ function main() {
             prevEntry && typeof prevEntry.signature === 'string' && prevEntry.signature.length > 0
                 ? prevEntry.signature
                 : undefined;
+        const returns = resolveReturns(rec);
 
         let params;
         let desc;
@@ -381,8 +455,9 @@ function main() {
             desc = prevDesc || defaultDesc(rec.kind, displayName);
         }
 
-        const entry = { params, desc };
-        if (prevSig) entry.signature = prevSig;
+        const entry = { params, desc, returns };
+        const sig = ensureSignatureReturns(prevSig, returns, displayName);
+        if (sig) entry.signature = sig;
         next[displayName] = entry;
     }
 

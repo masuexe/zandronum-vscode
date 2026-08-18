@@ -16,10 +16,17 @@ export interface ParamData {
 export type DecorateUsage = 'state' | 'expression';
 export type ExpressionKind = 'function' | 'variable';
 
+export type AcsReturnType = 'void' | 'int' | 'str' | 'fixed';
+
 export interface ActionData {
     params?: ParamData[] | string[];
     signature?: string;
     desc?: string;
+    /**
+     * ACS return type. Omit or `"void"` = no value (cannot be used in expressions).
+     * Used by ACS functions.json; DECORATE actions typically omit this.
+     */
+    returns?: AcsReturnType;
     /** Where this symbol may appear. Default for actions.json: ["state"]. */
     usage?: DecorateUsage[];
     /**

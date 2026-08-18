@@ -1,11 +1,14 @@
 import * as vscode from 'vscode';
 
 export type StateLabelStyle = 'outdent' | 'indent';
+export type BraceStyle = 'nextLine' | 'sameLine';
 
 export interface DecorateFormatOptions {
     tabSize: number;
     insertSpaces: boolean;
     stateLabelStyle: StateLabelStyle;
+    braceStyle: BraceStyle;
+    spaceAfterComma: boolean;
 }
 
 export interface LineRange {
@@ -139,6 +142,404 @@ function resolveLineRange(
     return { startLine, endLine };
 }
 
+function inRange(line: number, startLine: number, endLine: number): boolean {
+    return line >= startLine && line <= endLine;
+}
+
+function hasLineComment(line: string, inBlockComment: boolean): boolean {
+    let i = 0;
+    let inBlock = inBlockComment;
+    let inString = false;
+    while (i < line.length) {
+        const ch = line[i];
+        const next = line[i + 1];
+        if (inBlock) {
+            if (ch === '*' && next === '/') {
+                inBlock = false;
+                i += 2;
+                continue;
+            }
+            i++;
+            continue;
+        }
+        if (inString) {
+            if (ch === '\\' && next !== undefined) {
+                i += 2;
+                continue;
+            }
+            if (ch === '"') {
+                inString = false;
+            }
+            i++;
+            continue;
+        }
+        if (ch === '/' && next === '/') {
+            return true;
+        }
+        if (ch === '/' && next === '*') {
+            return true;
+        }
+        if (ch === '"') {
+            inString = true;
+        }
+        i++;
+    }
+    return false;
+}
+
+type AfterBrace = 'none' | 'openOnly' | 'emptyBlock';
+
+interface BraceTail {
+    kind: AfterBrace;
+    header: string;
+    /** Original text from `{` onward (openOnly). */
+    fromOpen: string;
+    /** Original text from `}` onward for emptyBlock. */
+    fromClose: string;
+}
+
+function skipSpaces(line: string, i: number): number {
+    while (i < line.length && (line[i] === ' ' || line[i] === '\t')) {
+        i++;
+    }
+    return i;
+}
+
+function isLineCommentAt(line: string, i: number): boolean {
+    return line[i] === '/' && line[i + 1] === '/';
+}
+
+function isBlockCommentAt(line: string, i: number): boolean {
+    return line[i] === '/' && line[i + 1] === '*';
+}
+
+function findFirstStructuralOpenBrace(line: string, inBlockComment: boolean): number {
+    if (inBlockComment) {
+        return -1;
+    }
+    let i = 0;
+    let inString = false;
+    while (i < line.length) {
+        const ch = line[i];
+        const next = line[i + 1];
+        if (inString) {
+            if (ch === '\\' && next !== undefined) {
+                i += 2;
+                continue;
+            }
+            if (ch === '"') {
+                inString = false;
+            }
+            i++;
+            continue;
+        }
+        if (ch === '/' && next === '/') {
+            return -1;
+        }
+        if (ch === '/' && next === '*') {
+            return -1;
+        }
+        if (ch === '"') {
+            inString = true;
+            i++;
+            continue;
+        }
+        if (ch === '{') {
+            return i;
+        }
+        i++;
+    }
+    return -1;
+}
+
+/**
+ * Classify a same-line `{` that can be split/normalized.
+ * `none` if `{` is missing, standalone, or followed by code / block comments.
+ */
+function classifySameLineBrace(line: string, inBlockComment: boolean): BraceTail {
+    const none: BraceTail = { kind: 'none', header: '', fromOpen: '', fromClose: '' };
+    const openIndex = findFirstStructuralOpenBrace(line, inBlockComment);
+    if (openIndex < 0) {
+        return none;
+    }
+    const header = line.slice(0, openIndex).trimEnd();
+    if (header.trim().length === 0) {
+        return none;
+    }
+
+    let i = skipSpaces(line, openIndex + 1);
+    if (isBlockCommentAt(line, i)) {
+        return none;
+    }
+    if (i >= line.length || isLineCommentAt(line, i)) {
+        return {
+            kind: 'openOnly',
+            header,
+            fromOpen: line.slice(openIndex),
+            fromClose: '',
+        };
+    }
+    if (line[i] === '}') {
+        const closeIndex = i;
+        i = skipSpaces(line, closeIndex + 1);
+        if (i < line.length && !isLineCommentAt(line, i)) {
+            return none;
+        }
+        return {
+            kind: 'emptyBlock',
+            header,
+            fromOpen: '',
+            fromClose: line.slice(closeIndex),
+        };
+    }
+    return none;
+}
+
+function sameLineOpen(header: string, fromOpen: string): string {
+    const rest = fromOpen.replace(/^\{[ \t]*/, '');
+    if (rest.length === 0) {
+        return `${header} {`;
+    }
+    if (rest.startsWith('//')) {
+        return `${header} { ${rest}`;
+    }
+    return `${header} { ${rest}`;
+}
+
+function sameLineEmpty(header: string, fromClose: string): string {
+    return `${header} { ${fromClose.trimStart()}`;
+}
+
+function isStandaloneOpenBrace(line: string, inBlockComment: boolean): boolean {
+    if (inBlockComment) {
+        return false;
+    }
+    const scanned = structuralLine(line, inBlockComment);
+    return scanned.text.trim() === '{';
+}
+
+function isBlockHeaderLine(line: string, inBlockComment: boolean): boolean {
+    if (inBlockComment) {
+        return false;
+    }
+    const scanned = structuralLine(line, inBlockComment);
+    const trim = scanned.text.trim();
+    return trim.length > 0 && !trim.includes('{') && !HASH_RE.test(trim);
+}
+
+function applyBraceStyle(
+    lines: readonly string[],
+    braceStyle: BraceStyle,
+    startLine: number,
+    endLine: number
+): { lines: string[]; startLine: number; endLine: number } {
+    if (endLine < startLine || lines.length === 0) {
+        return { lines: lines.slice(), startLine, endLine };
+    }
+
+    if (braceStyle === 'sameLine') {
+        return applySameLineBraces(lines, startLine, endLine);
+    }
+    return applyNextLineBraces(lines, startLine, endLine);
+}
+
+function applyNextLineBraces(
+    lines: readonly string[],
+    startLine: number,
+    endLine: number
+): { lines: string[]; startLine: number; endLine: number } {
+    const out: string[] = [];
+    let inBlockComment: boolean = false;
+    let extra = 0;
+
+    for (let i = 0; i < lines.length; i++) {
+        const line = lines[i];
+        const inBlockAtStart: boolean = inBlockComment;
+        inBlockComment = structuralLine(line, inBlockAtStart).inBlockComment;
+
+        if (!inRange(i, startLine, endLine)) {
+            out.push(line);
+            continue;
+        }
+
+        const split = classifySameLineBrace(line, inBlockAtStart);
+        if (split.kind === 'openOnly') {
+            out.push(split.header);
+            const braceLine = split.fromOpen.trimEnd() === '{' ? '{' : split.fromOpen;
+            out.push(braceLine);
+            extra++;
+            continue;
+        }
+        if (split.kind === 'emptyBlock') {
+            out.push(split.header);
+            out.push('{');
+            out.push(split.fromClose);
+            extra += 2;
+            continue;
+        }
+        out.push(line);
+    }
+
+    return { lines: out, startLine, endLine: endLine + extra };
+}
+
+function applySameLineBraces(
+    lines: readonly string[],
+    startLine: number,
+    endLine: number
+): { lines: string[]; startLine: number; endLine: number } {
+    const inBlockAt: boolean[] = [];
+    let block = false;
+    for (let i = 0; i < lines.length; i++) {
+        inBlockAt.push(block);
+        block = structuralLine(lines[i], block).inBlockComment;
+    }
+
+    const out: string[] = [];
+    let extra = 0;
+
+    for (let i = 0; i < lines.length; i++) {
+        const line = lines[i];
+        const inBlockAtStart = inBlockAt[i];
+
+        if (inRange(i, startLine, endLine)) {
+            const split = classifySameLineBrace(line, inBlockAtStart);
+            if (split.kind === 'openOnly') {
+                out.push(sameLineOpen(split.header, split.fromOpen));
+                continue;
+            }
+            if (split.kind === 'emptyBlock') {
+                out.push(sameLineEmpty(split.header, split.fromClose));
+                continue;
+            }
+        }
+
+        if (
+            inRange(i, startLine, endLine) &&
+            i > 0 &&
+            inRange(i - 1, startLine, endLine) &&
+            isStandaloneOpenBrace(line, inBlockAtStart) &&
+            !hasLineComment(line, inBlockAtStart) &&
+            !hasLineComment(lines[i - 1], inBlockAt[i - 1]) &&
+            isBlockHeaderLine(lines[i - 1], inBlockAt[i - 1])
+        ) {
+            out[out.length - 1] = `${lines[i - 1].trimEnd()} {`;
+            extra--;
+            continue;
+        }
+
+        out.push(line);
+    }
+
+    return { lines: out, startLine, endLine: endLine + extra };
+}
+
+function formatSpaceAfterCommaLine(
+    line: string,
+    spaceAfter: boolean,
+    inBlockComment: boolean
+): { text: string; inBlockComment: boolean } {
+    let out = '';
+    let i = 0;
+    let inBlock = inBlockComment;
+    let inString = false;
+
+    while (i < line.length) {
+        const ch = line[i];
+        const next = line[i + 1];
+
+        if (inBlock) {
+            out += ch;
+            if (ch === '*' && next === '/') {
+                out += next;
+                inBlock = false;
+                i += 2;
+                continue;
+            }
+            i++;
+            continue;
+        }
+
+        if (inString) {
+            out += ch;
+            if (ch === '\\' && next !== undefined) {
+                out += next;
+                i += 2;
+                continue;
+            }
+            if (ch === '"') {
+                inString = false;
+            }
+            i++;
+            continue;
+        }
+
+        if (ch === '/' && next === '/') {
+            out += line.slice(i);
+            break;
+        }
+        if (ch === '/' && next === '*') {
+            out += '/*';
+            inBlock = true;
+            i += 2;
+            continue;
+        }
+        if (ch === '"') {
+            inString = true;
+            out += ch;
+            i++;
+            continue;
+        }
+
+        if (ch === ',') {
+            out += ',';
+            i++;
+            let j = i;
+            while (j < line.length && (line[j] === ' ' || line[j] === '\t')) {
+                j++;
+            }
+            const atEnd = j >= line.length;
+            const startsComment =
+                j < line.length &&
+                line[j] === '/' &&
+                (line[j + 1] === '/' || line[j + 1] === '*');
+            if (atEnd || startsComment) {
+                out += line.slice(i, j);
+                i = j;
+                continue;
+            }
+            if (spaceAfter) {
+                out += ' ';
+            }
+            i = j;
+            continue;
+        }
+
+        out += ch;
+        i++;
+    }
+
+    return { text: out, inBlockComment: inBlock };
+}
+
+function applyCommaSpacing(
+    lines: readonly string[],
+    spaceAfter: boolean,
+    startLine: number,
+    endLine: number
+): string[] {
+    const out = lines.slice();
+    let inBlockComment = false;
+    for (let i = 0; i < out.length; i++) {
+        const formatted = formatSpaceAfterCommaLine(out[i], spaceAfter, inBlockComment);
+        inBlockComment = formatted.inBlockComment;
+        if (inRange(i, startLine, endLine)) {
+            out[i] = formatted.text;
+        }
+    }
+    return out;
+}
+
 /**
  * Compute leading-whitespace replacements for DECORATE lines.
  * Only leading indent changes; line content and trailing whitespace are preserved.
@@ -241,13 +642,36 @@ export function applyLeadingEdits(
     return out;
 }
 
-/** Format full lines (test helper). */
+/** Format full lines (test helper). Line count may change after brace restyle. */
 export function formatDecorateLines(
     lines: readonly string[],
     options: DecorateFormatOptions,
     range?: LineRange
 ): string[] {
-    return applyLeadingEdits(lines, computeDecorateLeadingEdits(lines, options, range));
+    const resolved = resolveLineRange(lines.length, range);
+    if (resolved.endLine < resolved.startLine) {
+        return lines.slice();
+    }
+
+    const braced = applyBraceStyle(
+        lines,
+        options.braceStyle,
+        resolved.startLine,
+        resolved.endLine
+    );
+    const commaed = applyCommaSpacing(
+        braced.lines,
+        options.spaceAfterComma,
+        braced.startLine,
+        braced.endLine
+    );
+    return applyLeadingEdits(
+        commaed,
+        computeDecorateLeadingEdits(commaed, options, {
+            startLine: braced.startLine,
+            endLine: braced.endLine,
+        })
+    );
 }
 
 function readStateLabelStyle(document: vscode.TextDocument): StateLabelStyle {
@@ -255,6 +679,19 @@ function readStateLabelStyle(document: vscode.TextDocument): StateLabelStyle {
         .getConfiguration('zandronum-vscode', document.uri)
         .get<string>('decorate.format.stateLabelStyle', 'outdent');
     return raw === 'indent' ? 'indent' : 'outdent';
+}
+
+function readBraceStyle(document: vscode.TextDocument): BraceStyle {
+    const raw = vscode.workspace
+        .getConfiguration('zandronum-vscode', document.uri)
+        .get<string>('decorate.format.braceStyle', 'nextLine');
+    return raw === 'sameLine' ? 'sameLine' : 'nextLine';
+}
+
+function readSpaceAfterComma(document: vscode.TextDocument): boolean {
+    return vscode.workspace
+        .getConfiguration('zandronum-vscode', document.uri)
+        .get<boolean>('decorate.format.spaceAfterComma', true);
 }
 
 function toFormatOptions(
@@ -265,7 +702,13 @@ function toFormatOptions(
         tabSize: options.tabSize,
         insertSpaces: options.insertSpaces,
         stateLabelStyle: readStateLabelStyle(document),
+        braceStyle: readBraceStyle(document),
+        spaceAfterComma: readSpaceAfterComma(document),
     };
+}
+
+function documentEol(document: vscode.TextDocument): string {
+    return document.eol === vscode.EndOfLine.CRLF ? '\r\n' : '\n';
 }
 
 function editsFromDocument(
@@ -273,9 +716,9 @@ function editsFromDocument(
     formatOptions: DecorateFormatOptions,
     range?: vscode.Range
 ): vscode.TextEdit[] {
-    const lines: string[] = [];
+    const original: string[] = [];
     for (let i = 0; i < document.lineCount; i++) {
-        lines.push(document.lineAt(i).text);
+        original.push(document.lineAt(i).text);
     }
 
     const lineRange: LineRange | undefined = range
@@ -286,19 +729,51 @@ function editsFromDocument(
         }
         : undefined;
 
-    const leadingEdits = computeDecorateLeadingEdits(lines, formatOptions, lineRange);
-    const result: vscode.TextEdit[] = [];
-    for (const edit of leadingEdits) {
-        const text = document.lineAt(edit.line).text;
-        const oldLen = leadingWhitespaceLength(text);
-        result.push(
+    const formatted = formatDecorateLines(original, formatOptions, lineRange);
+    const eol = documentEol(document);
+
+    if (!lineRange) {
+        const oldText = document.getText();
+        let newText = formatted.join(eol);
+        if (oldText.endsWith(eol)) {
+            newText += eol;
+        }
+        if (newText === oldText) {
+            return [];
+        }
+        return [
             vscode.TextEdit.replace(
-                new vscode.Range(edit.line, 0, edit.line, oldLen),
-                edit.newLeading
-            )
-        );
+                new vscode.Range(
+                    document.positionAt(0),
+                    document.positionAt(oldText.length)
+                ),
+                newText
+            ),
+        ];
     }
-    return result;
+
+    const resolved = resolveLineRange(original.length, lineRange);
+    if (resolved.endLine < resolved.startLine) {
+        return [];
+    }
+    const delta = formatted.length - original.length;
+    const newEnd = resolved.endLine + delta;
+    const replacement = formatted.slice(resolved.startLine, newEnd + 1).join(eol);
+    const prior = original.slice(resolved.startLine, resolved.endLine + 1).join(eol);
+    if (replacement === prior) {
+        return [];
+    }
+    return [
+        vscode.TextEdit.replace(
+            new vscode.Range(
+                resolved.startLine,
+                0,
+                resolved.endLine,
+                original[resolved.endLine].length
+            ),
+            replacement
+        ),
+    ];
 }
 
 export function registerDecorateFormattingProvider(context: vscode.ExtensionContext): void {

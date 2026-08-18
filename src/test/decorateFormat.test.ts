@@ -9,6 +9,8 @@ const defaultOpts: DecorateFormatOptions = {
 	tabSize: 2,
 	insertSpaces: true,
 	stateLabelStyle: 'outdent',
+	braceStyle: 'nextLine',
+	spaceAfterComma: true,
 };
 
 function format(src: string, opts: Partial<DecorateFormatOptions> = {}): string {
@@ -106,7 +108,7 @@ suite('decorateFormat — zero-indent SLADE style', () => {
 		assert.strictEqual(format(once), once);
 	});
 
-	test('formats States { on the same line', () => {
+	test('splits States { onto the next line by default', () => {
 		const input = [
 			'Actor Foo',
 			'{',
@@ -121,7 +123,8 @@ suite('decorateFormat — zero-indent SLADE style', () => {
 		const expected = [
 			'Actor Foo',
 			'{',
-			'  States {',
+			'  States',
+			'  {',
 			'  Spawn:',
 			'    TNT1 A 0',
 			'    Stop',
@@ -338,5 +341,214 @@ suite('decorateFormat — tabs and range', () => {
 		assert.strictEqual(out[2], '  Health 1');
 		assert.strictEqual(out[4], 'Actor B');
 		assert.strictEqual(out[6], '  Health 2');
+	});
+});
+
+suite('decorateFormat — braceStyle', () => {
+	test('sameLine merges Actor and States braces', () => {
+		const input = [
+			'Actor Foo',
+			'{',
+			'Health 1',
+			'States',
+			'{',
+			'Spawn:',
+			'TROO A 1',
+			'Stop',
+			'}',
+			'}',
+		].join('\n');
+
+		const expected = [
+			'Actor Foo {',
+			'  Health 1',
+			'  States {',
+			'  Spawn:',
+			'    TROO A 1',
+			'    Stop',
+			'  }',
+			'}',
+		].join('\n');
+
+		assert.strictEqual(format(input, { braceStyle: 'sameLine' }), expected);
+	});
+
+	test('sameLine is idempotent', () => {
+		const input = [
+			'Actor Foo',
+			'{',
+			'States',
+			'{',
+			'Spawn:',
+			'TROO A 1',
+			'Stop',
+			'}',
+			'}',
+		].join('\n');
+		const once = format(input, { braceStyle: 'sameLine' });
+		assert.strictEqual(format(once, { braceStyle: 'sameLine' }), once);
+	});
+
+	test('nextLine is idempotent after splitting same-line braces', () => {
+		const input = [
+			'Actor Foo {',
+			'States {',
+			'Spawn:',
+			'TROO A 1',
+			'Stop',
+			'}',
+			'}',
+		].join('\n');
+		const once = format(input);
+		assert.strictEqual(format(once), once);
+	});
+
+	test('nextLine splits empty same-line blocks', () => {
+		const input = [
+			'Actor Foo { }',
+		].join('\n');
+
+		const expected = [
+			'Actor Foo',
+			'{',
+			'}',
+		].join('\n');
+
+		assert.strictEqual(format(input), expected);
+	});
+
+	test('sameLine keeps empty blocks on one line', () => {
+		assert.strictEqual(format('Actor Foo { }', { braceStyle: 'sameLine' }), 'Actor Foo { }');
+	});
+
+	test('sameLine attaches a lone opening brace to the header', () => {
+		const input = [
+			'Actor Foo',
+			'{',
+			'}',
+		].join('\n');
+
+		const expected = [
+			'Actor Foo {',
+			'}',
+		].join('\n');
+
+		assert.strictEqual(format(input, { braceStyle: 'sameLine' }), expected);
+	});
+
+	test('skips merging when the header has a line comment', () => {
+		const input = [
+			'Actor Foo // note',
+			'{',
+			'Health 1',
+			'}',
+		].join('\n');
+
+		const out = format(input, { braceStyle: 'sameLine' }).split('\n');
+		assert.strictEqual(out[0], 'Actor Foo // note');
+		assert.strictEqual(out[1], '{');
+		assert.strictEqual(out[2], '  Health 1');
+	});
+
+	test('does not split when code follows {', () => {
+		const input = [
+			'Actor Foo',
+			'{',
+			'States { Spawn:',
+			'TROO A 1',
+			'Stop',
+			'}',
+			'}',
+		].join('\n');
+
+		const out = format(input).split('\n');
+		assert.strictEqual(out[2], '  States { Spawn:');
+	});
+
+	test('does not restyle braces outside the selection', () => {
+		const input = [
+			'Actor Foo {',
+			'Health 1',
+			'Radius 16',
+			'}',
+		].join('\n');
+
+		const out = formatRange(input, 1, 1).split('\n');
+		assert.strictEqual(out[0], 'Actor Foo {');
+		assert.strictEqual(out[1], '  Health 1');
+		assert.strictEqual(out[2], 'Radius 16');
+	});
+
+	test('braces inside strings are not restyled', () => {
+		const input = [
+			'Actor Foo',
+			'{',
+			'DropItem "Clip{Special}"',
+			'}',
+		].join('\n');
+
+		const out = format(input, { braceStyle: 'sameLine' }).split('\n');
+		assert.ok(out.some((l) => l.includes('DropItem "Clip{Special}"')));
+		assert.strictEqual(out[0], 'Actor Foo {');
+	});
+});
+
+suite('decorateFormat — spaceAfterComma', () => {
+	test('inserts one space after commas', () => {
+		const input = [
+			'Actor Foo',
+			'{',
+			'States',
+			'{',
+			'Spawn:',
+			'TROO A 0 A_Jump(256,"See",  "Pain")',
+			'Stop',
+			'}',
+			'}',
+		].join('\n');
+
+		const out = format(input).split('\n');
+		assert.ok(out.some((l) => l.includes('A_Jump(256, "See", "Pain")')));
+	});
+
+	test('removes spaces after commas when disabled', () => {
+		const input = [
+			'Actor Foo',
+			'{',
+			'States',
+			'{',
+			'Spawn:',
+			'TROO A 0 A_Jump(256, "See",  "Pain")',
+			'Stop',
+			'}',
+			'}',
+		].join('\n');
+
+		const out = format(input, { spaceAfterComma: false }).split('\n');
+		assert.ok(out.some((l) => l.includes('A_Jump(256,"See","Pain")')));
+	});
+
+	test('does not change commas inside strings', () => {
+		const input = [
+			'Actor Foo',
+			'{',
+			'DropItem "Clip,Special"',
+			'}',
+		].join('\n');
+
+		const out = format(input).split('\n');
+		assert.strictEqual(out[2], '  DropItem "Clip,Special"');
+	});
+
+	test('leaves trailing commas alone', () => {
+		const input = [
+			'Actor Foo',
+			'{',
+			'A_Jump(256, ',
+			'}',
+		].join('\n');
+
+		const out = format(input).split('\n');
+		assert.strictEqual(out[2], '  A_Jump(256, ');
 	});
 });

@@ -1,15 +1,19 @@
 import * as assert from 'assert';
 import {
 	DecorateFormatOptions,
+	buildFormattedDocumentText,
 	formatDecorateLines,
 	structuralLine,
+	trimTrailingBlankLines,
 } from '../language/decorate/formattingProvider';
 
 const defaultOpts: DecorateFormatOptions = {
 	tabSize: 2,
 	insertSpaces: true,
-	stateLabelStyle: 'outdent',
+	stateLabelIndent: 0,
+	stateFrameIndent: null,
 	braceStyle: 'nextLine',
+	spaceInEmptyBraces: false,
 	spaceAfterComma: true,
 };
 
@@ -237,8 +241,8 @@ suite('decorateFormat — comments and strings', () => {
 	});
 });
 
-suite('decorateFormat — stateLabelStyle', () => {
-	test('indent keeps labels at frame depth', () => {
+suite('decorateFormat — state indent spaces', () => {
+	test('custom extras add spaces after States { indent', () => {
 		const input = [
 			'Actor Foo',
 			'{',
@@ -256,14 +260,77 @@ suite('decorateFormat — stateLabelStyle', () => {
 			'{',
 			'  States',
 			'  {',
-			'    Spawn:',
-			'    TROO A 1',
-			'    Loop',
+			'   Spawn:',
+			'     TROO A 1',
+			'     Loop',
 			'  }',
 			'}',
 		].join('\n');
 
-		assert.strictEqual(format(input, { stateLabelStyle: 'indent' }), expected);
+		assert.strictEqual(format(input, { stateLabelIndent: 1, stateFrameIndent: 3 }), expected);
+	});
+
+	test('stateFrameIndent 0 keeps frames aligned with States {', () => {
+		const input = [
+			'Actor Foo',
+			'{',
+			'States',
+			'{',
+			'Spawn:',
+			'TROO A 1',
+			'Loop',
+			'}',
+			'}',
+		].join('\n');
+
+		const expected = [
+			'Actor Foo',
+			'{',
+			'  States',
+			'  {',
+			'  Spawn:',
+			'  TROO A 1',
+			'  Loop',
+			'  }',
+			'}',
+		].join('\n');
+
+		assert.strictEqual(format(input, { stateLabelIndent: 0, stateFrameIndent: 0 }), expected);
+	});
+
+	test('matches one-space labels and two-space frames', () => {
+		const input = [
+			'actor myactor {',
+			'States {',
+			'Spawn:',
+			'MEGM A 0',
+			'MEGM B 1',
+			'MEGM A 1',
+			'Goto Spawn+2',
+			'}',
+			'}',
+		].join('\n');
+
+		const expected = [
+			'actor myactor {',
+			'  States {',
+			'   Spawn:',
+			'    MEGM A 0',
+			'    MEGM B 1',
+			'    MEGM A 1',
+			'    Goto Spawn+2',
+			'  }',
+			'}',
+		].join('\n');
+
+		assert.strictEqual(
+			format(input, {
+				braceStyle: 'sameLine',
+				stateLabelIndent: 1,
+				stateFrameIndent: 2,
+			}),
+			expected
+		);
 	});
 });
 
@@ -403,7 +470,7 @@ suite('decorateFormat — braceStyle', () => {
 		assert.strictEqual(format(once), once);
 	});
 
-	test('nextLine splits empty same-line blocks', () => {
+	test('nextLine splits empty same-line blocks when enabled', () => {
 		const input = [
 			'Actor Foo { }',
 		].join('\n');
@@ -414,11 +481,30 @@ suite('decorateFormat — braceStyle', () => {
 			'}',
 		].join('\n');
 
-		assert.strictEqual(format(input), expected);
+		assert.strictEqual(format(input, { spaceInEmptyBraces: true }), expected);
 	});
 
-	test('sameLine keeps empty blocks on one line', () => {
-		assert.strictEqual(format('Actor Foo { }', { braceStyle: 'sameLine' }), 'Actor Foo { }');
+	test('leaves compact empty braces alone by default', () => {
+		const input = 'actor IsAHorse : UOnce {}';
+		assert.strictEqual(format(input, { braceStyle: 'sameLine' }), input);
+		assert.strictEqual(format(input), input);
+	});
+
+	test('sameLine can insert spaces inside empty braces', () => {
+		assert.strictEqual(
+			format('actor IsAHorse : UOnce {}', {
+				braceStyle: 'sameLine',
+				spaceInEmptyBraces: true,
+			}),
+			'actor IsAHorse : UOnce { }'
+		);
+	});
+
+	test('sameLine keeps spaced empty blocks on one line when enabled', () => {
+		assert.strictEqual(
+			format('Actor Foo { }', { braceStyle: 'sameLine', spaceInEmptyBraces: true }),
+			'Actor Foo { }'
+		);
 	});
 
 	test('sameLine attaches a lone opening brace to the header', () => {
@@ -550,5 +636,37 @@ suite('decorateFormat — spaceAfterComma', () => {
 
 		const out = format(input).split('\n');
 		assert.strictEqual(out[2], '  A_Jump(256, ');
+	});
+});
+
+suite('decorateFormat — document trailing newline', () => {
+	test('trimTrailingBlankLines removes EOF blank lines', () => {
+		assert.deepStrictEqual(
+			trimTrailingBlankLines(['Actor Foo', '', '  ', '']),
+			['Actor Foo']
+		);
+	});
+
+	test('buildFormattedDocumentText ends with exactly one newline', () => {
+		assert.strictEqual(
+			buildFormattedDocumentText(['Actor Foo', ''], '\n'),
+			'Actor Foo\n'
+		);
+		assert.strictEqual(
+			buildFormattedDocumentText(['Actor Foo', '', ''], '\n'),
+			'Actor Foo\n'
+		);
+	});
+
+	test('buildFormattedDocumentText adds one newline when input had none', () => {
+		assert.strictEqual(buildFormattedDocumentText(['Actor Foo'], '\n'), 'Actor Foo\n');
+	});
+
+	test('simulated full-document format normalizes multiple EOF newlines', () => {
+		const lines = ['actor IsAHorse : UOnce {}', '', ''];
+		const formatted = formatDecorateLines(lines, defaultOpts);
+		const text = buildFormattedDocumentText(formatted, '\n');
+		assert.strictEqual(text, 'actor IsAHorse : UOnce {}\n');
+		assert.strictEqual(text.match(/\n/g)?.length, 1);
 	});
 });

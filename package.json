@@ -331,14 +331,20 @@
           "default": "",
           "description": "Path to an external PLAYPAL lump file or directory containing one. Supports relative paths (to workspace root) and absolute paths. Used for palette color preview in Translation properties."
         },
-        "zandronum-vscode.decorate.format.stateLabelStyle": {
-          "type": "string",
-          "enum": [
-            "outdent",
-            "indent"
+        "zandronum-vscode.decorate.format.stateLabelIndent": {
+          "type": "number",
+          "default": 0,
+          "minimum": 0,
+          "description": "Extra spaces for DECORATE state labels, added after the indent of States { . 0 aligns Spawn: with the opening brace (ZDoom wiki). Set 1 for one extra space (  States { /   Spawn:)."
+        },
+        "zandronum-vscode.decorate.format.stateFrameIndent": {
+          "type": [
+            "number",
+            "null"
           ],
-          "default": "outdent",
-          "description": "DECORATE States label indent relative to the States block. \"outdent\" matches ZDoom wiki style (labels one level left of frames); \"indent\" keeps labels at the same level as frames."
+          "default": null,
+          "minimum": 0,
+          "description": "Extra spaces for sprite frames and Goto/Loop/Stop, added after the indent of States { . null uses the editor tab size (wiki). Set 2 for two extra spaces (    MEGM A 0 under   Spawn:)."
         },
         "zandronum-vscode.decorate.format.braceStyle": {
           "type": "string",
@@ -348,6 +354,11 @@
           ],
           "default": "nextLine",
           "description": "Where `{` goes for Actor, States, and other DECORATE blocks. \"nextLine\" is ZDoom wiki / Allman style; \"sameLine\" uses `States {` / `Actor Foo {`."
+        },
+        "zandronum-vscode.decorate.format.spaceInEmptyBraces": {
+          "type": "boolean",
+          "default": false,
+          "description": "When true, rewrite empty same-line blocks like `Actor Foo {}` to `Actor Foo { }` (and nextLine may split them). When false, leave empty `{}` blocks unchanged."
         },
         "zandronum-vscode.decorate.format.spaceAfterComma": {
           "type": "boolean",

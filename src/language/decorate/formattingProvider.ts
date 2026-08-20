@@ -1,13 +1,23 @@
 import * as vscode from 'vscode';
 
-export type StateLabelStyle = 'outdent' | 'indent';
 export type BraceStyle = 'nextLine' | 'sameLine';
 
 export interface DecorateFormatOptions {
     tabSize: number;
     insertSpaces: boolean;
-    stateLabelStyle: StateLabelStyle;
+    /** Extra spaces after the `States {` indent for labels. `0` is wiki (label aligned with `{`). */
+    stateLabelIndent: number;
+    /**
+     * Extra spaces after the `States {` indent for frames / Goto / Loop.
+     * `null` uses `tabSize` (wiki: one editor indent past `{`).
+     */
+    stateFrameIndent: number | null;
     braceStyle: BraceStyle;
+    /**
+     * When true, empty same-line blocks become `{ }` and nextLine may split them.
+     * When false, leave `Actor Foo {}` alone.
+     */
+    spaceInEmptyBraces: boolean;
     spaceAfterComma: boolean;
 }
 
@@ -91,6 +101,10 @@ export function structuralLine(
 function leadingWhitespaceLength(line: string): number {
     const m = /^[ \t]*/.exec(line);
     return m ? m[0].length : 0;
+}
+
+function extraSpaces(count: number): string {
+    return ' '.repeat(Math.max(0, count | 0));
 }
 
 function makeIndent(level: number, options: DecorateFormatOptions): string {
@@ -331,22 +345,24 @@ function applyBraceStyle(
     lines: readonly string[],
     braceStyle: BraceStyle,
     startLine: number,
-    endLine: number
+    endLine: number,
+    spaceInEmptyBraces: boolean
 ): { lines: string[]; startLine: number; endLine: number } {
     if (endLine < startLine || lines.length === 0) {
         return { lines: lines.slice(), startLine, endLine };
     }
 
     if (braceStyle === 'sameLine') {
-        return applySameLineBraces(lines, startLine, endLine);
+        return applySameLineBraces(lines, startLine, endLine, spaceInEmptyBraces);
     }
-    return applyNextLineBraces(lines, startLine, endLine);
+    return applyNextLineBraces(lines, startLine, endLine, spaceInEmptyBraces);
 }
 
 function applyNextLineBraces(
     lines: readonly string[],
     startLine: number,
-    endLine: number
+    endLine: number,
+    spaceInEmptyBraces: boolean
 ): { lines: string[]; startLine: number; endLine: number } {
     const out: string[] = [];
     let inBlockComment: boolean = false;
@@ -371,6 +387,10 @@ function applyNextLineBraces(
             continue;
         }
         if (split.kind === 'emptyBlock') {
+            if (!spaceInEmptyBraces) {
+                out.push(line);
+                continue;
+            }
             out.push(split.header);
             out.push('{');
             out.push(split.fromClose);
@@ -386,7 +406,8 @@ function applyNextLineBraces(
 function applySameLineBraces(
     lines: readonly string[],
     startLine: number,
-    endLine: number
+    endLine: number,
+    spaceInEmptyBraces: boolean
 ): { lines: string[]; startLine: number; endLine: number } {
     const inBlockAt: boolean[] = [];
     let block = false;
@@ -409,6 +430,10 @@ function applySameLineBraces(
                 continue;
             }
             if (split.kind === 'emptyBlock') {
+                if (!spaceInEmptyBraces) {
+                    out.push(line);
+                    continue;
+                }
                 out.push(sameLineEmpty(split.header, split.fromClose));
                 continue;
             }
@@ -578,22 +603,29 @@ export function computeDecorateLeadingEdits(
             statesBodyDepth >= 0 && depthBefore === statesBodyDepth;
         const label =
             inStatesTop && structuralTrim.length > 0 && isStateLabel(structuralTrim);
+        const statesBraceLevel = Math.max(0, statesBodyDepth - 1);
+        const labelExtra = Math.max(0, options.stateLabelIndent | 0);
+        const frameExtra =
+            options.stateFrameIndent === null || options.stateFrameIndent === undefined
+                ? Math.max(1, options.tabSize | 0)
+                : Math.max(0, options.stateFrameIndent | 0);
 
-        let indentLevel = depthBefore;
+        let newLeading: string | undefined;
         if (isBlank) {
-            // leave blank / whitespace-only lines alone
+            newLeading = undefined;
         } else if (isHash) {
-            indentLevel = 0;
+            newLeading = '';
         } else if (closesFirst) {
-            indentLevel = Math.max(0, depthBefore - 1);
-        } else if (label && options.stateLabelStyle === 'outdent') {
-            indentLevel = Math.max(0, depthBefore - 1);
+            newLeading = makeIndent(Math.max(0, depthBefore - 1), options);
+        } else if (inStatesTop && label) {
+            newLeading = makeIndent(statesBraceLevel, options) + extraSpaces(labelExtra);
+        } else if (inStatesTop) {
+            newLeading = makeIndent(statesBraceLevel, options) + extraSpaces(frameExtra);
         } else {
-            indentLevel = depthBefore;
+            newLeading = makeIndent(depthBefore, options);
         }
 
-        if (!isBlank && line >= startLine && line <= endLine) {
-            const newLeading = makeIndent(indentLevel, options);
+        if (newLeading !== undefined && line >= startLine && line <= endLine) {
             const oldLeading = text.slice(0, leadingWhitespaceLength(text));
             if (oldLeading !== newLeading) {
                 edits.push({ line, newLeading });
@@ -657,7 +689,8 @@ export function formatDecorateLines(
         lines,
         options.braceStyle,
         resolved.startLine,
-        resolved.endLine
+        resolved.endLine,
+        options.spaceInEmptyBraces
     );
     const commaed = applyCommaSpacing(
         braced.lines,
@@ -674,11 +707,46 @@ export function formatDecorateLines(
     );
 }
 
-function readStateLabelStyle(document: vscode.TextDocument): StateLabelStyle {
+/** Drop trailing blank / whitespace-only lines (VS Code EOF newline shows as an extra empty line). */
+export function trimTrailingBlankLines(lines: readonly string[]): string[] {
+    const out = lines.slice();
+    while (out.length > 0 && out[out.length - 1].trim().length === 0) {
+        out.pop();
+    }
+    return out;
+}
+
+/** Join lines and ensure the document ends with exactly one line terminator. */
+export function buildFormattedDocumentText(lines: readonly string[], eol: string): string {
+    const trimmed = trimTrailingBlankLines(lines);
+    if (trimmed.length === 0) {
+        return eol;
+    }
+    return trimmed.join(eol) + eol;
+}
+
+function readIntSetting(
+    document: vscode.TextDocument,
+    key: string,
+    fallback: number
+): number {
     const raw = vscode.workspace
         .getConfiguration('zandronum-vscode', document.uri)
-        .get<string>('decorate.format.stateLabelStyle', 'outdent');
-    return raw === 'indent' ? 'indent' : 'outdent';
+        .get<number>(key, fallback);
+    return typeof raw === 'number' && Number.isFinite(raw) ? Math.trunc(raw) : fallback;
+}
+
+function readOptionalIntSetting(
+    document: vscode.TextDocument,
+    key: string
+): number | null {
+    const raw = vscode.workspace
+        .getConfiguration('zandronum-vscode', document.uri)
+        .get<number | null>(key, null);
+    if (raw === null || raw === undefined) {
+        return null;
+    }
+    return typeof raw === 'number' && Number.isFinite(raw) ? Math.trunc(raw) : null;
 }
 
 function readBraceStyle(document: vscode.TextDocument): BraceStyle {
@@ -694,6 +762,12 @@ function readSpaceAfterComma(document: vscode.TextDocument): boolean {
         .get<boolean>('decorate.format.spaceAfterComma', true);
 }
 
+function readSpaceInEmptyBraces(document: vscode.TextDocument): boolean {
+    return vscode.workspace
+        .getConfiguration('zandronum-vscode', document.uri)
+        .get<boolean>('decorate.format.spaceInEmptyBraces', false);
+}
+
 function toFormatOptions(
     document: vscode.TextDocument,
     options: vscode.FormattingOptions
@@ -701,8 +775,10 @@ function toFormatOptions(
     return {
         tabSize: options.tabSize,
         insertSpaces: options.insertSpaces,
-        stateLabelStyle: readStateLabelStyle(document),
+        stateLabelIndent: readIntSetting(document, 'decorate.format.stateLabelIndent', 0),
+        stateFrameIndent: readOptionalIntSetting(document, 'decorate.format.stateFrameIndent'),
         braceStyle: readBraceStyle(document),
+        spaceInEmptyBraces: readSpaceInEmptyBraces(document),
         spaceAfterComma: readSpaceAfterComma(document),
     };
 }
@@ -734,10 +810,7 @@ function editsFromDocument(
 
     if (!lineRange) {
         const oldText = document.getText();
-        let newText = formatted.join(eol);
-        if (oldText.endsWith(eol)) {
-            newText += eol;
-        }
+        const newText = buildFormattedDocumentText(formatted, eol);
         if (newText === oldText) {
             return [];
         }

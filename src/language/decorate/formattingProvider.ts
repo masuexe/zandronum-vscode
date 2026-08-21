@@ -130,12 +130,56 @@ function applyBraceDelta(depth: number, structural: string): number {
     return Math.max(0, d);
 }
 
+function applyParenDelta(depth: number, structural: string): number {
+    let d = depth;
+    for (const ch of structural) {
+        if (ch === '(') {
+            d++;
+        } else if (ch === ')') {
+            d = Math.max(0, d - 1);
+        }
+    }
+    return d;
+}
+
 function hasOpenBrace(structural: string): boolean {
     return structural.includes('{');
 }
 
 function isStateLabel(structuralTrim: string): boolean {
     return LABEL_RE.test(structuralTrim);
+}
+
+/** Previous line still open for args / Translation lists (`foo(` or `...,`). */
+function lineOpensContinuation(structuralTrim: string): boolean {
+    return structuralTrim.endsWith(',') || structuralTrim.endsWith('(');
+}
+
+/**
+ * True when this line continues a multi-line call / property list.
+ * Leading whitespace is left alone so author alignment is preserved.
+ */
+function isContinuationLine(
+    structuralTrim: string,
+    parenDepthBefore: number,
+    prevOpensContinuation: boolean,
+    isLabel: boolean
+): boolean {
+    if (!(parenDepthBefore > 0 || prevOpensContinuation)) {
+        return false;
+    }
+    // Entire line was strings/comments → structural empty (e.g. Translation `"..."`).
+    if (structuralTrim.length === 0) {
+        return true;
+    }
+    if (structuralTrim.startsWith('}') || HASH_RE.test(structuralTrim) || isLabel) {
+        return false;
+    }
+    // Flow keywords are always new statements inside States, never call args.
+    if (/^(goto|loop|stop|wait|fail)\b/i.test(structuralTrim)) {
+        return false;
+    }
+    return true;
 }
 
 function resolveLineRange(
@@ -581,6 +625,8 @@ export function computeDecorateLeadingEdits(
 
     const edits: LeadingEdit[] = [];
     let depth = 0;
+    let parenDepth = 0;
+    let prevOpensContinuation = false;
     let inBlockComment = false;
     /** Brace depth of the interior of a `States { ... }` block, or -1. */
     let statesBodyDepth = -1;
@@ -594,6 +640,7 @@ export function computeDecorateLeadingEdits(
         const structural = scanned.text;
         const structuralTrim = structural.trim();
         const depthBefore = depth;
+        const parenBefore = parenDepth;
 
         const isBlank = text.trim().length === 0;
         const isHash = HASH_RE.test(structuralTrim);
@@ -603,6 +650,12 @@ export function computeDecorateLeadingEdits(
             statesBodyDepth >= 0 && depthBefore === statesBodyDepth;
         const label =
             inStatesTop && structuralTrim.length > 0 && isStateLabel(structuralTrim);
+        const continuation = isContinuationLine(
+            structuralTrim,
+            parenBefore,
+            prevOpensContinuation,
+            label
+        );
         const statesBraceLevel = Math.max(0, statesBodyDepth - 1);
         const labelExtra = Math.max(0, options.stateLabelIndent | 0);
         const frameExtra =
@@ -611,7 +664,8 @@ export function computeDecorateLeadingEdits(
                 : Math.max(0, options.stateFrameIndent | 0);
 
         let newLeading: string | undefined;
-        if (isBlank) {
+        if (isBlank || continuation) {
+            // Blank lines and multi-line arg / Translation continuations keep author indent.
             newLeading = undefined;
         } else if (isHash) {
             newLeading = '';
@@ -645,6 +699,10 @@ export function computeDecorateLeadingEdits(
         }
 
         depth = depthAfter;
+        parenDepth = applyParenDelta(parenBefore, structural);
+        if (!isBlank) {
+            prevOpensContinuation = lineOpensContinuation(structuralTrim);
+        }
 
         if (statesBodyDepth >= 0 && depth < statesBodyDepth) {
             statesBodyDepth = -1;

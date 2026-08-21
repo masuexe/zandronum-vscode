@@ -239,6 +239,22 @@ suite('decorateFormat — comments and strings', () => {
 		const out = format(input).split('\n');
 		assert.strictEqual(out[2], '');
 	});
+
+	test('preserves Translation continuation alignment', () => {
+		const input = [
+			'Actor Foo',
+			'{',
+			'  Translation "4:4=[168,54,72]:[168,54,72]",',
+			'              "202:202=[147,40,56]:[147,40,56]",',
+			'              "0:0=[37,0,3]:[37,0,3]"',
+			'}',
+		].join('\n');
+
+		const out = format(input).split('\n');
+		assert.strictEqual(out[2], '  Translation "4:4=[168,54,72]:[168,54,72]",');
+		assert.strictEqual(out[3], '              "202:202=[147,40,56]:[147,40,56]",');
+		assert.strictEqual(out[4], '              "0:0=[37,0,3]:[37,0,3]"');
+	});
 });
 
 suite('decorateFormat — state indent spaces', () => {
@@ -331,6 +347,35 @@ suite('decorateFormat — state indent spaces', () => {
 			}),
 			expected
 		);
+	});
+
+	test('preserves multi-line action argument alignment', () => {
+		const input = [
+			'actor myactor {',
+			'  States {',
+			'   Spawn:',
+			'    1SPP AA 0 A_SpawnItemEx("RedPoopGibFX",',
+			'                            0,',
+			'                            0,',
+			'                            random(2, 6),',
+			'                            0)',
+			'    Goto Spawn+2',
+			'  }',
+			'}',
+		].join('\n');
+
+		const out = format(input, {
+			braceStyle: 'sameLine',
+			stateLabelIndent: 1,
+			stateFrameIndent: 2,
+		}).split('\n');
+
+		assert.strictEqual(out[3], '    1SPP AA 0 A_SpawnItemEx("RedPoopGibFX",');
+		assert.strictEqual(out[4], '                            0,');
+		assert.strictEqual(out[5], '                            0,');
+		assert.strictEqual(out[6], '                            random(2, 6),');
+		assert.strictEqual(out[7], '                            0)');
+		assert.strictEqual(out[8], '    Goto Spawn+2');
 	});
 });
 

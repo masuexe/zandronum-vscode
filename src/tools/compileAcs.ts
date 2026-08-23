@@ -13,6 +13,21 @@ function getAccPath(): string {
     return config.get<string>('accPath') || 'acc';
 }
 
+export function resolveAccExecutablePath(accPath: string, workspaceRoot: string): string {
+    if (accPath === 'acc') { return accPath; }
+
+    let expanded = accPath;
+    if (accPath === '~') {
+        expanded = os.homedir();
+    } else if (accPath.startsWith('~/') || accPath.startsWith('~\\')) {
+        expanded = path.join(os.homedir(), accPath.slice(2));
+    }
+
+    return path.isAbsolute(expanded)
+        ? expanded
+        : path.resolve(workspaceRoot, expanded);
+}
+
 function getUserIncludePaths(): string[] {
     const config = vscode.workspace.getConfiguration('zandronum-vscode');
     const raw = config.get<string>('accIncludePaths') || '';
@@ -40,13 +55,10 @@ function getOutputDir(workspaceRoot: string): string {
 }
 
 function getAccDir(workspaceRoot: string): string | null {
-    const accPath = getAccPath();
+    const accPath = resolveAccExecutablePath(getAccPath(), workspaceRoot);
 
     if (accPath !== 'acc') {
-        const resolved = path.isAbsolute(accPath)
-            ? accPath
-            : path.resolve(workspaceRoot, accPath);
-        return path.dirname(resolved);
+        return path.dirname(accPath);
     }
 
     try {
@@ -260,7 +272,7 @@ async function compileSingleFile(
     workspaceRoot: string,
     options: { force?: boolean } = {}
 ): Promise<'compiled' | 'skipped' | 'failed'> {
-    const accPath = getAccPath();
+    const accPath = resolveAccExecutablePath(getAccPath(), workspaceRoot);
     const outputDir = getOutputDir(workspaceRoot);
     const includePaths = resolveIncludePaths(workspaceRoot, srcFile);
 

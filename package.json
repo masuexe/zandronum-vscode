@@ -364,6 +364,11 @@
           "type": "boolean",
           "default": true,
           "description": "When true, DECORATE formatter puts one space after commas outside strings and comments (`A_Jump(256, \"See\")`). When false, commas are compact (`A_Jump(256,\"See\")`)."
+        },
+        "zandronum-vscode.decorate.format.removeBlankLinesBeforeCloseBrace": {
+          "type": "boolean",
+          "default": true,
+          "description": "When true, DECORATE formatter removes blank lines immediately above a closing `}`. Blank lines between state labels are kept."
         }
       }
     },

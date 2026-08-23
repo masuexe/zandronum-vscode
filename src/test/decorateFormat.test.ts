@@ -15,6 +15,7 @@ const defaultOpts: DecorateFormatOptions = {
 	braceStyle: 'nextLine',
 	spaceInEmptyBraces: false,
 	spaceAfterComma: true,
+	removeBlankLinesBeforeCloseBrace: true,
 };
 
 function format(src: string, opts: Partial<DecorateFormatOptions> = {}): string {
@@ -681,6 +682,103 @@ suite('decorateFormat — spaceAfterComma', () => {
 
 		const out = format(input).split('\n');
 		assert.strictEqual(out[2], '  A_Jump(256, ');
+	});
+});
+
+suite('decorateFormat — blank lines before close brace', () => {
+	test('removes blanks before } but keeps blanks between labels', () => {
+		const input = [
+			'actor EdenFire_Wiz_P : CustomInventory {',
+			'  States {',
+			'   Pickup:',
+			'    TNT1 A 0 A_JumpIfInventory("C678Flag", 1, "CSection")',
+			'    Goto Tears',
+			'',
+			'   Tears:',
+			'    TNT1 A 0 A_PlaySoundEx("Isaac/tearfire", "Weapon")',
+			'    TNT1 A 0 A_FireCustomMissile("EdenSpectralTear", -45, 0, 16, 16)',
+			'    TNT1 A 0 A_FireCustomMissile("EdenSpectralTear", 45, 0, -16, 16)',
+			'    stop',
+			'',
+			'',
+			'',
+			'  }',
+			'}',
+		].join('\n');
+
+		const expected = [
+			'actor EdenFire_Wiz_P : CustomInventory {',
+			'  States {',
+			'  Pickup:',
+			'    TNT1 A 0 A_JumpIfInventory("C678Flag", 1, "CSection")',
+			'    Goto Tears',
+			'',
+			'  Tears:',
+			'    TNT1 A 0 A_PlaySoundEx("Isaac/tearfire", "Weapon")',
+			'    TNT1 A 0 A_FireCustomMissile("EdenSpectralTear", -45, 0, 16, 16)',
+			'    TNT1 A 0 A_FireCustomMissile("EdenSpectralTear", 45, 0, -16, 16)',
+			'    stop',
+			'  }',
+			'}',
+		].join('\n');
+
+		assert.strictEqual(
+			format(input, {
+				braceStyle: 'sameLine',
+				stateLabelIndent: 0,
+				stateFrameIndent: 2,
+			}),
+			expected
+		);
+	});
+
+	test('keeps blanks before } when setting is false', () => {
+		const input = [
+			'Actor Foo',
+			'{',
+			'Health 1',
+			'',
+			'',
+			'}',
+		].join('\n');
+
+		const out = format(input, { removeBlankLinesBeforeCloseBrace: false }).split('\n');
+		assert.strictEqual(out[2], '  Health 1');
+		assert.strictEqual(out[3], '');
+		assert.strictEqual(out[4], '');
+		assert.strictEqual(out[5], '}');
+	});
+
+	test('is idempotent after stripping blanks before }', () => {
+		const input = [
+			'Actor Foo {',
+			'  Health 1',
+			'',
+			'',
+			'}',
+		].join('\n');
+		const once = format(input, { braceStyle: 'sameLine' });
+		assert.strictEqual(format(once, { braceStyle: 'sameLine' }), once);
+		assert.ok(!once.includes('\n\n}'));
+	});
+
+	test('does not treat } inside strings as a close brace', () => {
+		const input = [
+			'Actor Foo',
+			'{',
+			'DropItem "Clip}"',
+			'',
+			'',
+			'Health 1',
+			'}',
+		].join('\n');
+
+		const out = format(input).split('\n');
+		assert.strictEqual(out[2], '  DropItem "Clip}"');
+		assert.strictEqual(out[3], '');
+		assert.strictEqual(out[4], '');
+		assert.strictEqual(out[5], '  Health 1');
+		assert.strictEqual(out[6], '}');
 	});
 });
 

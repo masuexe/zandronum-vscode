@@ -19,6 +19,8 @@ export interface DecorateFormatOptions {
      */
     spaceInEmptyBraces: boolean;
     spaceAfterComma: boolean;
+    /** When true, strip blank lines immediately above a closing `}`. */
+    removeBlankLinesBeforeCloseBrace: boolean;
 }
 
 export interface LineRange {
@@ -610,6 +612,65 @@ function applyCommaSpacing(
 }
 
 /**
+ * Drop blank / whitespace-only lines immediately above a closing `}`.
+ * Only removes blanks when both those lines and the `}` fall inside [startLine, endLine].
+ */
+export function removeBlankLinesBeforeCloseBrace(
+    lines: readonly string[],
+    startLine: number,
+    endLine: number
+): { lines: string[]; startLine: number; endLine: number } {
+    if (endLine < startLine || lines.length === 0) {
+        return { lines: lines.slice(), startLine, endLine };
+    }
+
+    const out: string[] = [];
+    const blankBuffer: string[] = [];
+    let inBlockComment = false;
+    let removed = 0;
+
+    for (let i = 0; i < lines.length; i++) {
+        const line = lines[i];
+        const inBlockAtStart: boolean = inBlockComment;
+        inBlockComment = structuralLine(line, inBlockAtStart).inBlockComment;
+
+        if (line.trim().length === 0) {
+            blankBuffer.push(line);
+            continue;
+        }
+
+        const structuralTrim = structuralLine(line, inBlockAtStart).text.trim();
+        const isCloseBrace = structuralTrim.startsWith('}');
+
+        if (isCloseBrace && blankBuffer.length > 0 && inRange(i, startLine, endLine)) {
+            const blankStart = i - blankBuffer.length;
+            for (let b = 0; b < blankBuffer.length; b++) {
+                const idx = blankStart + b;
+                if (inRange(idx, startLine, endLine)) {
+                    removed++;
+                } else {
+                    out.push(blankBuffer[b]);
+                }
+            }
+            blankBuffer.length = 0;
+        } else {
+            for (const blank of blankBuffer) {
+                out.push(blank);
+            }
+            blankBuffer.length = 0;
+        }
+
+        out.push(line);
+    }
+
+    for (const blank of blankBuffer) {
+        out.push(blank);
+    }
+
+    return { lines: out, startLine, endLine: endLine - removed };
+}
+
+/**
  * Compute leading-whitespace replacements for DECORATE lines.
  * Only leading indent changes; line content and trailing whitespace are preserved.
  */
@@ -750,17 +811,20 @@ export function formatDecorateLines(
         resolved.endLine,
         options.spaceInEmptyBraces
     );
+    const stripped = options.removeBlankLinesBeforeCloseBrace
+        ? removeBlankLinesBeforeCloseBrace(braced.lines, braced.startLine, braced.endLine)
+        : braced;
     const commaed = applyCommaSpacing(
-        braced.lines,
+        stripped.lines,
         options.spaceAfterComma,
-        braced.startLine,
-        braced.endLine
+        stripped.startLine,
+        stripped.endLine
     );
     return applyLeadingEdits(
         commaed,
         computeDecorateLeadingEdits(commaed, options, {
-            startLine: braced.startLine,
-            endLine: braced.endLine,
+            startLine: stripped.startLine,
+            endLine: stripped.endLine,
         })
     );
 }
@@ -826,6 +890,12 @@ function readSpaceInEmptyBraces(document: vscode.TextDocument): boolean {
         .get<boolean>('decorate.format.spaceInEmptyBraces', false);
 }
 
+function readRemoveBlankLinesBeforeCloseBrace(document: vscode.TextDocument): boolean {
+    return vscode.workspace
+        .getConfiguration('zandronum-vscode', document.uri)
+        .get<boolean>('decorate.format.removeBlankLinesBeforeCloseBrace', true);
+}
+
 function toFormatOptions(
     document: vscode.TextDocument,
     options: vscode.FormattingOptions
@@ -838,6 +908,7 @@ function toFormatOptions(
         braceStyle: readBraceStyle(document),
         spaceInEmptyBraces: readSpaceInEmptyBraces(document),
         spaceAfterComma: readSpaceAfterComma(document),
+        removeBlankLinesBeforeCloseBrace: readRemoveBlankLinesBeforeCloseBrace(document),
     };
 }
 

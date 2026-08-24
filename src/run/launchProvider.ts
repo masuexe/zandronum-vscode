@@ -1,14 +1,22 @@
 import * as vscode from 'vscode';
+import * as cp from 'child_process';
+import * as os from 'os';
+import * as path from 'path';
 import { resolveVariables, parseArgs } from '../shared/variables';
 import { getBuildOutputPath } from '../shared/buildOutput';
 import { buildPK3, buildProject } from '../tools/build';
 import { compileAllAndBuild } from '../tools/compileAcs';
 
-export interface RunConfig {
-    name: string;
+export interface RunConfigOverride {
     program?: string;
     preArgs?: string | string[];
     postArgs?: string | string[];
+}
+
+export interface RunConfig extends RunConfigOverride {
+    name: string;
+    windows?: RunConfigOverride;
+    linux?: RunConfigOverride;
 }
 
 export interface RunCompound {
@@ -32,15 +40,51 @@ const TERMINAL_SINGLE = 'Zandronum';
 const TERMINAL_HOST = 'Zandronum Host';
 const TERMINAL_CLIENT = 'Zandronum Client';
 
-function buildCommandLine(
-    program: string,
+export function buildRunArguments(
     preArgs: string[],
     postArgs: string[],
     buildOutput: string
-): string {
-    const allArgs = [...preArgs, '-file', buildOutput, ...postArgs];
-    const quoted = allArgs.map(a => a.includes(' ') ? `"${a}"` : a);
-    return `"${program}" ${quoted.join(' ')}`;
+): string[] {
+    return [...preArgs, '-file', buildOutput, ...postArgs];
+}
+
+export function resolvePlatformRunConfig(
+    config: RunConfig,
+    platform: NodeJS.Platform
+): RunConfig {
+    const override = platform === 'win32'
+        ? config.windows
+        : platform === 'linux'
+            ? config.linux
+            : undefined;
+    if (!override) { return config; }
+    return { ...config, ...override, name: config.name };
+}
+
+export function isWindowsAbsolutePath(value: string): boolean {
+    return /^[A-Za-z]:[\\/]/.test(value);
+}
+
+export function isWslWindowsExecutable(
+    program: string,
+    platform: NodeJS.Platform,
+    release: string,
+    wslDistroName?: string
+): boolean {
+    const isWsl = platform === 'linux'
+        && (Boolean(wslDistroName) || release.toLowerCase().includes('microsoft'));
+    return isWsl && program.toLowerCase().endsWith('.exe');
+}
+
+export function convertWslPathArguments(
+    args: readonly string[],
+    convertPath: (value: string) => string
+): string[] {
+    return args.map(arg => path.posix.isAbsolute(arg) ? convertPath(arg) : arg);
+}
+
+function wslPathToWindows(value: string): string {
+    return cp.execFileSync('wslpath', ['-w', value], { encoding: 'utf8' }).trim();
 }
 
 /**
@@ -107,22 +151,58 @@ function getProgram(config: RunConfig): string {
     return settings.get<string>('zandronumPath') || 'zandronum';
 }
 
-function runConfigToTerminal(config: RunConfig, terminalName: string): void {
+function runConfigToTerminal(config: RunConfig, terminalName: string): boolean {
     const workspaceFolder = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath ?? '';
     const buildOutput = getBuildOutputPath();
     const ctx = { workspaceFolder, buildOutput };
+    const platformConfig = resolvePlatformRunConfig(config, process.platform);
 
-    const program = resolveVariables(getProgram(config), ctx);
-    const preArgs = parseArgs(config.preArgs ?? []).map(a => resolveVariables(a, ctx));
-    const postArgs = parseArgs(config.postArgs ?? []).map(a => resolveVariables(a, ctx));
+    const program = resolveVariables(getProgram(platformConfig), ctx);
+    const preArgs = parseArgs(platformConfig.preArgs ?? []).map(a => resolveVariables(a, ctx));
+    const postArgs = parseArgs(platformConfig.postArgs ?? []).map(a => resolveVariables(a, ctx));
+    let args = buildRunArguments(preArgs, postArgs, buildOutput);
 
-    const command = buildCommandLine(program, preArgs, postArgs, buildOutput);
+    if (process.platform === 'linux' && isWindowsAbsolutePath(program)) {
+        vscode.window.showErrorMessage(
+            `Cannot run Windows program path "${program}" on Linux. ` +
+            'Configure linux.program in .vscode/zandronum.json with a native Linux Zandronum executable.'
+        );
+        return false;
+    }
+
+    if (isWslWindowsExecutable(
+        program,
+        process.platform,
+        os.release(),
+        process.env.WSL_DISTRO_NAME
+    )) {
+        try {
+            args = convertWslPathArguments(args, wslPathToWindows);
+        } catch (err) {
+            vscode.window.showErrorMessage(
+                `Failed to convert WSL paths for Windows Zandronum: ${String(err)}`
+            );
+            return false;
+        }
+    }
 
     const existing = vscode.window.terminals.find(t => t.name === terminalName);
     if (existing) { existing.dispose(); }
-    const terminal = vscode.window.createTerminal(terminalName);
-    terminal.sendText(`& ${command}`);
-    terminal.show();
+    try {
+        const terminal = vscode.window.createTerminal({
+            name: terminalName,
+            shellPath: program,
+            shellArgs: args,
+            cwd: workspaceFolder || undefined,
+        });
+        terminal.show();
+        return true;
+    } catch (err) {
+        vscode.window.showErrorMessage(
+            `Failed to run Zandronum executable "${program}": ${String(err)}`
+        );
+        return false;
+    }
 }
 
 function delay(ms: number): Promise<void> {
@@ -135,7 +215,7 @@ async function runCompound(compound: RunCompound, configurations: RunConfig[]): 
         vscode.window.showErrorMessage(resolved.error);
         return;
     }
-    runConfigToTerminal(resolved.host, TERMINAL_HOST);
+    if (!runConfigToTerminal(resolved.host, TERMINAL_HOST)) { return; }
     await delay(HOST_CLIENT_DELAY_MS);
     runConfigToTerminal(resolved.client, TERMINAL_CLIENT);
 }

@@ -276,7 +276,12 @@ export async function runZandronum(): Promise<void> {
 
 /** Build Project (ACS if configured + PK3), then launch only on success. */
 export async function runProject(): Promise<void> {
-    const ok = await buildProject();
+    const saved = await vscode.workspace.saveAll(false);
+    if (!saved) {
+        vscode.window.showErrorMessage('Run cancelled: save workspace files before building.');
+        return;
+    }
+    const ok = await buildProject({ skipUnchangedPk3: true });
     if (!ok) { return; }
     await runZandronum();
 }

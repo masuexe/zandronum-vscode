@@ -9,9 +9,32 @@ let currentGen = 0;
 let isBuilding = false;
 
 const PK3_IGNORE_FILENAME = '.pk3ignore';
+const BUILD_MANIFEST_VERSION = 1;
 
-/** @returns true when a fresh PK3 was written successfully */
-export async function buildPK3(options: { quiet?: boolean } = {}): Promise<boolean> {
+export interface Pk3InputState {
+    path: string;
+    size: number;
+    mtimeMs: number;
+}
+
+export interface Pk3BuildManifest {
+    version: number;
+    inputs: Pk3InputState[];
+    output: {
+        size: number;
+        mtimeMs: number;
+    };
+}
+
+export interface BuildPk3Options {
+    quiet?: boolean;
+    /** Skip packaging when the last successful build has identical inputs and output. */
+    skipIfUnchanged?: boolean;
+    onResult?: (result: 'built' | 'skipped') => void;
+}
+
+/** @returns true when the PK3 was built successfully or is already current */
+export async function buildPK3(options: BuildPk3Options = {}): Promise<boolean> {
     const gen = ++currentGen;
 
     const workspaceFolders = vscode.workspace.workspaceFolders;
@@ -44,6 +67,21 @@ export async function buildPK3(options: { quiet?: boolean } = {}): Promise<boole
         : null;
 
     try {
+        const fileEntries = await walkFiles(srcPath, srcPath, filter);
+        const inputs = await snapshotInputFiles(fileEntries);
+        const manifestPath = `${outPath}.manifest.json`;
+
+        if (options.skipIfUnchanged) {
+            const previous = await readBuildManifest(manifestPath);
+            if (previous && await isBuildManifestCurrent(previous, inputs, outPath)) {
+                options.onResult?.('skipped');
+                if (!options.quiet) {
+                    vscode.window.showInformationMessage('PK3 is up-to-date; packaging skipped.');
+                }
+                return true;
+            }
+        }
+
         await vscode.window.withProgress({
             location: vscode.ProgressLocation.Notification,
             title: 'Building PK3...',
@@ -52,9 +90,12 @@ export async function buildPK3(options: { quiet?: boolean } = {}): Promise<boole
             await packDirectoryToPk3(srcPath, outPath, {
                 onProgress: (message) => { progress.report({ message }); },
                 filter,
+                fileEntries,
             });
         });
         if (gen !== currentGen) { return false; }
+        await writeBuildManifest(manifestPath, await createBuildManifest(inputs, outPath));
+        options.onResult?.('built');
         if (!options.quiet) {
             const suffix = leanNote ? ` (${leanNote})` : '';
             vscode.window.showInformationMessage(`Build complete: out/build.pk3${suffix}`);
@@ -77,7 +118,9 @@ export async function buildPK3(options: { quiet?: boolean } = {}): Promise<boole
  * resources), then package PK3. Skips ACS when no LOADACS entries exist;
  * stops without packaging on compile failure.
  */
-export async function buildProject(): Promise<boolean> {
+export async function buildProject(
+    options: { skipUnchangedPk3?: boolean } = {}
+): Promise<boolean> {
     // Dynamic import avoids a static cycle with compileAcs → buildPK3.
     const { compileLoadAcsLibraries } = await import('./compileAcs.js');
     const totalStarted = Date.now();
@@ -91,7 +134,12 @@ export async function buildProject(): Promise<boolean> {
     }
 
     const pk3Started = Date.now();
-    const ok = await buildPK3({ quiet: true });
+    const pk3Status: { result: 'built' | 'skipped' } = { result: 'built' };
+    const ok = await buildPK3({
+        quiet: true,
+        skipIfUnchanged: options.skipUnchangedPk3,
+        onResult: result => { pk3Status.result = result; },
+    });
     const pk3Ms = Date.now() - pk3Started;
     if (!ok) {
         return false;
@@ -102,13 +150,16 @@ export async function buildProject(): Promise<boolean> {
     const acsPart = acs.result === 'notConfigured'
         ? 'ACS: none'
         : `ACS: ${fmt(acs.elapsedMs)} (${acs.compiled} compiled, ${acs.skipped} skipped)`;
+    const pk3Part = pk3Status.result === 'skipped'
+        ? 'PK3: up-to-date'
+        : `PK3: ${fmt(pk3Ms)}`;
     vscode.window.showInformationMessage(
-        `${acsPart} · PK3: ${fmt(pk3Ms)} · total ${fmt(totalMs)}`
+        `${acsPart} · ${pk3Part} · total ${fmt(totalMs)}`
     );
     return true;
 }
 
-interface FileEntry {
+export interface FileEntry {
     archiveName: string;
     diskPath: string;
 }
@@ -117,6 +168,8 @@ export interface PackPk3Options {
     onProgress?: (message: string) => void;
     /** When set, skip paths ignored by this filter (gitignore semantics relative to pk3 root). */
     filter?: Ignore | null;
+    /** Pre-enumerated package inputs, used by incremental builds to avoid a second walk. */
+    fileEntries?: readonly FileEntry[];
 }
 
 const MAX_CONCURRENT_READS = 64;
@@ -194,6 +247,77 @@ async function walkFiles(
     return result.flat();
 }
 
+async function snapshotInputFiles(fileEntries: readonly FileEntry[]): Promise<Pk3InputState[]> {
+    const states = await Promise.all(fileEntries.map(async entry => {
+        const stat = await fs.promises.stat(entry.diskPath);
+        return {
+            path: entry.archiveName,
+            size: stat.size,
+            mtimeMs: stat.mtimeMs,
+        };
+    }));
+    return states.sort((a, b) => a.path.localeCompare(b.path));
+}
+
+async function createBuildManifest(
+    inputs: Pk3InputState[],
+    outPath: string
+): Promise<Pk3BuildManifest> {
+    const output = await fs.promises.stat(outPath);
+    return {
+        version: BUILD_MANIFEST_VERSION,
+        inputs,
+        output: { size: output.size, mtimeMs: output.mtimeMs },
+    };
+}
+
+export async function isBuildManifestCurrent(
+    manifest: Pk3BuildManifest,
+    inputs: readonly Pk3InputState[],
+    outPath: string
+): Promise<boolean> {
+    if (manifest.version !== BUILD_MANIFEST_VERSION
+        || !Array.isArray(manifest.inputs)
+        || !manifest.output
+        || manifest.inputs.length !== inputs.length) {
+        return false;
+    }
+    for (let i = 0; i < inputs.length; i++) {
+        const previous = manifest.inputs[i];
+        const current = inputs[i];
+        if (previous.path !== current.path
+            || previous.size !== current.size
+            || previous.mtimeMs !== current.mtimeMs) {
+            return false;
+        }
+    }
+    try {
+        const output = await fs.promises.stat(outPath);
+        return output.isFile()
+            && output.size === manifest.output.size
+            && output.mtimeMs === manifest.output.mtimeMs;
+    } catch {
+        return false;
+    }
+}
+
+async function readBuildManifest(manifestPath: string): Promise<Pk3BuildManifest | null> {
+    try {
+        return JSON.parse(await fs.promises.readFile(manifestPath, 'utf8')) as Pk3BuildManifest;
+    } catch {
+        return null;
+    }
+}
+
+async function writeBuildManifest(
+    manifestPath: string,
+    manifest: Pk3BuildManifest
+): Promise<void> {
+    const tmpPath = `${manifestPath}.tmp`;
+    await fs.promises.writeFile(tmpPath, JSON.stringify(manifest));
+    await fs.promises.rename(tmpPath, manifestPath);
+}
+
 async function readBatch(files: FileEntry[]): Promise<Array<{ archiveName: string; data: Buffer }>> {
     const buffers = await Promise.all(
         files.map(f => fs.promises.readFile(f.diskPath))
@@ -222,7 +346,9 @@ export async function packDirectoryToPk3(
     }
 
     onProgress?.('Scanning files...');
-    const fileEntries = await walkFiles(srcPath, srcPath, filter);
+    const fileEntries = options.fileEntries
+        ? [...options.fileEntries]
+        : await walkFiles(srcPath, srcPath, filter);
 
     const tmpPath = `${outPath}.tmp`;
     try {

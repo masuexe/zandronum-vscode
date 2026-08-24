@@ -3,7 +3,14 @@ import * as fs from 'fs';
 import * as os from 'os';
 import * as path from 'path';
 import { unzipSync } from 'fflate';
-import { normalizeZipEntryName, packDirectoryToPk3, loadPk3Ignore } from '../tools/build';
+import {
+	isBuildManifestCurrent,
+	loadPk3Ignore,
+	normalizeZipEntryName,
+	packDirectoryToPk3,
+	type Pk3BuildManifest,
+	type Pk3InputState,
+} from '../tools/build';
 
 /** Filenames from the ZIP central directory (authoritative entry list). */
 function listZipCentralDirectoryNames(data: Buffer): string[] {
@@ -30,6 +37,38 @@ function listZipCentralDirectoryNames(data: Buffer): string[] {
 }
 
 suite('PK3 packaging', () => {
+	test('build manifest detects input and output changes', async () => {
+		const tmpRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'zandro-pk3-manifest-'));
+		try {
+			const outPk3 = path.join(tmpRoot, 'build.pk3');
+			fs.writeFileSync(outPk3, 'pk3');
+			const output = fs.statSync(outPk3);
+			const inputs: Pk3InputState[] = [
+				{ path: 'DECORATE.txt', size: 12, mtimeMs: 1000 },
+			];
+			const manifest: Pk3BuildManifest = {
+				version: 1,
+				inputs,
+				output: { size: output.size, mtimeMs: output.mtimeMs },
+			};
+
+			assert.strictEqual(await isBuildManifestCurrent(manifest, inputs, outPk3), true);
+			assert.strictEqual(await isBuildManifestCurrent(manifest, [], outPk3), false);
+			assert.strictEqual(await isBuildManifestCurrent(
+				manifest,
+				[{ path: 'DECORATE.txt', size: 13, mtimeMs: 1000 }],
+				outPk3
+			), false);
+
+			fs.appendFileSync(outPk3, 'changed');
+			assert.strictEqual(await isBuildManifestCurrent(manifest, inputs, outPk3), false);
+			fs.unlinkSync(outPk3);
+			assert.strictEqual(await isBuildManifestCurrent(manifest, inputs, outPk3), false);
+		} finally {
+			fs.rmSync(tmpRoot, { recursive: true, force: true });
+		}
+	});
+
 	test('normalizeZipEntryName forces / and rejects directories', () => {
 		assert.strictEqual(normalizeZipEntryName('sprites\\skins\\a.png'), 'sprites/skins/a.png');
 		assert.strictEqual(normalizeZipEntryName('sprites/skins/core_flipx/'), null);

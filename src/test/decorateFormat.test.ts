@@ -48,6 +48,17 @@ suite('decorateFormat — structuralLine', () => {
 	test('ignores braces inside strings', () => {
 		const r = structuralLine('DropItem "Foo{Bar"', false);
 		assert.strictEqual(r.text.includes('{'), false);
+		assert.ok(r.code.includes('"Foo{Bar"'));
+	});
+
+	test('keeps strings in code so a mid-line comma is not a continuation', () => {
+		const r = structuralLine(
+			'Translation "192:192=172:172", "198:198=42:42"',
+			false
+		);
+		assert.strictEqual(r.text.trim().endsWith(','), true);
+		assert.strictEqual(r.code.trim().endsWith(','), false);
+		assert.ok(r.code.trim().endsWith('"'));
 	});
 
 	test('tracks multi-line block comments', () => {
@@ -255,6 +266,34 @@ suite('decorateFormat — comments and strings', () => {
 		assert.strictEqual(out[2], '  Translation "4:4=[168,54,72]:[168,54,72]",');
 		assert.strictEqual(out[3], '              "202:202=[147,40,56]:[147,40,56]",');
 		assert.strictEqual(out[4], '              "0:0=[37,0,3]:[37,0,3]"');
+	});
+
+	test('indents the property after a same-line Translation string list', () => {
+		const input = [
+			'actor KyorownBulletDmg : KyorownBulletU {',
+			'Translation "192:192=172:172", "198:198=42:42"',
+			'Damage (200) //160',
+			'States {',
+			'Death:',
+			'TNT1 A 0 A_PlaySoundEx("weapon/napalm", "Weapon")',
+			'stop',
+			'}',
+			'}',
+		].join('\n');
+
+		const expected = [
+			'actor KyorownBulletDmg : KyorownBulletU {',
+			'  Translation "192:192=172:172", "198:198=42:42"',
+			'  Damage (200) //160',
+			'  States {',
+			'  Death:',
+			'    TNT1 A 0 A_PlaySoundEx("weapon/napalm", "Weapon")',
+			'    stop',
+			'  }',
+			'}',
+		].join('\n');
+
+		assert.strictEqual(format(input, { braceStyle: 'sameLine' }), expected);
 	});
 });
 

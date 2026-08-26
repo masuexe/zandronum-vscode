@@ -41,14 +41,18 @@ const STATES_RE = /^states\b/i;
 const HASH_RE = /^#/;
 
 /**
- * Strip line/block comments and double-quoted strings for brace scanning.
+ * Strip comments (and optionally strings) for structural scanning.
  * Carries block-comment state across lines; strings do not span lines (DECORATE).
+ *
+ * `text` — comments and strings removed (brace / paren depth).
+ * `code` — comments removed, strings kept (trailing `,` / `(` continuation).
  */
 export function structuralLine(
     line: string,
     inBlockComment: boolean
-): { text: string; inBlockComment: boolean } {
+): { text: string; code: string; inBlockComment: boolean } {
     let out = '';
+    let code = '';
     let i = 0;
     let inBlock = inBlockComment;
     let inString = false;
@@ -68,7 +72,9 @@ export function structuralLine(
         }
 
         if (inString) {
+            code += ch;
             if (ch === '\\' && next !== undefined) {
+                code += next;
                 i += 2;
                 continue;
             }
@@ -89,15 +95,17 @@ export function structuralLine(
         }
         if (ch === '"') {
             inString = true;
+            code += ch;
             i++;
             continue;
         }
 
         out += ch;
+        code += ch;
         i++;
     }
 
-    return { text: out, inBlockComment: inBlock };
+    return { text: out, code, inBlockComment: inBlock };
 }
 
 function leadingWhitespaceLength(line: string): number {
@@ -152,9 +160,13 @@ function isStateLabel(structuralTrim: string): boolean {
     return LABEL_RE.test(structuralTrim);
 }
 
-/** Previous line still open for args / Translation lists (`foo(` or `...,`). */
-function lineOpensContinuation(structuralTrim: string): boolean {
-    return structuralTrim.endsWith(',') || structuralTrim.endsWith('(');
+/**
+ * Previous line still open for args / Translation lists (`foo(` or `...,`).
+ * Use comment-stripped text that still includes strings: `"a", "b"` is complete,
+ * not a trailing comma (string-stripped `text` would look like ` ,`).
+ */
+function lineOpensContinuation(commentStrippedTrim: string): boolean {
+    return commentStrippedTrim.endsWith(',') || commentStrippedTrim.endsWith('(');
 }
 
 /**
@@ -762,7 +774,7 @@ export function computeDecorateLeadingEdits(
         depth = depthAfter;
         parenDepth = applyParenDelta(parenBefore, structural);
         if (!isBlank) {
-            prevOpensContinuation = lineOpensContinuation(structuralTrim);
+            prevOpensContinuation = lineOpensContinuation(scanned.code.trim());
         }
 
         if (statesBodyDepth >= 0 && depth < statesBodyDepth) {

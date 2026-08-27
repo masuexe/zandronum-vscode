@@ -9,6 +9,8 @@ export interface AcsFormatOptions {
     /** When true, empty same-line blocks become `{ }` and nextLine may split them. */
     spaceInEmptyBraces: boolean;
     spaceAfterComma: boolean;
+    /** When true, space after control keywords before `(` and before `{` after `)`. */
+    spaceAfterControlKeyword: boolean;
     /** When true, strip blank lines immediately above a closing `}`. */
     removeBlankLinesBeforeCloseBrace: boolean;
 }
@@ -592,6 +594,548 @@ function applyCommaSpacing(
     return out;
 }
 
+const IDENT_CHAR_RE = /[A-Za-z0-9_]/;
+
+function isIdentChar(ch: string): boolean {
+    return IDENT_CHAR_RE.test(ch);
+}
+
+function isWordBoundaryBefore(line: string, index: number): boolean {
+    return index === 0 || !isIdentChar(line[index - 1]);
+}
+
+function matchKeywordAt(line: string, index: number, keyword: string): boolean {
+    if (!isWordBoundaryBefore(line, index)) {
+        return false;
+    }
+    if (index + keyword.length > line.length) {
+        return false;
+    }
+    for (let k = 0; k < keyword.length; k++) {
+        if (line[index + k].toLowerCase() !== keyword[k].toLowerCase()) {
+            return false;
+        }
+    }
+    const after = index + keyword.length;
+    return after >= line.length || !isIdentChar(line[after]);
+}
+
+function skipHorizontalSpace(line: string, index: number): number {
+    let i = index;
+    while (i < line.length && (line[i] === ' ' || line[i] === '\t')) {
+        i++;
+    }
+    return i;
+}
+
+function isBinaryOpStart(ch: string): boolean {
+    return '><=!&|+-*/%'.includes(ch);
+}
+
+const KEYWORDS_BEFORE_PAREN = ['if', 'while', 'for', 'until', 'switch'] as const;
+
+function formatControlFlowSpacingLine(
+    line: string,
+    enabled: boolean,
+    inBlockComment: boolean
+): { text: string; inBlockComment: boolean } {
+    if (!enabled) {
+        return { text: line, inBlockComment: structuralLine(line, inBlockComment).inBlockComment };
+    }
+
+    let out = '';
+    let i = 0;
+    let inBlock = inBlockComment;
+    let inString = false;
+
+    while (i < line.length) {
+        const ch = line[i];
+        const next = line[i + 1];
+
+        if (inBlock) {
+            out += ch;
+            if (ch === '*' && next === '/') {
+                out += next;
+                inBlock = false;
+                i += 2;
+                continue;
+            }
+            i++;
+            continue;
+        }
+
+        if (inString) {
+            out += ch;
+            if (ch === '\\' && next !== undefined) {
+                out += next;
+                i += 2;
+                continue;
+            }
+            if (ch === '"') {
+                inString = false;
+            }
+            i++;
+            continue;
+        }
+
+        if (ch === '/' && next === '/') {
+            out += line.slice(i);
+            break;
+        }
+        if (ch === '/' && next === '*') {
+            out += '/*';
+            inBlock = true;
+            i += 2;
+            continue;
+        }
+        if (ch === '"') {
+            inString = true;
+            out += ch;
+            i++;
+            continue;
+        }
+
+        if (ch === '}') {
+            out += ch;
+            i++;
+            const afterBrace = skipHorizontalSpace(line, i);
+            if (matchKeywordAt(line, afterBrace, 'else') || matchKeywordAt(line, afterBrace, 'until')) {
+                out += ' ';
+                i = afterBrace;
+            }
+            continue;
+        }
+
+        if (ch === ')') {
+            out += ch;
+            i++;
+            const afterParen = skipHorizontalSpace(line, i);
+            if (afterParen < line.length && line[afterParen] === '{') {
+                out += ' ';
+                i = afterParen;
+                continue;
+            }
+            if (afterParen < line.length && isBinaryOpStart(line[afterParen])) {
+                out += ' ';
+                i = afterParen;
+            }
+            continue;
+        }
+
+        if (matchKeywordAt(line, i, 'else')) {
+            const kwEnd = i + 4;
+            out += line.slice(i, kwEnd);
+            i = skipHorizontalSpace(line, kwEnd);
+            if (matchKeywordAt(line, i, 'if')) {
+                out += ' ';
+                const ifEnd = i + 2;
+                out += line.slice(i, ifEnd);
+                i = skipHorizontalSpace(line, ifEnd);
+                if (i < line.length && line[i] === '(') {
+                    out += ' ';
+                }
+                continue;
+            }
+            if (i < line.length && line[i] === '{') {
+                out += ' ';
+            }
+            continue;
+        }
+
+        if (matchKeywordAt(line, i, 'do')) {
+            const kwEnd = i + 2;
+            out += line.slice(i, kwEnd);
+            i = skipHorizontalSpace(line, kwEnd);
+            if (i < line.length && line[i] === '{') {
+                out += ' ';
+            }
+            continue;
+        }
+
+        let matchedKw = false;
+        for (const kw of KEYWORDS_BEFORE_PAREN) {
+            if (matchKeywordAt(line, i, kw)) {
+                const kwEnd = i + kw.length;
+                out += line.slice(i, kwEnd);
+                i = skipHorizontalSpace(line, kwEnd);
+                if (i < line.length && line[i] === '(') {
+                    out += ' ';
+                }
+                matchedKw = true;
+                break;
+            }
+        }
+        if (matchedKw) {
+            continue;
+        }
+
+        out += ch;
+        i++;
+    }
+
+    return { text: out, inBlockComment: inBlock };
+}
+
+type ExprKind = 'start' | 'open' | 'value' | 'op' | 'prefix';
+
+function isControlParenKeywordAt(line: string, index: number): boolean {
+    for (const kw of KEYWORDS_BEFORE_PAREN) {
+        if (matchKeywordAt(line, index, kw)) {
+            return true;
+        }
+    }
+    return false;
+}
+
+function readIdentAt(line: string, index: number): number {
+    let i = index;
+    while (i < line.length && isIdentChar(line[i])) {
+        i++;
+    }
+    return i;
+}
+
+function readNumberAt(line: string, index: number): number {
+    let i = index;
+    while (i < line.length && line[i] >= '0' && line[i] <= '9') {
+        i++;
+    }
+    if (i < line.length && line[i] === '.' && i + 1 < line.length && line[i + 1] >= '0' && line[i + 1] <= '9') {
+        i++;
+        while (i < line.length && line[i] >= '0' && line[i] <= '9') {
+            i++;
+        }
+    }
+    return i;
+}
+
+function readOperatorAt(line: string, index: number): string | undefined {
+    const two = line.slice(index, index + 2);
+    if (
+        two === '++' ||
+        two === '--' ||
+        two === '==' ||
+        two === '!=' ||
+        two === '<=' ||
+        two === '>=' ||
+        two === '&&' ||
+        two === '||'
+    ) {
+        return two;
+    }
+    const one = line[index];
+    if ('+-*/%<>=!&|'.includes(one)) {
+        return one;
+    }
+    return undefined;
+}
+
+function isCommentStart(line: string, index: number): boolean {
+    return line[index] === '/' && (line[index + 1] === '/' || line[index + 1] === '*');
+}
+
+function endsWithSpace(text: string): boolean {
+    const ch = text[text.length - 1];
+    return ch === ' ' || ch === '\t';
+}
+
+function ensureSpaceBefore(text: string): string {
+    if (text.length === 0 || endsWithSpace(text)) {
+        return text;
+    }
+    return `${text} `;
+}
+
+function needsSpaceBeforeValue(kind: ExprKind): boolean {
+    return kind === 'value' || kind === 'op';
+}
+
+function needsSpaceBeforeCallParen(kind: ExprKind, text: string): boolean {
+    if (kind === 'op') {
+        return true;
+    }
+    if (kind !== 'value') {
+        return false;
+    }
+    const last = text[text.length - 1];
+    // script 1 (void) / script "name" (void) — not a function call
+    return last === '"' || (last !== undefined && last >= '0' && last <= '9');
+}
+
+/**
+ * Tight function calls (`Name(`) and spaces around binary operators (`a + b`).
+ * Control keywords keep `if (`; unary `+`/`-`/`!` stay tight.
+ */
+function formatCallAndOperatorSpacingLine(
+    line: string,
+    spaceAfterComma: boolean,
+    spaceAfterControlKeyword: boolean,
+    inBlockComment: boolean
+): { text: string; inBlockComment: boolean } {
+    const leadLen = leadingWhitespaceLength(line);
+    let out = line.slice(0, leadLen);
+    let i = leadLen;
+    let inBlock = inBlockComment;
+    let inString = false;
+    let lastKind: ExprKind = 'start';
+
+    const emitValue = (token: string): void => {
+        if (needsSpaceBeforeValue(lastKind)) {
+            out = ensureSpaceBefore(out);
+        }
+        out += token;
+        lastKind = 'value';
+    };
+
+    const emitBinary = (op: string): void => {
+        out = ensureSpaceBefore(out);
+        out += op;
+        lastKind = 'op';
+    };
+
+    while (i < line.length) {
+        const prevKind: ExprKind = lastKind;
+        const ch = line[i];
+        const next = line[i + 1];
+
+        if (inBlock) {
+            out += ch;
+            if (ch === '*' && next === '/') {
+                out += next;
+                inBlock = false;
+                i += 2;
+                continue;
+            }
+            i++;
+            continue;
+        }
+
+        if (inString) {
+            out += ch;
+            if (ch === '\\' && next !== undefined) {
+                out += next;
+                i += 2;
+                continue;
+            }
+            if (ch === '"') {
+                inString = false;
+            }
+            i++;
+            lastKind = 'value';
+            continue;
+        }
+
+        if (ch === '/' && next === '/') {
+            if (needsSpaceBeforeValue(prevKind)) {
+                out = ensureSpaceBefore(out);
+            }
+            out += line.slice(i);
+            break;
+        }
+        if (ch === '/' && next === '*') {
+            if (needsSpaceBeforeValue(prevKind)) {
+                out = ensureSpaceBefore(out);
+            }
+            out += '/*';
+            inBlock = true;
+            i += 2;
+            continue;
+        }
+        if (ch === '"') {
+            if (needsSpaceBeforeValue(prevKind)) {
+                out = ensureSpaceBefore(out);
+            }
+            inString = true;
+            out += ch;
+            i++;
+            lastKind = 'value';
+            continue;
+        }
+
+        if (ch === ' ' || ch === '\t') {
+            i++;
+            continue;
+        }
+
+        if (ch === '#' && prevKind === 'start') {
+            out += line.slice(i);
+            break;
+        }
+
+        if ((ch >= 'A' && ch <= 'Z') || (ch >= 'a' && ch <= 'z') || ch === '_') {
+            const end = readIdentAt(line, i);
+            const ident = line.slice(i, end);
+            const after = skipHorizontalSpace(line, end);
+            if (after < line.length && line[after] === '(') {
+                if (needsSpaceBeforeValue(prevKind)) {
+                    out = ensureSpaceBefore(out);
+                }
+                if (isControlParenKeywordAt(line, i)) {
+                    out += spaceAfterControlKeyword ? `${ident} (` : `${ident}(`;
+                } else {
+                    out += `${ident}(`;
+                }
+                i = after + 1;
+                lastKind = 'open';
+                continue;
+            }
+            emitValue(ident);
+            i = end;
+            continue;
+        }
+
+        if (ch >= '0' && ch <= '9') {
+            const end = readNumberAt(line, i);
+            emitValue(line.slice(i, end));
+            i = end;
+            continue;
+        }
+
+        const op = readOperatorAt(line, i);
+        if (op !== undefined) {
+            if (op === '++' || op === '--') {
+                out += op;
+                i += 2;
+                lastKind = prevKind === 'value' ? 'value' : 'prefix';
+                continue;
+            }
+            if (op === '!' || ((op === '+' || op === '-') && prevKind !== 'value')) {
+                out += op;
+                i += op.length;
+                lastKind = 'prefix';
+                continue;
+            }
+            emitBinary(op);
+            i += op.length;
+            continue;
+        }
+
+        if (ch === '(') {
+            if (needsSpaceBeforeCallParen(prevKind, out)) {
+                out = ensureSpaceBefore(out);
+            }
+            out += ch;
+            i++;
+            lastKind = 'open';
+            continue;
+        }
+
+        if (ch === '[') {
+            out += ch;
+            i++;
+            lastKind = 'open';
+            continue;
+        }
+
+        if (ch === ')' || ch === ']') {
+            out += ch;
+            i++;
+            lastKind = 'value';
+            continue;
+        }
+
+        if (ch === ',') {
+            out += ',';
+            i++;
+            const after = skipHorizontalSpace(line, i);
+            const atEnd = after >= line.length;
+            const startsComment = after < line.length && isCommentStart(line, after);
+            if (spaceAfterComma && !atEnd && !startsComment && line[after] !== ')' && line[after] !== ']') {
+                out += ' ';
+            }
+            i = after;
+            lastKind = 'open';
+            continue;
+        }
+
+        if (ch === ';') {
+            out += ';';
+            i++;
+            const after = skipHorizontalSpace(line, i);
+            const atEnd = after >= line.length;
+            const startsComment = after < line.length && isCommentStart(line, after);
+            if (!atEnd && !startsComment && line[after] !== ')' && line[after] !== ']' && line[after] !== '}') {
+                out += ' ';
+            }
+            i = after;
+            lastKind = 'open';
+            continue;
+        }
+
+        if (ch === ':') {
+            out += ':';
+            i++;
+            lastKind = 'open';
+            continue;
+        }
+
+        if (ch === '{') {
+            if (needsSpaceBeforeValue(prevKind)) {
+                out = ensureSpaceBefore(out);
+            }
+            out += ch;
+            i++;
+            lastKind = 'start';
+            continue;
+        }
+
+        if (ch === '}') {
+            out += ch;
+            i++;
+            lastKind = 'value';
+            continue;
+        }
+
+        out += ch;
+        i++;
+        lastKind = 'value';
+    }
+
+    return { text: out, inBlockComment: inBlock };
+}
+
+function applyCallAndOperatorSpacing(
+    lines: readonly string[],
+    spaceAfterComma: boolean,
+    spaceAfterControlKeyword: boolean,
+    startLine: number,
+    endLine: number
+): string[] {
+    const out = lines.slice();
+    let inBlockComment = false;
+    for (let i = 0; i < out.length; i++) {
+        const formatted = formatCallAndOperatorSpacingLine(
+            out[i],
+            spaceAfterComma,
+            spaceAfterControlKeyword,
+            inBlockComment
+        );
+        inBlockComment = formatted.inBlockComment;
+        if (inRange(i, startLine, endLine)) {
+            out[i] = formatted.text;
+        }
+    }
+    return out;
+}
+
+function applyControlFlowSpacing(
+    lines: readonly string[],
+    enabled: boolean,
+    startLine: number,
+    endLine: number
+): string[] {
+    const out = lines.slice();
+    let inBlockComment = false;
+    for (let i = 0; i < out.length; i++) {
+        const formatted = formatControlFlowSpacingLine(out[i], enabled, inBlockComment);
+        inBlockComment = formatted.inBlockComment;
+        if (inRange(i, startLine, endLine)) {
+            out[i] = formatted.text;
+        }
+    }
+    return out;
+}
+
 export function removeBlankLinesBeforeCloseBrace(
     lines: readonly string[],
     startLine: number,
@@ -751,9 +1295,22 @@ export function formatAcsLines(
         stripped.startLine,
         stripped.endLine
     );
-    return applyLeadingEdits(
+    const controlSpaced = applyControlFlowSpacing(
         commaed,
-        computeAcsLeadingEdits(commaed, options, {
+        options.spaceAfterControlKeyword,
+        stripped.startLine,
+        stripped.endLine
+    );
+    const exprSpaced = applyCallAndOperatorSpacing(
+        controlSpaced,
+        options.spaceAfterComma,
+        options.spaceAfterControlKeyword,
+        stripped.startLine,
+        stripped.endLine
+    );
+    return applyLeadingEdits(
+        exprSpaced,
+        computeAcsLeadingEdits(exprSpaced, options, {
             startLine: stripped.startLine,
             endLine: stripped.endLine,
         })
@@ -795,6 +1352,12 @@ function readSpaceInEmptyBraces(document: vscode.TextDocument): boolean {
         .get<boolean>('acs.format.spaceInEmptyBraces', false);
 }
 
+function readSpaceAfterControlKeyword(document: vscode.TextDocument): boolean {
+    return vscode.workspace
+        .getConfiguration('zandronum-vscode', document.uri)
+        .get<boolean>('acs.format.spaceAfterControlKeyword', true);
+}
+
 function readRemoveBlankLinesBeforeCloseBrace(document: vscode.TextDocument): boolean {
     return vscode.workspace
         .getConfiguration('zandronum-vscode', document.uri)
@@ -811,6 +1374,7 @@ function toFormatOptions(
         braceStyle: readBraceStyle(document),
         spaceInEmptyBraces: readSpaceInEmptyBraces(document),
         spaceAfterComma: readSpaceAfterComma(document),
+        spaceAfterControlKeyword: readSpaceAfterControlKeyword(document),
         removeBlankLinesBeforeCloseBrace: readRemoveBlankLinesBeforeCloseBrace(document),
     };
 }

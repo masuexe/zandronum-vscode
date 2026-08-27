@@ -13,6 +13,7 @@ const defaultOpts: AcsFormatOptions = {
 	braceStyle: 'nextLine',
 	spaceInEmptyBraces: false,
 	spaceAfterComma: true,
+	spaceAfterControlKeyword: true,
 	removeBlankLinesBeforeCloseBrace: true,
 };
 
@@ -253,6 +254,206 @@ suite('acsFormat — control flow', () => {
 		assert.strictEqual(out[4], '        case 1:');
 		assert.strictEqual(out[5], '        Print(s:"one");');
 		assert.strictEqual(out[7], '        default:');
+	});
+});
+
+suite('acsFormat — control flow spacing', () => {
+	test('inserts space after if before paren and before brace', () => {
+		const input = [
+			'script 1 (void)',
+			'{',
+			'if(x){',
+			'Print(s:"yes");',
+			'}',
+			'}',
+		].join('\n');
+
+		const expected = [
+			'script 1 (void)',
+			'{',
+			'    if (x)',
+			'    {',
+			'        Print(s:"yes");',
+			'    }',
+			'}',
+		].join('\n');
+
+		assert.strictEqual(format(input), expected);
+	});
+
+	test('sameLine keeps space before brace on one line', () => {
+		const input = [
+			'script 1 (void)',
+			'{',
+			'if(x){',
+			'Print(s:"yes");',
+			'}',
+			'}',
+		].join('\n');
+
+		const expected = [
+			'script 1 (void) {',
+			'    if (x) {',
+			'        Print(s:"yes");',
+			'    }',
+			'}',
+		].join('\n');
+
+		assert.strictEqual(format(input, { braceStyle: 'sameLine' }), expected);
+	});
+
+	test('normalizes else if and closing brace spacing', () => {
+		const input = [
+			'script 1 (void)',
+			'{',
+			'if(a){',
+			'x = 1;',
+			'}else if(b){',
+			'x = 2;',
+			'}',
+			'}',
+		].join('\n');
+
+		const out = format(input).split('\n');
+		assert.strictEqual(out[2], '    if (a)');
+		assert.strictEqual(out[5], '    } else if (b)');
+	});
+
+	test('normalizes while for switch until and do', () => {
+		const input = [
+			'script 1 (void)',
+			'{',
+			'while(x){',
+			'x--;',
+			'}',
+			'for(int i=0;i<10;i++){',
+			'x++;',
+			'}',
+			'switch(x){',
+			'case 1:',
+			'break;',
+			'}',
+			'do{',
+			'x++;',
+			'}until(x>5);',
+			'}',
+		].join('\n');
+
+		const out = format(input);
+		assert.ok(out.includes('    while (x)'));
+		assert.ok(out.includes('    for (int i = 0; i < 10; i++)'));
+		assert.ok(out.includes('    switch (x)'));
+		assert.ok(out.includes('    do'));
+		assert.ok(out.includes('} until (x > 5);'));
+	});
+
+	test('does not space before paren in Print calls', () => {
+		const input = [
+			'script 1 (void)',
+			'{',
+			'Print(s:"Hi");',
+			'}',
+		].join('\n');
+
+		const out = format(input).split('\n');
+		assert.strictEqual(out[2], '    Print(s:"Hi");');
+	});
+
+	test('does not rewrite if inside strings', () => {
+		const input = [
+			'script 1 (void)',
+			'{',
+			'Print(s:"if(x)");',
+			'}',
+		].join('\n');
+
+		const out = format(input).split('\n');
+		assert.ok(out[2].includes('"if(x)"'));
+	});
+
+	test('leaves compact control keywords when setting is false', () => {
+		const input = [
+			'script 1 (void)',
+			'{',
+			'if(x){',
+			'x = 1;',
+			'}',
+			'}',
+		].join('\n');
+
+		const out = format(input, { spaceAfterControlKeyword: false }).split('\n');
+		assert.strictEqual(out[2], '    if(x)');
+	});
+
+	test('spaces script header before brace', () => {
+		const input = 'script 1 (void){';
+		assert.strictEqual(format(input, { braceStyle: 'sameLine' }), 'script 1 (void) {');
+	});
+
+	test('keeps space after named script string before args', () => {
+		const input = [
+			'script "sp_enemystart" (void) {',
+			'}',
+		].join('\n');
+
+		const expected = [
+			'script "sp_enemystart" (void)',
+			'{',
+			'}',
+		].join('\n');
+
+		assert.strictEqual(format(input), expected);
+		assert.strictEqual(
+			format(input, { braceStyle: 'sameLine' }),
+			'script "sp_enemystart" (void) {\n}'
+		);
+		assert.strictEqual(
+			format('script "sp_enemystart"(void) {', { braceStyle: 'sameLine' }),
+			'script "sp_enemystart" (void) {'
+		);
+	});
+
+	test('keeps space before comparison after a call', () => {
+		const input = [
+			'script 1 (void)',
+			'{',
+			'if (GetActorProperty(0, APROP_Health) > 0)',
+			'{',
+			'}',
+			'}',
+		].join('\n');
+
+		const out = format(input).split('\n');
+		assert.strictEqual(out[2], '    if (GetActorProperty(0, APROP_Health) > 0)');
+	});
+
+	test('inserts space before comparison after a call', () => {
+		const input = [
+			'script 1 (void)',
+			'{',
+			'if (GetActorProperty(0, APROP_Health)> 0)',
+			'{',
+			'}',
+			'}',
+		].join('\n');
+
+		const out = format(input).split('\n');
+		assert.strictEqual(out[2], '    if (GetActorProperty(0, APROP_Health) > 0)');
+	});
+
+	test('tightens call parens and spaces binary operators', () => {
+		const input = [
+			'script 1 (void)',
+			'{',
+			'SetActorProperty(0, APROP_Health, GetActorProperty (0, APROP_Health)+ (GetActorProperty (0, APROP_Health)/4)* PlayerCount());',
+			'}',
+		].join('\n');
+
+		const out = format(input).split('\n');
+		assert.strictEqual(
+			out[2],
+			'    SetActorProperty(0, APROP_Health, GetActorProperty(0, APROP_Health) + (GetActorProperty(0, APROP_Health) / 4) * PlayerCount());'
+		);
 	});
 });
 

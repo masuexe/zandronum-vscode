@@ -389,6 +389,11 @@
           "default": true,
           "description": "When true, ACS formatter puts one space after commas outside strings and comments (`Print(s:\"Hi\", n:0)`). When false, commas are compact."
         },
+        "zandronum-vscode.acs.format.spaceAfterControlKeyword": {
+          "type": "boolean",
+          "default": true,
+          "description": "When true, ACS formatter puts one space after control keywords before `(` (`if (x)`), and one space before `{` after `)` or `else`/`do` (`if (x) {`, `} else {`)."
+        },
         "zandronum-vscode.acs.format.removeBlankLinesBeforeCloseBrace": {
           "type": "boolean",
           "default": true,

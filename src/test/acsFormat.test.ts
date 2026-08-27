@@ -1,0 +1,380 @@
+import * as assert from 'assert';
+import {
+	AcsFormatOptions,
+	buildFormattedDocumentText,
+	formatAcsLines,
+	structuralLine,
+	trimTrailingBlankLines,
+} from '../language/acs/formattingProvider';
+
+const defaultOpts: AcsFormatOptions = {
+	tabSize: 4,
+	insertSpaces: true,
+	braceStyle: 'nextLine',
+	spaceInEmptyBraces: false,
+	spaceAfterComma: true,
+	removeBlankLinesBeforeCloseBrace: true,
+};
+
+function format(src: string, opts: Partial<AcsFormatOptions> = {}): string {
+	const options: AcsFormatOptions = { ...defaultOpts, ...opts };
+	return formatAcsLines(src.split('\n'), options).join('\n');
+}
+
+function formatRange(
+	src: string,
+	startLine: number,
+	endLine: number,
+	endCharacter = 1,
+	opts: Partial<AcsFormatOptions> = {}
+): string {
+	const options: AcsFormatOptions = { ...defaultOpts, ...opts };
+	return formatAcsLines(src.split('\n'), options, {
+		startLine,
+		endLine,
+		endCharacter,
+	}).join('\n');
+}
+
+suite('acsFormat — structuralLine', () => {
+	test('completed string list on one line is not a trailing comma', () => {
+		const r = structuralLine('SomeCall("a", "b")', false);
+		assert.strictEqual(r.code.trim().endsWith(','), false);
+		assert.ok(r.code.includes('"b"'));
+	});
+
+	test('trailing comma after string is a continuation opener', () => {
+		const r = structuralLine('SomeCall("a",', false);
+		assert.strictEqual(r.code.trim().endsWith(','), true);
+	});
+
+	test('tracks multi-line block comments', () => {
+		const a = structuralLine('int x; /* {', false);
+		assert.strictEqual(a.inBlockComment, true);
+		const b = structuralLine('  */ int y;', true);
+		assert.strictEqual(b.inBlockComment, false);
+	});
+});
+
+suite('acsFormat — library and script', () => {
+	test('formats library header and Allman script', () => {
+		const input = [
+			'#library "foo"',
+			'#include "zcommon.acs"',
+			'',
+			'script 1 (void)',
+			'{',
+			'Print(s:"Hi");',
+			'}',
+		].join('\n');
+
+		const expected = [
+			'#library "foo"',
+			'#include "zcommon.acs"',
+			'',
+			'script 1 (void)',
+			'{',
+			'    Print(s:"Hi");',
+			'}',
+		].join('\n');
+
+		assert.strictEqual(format(input), expected);
+	});
+
+	test('splits same-line script brace to next line', () => {
+		const input = [
+			'script 1 (void) {',
+			'Print(s:"Hi");',
+			'}',
+		].join('\n');
+
+		const expected = [
+			'script 1 (void)',
+			'{',
+			'    Print(s:"Hi");',
+			'}',
+		].join('\n');
+
+		assert.strictEqual(format(input), expected);
+	});
+
+	test('is idempotent', () => {
+		const input = [
+			'script 1 (void)',
+			'{',
+			'    Print(s:"Hi");',
+			'}',
+		].join('\n');
+		const once = format(input);
+		assert.strictEqual(format(once), once);
+	});
+
+	test('sameLine merges script brace', () => {
+		const input = [
+			'script 1 (void)',
+			'{',
+			'    Print(s:"Hi");',
+			'}',
+		].join('\n');
+
+		const expected = [
+			'script 1 (void) {',
+			'    Print(s:"Hi");',
+			'}',
+		].join('\n');
+
+		assert.strictEqual(format(input, { braceStyle: 'sameLine' }), expected);
+	});
+
+	test('keeps preprocessor at column 0', () => {
+		const input = [
+			'  #include "zcommon.acs"',
+			'  #define FOO 1',
+			'script 1 (void)',
+			'{',
+			'}',
+		].join('\n');
+
+		const out = format(input).split('\n');
+		assert.strictEqual(out[0], '#include "zcommon.acs"');
+		assert.strictEqual(out[1], '#define FOO 1');
+	});
+});
+
+suite('acsFormat — control flow', () => {
+	test('formats if/else Allman braces', () => {
+		const input = [
+			'script 1 (void)',
+			'{',
+			'if (x) {',
+			'Print(s:"yes");',
+			'} else {',
+			'Print(s:"no");',
+			'}',
+			'}',
+		].join('\n');
+
+		const expected = [
+			'script 1 (void)',
+			'{',
+			'    if (x)',
+			'    {',
+			'        Print(s:"yes");',
+			'    } else',
+			'    {',
+			'        Print(s:"no");',
+			'    }',
+			'}',
+		].join('\n');
+
+		assert.strictEqual(format(input), expected);
+	});
+
+	test('formats else if', () => {
+		const input = [
+			'script 1 (void)',
+			'{',
+			'if (a) {',
+			'x = 1;',
+			'} else if (b) {',
+			'x = 2;',
+			'}',
+			'}',
+		].join('\n');
+
+		const out = format(input).split('\n');
+		assert.strictEqual(out[2], '    if (a)');
+		assert.strictEqual(out[3], '    {');
+		assert.strictEqual(out[5], '    } else if (b)');
+		assert.strictEqual(out[6], '    {');
+	});
+
+	test('formats while and for', () => {
+		const input = [
+			'script 1 (void)',
+			'{',
+			'while (x) {',
+			'x--;',
+			'}',
+			'for (int i = 0; i < 10; i++) {',
+			'x++;',
+			'}',
+			'}',
+		].join('\n');
+
+		const out = format(input).split('\n');
+		assert.strictEqual(out[2], '    while (x)');
+		assert.strictEqual(out[3], '    {');
+		assert.strictEqual(out[5], '    }');
+		assert.strictEqual(out[6], '    for (int i = 0; i < 10; i++)');
+		assert.strictEqual(out[7], '    {');
+	});
+
+	test('formats do until', () => {
+		const input = [
+			'script 1 (void)',
+			'{',
+			'do {',
+			'x++;',
+			'} until (x > 5);',
+			'}',
+		].join('\n');
+
+		const expected = [
+			'script 1 (void)',
+			'{',
+			'    do',
+			'    {',
+			'        x++;',
+			'    } until (x > 5);',
+			'}',
+		].join('\n');
+
+		assert.strictEqual(format(input), expected);
+	});
+
+	test('formats switch with case labels at body indent', () => {
+		const input = [
+			'script 1 (void)',
+			'{',
+			'switch (x) {',
+			'case 1:',
+			'Print(s:"one");',
+			'break;',
+			'default:',
+			'break;',
+			'}',
+			'}',
+		].join('\n');
+
+		const out = format(input).split('\n');
+		assert.strictEqual(out[2], '    switch (x)');
+		assert.strictEqual(out[3], '    {');
+		assert.strictEqual(out[4], '        case 1:');
+		assert.strictEqual(out[5], '        Print(s:"one");');
+		assert.strictEqual(out[7], '        default:');
+	});
+});
+
+suite('acsFormat — calls and continuations', () => {
+	test('inserts space after commas in Print casts', () => {
+		const input = [
+			'script 1 (void)',
+			'{',
+			'Print(s:"a",n:0);',
+			'}',
+		].join('\n');
+
+		const out = format(input).split('\n');
+		assert.strictEqual(out[2], '    Print(s:"a", n:0);');
+	});
+
+	test('preserves HudMessage semicolon', () => {
+		const input = [
+			'script 1 (void)',
+			'{',
+			'HudMessage(s:"Hi";HUDMSG_PLAIN,0,CR_GOLD,0.5,0.5,3.0);',
+			'}',
+		].join('\n');
+
+		const out = format(input).split('\n');
+		assert.ok(out[2].includes('s:"Hi";'));
+		assert.ok(out[2].includes('HUDMSG_PLAIN, 0'));
+	});
+
+	test('preserves wrapped parameter list alignment', () => {
+		const input = [
+			'function void Foo(str text, str fontName,',
+			'                            int boxId)',
+			'{',
+			'}',
+		].join('\n');
+
+		const out = format(input).split('\n');
+		assert.strictEqual(out[0], 'function void Foo(str text, str fontName,');
+		assert.strictEqual(out[1], '                            int boxId)');
+	});
+
+	test('does not treat next line after same-line string list as continuation indent skip', () => {
+		const input = [
+			'script 1 (void)',
+			'{',
+			'SomeCall("a", "b");',
+			'int x = 1;',
+			'}',
+		].join('\n');
+
+		const out = format(input).split('\n');
+		assert.strictEqual(out[3], '    int x = 1;');
+	});
+});
+
+suite('acsFormat — ifdef and blanks', () => {
+	test('keeps #ifdef at column 0 with indented body', () => {
+		const input = [
+			'#ifdef FOO',
+			'script 1 (void)',
+			'{',
+			'x = 1;',
+			'}',
+			'#endif',
+		].join('\n');
+
+		const out = format(input).split('\n');
+		assert.strictEqual(out[0], '#ifdef FOO');
+		assert.strictEqual(out[2], '{');
+		assert.strictEqual(out[3], '    x = 1;');
+		assert.strictEqual(out[5], '#endif');
+	});
+
+	test('removes blanks before closing brace', () => {
+		const input = [
+			'script 1 (void)',
+			'{',
+			'x = 1;',
+			'',
+			'',
+			'}',
+		].join('\n');
+
+		const out = format(input).split('\n');
+		assert.strictEqual(out[2], '    x = 1;');
+		assert.strictEqual(out[3], '}');
+		assert.ok(!out.includes(''));
+	});
+
+	test('leaves compact empty braces alone by default', () => {
+		const input = 'script 1 (void) {}';
+		assert.strictEqual(format(input, { braceStyle: 'sameLine' }), input);
+	});
+});
+
+suite('acsFormat — range and document', () => {
+	test('format selection only rewrites overlapping lines', () => {
+		const input = [
+			'script 1 (void)',
+			'{',
+			'x = 1;',
+			'y = 2;',
+			'}',
+		].join('\n');
+
+		const out = formatRange(input, 2, 2).split('\n');
+		assert.strictEqual(out[2], '    x = 1;');
+		assert.strictEqual(out[3], 'y = 2;');
+	});
+
+	test('buildFormattedDocumentText ends with exactly one newline', () => {
+		assert.strictEqual(
+			buildFormattedDocumentText(['script 1 (void)', ''], '\n'),
+			'script 1 (void)\n'
+		);
+	});
+
+	test('trimTrailingBlankLines removes EOF blank lines', () => {
+		assert.deepStrictEqual(
+			trimTrailingBlankLines(['script 1 (void)', '', '  ']),
+			['script 1 (void)']
+		);
+	});
+});

@@ -369,6 +369,30 @@
           "type": "boolean",
           "default": true,
           "description": "When true, DECORATE formatter removes blank lines immediately above a closing `}`. Blank lines between state labels are kept."
+        },
+        "zandronum-vscode.acs.format.braceStyle": {
+          "type": "string",
+          "enum": [
+            "nextLine",
+            "sameLine"
+          ],
+          "default": "nextLine",
+          "description": "Where `{` goes for script, function, if/while/switch, and other ACS blocks. \"nextLine\" is Allman style; \"sameLine\" uses `script 1 (void) {` / `if (x) {`."
+        },
+        "zandronum-vscode.acs.format.spaceInEmptyBraces": {
+          "type": "boolean",
+          "default": false,
+          "description": "When true, rewrite empty same-line blocks like `script 1 (void) {}` to `script 1 (void) { }` (and nextLine may split them). When false, leave empty `{}` blocks unchanged."
+        },
+        "zandronum-vscode.acs.format.spaceAfterComma": {
+          "type": "boolean",
+          "default": true,
+          "description": "When true, ACS formatter puts one space after commas outside strings and comments (`Print(s:\"Hi\", n:0)`). When false, commas are compact."
+        },
+        "zandronum-vscode.acs.format.removeBlankLinesBeforeCloseBrace": {
+          "type": "boolean",
+          "default": true,
+          "description": "When true, ACS formatter removes blank lines immediately above a closing `}`."
         }
       }
     },
@@ -437,6 +461,9 @@
       },
       "[decorate]": {
         "editor.colorDecoratorsLimit": 10000,
+        "editor.defaultFormatter": "zandronum.zandronum-vscode"
+      },
+      "[acs]": {
         "editor.defaultFormatter": "zandronum.zandronum-vscode"
       }
     }

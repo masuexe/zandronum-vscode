@@ -23,6 +23,7 @@ import { registerColorProvider } from './language/decorate/colorProvider';
 import { registerDecorateSymbolProvider } from './language/decorate/symbolProvider';
 import { registerDecorateRenameAndReferences } from './language/decorate/renameProvider';
 import { registerDecorateFormattingProvider } from './language/decorate/formattingProvider';
+import { registerAcsFormattingProvider } from './language/acs/formattingProvider';
 import { registerAcsRenameAndReferences } from './language/acs/renameProvider';
 import { registerSpriteOffsetEditor } from './editors/spriteOffsetEditorProvider';
 import { getTexturesKeywords } from './shared/dataLoader';
@@ -253,6 +254,7 @@ export function activate(context: vscode.ExtensionContext) {
     registerAcsColorProvider(context);
     registerAcsSymbolProvider(context);
     registerAcsRenameAndReferences(context, acsFunctionsData, acsConstantsData);
+    registerAcsFormattingProvider(context);
 
     context.subscriptions.push(
         vscode.workspace.onDidSaveTextDocument((doc) => {

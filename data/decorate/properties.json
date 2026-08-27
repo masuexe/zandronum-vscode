@@ -19,9 +19,9 @@
     "desc": "Health below which the actor enters the Wound state",
     "for": "Actor"
   },
-  "Reactiontime": {
+  "ReactionTime": {
     "type": "int",
-    "desc": "Reactiontime property",
+    "desc": "Time in tics before the actor reacts after being alerted",
     "for": "Actor"
   },
   "Radius": {

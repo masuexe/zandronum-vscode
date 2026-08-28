@@ -235,6 +235,11 @@
         "category": "Zandronum"
       },
       {
+        "command": "zandronum.selectRunConfiguration",
+        "title": "Select Run Configuration",
+        "category": "Zandronum"
+      },
+      {
         "command": "decorate.buildPK3",
         "title": "Build PK3"
       },

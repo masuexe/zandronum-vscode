@@ -1,11 +1,15 @@
 import * as assert from 'assert';
 import {
+	buildLaunchPicks,
 	buildRunArguments,
 	convertWslPathArguments,
 	isWindowsAbsolutePath,
 	isWslWindowsExecutable,
+	pickToRemembered,
 	resolveCompound,
 	resolvePlatformRunConfig,
+	resolveRememberedPick,
+	type LaunchPick,
 	type RunConfig,
 	type RunCompound,
 } from '../run/launchProvider';
@@ -58,6 +62,88 @@ suite('resolveCompound', () => {
 		assert.strictEqual(missingClient.ok, false);
 		if (missingClient.ok) { return; }
 		assert.ok(missingClient.error.includes('No Client'));
+	});
+});
+
+suite('resolveRememberedPick', () => {
+	const picks: LaunchPick[] = [
+		{ kind: 'config', config: configs[2], label: 'Offline' },
+		{
+			kind: 'compound',
+			compound: { name: 'Local net test', configurations: ['Host local', 'Join local'] },
+			label: 'Local net test',
+			detail: 'Host + Client',
+		},
+	];
+
+	test('matches configuration by kind and name', () => {
+		const matched = resolveRememberedPick(picks, { kind: 'config', name: 'Offline' });
+		assert.ok(matched);
+		assert.strictEqual(matched?.kind, 'config');
+		if (matched?.kind === 'config') {
+			assert.strictEqual(matched.config.name, 'Offline');
+		}
+	});
+
+	test('matches compound by kind and name', () => {
+		const matched = resolveRememberedPick(picks, { kind: 'compound', name: 'Local net test' });
+		assert.ok(matched);
+		assert.strictEqual(matched?.kind, 'compound');
+		if (matched?.kind === 'compound') {
+			assert.strictEqual(matched.compound.name, 'Local net test');
+		}
+	});
+
+	test('rejects kind mismatch when names collide', () => {
+		const colliding: LaunchPick[] = [
+			{ kind: 'config', config: { name: 'Local net test' }, label: 'Local net test' },
+			{
+				kind: 'compound',
+				compound: { name: 'Local net test', configurations: ['Host local', 'Join local'] },
+				label: 'Local net test',
+				detail: 'Host + Client',
+			},
+		];
+		assert.strictEqual(
+			resolveRememberedPick(colliding, { kind: 'compound', name: 'Local net test' })?.kind,
+			'compound'
+		);
+		assert.strictEqual(
+			resolveRememberedPick(colliding, { kind: 'config', name: 'Local net test' })?.kind,
+			'config'
+		);
+	});
+
+	test('returns undefined for stale or missing names', () => {
+		assert.strictEqual(resolveRememberedPick(picks, undefined), undefined);
+		assert.strictEqual(
+			resolveRememberedPick(picks, { kind: 'config', name: 'Removed' }),
+			undefined
+		);
+	});
+
+	test('pickToRemembered preserves kind', () => {
+		assert.deepStrictEqual(
+			pickToRemembered(picks[0]),
+			{ kind: 'config', name: 'Offline' }
+		);
+		assert.deepStrictEqual(
+			pickToRemembered(picks[1]),
+			{ kind: 'compound', name: 'Local net test' }
+		);
+	});
+
+	test('buildLaunchPicks lists configurations then compounds', () => {
+		const built = buildLaunchPicks({
+			configurations: configs,
+			compounds: [{
+				name: 'Local net test',
+				configurations: ['Host local', 'Join local'],
+			}],
+		});
+		assert.strictEqual(built.length, 4);
+		assert.strictEqual(built[0].kind, 'config');
+		assert.strictEqual(built[3].kind, 'compound');
 	});
 });
 

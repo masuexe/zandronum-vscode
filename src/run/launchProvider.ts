@@ -39,6 +39,18 @@ const HOST_CLIENT_DELAY_MS = 2000;
 const TERMINAL_SINGLE = 'Zandronum';
 const TERMINAL_HOST = 'Zandronum Host';
 const TERMINAL_CLIENT = 'Zandronum Client';
+const LAST_RUN_KEY = 'zandronum.lastRun';
+
+export interface RememberedRun {
+    kind: 'config' | 'compound';
+    name: string;
+}
+
+let workspaceState: vscode.Memento | undefined;
+
+export function initLaunchProvider(context: vscode.ExtensionContext): void {
+    workspaceState = context.workspaceState;
+}
 
 export function buildRunArguments(
     preArgs: string[],
@@ -220,11 +232,47 @@ async function runCompound(compound: RunCompound, configurations: RunConfig[]): 
     runConfigToTerminal(resolved.client, TERMINAL_CLIENT);
 }
 
-type LaunchPick =
+export type LaunchPick =
     | { kind: 'config'; config: RunConfig; label: string; detail?: string }
     | { kind: 'compound'; compound: RunCompound; label: string; detail: string };
 
-function buildLaunchPicks(file: LoadedRunFile): LaunchPick[] {
+type ResolvedLaunch =
+    | { status: 'default' }
+    | { status: 'ready'; pick: LaunchPick; configurations: RunConfig[] }
+    | { status: 'cancelled' };
+
+export function pickToRemembered(pick: LaunchPick): RememberedRun {
+    if (pick.kind === 'config') {
+        return { kind: 'config', name: pick.config.name };
+    }
+    return { kind: 'compound', name: pick.compound.name };
+}
+
+export function resolveRememberedPick(
+    picks: readonly LaunchPick[],
+    remembered: RememberedRun | undefined
+): LaunchPick | undefined {
+    if (!remembered) { return undefined; }
+    return picks.find(p => {
+        if (remembered.kind === 'config' && p.kind === 'config') {
+            return p.config.name === remembered.name;
+        }
+        if (remembered.kind === 'compound' && p.kind === 'compound') {
+            return p.compound.name === remembered.name;
+        }
+        return false;
+    });
+}
+
+function getRememberedRun(): RememberedRun | undefined {
+    return workspaceState?.get<RememberedRun>(LAST_RUN_KEY);
+}
+
+function setRememberedRun(remembered: RememberedRun): void {
+    void workspaceState?.update(LAST_RUN_KEY, remembered);
+}
+
+export function buildLaunchPicks(file: LoadedRunFile): LaunchPick[] {
     const picks: LaunchPick[] = [];
     for (const config of file.configurations) {
         picks.push({ kind: 'config', config, label: config.name });
@@ -248,34 +296,90 @@ async function launchPick(pick: LaunchPick, configurations: RunConfig[]): Promis
     await runCompound(pick.compound, configurations);
 }
 
-export async function runZandronum(): Promise<void> {
+async function promptLaunchPick(
+    picks: readonly LaunchPick[],
+    active?: LaunchPick
+): Promise<LaunchPick | undefined> {
+    const items = picks.map(p => ({
+        label: p.label,
+        detail: p === active
+            ? [p.detail, '(last used)'].filter(Boolean).join(' · ')
+            : p.detail,
+        pick: p,
+    }));
+    if (active) {
+        items.sort((a, b) => (a.pick === active ? -1 : b.pick === active ? 1 : 0));
+    }
+    const selected = await vscode.window.showQuickPick(items, {
+        placeHolder: 'Select run configuration',
+    });
+    return selected?.pick;
+}
+
+async function resolveLaunchTarget(forcePrompt: boolean): Promise<ResolvedLaunch> {
     const file = await loadRunFile();
     const picks = buildLaunchPicks(file);
 
     if (picks.length === 0) {
+        return { status: 'default' };
+    }
+
+    if (picks.length === 1 && !forcePrompt) {
+        const pick = picks[0];
+        setRememberedRun(pickToRemembered(pick));
+        return { status: 'ready', pick, configurations: file.configurations };
+    }
+
+    const remembered = getRememberedRun();
+    const matched = resolveRememberedPick(picks, remembered);
+    if (!forcePrompt && matched) {
+        return { status: 'ready', pick: matched, configurations: file.configurations };
+    }
+
+    const selected = await promptLaunchPick(picks, matched);
+    if (!selected) {
+        return { status: 'cancelled' };
+    }
+    setRememberedRun(pickToRemembered(selected));
+    return { status: 'ready', pick: selected, configurations: file.configurations };
+}
+
+async function launchResolved(resolved: ResolvedLaunch): Promise<void> {
+    if (resolved.status === 'cancelled') { return; }
+    if (resolved.status === 'default') {
         runConfigToTerminal({ name: 'Zandronum' }, TERMINAL_SINGLE);
         return;
     }
+    await launchPick(resolved.pick, resolved.configurations);
+}
 
-    if (picks.length === 1) {
-        await launchPick(picks[0], file.configurations);
+export async function selectRunConfiguration(): Promise<void> {
+    const file = await loadRunFile();
+    const picks = buildLaunchPicks(file);
+    if (picks.length === 0) {
+        vscode.window.showInformationMessage(
+            'No run configurations found. Add configurations to .vscode/zandronum.json.'
+        );
         return;
     }
-
-    const selected = await vscode.window.showQuickPick(
-        picks.map(p => ({
-            label: p.label,
-            detail: p.detail,
-            pick: p,
-        })),
-        { placeHolder: 'Select run configuration' }
-    );
+    const remembered = getRememberedRun();
+    const matched = resolveRememberedPick(picks, remembered);
+    const selected = await promptLaunchPick(picks, matched);
     if (!selected) { return; }
-    await launchPick(selected.pick, file.configurations);
+    setRememberedRun(pickToRemembered(selected));
+    vscode.window.showInformationMessage(`Run configuration set to "${selected.label}".`);
+}
+
+export async function runZandronum(): Promise<void> {
+    const resolved = await resolveLaunchTarget(false);
+    await launchResolved(resolved);
 }
 
 /** Build Project (ACS if configured + PK3), then launch only on success. */
 export async function runProject(): Promise<void> {
+    const resolved = await resolveLaunchTarget(false);
+    if (resolved.status === 'cancelled') { return; }
+
     const saved = await vscode.workspace.saveAll(false);
     if (!saved) {
         vscode.window.showErrorMessage('Run cancelled: save workspace files before building.');
@@ -283,7 +387,7 @@ export async function runProject(): Promise<void> {
     }
     const ok = await buildProject({ skipUnchangedPk3: true });
     if (!ok) { return; }
-    await runZandronum();
+    await launchResolved(resolved);
 }
 
 /** @deprecated Prefer Run Project. Packages PK3 only (no ACS), then launches. */

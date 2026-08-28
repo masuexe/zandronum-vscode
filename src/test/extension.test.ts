@@ -14,6 +14,7 @@ suite('Extension Test Suite', () => {
 			'acs.compile',
 			'zandronum.buildProject',
 			'zandronum.runProject',
+			'zandronum.selectRunConfiguration',
 		]) {
 			assert.ok(commands.includes(id), `missing primary command: ${id}`);
 		}

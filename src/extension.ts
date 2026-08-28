@@ -52,19 +52,23 @@ import { reportBaseResourceWarnings, getBaseResourceOutput } from './base/diagno
 import { ZipPackage } from './base/packages';
 import { SymbolKind } from './base/types';
 import {
+    initLaunchProvider,
     runZandronum,
     runProject,
+    selectRunConfiguration,
     buildAndRunZandronum,
     compileAllBuildAndRunZandronum,
 } from './run/launchProvider';
 
 
 export function activate(context: vscode.ExtensionContext) {
+    initLaunchProvider(context);
     context.subscriptions.push(
         // Primary project workflow (Command Palette)
         vscode.commands.registerCommand('acs.compile', compileAcs),
         vscode.commands.registerCommand('zandronum.buildProject', buildProject),
         vscode.commands.registerCommand('zandronum.runProject', runProject),
+        vscode.commands.registerCommand('zandronum.selectRunConfiguration', selectRunConfiguration),
         // Legacy aliases — still executable, hidden from Command Palette
         vscode.commands.registerCommand('decorate.buildPK3', buildPK3),
         vscode.commands.registerCommand('acs.compileAllAndBuild', compileAllAndBuild),

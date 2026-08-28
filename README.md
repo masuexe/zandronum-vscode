@@ -65,7 +65,8 @@ Cross-file symbol resolution (DECORATE actors, ACS constants) works within the w
 
 - **Compile Current ACS** — Compile the active `.acs` file with ACC
 - **Build Project** — Merges workspace and base-resource LOADACS; compiles matching `#library` sources under `<pk3Root>/acs_source/` (skips `.o` only when newer than the entry ACS **and** its transitive `#include`s; runs ACC in parallel), then packages into `out/build.pk3`. Reports ACS vs PK3 timings. Base resources supply extra library names and include paths only — they are not compiled directly. Stops without packaging on compile failure.
-- **Run Project** — Runs Build Project, then launches Zandronum with the built PK3 (optional IWAD/args via `.vscode/zandronum.json`)
+- **Run Project** — Resolves the run configuration (first time or after a rename, pick one before building), saves files, runs Build Project, then launches Zandronum immediately on success using the remembered configuration
+- **Select Run Configuration** — Choose or change the run configuration used by **Run Project** without building or launching
 
 ## Commands
 
@@ -75,7 +76,8 @@ Cross-file symbol resolution (DECORATE actors, ACS constants) works within the w
 |---|---|
 | **Zandronum: Compile Current ACS** | Compiles the active `.acs` file |
 | **Zandronum: Build Project** | Merges workspace + base LOADACS, incrementally compiles matching ACS libraries (parallel ACC), then builds `out/build.pk3` |
-| **Zandronum: Run Project** | Builds the project, then launches Zandronum on success |
+| **Zandronum: Run Project** | Remembers the last run configuration; builds the project, then launches Zandronum on success without an extra prompt |
+| **Zandronum: Select Run Configuration** | Pick the run configuration for **Run Project** (stored per workspace; no build or launch) |
 
 ### Editors
 
@@ -168,11 +170,13 @@ Optional per-workspace launch configs for IWAD and extra args. Variables: `${wor
 
 The extension always inserts `-file <workspace>/out/build.pk3` between `preArgs` and `postArgs`. If `.vscode/zandronum.json` is missing or empty, **Run Project** / legacy Run use the executable from settings/PATH with no extra IWAD args.
 
+**Run configuration memory:** The first **Run Project** (or **Select Run Configuration**) in a workspace with multiple entries prompts for a configuration and remembers it. Later **Run Project** runs build then launch with that choice. Use **Select Run Configuration** to switch (for example between offline play and a Host+Client compound) without building.
+
 Each configuration may contain `windows` and `linux` overrides for `program`, `preArgs`, and `postArgs`. A platform field replaces the corresponding top-level field; omitted fields inherit the top-level value. Existing configurations without platform overrides remain valid. WSL uses the `linux` override because the extension host runs on Linux.
 
 Run Project starts the configured executable directly with an argument array, independent of the terminal's PowerShell, Bash, or other shell syntax. Native Linux executables work normally. A Windows `.exe` may also be launched through WSL when its program path uses `/mnt/<drive>/...`; Linux absolute paths in its arguments are automatically converted with `wslpath -w` (including the workspace build output as a `\\wsl.localhost\...` UNC path). A literal `C:\...` program path is still rejected on Linux because WSL needs the mounted executable path to start it.
 
-**Compounds** (optional): list exactly two configuration names — first is Host, second is Client. Choosing a compound from **Run Project** starts Host in terminal `Zandronum Host`, waits 2 seconds, then starts Client in `Zandronum Client`. Invalid compounds (wrong count or unknown names) show an error and do not launch.
+**Compounds** (optional): list exactly two configuration names — first is Host, second is Client. The remembered compound starts Host in terminal `Zandronum Host`, waits 2 seconds, then starts Client in `Zandronum Client`. Invalid compounds (wrong count or unknown names) show an error and do not launch.
 
 ## Supported Languages
 

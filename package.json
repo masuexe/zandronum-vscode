@@ -474,6 +474,7 @@
         "editor.defaultFormatter": "zandronum.zandronum-vscode"
       },
       "[acs]": {
+        "editor.colorDecoratorsLimit": 10000,
         "editor.defaultFormatter": "zandronum.zandronum-vscode"
       }
     }

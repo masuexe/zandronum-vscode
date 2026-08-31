@@ -115,6 +115,20 @@ suite('multi-line translation color spans', () => {
 		assert.strictEqual(line1Rgb.length, 2);
 	});
 
+	test('ACS CreateTranslation keeps colors at the end of a large document', () => {
+		const mappings = Array.from(
+			{ length: 1200 },
+			(_, i) => `${i % 256}:${i % 256}=${(i + 1) % 256}:${(i + 1) % 256}`
+		);
+		const doc = fakeDoc([
+			'CreateTranslation(1,',
+			...mappings.map((mapping, i) => `    ${mapping}${i + 1 < mappings.length ? ',' : ');'}`),
+		]);
+		const colors = collectCreateTranslationColors(doc, palette);
+		assert.ok(colors.length > 4000);
+		assert.ok(colors.some(color => color.range.start.line === doc.lineCount - 1));
+	});
+
 	test('TEXTURES Translation keyword-only then quoted remaps', () => {
 		const doc = fakeDoc([
 			'texture BRSLT193,8, 56{offset -16,-8 patch B_4BARSX,0,0 {Translation',

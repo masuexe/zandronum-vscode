@@ -1534,13 +1534,13 @@
       },
       {
         "name": "color1",
-        "type": "string",
+        "type": "color",
         "optional": true,
         "default": "\"\""
       },
       {
         "name": "color2",
-        "type": "string",
+        "type": "color",
         "optional": true,
         "default": "\"\""
       },
@@ -2436,7 +2436,7 @@
     "params": [
       {
         "name": "color1",
-        "type": "string",
+        "type": "color",
         "optional": false
       },
       {
@@ -2451,7 +2451,7 @@
       },
       {
         "name": "color2",
-        "type": "string",
+        "type": "color",
         "optional": true,
         "default": "\"\""
       }
@@ -7133,13 +7133,13 @@
       },
       {
         "name": "color1",
-        "type": "string",
+        "type": "color",
         "optional": true,
         "default": "\"\""
       },
       {
         "name": "color2",
-        "type": "string",
+        "type": "color",
         "optional": true,
         "default": "\"\""
       },

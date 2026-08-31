@@ -19,7 +19,8 @@ function mapType(raw) {
     const t = raw.trim().replace(/\s+/g, ' ');
     if (/^class</i.test(t)) return 'string';
     if (/^coerce\s+name$/i.test(t) || /^name$/i.test(t) || /^string$/i.test(t)) return 'string';
-    if (/^sound$/i.test(t) || /^color$/i.test(t)) return 'string';
+    if (/^sound$/i.test(t)) return 'string';
+    if (/^color$/i.test(t)) return 'color';
     if (/^state$/i.test(t)) return 'state';
     if (/^bool$/i.test(t)) return 'bool';
     if (/^float$/i.test(t) || /^double$/i.test(t) || /^fixed$/i.test(t)) return 'float';

@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
-import { getActions, getProperties, getFlags, getExpressions, getInheritance, getAcsFunctions, getAcsConstants, getSndinfoCommands, getStateKeywords } from './shared/dataLoader';
+import { getActions, getProperties, getFlags, getExpressions, getInheritance, getAcsFunctions, getAcsConstants, getSndinfoCommands, getStateKeywords, getX11Colors } from './shared/dataLoader';
 import { registerCompletionProvider } from './language/decorate/completionProvider';
 import { registerAcsCompletionProvider } from './language/acs/completion/completionProvider';
 import { registerAcsSignatureHelp } from './language/acs/signatureProvider';
@@ -232,13 +232,14 @@ export function activate(context: vscode.ExtensionContext) {
     const expressionsData = getExpressions(context);
     const inheritanceData = getInheritance(context);
     const stateKeywordsData = getStateKeywords(context);
+    const x11ColorsData = getX11Colors(context);
 
     registerCompletionProvider(context, actionsData, propertiesData, flagsData, expressionsData, inheritanceData, symbolDatabase, stateKeywordsData);
     registerSignatureHelp(context, actionsData, stateKeywordsData, expressionsData, symbolDatabase);
     registerHoverProvider(context, actionsData, stateKeywordsData, symbolDatabase, inheritanceData, expressionsData);
     registerDecorateSemanticTokens(context, symbolDatabase);
     registerDefinitionProvider(context, symbolDatabase, actionsData, expressionsData, inheritanceData);
-    registerColorProvider(context);
+    registerColorProvider(context, actionsData, x11ColorsData.colors);
     registerDecorateSymbolProvider(context);
     registerDecorateRenameAndReferences(context);
     registerDecorateFormattingProvider(context);

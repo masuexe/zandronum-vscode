@@ -43,6 +43,11 @@ export interface PropertyData {
     for?: string;
 }
 
+export interface X11ColorData {
+    source: string;
+    colors: Record<string, [number, number, number]>;
+}
+
 export interface FlagData {
     type: string;
     desc?: string;
@@ -200,6 +205,15 @@ export function getActions(context: vscode.ExtensionContext): Record<string, Act
 
 export function getProperties(context: vscode.ExtensionContext): Record<string, PropertyData> {
     return loadDataJson<PropertyData>(context, 'properties.json');
+}
+
+export function getX11Colors(context: vscode.ExtensionContext): X11ColorData {
+    const key = 'decorate/x11Colors.json';
+    if (!cache[key]) {
+        const file = path.join(context.extensionPath, 'data/decorate', 'x11Colors.json');
+        cache[key] = JSON.parse(fs.readFileSync(file, 'utf-8'));
+    }
+    return cache[key];
 }
 
 export function getFlags(context: vscode.ExtensionContext): Record<string, FlagData> {

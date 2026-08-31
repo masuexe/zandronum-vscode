@@ -574,8 +574,16 @@ function formatSpaceAfterCommaLine(
             continue;
         }
 
-        if (ch === ',') {
-            out += ',';
+        // Class-scoped goto (`Super::See`) is one token — do not insert spaces.
+        if (ch === ':' && next === ':') {
+            out += '::';
+            i += 2;
+            continue;
+        }
+
+        if (ch === ',' || ch === ':') {
+            const insertSpace = ch === ',' ? spaceAfter : true;
+            out += ch;
             i++;
             let j = i;
             while (j < line.length && (line[j] === ' ' || line[j] === '\t')) {
@@ -591,7 +599,7 @@ function formatSpaceAfterCommaLine(
                 i = j;
                 continue;
             }
-            if (spaceAfter) {
+            if (insertSpace) {
                 out += ' ';
             }
             i = j;

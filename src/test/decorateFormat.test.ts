@@ -724,6 +724,93 @@ suite('decorateFormat — spaceAfterComma', () => {
 	});
 });
 
+suite('decorateFormat — spaceAfterColon', () => {
+	test('inserts one space after colons between same-line labels', () => {
+		const input = [
+			'Actor Foo',
+			'{',
+			'States',
+			'{',
+			'Pain.Buster:Pain.ProtoBuster:Pain.ProtoBuster2:Pain.MegaArm:',
+			'TNT1 A 0',
+			'Stop',
+			'}',
+			'}',
+		].join('\n');
+
+		const out = format(input).split('\n');
+		assert.strictEqual(
+			out[4],
+			'  Pain.Buster: Pain.ProtoBuster: Pain.ProtoBuster2: Pain.MegaArm:'
+		);
+		assert.strictEqual(out[5], '    TNT1 A 0');
+	});
+
+	test('is idempotent and does not split labels onto new lines', () => {
+		const input = [
+			'Actor Foo',
+			'{',
+			'States',
+			'{',
+			'Pain.Buster: Pain.ProtoBuster: Pain.MegaArm:',
+			'TNT1 A 0',
+			'Stop',
+			'}',
+			'}',
+		].join('\n');
+
+		const once = format(input);
+		assert.strictEqual(format(once), once);
+		assert.ok(once.split('\n').some((l) => l.includes('Pain.Buster: Pain.ProtoBuster: Pain.MegaArm:')));
+		assert.ok(!once.includes('Pain.Buster:\n'));
+	});
+
+	test('does not insert spaces inside class-scoped goto', () => {
+		const input = [
+			'Actor Foo',
+			'{',
+			'States',
+			'{',
+			'See:',
+			'Goto Super::See',
+			'}',
+			'}',
+		].join('\n');
+
+		const out = format(input).split('\n');
+		assert.strictEqual(out[5], '    Goto Super::See');
+	});
+
+	test('does not change colons inside strings', () => {
+		const input = [
+			'Actor Foo',
+			'{',
+			'Obituary "%o: %k"',
+			'}',
+		].join('\n');
+
+		const out = format(input).split('\n');
+		assert.strictEqual(out[2], '  Obituary "%o: %k"');
+	});
+
+	test('leaves a trailing label colon alone', () => {
+		const input = [
+			'Actor Foo',
+			'{',
+			'States',
+			'{',
+			'Spawn:',
+			'TROO A 1',
+			'Stop',
+			'}',
+			'}',
+		].join('\n');
+
+		const out = format(input).split('\n');
+		assert.strictEqual(out[4], '  Spawn:');
+	});
+});
+
 suite('decorateFormat — blank lines before close brace', () => {
 	test('removes blanks before } but keeps blanks between labels', () => {
 		const input = [

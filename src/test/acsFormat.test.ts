@@ -411,6 +411,19 @@ suite('acsFormat — control flow', () => {
 		assert.strictEqual(out[3], '    a = 2;');
 	});
 
+	test('keeps a space after same-line else before the body', () => {
+		const input = [
+			'script 1 (void)',
+			'{',
+			'if (x) len = FixedDiv(y, sin(ang));',
+			'else len = FixedDiv(x, cos(ang));',
+			'}',
+		].join('\n');
+
+		const out = format(input).split('\n');
+		assert.strictEqual(out[3], '    else len = FixedDiv(x, cos(ang));');
+	});
+
 	test('indents nested braceless if bodies', () => {
 		const input = [
 			'script 1 (void)',

@@ -873,7 +873,7 @@ function formatControlFlowSpacingLine(
                 }
                 continue;
             }
-            if (i < line.length && line[i] === '{') {
+            if (i < line.length) {
                 out += ' ';
             }
             continue;

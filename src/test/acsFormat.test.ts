@@ -426,6 +426,51 @@ suite('acsFormat — control flow', () => {
 		assert.strictEqual(out[3], '        if (b)');
 		assert.strictEqual(out[4], '            x = 1;');
 	});
+
+	test('does not extra-indent the body after a wrapped if condition', () => {
+		const input = [
+			'script 1 (void)',
+			'{',
+			'if (CheckInventory("A") <= 0 ||',
+			'    CheckInventory("B") > 0) {',
+			'Log(s:"unavailable");',
+			'terminate;',
+			'}',
+			'}',
+		].join('\n');
+
+		const sameLine = format(input, { braceStyle: 'sameLine' }).split('\n');
+		const ifLine = sameLine.findIndex((l) => l.includes('CheckInventory("A")'));
+		assert.ok(ifLine >= 0);
+		assert.ok(sameLine[ifLine].includes('if (CheckInventory("A") <= 0 ||'));
+		assert.ok(sameLine[ifLine + 1].includes('CheckInventory("B") > 0) {'));
+		assert.strictEqual(sameLine[ifLine + 2].trimStart(), 'Log(s:"unavailable");');
+		assert.strictEqual(sameLine[ifLine + 3].trimStart(), 'terminate;');
+		assert.strictEqual(sameLine[ifLine + 2], sameLine[ifLine + 3].replace('terminate;', 'Log(s:"unavailable");'));
+		assert.strictEqual(sameLine[ifLine + 4].trim(), '}');
+		assert.ok(sameLine[ifLine + 2].startsWith('        '));
+		assert.ok(!sameLine[ifLine + 2].startsWith('            '));
+
+		const nextLine = format(input).split('\n');
+		const logLine = nextLine.findIndex((l) => l.includes('Log(s:"unavailable")'));
+		assert.strictEqual(nextLine[logLine], '        Log(s:"unavailable");');
+		assert.strictEqual(nextLine[logLine + 1], '        terminate;');
+	});
+
+	test('hanging-indents a braceless body after a wrapped if condition', () => {
+		const input = [
+			'script 1 (void)',
+			'{',
+			'if (a ||',
+			'    b)',
+			'x = 1;',
+			'}',
+		].join('\n');
+
+		const out = format(input).split('\n');
+		assert.strictEqual(out[2], '    if (a ||');
+		assert.strictEqual(out[4], '        x = 1;');
+	});
 });
 
 suite('acsFormat — control flow spacing', () => {

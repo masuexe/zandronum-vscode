@@ -1367,12 +1367,29 @@ function restAfterControlHeader(structuralTrim: string): string | undefined {
         if (i < structuralTrim.length && structuralTrim[i] === '(') {
             const afterParen = skipBalancedParens(structuralTrim, i);
             if (afterParen < 0) {
-                return '';
+                return undefined;
             }
             i = skipSpaces(structuralTrim, afterParen);
         }
     }
     return structuralTrim.slice(i);
+}
+
+/** `if (` / `while (` / … still open across the next line. */
+function isUnclosedControlParenHeader(structuralTrim: string): boolean {
+    const m = CONTROL_HEADER_RE.exec(structuralTrim);
+    if (!m) {
+        return false;
+    }
+    const keyword = m[1].toLowerCase().replace(/\s+/g, ' ');
+    if (keyword === 'else' || keyword === 'do') {
+        return false;
+    }
+    let i = skipSpaces(structuralTrim, m[0].length);
+    if (i >= structuralTrim.length || structuralTrim[i] !== '(') {
+        return false;
+    }
+    return skipBalancedParens(structuralTrim, i) < 0;
 }
 
 /** Control line whose body is the following line (`if (x)` / `else`), not `if (x) {` or `if (x) stmt;`. */
@@ -1420,6 +1437,8 @@ export function computeAcsLeadingEdits(
     let hangingExtra = 0;
     /** Extra used by the last hanging body; an immediately following `else` aligns to that `if`. */
     let maybeElseExtra = 0;
+    /** Multi-line `if (` / `while (` whose `)` is still ahead. */
+    let pendingControlParen = false;
     /** `case` / `default` body extra, keyed by brace depth of the switch interior. */
     const caseExtraAtDepth: number[] = [];
 
@@ -1493,10 +1512,26 @@ export function computeAcsLeadingEdits(
             }
         }
 
-        if (!isBlank && !continuation && !isHash) {
-            if (isCaseLabel) {
+        const depthAfter = applyBraceDelta(depthBefore, structural);
+        const parenAfter = applyParenDelta(parenBefore, structural);
+
+        if (!isBlank && !isHash) {
+            if (continuation) {
+                if (pendingControlParen) {
+                    if (depthAfter > depthBefore) {
+                        hangingExtra = 0;
+                        maybeElseExtra = 0;
+                        pendingControlParen = false;
+                    } else if (parenAfter === 0) {
+                        hangingExtra = 1;
+                        maybeElseExtra = 0;
+                        pendingControlParen = false;
+                    }
+                }
+            } else if (isCaseLabel) {
                 hangingExtra = 0;
                 maybeElseExtra = 0;
+                pendingControlParen = false;
                 caseExtraAtDepth[depthBefore] = isHangingCaseLabel(structuralTrim) ? 1 : 0;
             } else if (isOpenBraceLine) {
                 hangingExtra = 0;
@@ -1504,7 +1539,10 @@ export function computeAcsLeadingEdits(
             } else if (closesFirst) {
                 hangingExtra = hangingHeader ? 1 : 0;
                 maybeElseExtra = 0;
+                pendingControlParen = false;
                 caseExtraAtDepth[depthBefore] = 0;
+            } else if (isUnclosedControlParenHeader(structuralTrim)) {
+                pendingControlParen = true;
             } else if (hangingHeader) {
                 const elseBase = isElseLine && maybeElseExtra > 0 ? maybeElseExtra - 1 : hangingExtra;
                 hangingExtra = elseBase + 1;
@@ -1515,8 +1553,8 @@ export function computeAcsLeadingEdits(
             }
         }
 
-        depth = applyBraceDelta(depthBefore, structural);
-        parenDepth = applyParenDelta(parenBefore, structural);
+        depth = depthAfter;
+        parenDepth = parenAfter;
         if (!isBlank) {
             prevOpensContinuation = lineOpensContinuation(scanned.code.trim());
         }

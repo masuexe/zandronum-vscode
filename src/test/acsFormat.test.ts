@@ -737,6 +737,10 @@ suite('acsFormat — control flow spacing', () => {
 			'n-=2;',
 			'n *= 3;',
 			'n/=4;',
+			'typevar |= x;',
+			'typevar|=y;',
+			'flags &= mask;',
+			'bits ^= 1;',
 			'}',
 		].join('\n');
 
@@ -745,6 +749,10 @@ suite('acsFormat — control flow spacing', () => {
 		assert.strictEqual(out[3], '    n -= 2;');
 		assert.strictEqual(out[4], '    n *= 3;');
 		assert.strictEqual(out[5], '    n /= 4;');
+		assert.strictEqual(out[6], '    typevar |= x;');
+		assert.strictEqual(out[7], '    typevar |= y;');
+		assert.strictEqual(out[8], '    flags &= mask;');
+		assert.strictEqual(out[9], '    bits ^= 1;');
 	});
 
 	test('keeps space after comparison before unary minus', () => {

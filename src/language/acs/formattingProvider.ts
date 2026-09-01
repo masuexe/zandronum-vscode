@@ -747,6 +747,19 @@ function skipHorizontalSpace(line: string, index: number): number {
     return i;
 }
 
+/** `192:192=248:248` / `16:47=[255,0,0]` / `112:127=%[0,0,0]` — not `n = 1`. */
+function isPaletteRemapEquals(emitted: string, line: string, afterEq: number): boolean {
+    if (!/:\d+$/.test(emitted)) {
+        return false;
+    }
+    const j = skipHorizontalSpace(line, afterEq);
+    if (j >= line.length) {
+        return false;
+    }
+    const ch = line[j];
+    return (ch >= '0' && ch <= '9') || ch === '[' || ch === '%';
+}
+
 function isBinaryOpStart(ch: string): boolean {
     return '><=!&|+-*/%'.includes(ch);
 }
@@ -1167,6 +1180,12 @@ function formatCallAndOperatorSpacingLine(
                 out += op;
                 i += op.length;
                 lastKind = 'prefix';
+                continue;
+            }
+            if (op === '=' && isPaletteRemapEquals(out, line, i + 1)) {
+                out += '=';
+                i += 1;
+                lastKind = 'open';
                 continue;
             }
             emitBinary(op);

@@ -805,6 +805,20 @@ suite('acsFormat — calls and continuations', () => {
 		assert.strictEqual(out[2], '    Print(s:"a", n:0);');
 	});
 
+	test('keeps palette translation remaps tight', () => {
+		const input = [
+			'script 1 (void)',
+			'{',
+			'CreateTranslation(1, 192:192 = 248:248);',
+			'n = 1;',
+			'}',
+		].join('\n');
+
+		const out = format(input).split('\n');
+		assert.strictEqual(out[2], '    CreateTranslation(1, 192:192=248:248);');
+		assert.strictEqual(out[3], '    n = 1;');
+	});
+
 	test('preserves HudMessage semicolon', () => {
 		const input = [
 			'script 1 (void)',

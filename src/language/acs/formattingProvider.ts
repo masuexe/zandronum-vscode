@@ -115,14 +115,19 @@ function lineHasCode(text: string): boolean {
     return text.slice(leadingWhitespaceLength(text)).length > 0;
 }
 
-/** Google style: `//` / `///` / `//!` then one space before non-empty text. */
+/** `//foo` → `// foo`; two or more spaces after the marker are left alone. */
 function formatSlashSlashComment(comment: string): string {
     let markerLen = 2;
     if (comment[2] === '/' || comment[2] === '!') {
         markerLen = 3;
     }
     const marker = comment.slice(0, markerLen);
-    const body = comment.slice(markerLen).replace(/^[ \t]+/, '');
+    const rest = comment.slice(markerLen);
+    const leadWs = /^[ \t]*/.exec(rest)?.[0] ?? '';
+    if (leadWs.length >= 2) {
+        return comment;
+    }
+    const body = rest.slice(leadWs.length);
     return body.length === 0 ? marker : `${marker} ${body}`;
 }
 

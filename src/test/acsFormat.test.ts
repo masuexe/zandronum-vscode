@@ -779,6 +779,11 @@ suite('acsFormat — control flow spacing', () => {
 		assert.strictEqual(out[2], '    // If multi boss');
 	});
 
+	test('preserves multiple spaces after //', () => {
+		const input = '//      #library "YOUR_COPYDEFS"';
+		assert.strictEqual(format(input).split('\n')[0], '//      #library "YOUR_COPYDEFS"');
+	});
+
 	test('does not rewrite slashes inside strings', () => {
 		const input = [
 			'script 1 (void)',

@@ -127,7 +127,12 @@ function formatSlashSlashComment(comment: string): string {
         markerLen = 3;
     }
     const marker = comment.slice(0, markerLen);
-    const body = comment.slice(markerLen).replace(/^[ \t]+/, '');
+    const rest = comment.slice(markerLen);
+    const leadWs = /^[ \t]*/.exec(rest)?.[0] ?? '';
+    if (leadWs.length >= 2) {
+        return comment;
+    }
+    const body = rest.slice(leadWs.length);
     return body.length === 0 ? marker : `${marker} ${body}`;
 }
 

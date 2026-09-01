@@ -227,6 +227,19 @@ suite('decorateFormat — comments and strings', () => {
 		assert.strictEqual(out[6], '}');
 	});
 
+	test('preserves multiple spaces after //', () => {
+		const input = [
+			'Actor Foo',
+			'{',
+			'//      aligned note',
+			'Health 1',
+			'}',
+		].join('\n');
+
+		const out = format(input).split('\n');
+		assert.strictEqual(out[2], '  //      aligned note');
+	});
+
 	test('preserves trailing whitespace on code lines', () => {
 		const input = [
 			'Actor Foo',

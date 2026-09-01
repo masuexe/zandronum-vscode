@@ -962,12 +962,20 @@ function readOperatorAt(line: string, index: number): string | undefined {
         two === '&&' ||
         two === '||' ||
         two === '<<' ||
-        two === '>>'
+        two === '>>' ||
+        two === '+=' ||
+        two === '-=' ||
+        two === '*=' ||
+        two === '/=' ||
+        two === '%=' ||
+        two === '&=' ||
+        two === '|=' ||
+        two === '^='
     ) {
         return two;
     }
     const one = line[index];
-    if ('+-*/%<>=!&|'.includes(one)) {
+    if ('+-*/%<>=!&|^'.includes(one)) {
         return one;
     }
     return undefined;

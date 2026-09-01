@@ -716,6 +716,24 @@ suite('acsFormat — control flow spacing', () => {
 		assert.strictEqual(out[3], '    int m = y << 4;');
 	});
 
+	test('keeps compound assignment operators as one token', () => {
+		const input = [
+			'script 1 (void)',
+			'{',
+			'n += 1;',
+			'n-=2;',
+			'n *= 3;',
+			'n/=4;',
+			'}',
+		].join('\n');
+
+		const out = format(input).split('\n');
+		assert.strictEqual(out[2], '    n += 1;');
+		assert.strictEqual(out[3], '    n -= 2;');
+		assert.strictEqual(out[4], '    n *= 3;');
+		assert.strictEqual(out[5], '    n /= 4;');
+	});
+
 	test('keeps space after comparison before unary minus', () => {
 		const input = [
 			'script 1 (void)',

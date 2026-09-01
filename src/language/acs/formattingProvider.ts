@@ -102,6 +102,116 @@ function leadingWhitespaceLength(line: string): number {
     return m ? m[0].length : 0;
 }
 
+function rtrimHorizontal(text: string): string {
+    return text.replace(/[ \t]+$/, '');
+}
+
+function lineHasCode(text: string): boolean {
+    return text.slice(leadingWhitespaceLength(text)).length > 0;
+}
+
+/** Google style: `//` / `///` / `//!` then one space before non-empty text. */
+function formatSlashSlashComment(comment: string): string {
+    let markerLen = 2;
+    if (comment[2] === '/' || comment[2] === '!') {
+        markerLen = 3;
+    }
+    const marker = comment.slice(0, markerLen);
+    const body = comment.slice(markerLen).replace(/^[ \t]+/, '');
+    return body.length === 0 ? marker : `${marker} ${body}`;
+}
+
+/**
+ * Trailing `//`: two spaces before the marker when the line has code;
+ * full-line comments keep indent and only space the text after `//`.
+ */
+function emitSlashSlashComment(out: string, comment: string): string {
+    const formatted = formatSlashSlashComment(comment);
+    if (lineHasCode(rtrimHorizontal(out))) {
+        return `${rtrimHorizontal(out)}  ${formatted}`;
+    }
+    return `${out}${formatted}`;
+}
+
+function formatLineCommentSpacingLine(
+    line: string,
+    inBlockComment: boolean
+): { text: string; inBlockComment: boolean } {
+    let out = '';
+    let i = 0;
+    let inBlock = inBlockComment;
+    let inString = false;
+
+    while (i < line.length) {
+        const ch = line[i];
+        const next = line[i + 1];
+
+        if (inBlock) {
+            out += ch;
+            if (ch === '*' && next === '/') {
+                out += next;
+                inBlock = false;
+                i += 2;
+                continue;
+            }
+            i++;
+            continue;
+        }
+
+        if (inString) {
+            out += ch;
+            if (ch === '\\' && next !== undefined) {
+                out += next;
+                i += 2;
+                continue;
+            }
+            if (ch === '"') {
+                inString = false;
+            }
+            i++;
+            continue;
+        }
+
+        if (ch === '/' && next === '/') {
+            return { text: emitSlashSlashComment(out, line.slice(i)), inBlockComment: inBlock };
+        }
+        if (ch === '/' && next === '*') {
+            out += '/*';
+            inBlock = true;
+            i += 2;
+            continue;
+        }
+        if (ch === '"') {
+            inString = true;
+            out += ch;
+            i++;
+            continue;
+        }
+
+        out += ch;
+        i++;
+    }
+
+    return { text: out, inBlockComment: inBlock };
+}
+
+function applyLineCommentSpacing(
+    lines: readonly string[],
+    startLine: number,
+    endLine: number
+): string[] {
+    const out = lines.slice();
+    let inBlockComment = false;
+    for (let i = 0; i < out.length; i++) {
+        const formatted = formatLineCommentSpacingLine(out[i], inBlockComment);
+        inBlockComment = formatted.inBlockComment;
+        if (inRange(i, startLine, endLine)) {
+            out[i] = formatted.text;
+        }
+    }
+    return out;
+}
+
 function makeIndent(level: number, options: AcsFormatOptions): string {
     if (level <= 0) {
         return '';
@@ -1396,9 +1506,14 @@ export function formatAcsLines(
         stripped.startLine,
         stripped.endLine
     );
-    return applyLeadingEdits(
+    const commented = applyLineCommentSpacing(
         exprSpaced,
-        computeAcsLeadingEdits(exprSpaced, options, {
+        stripped.startLine,
+        stripped.endLine
+    );
+    return applyLeadingEdits(
+        commented,
+        computeAcsLeadingEdits(commented, options, {
             startLine: stripped.startLine,
             endLine: stripped.endLine,
         })

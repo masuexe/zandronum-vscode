@@ -284,7 +284,7 @@ suite('decorateFormat — comments and strings', () => {
 		const expected = [
 			'actor KyorownBulletDmg : KyorownBulletU {',
 			'  Translation "192:192=172:172", "198:198=42:42"',
-			'  Damage (200) //160',
+			'  Damage (200)  // 160',
 			'  States {',
 			'  Death:',
 			'    TNT1 A 0 A_PlaySoundEx("weapon/napalm", "Weapon")',
@@ -616,7 +616,7 @@ suite('decorateFormat — braceStyle', () => {
 		].join('\n');
 
 		const out = format(input, { braceStyle: 'sameLine' }).split('\n');
-		assert.strictEqual(out[0], 'Actor Foo // note');
+		assert.strictEqual(out[0], 'Actor Foo  // note');
 		assert.strictEqual(out[1], '{');
 		assert.strictEqual(out[2], '  Health 1');
 	});

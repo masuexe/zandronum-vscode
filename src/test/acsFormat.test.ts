@@ -524,6 +524,48 @@ suite('acsFormat — control flow spacing', () => {
 			'    SetActorProperty(0, APROP_Health, GetActorProperty(0, APROP_Health) + (GetActorProperty(0, APROP_Health) / 4) * PlayerCount());'
 		);
 	});
+
+	test('spaces trailing line comments Google-style', () => {
+		const input = [
+			'script 1 (void)',
+			'{',
+			'GiveInventory("PowerProtectBoss", 1);  //If multi boss, protect them from each other.',
+			'GiveInventory("PowerProtectBoss", 1);//If multi boss, protect them from each other.',
+			'}',
+		].join('\n');
+
+		const out = format(input).split('\n');
+		assert.strictEqual(
+			out[2],
+			'    GiveInventory("PowerProtectBoss", 1);  // If multi boss, protect them from each other.'
+		);
+		assert.strictEqual(out[3], out[2]);
+		assert.strictEqual(format(out.join('\n')), out.join('\n'));
+	});
+
+	test('spaces full-line comments after // only', () => {
+		const input = [
+			'script 1 (void)',
+			'{',
+			'//If multi boss',
+			'}',
+		].join('\n');
+
+		const out = format(input).split('\n');
+		assert.strictEqual(out[2], '    // If multi boss');
+	});
+
+	test('does not rewrite slashes inside strings', () => {
+		const input = [
+			'script 1 (void)',
+			'{',
+			'Print(s:"//not a comment");',
+			'}',
+		].join('\n');
+
+		const out = format(input).split('\n');
+		assert.strictEqual(out[2], '    Print(s:"//not a comment");');
+	});
 });
 
 suite('acsFormat — calls and continuations', () => {

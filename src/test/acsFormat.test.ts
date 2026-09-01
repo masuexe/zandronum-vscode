@@ -295,6 +295,55 @@ suite('acsFormat — control flow', () => {
 		);
 	});
 
+	test('indents nested switch inside a case body', () => {
+		const input = [
+			'script 1 (void)',
+			'{',
+			'switch (x) {',
+			'case -1:',
+			'switch (y) {',
+			'// inner',
+			'case 0: a = 1; break;',
+			'}',
+			'break;',
+			'}',
+			'}',
+		].join('\n');
+
+		const expected = [
+			'script 1 (void)',
+			'{',
+			'    switch (x)',
+			'    {',
+			'        case -1:',
+			'            switch (y)',
+			'            {',
+			'                // inner',
+			'                case 0: a = 1; break;',
+			'            }',
+			'            break;',
+			'    }',
+			'}',
+		].join('\n');
+
+		assert.strictEqual(format(input), expected);
+		assert.strictEqual(
+			format(input, { braceStyle: 'sameLine' }),
+			[
+				'script 1 (void) {',
+				'    switch (x) {',
+				'        case -1:',
+				'            switch (y) {',
+				'                // inner',
+				'                case 0: a = 1; break;',
+				'            }',
+				'            break;',
+				'    }',
+				'}',
+			].join('\n')
+		);
+	});
+
 	test('indents braceless if body one level', () => {
 		const input = [
 			'script 1 (void)',

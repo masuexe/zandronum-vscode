@@ -1116,7 +1116,13 @@ function formatCallAndOperatorSpacingLine(
                 lastKind = prevKind === 'value' ? 'value' : 'prefix';
                 continue;
             }
-            if (op === '!' || ((op === '+' || op === '-') && prevKind !== 'value')) {
+            if (
+                op === '!' ||
+                ((op === '+' || op === '-') && (prevKind !== 'value' || pendingCaseLabelColon))
+            ) {
+                if (pendingCaseLabelColon) {
+                    out = ensureSpaceBefore(out);
+                }
                 out += op;
                 i += op.length;
                 lastKind = 'prefix';
@@ -1413,6 +1419,14 @@ export function computeAcsLeadingEdits(
     /** `case` / `default` body extra, keyed by brace depth of the switch interior. */
     const caseExtraAtDepth: number[] = [];
 
+    const inheritedCaseExtra = (depth: number): number => {
+        let sum = 0;
+        for (let d = 0; d < depth; d++) {
+            sum += caseExtraAtDepth[d] ?? 0;
+        }
+        return sum;
+    };
+
     for (let line = 0; line < lines.length; line++) {
         const text = lines[line];
         const scanned = structuralLine(text, inBlockComment);
@@ -1447,8 +1461,11 @@ export function computeAcsLeadingEdits(
         } else if (isElseLine && !closesFirst) {
             extra = maybeElseExtra > 0 ? maybeElseExtra - 1 : 0;
         }
-        if (!isCaseLabel && !closesFirst) {
-            extra += caseExtraAtDepth[depthBefore] ?? 0;
+        if (!closesFirst) {
+            extra += inheritedCaseExtra(depthBefore);
+            if (!isCaseLabel) {
+                extra += caseExtraAtDepth[depthBefore] ?? 0;
+            }
         }
 
         let newLeading: string | undefined;
@@ -1457,7 +1474,10 @@ export function computeAcsLeadingEdits(
         } else if (isHash) {
             newLeading = '';
         } else if (closesFirst) {
-            newLeading = makeIndent(Math.max(0, depthBefore - 1), options);
+            newLeading = makeIndent(
+                Math.max(0, depthBefore - 1 + inheritedCaseExtra(depthBefore)),
+                options
+            );
         } else {
             newLeading = makeIndent(depthBefore + extra, options);
         }

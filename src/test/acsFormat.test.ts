@@ -643,6 +643,22 @@ suite('acsFormat — control flow spacing', () => {
 		assert.strictEqual(out[2], '    if (GetActorProperty(0, APROP_Health) > 0)');
 	});
 
+	test('does not split hexadecimal literals', () => {
+		const input = [
+			'script 1 (void)',
+			'{',
+			'int n = 0x7ffffffc;',
+			'if (tid == 0XFF)',
+			'{',
+			'}',
+			'}',
+		].join('\n');
+
+		const out = format(input).split('\n');
+		assert.strictEqual(out[2], '    int n = 0x7ffffffc;');
+		assert.strictEqual(out[3], '    if (tid == 0XFF)');
+	});
+
 	test('inserts space before comparison after a call', () => {
 		const input = [
 			'script 1 (void)',

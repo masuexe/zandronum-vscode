@@ -909,10 +909,28 @@ function readIdentAt(line: string, index: number): number {
     return i;
 }
 
+function isHexDigit(ch: string): boolean {
+    return (ch >= '0' && ch <= '9') || (ch >= 'a' && ch <= 'f') || (ch >= 'A' && ch <= 'F');
+}
+
 function readNumberAt(line: string, index: number): number {
     let i = index;
     while (i < line.length && line[i] >= '0' && line[i] <= '9') {
         i++;
+    }
+    if (
+        i === index + 1 &&
+        line[index] === '0' &&
+        i < line.length &&
+        (line[i] === 'x' || line[i] === 'X') &&
+        i + 1 < line.length &&
+        isHexDigit(line[i + 1])
+    ) {
+        i++;
+        while (i < line.length && isHexDigit(line[i])) {
+            i++;
+        }
+        return i;
     }
     if (i < line.length && line[i] === '.' && i + 1 < line.length && line[i + 1] >= '0' && line[i + 1] <= '9') {
         i++;

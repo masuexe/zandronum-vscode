@@ -1191,6 +1191,59 @@ export function removeBlankLinesBeforeCloseBrace(
     return { lines: out, startLine, endLine: endLine - removed };
 }
 
+function skipBalancedParens(s: string, openAt: number): number {
+    if (s[openAt] !== '(') {
+        return -1;
+    }
+    let depth = 0;
+    for (let i = openAt; i < s.length; i++) {
+        if (s[i] === '(') {
+            depth++;
+        } else if (s[i] === ')') {
+            depth--;
+            if (depth === 0) {
+                return i + 1;
+            }
+        }
+    }
+    return -1;
+}
+
+/** `if` / `else if` / `while` / `for` / `do` / `switch` / `else`, optional leading `}`. */
+const CONTROL_HEADER_RE =
+    /^(?:}\s*)?(else\s+if|if|else|while|for|do|switch)\b/i;
+
+const ELSE_LINE_RE = /^(?:}\s*)?else\b/i;
+
+/**
+ * Code after a control keyword (and its `(...)` if any).
+ * Unclosed `(` counts as no same-line body.
+ */
+function restAfterControlHeader(structuralTrim: string): string | undefined {
+    const m = CONTROL_HEADER_RE.exec(structuralTrim);
+    if (!m) {
+        return undefined;
+    }
+    const keyword = m[1].toLowerCase().replace(/\s+/g, ' ');
+    let i = skipSpaces(structuralTrim, m[0].length);
+    if (keyword !== 'else' && keyword !== 'do') {
+        if (i < structuralTrim.length && structuralTrim[i] === '(') {
+            const afterParen = skipBalancedParens(structuralTrim, i);
+            if (afterParen < 0) {
+                return '';
+            }
+            i = skipSpaces(structuralTrim, afterParen);
+        }
+    }
+    return structuralTrim.slice(i);
+}
+
+/** Control line whose body is the following line (`if (x)` / `else`), not `if (x) {` or `if (x) stmt;`. */
+function isHangingControlHeader(structuralTrim: string): boolean {
+    const rest = restAfterControlHeader(structuralTrim);
+    return rest !== undefined && rest.length === 0;
+}
+
 export function computeAcsLeadingEdits(
     lines: readonly string[],
     options: AcsFormatOptions,
@@ -1206,6 +1259,10 @@ export function computeAcsLeadingEdits(
     let parenDepth = 0;
     let prevOpensContinuation = false;
     let inBlockComment = false;
+    /** Extra indent levels for a braceless `if` / `else` / `while` / `for` body. */
+    let hangingExtra = 0;
+    /** Extra used by the last hanging body; an immediately following `else` aligns to that `if`. */
+    let maybeElseExtra = 0;
 
     for (let line = 0; line < lines.length; line++) {
         const text = lines[line];
@@ -1219,11 +1276,25 @@ export function computeAcsLeadingEdits(
         const isBlank = text.trim().length === 0;
         const isHash = HASH_RE.test(structuralTrim);
         const closesFirst = structuralTrim.startsWith('}');
+        const isOpenBraceLine = structuralTrim.startsWith('{');
+        const isElseLine = ELSE_LINE_RE.test(structuralTrim);
+        const hangingHeader = isHangingControlHeader(structuralTrim);
         const continuation = isContinuationLine(
             structuralTrim,
             parenBefore,
             prevOpensContinuation
         );
+
+        if (!isElseLine) {
+            maybeElseExtra = 0;
+        }
+
+        let extra = hangingExtra;
+        if (isOpenBraceLine && hangingExtra > 0) {
+            extra = hangingExtra - 1;
+        } else if (isElseLine && !closesFirst) {
+            extra = maybeElseExtra > 0 ? maybeElseExtra - 1 : 0;
+        }
 
         let newLeading: string | undefined;
         if (isBlank || continuation) {
@@ -1233,13 +1304,30 @@ export function computeAcsLeadingEdits(
         } else if (closesFirst) {
             newLeading = makeIndent(Math.max(0, depthBefore - 1), options);
         } else {
-            newLeading = makeIndent(depthBefore, options);
+            newLeading = makeIndent(depthBefore + extra, options);
         }
 
         if (newLeading !== undefined && line >= startLine && line <= endLine) {
             const oldLeading = text.slice(0, leadingWhitespaceLength(text));
             if (oldLeading !== newLeading) {
                 edits.push({ line, newLeading });
+            }
+        }
+
+        if (!isBlank && !continuation && !isHash) {
+            if (isOpenBraceLine) {
+                hangingExtra = 0;
+                maybeElseExtra = 0;
+            } else if (closesFirst) {
+                hangingExtra = hangingHeader ? 1 : 0;
+                maybeElseExtra = 0;
+            } else if (hangingHeader) {
+                const elseBase = isElseLine && maybeElseExtra > 0 ? maybeElseExtra - 1 : hangingExtra;
+                hangingExtra = elseBase + 1;
+                maybeElseExtra = 0;
+            } else {
+                maybeElseExtra = hangingExtra;
+                hangingExtra = 0;
             }
         }
 

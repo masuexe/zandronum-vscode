@@ -255,6 +255,75 @@ suite('acsFormat — control flow', () => {
 		assert.strictEqual(out[5], '        Print(s:"one");');
 		assert.strictEqual(out[7], '        default:');
 	});
+
+	test('indents braceless if body one level', () => {
+		const input = [
+			'script 1 (void)',
+			'{',
+			'if (whoisit >= 0 && whoisit <= 6666)',
+			'SetInventory("ThisIsMyMagicBossNumber", whoisit);',
+			'}',
+		].join('\n');
+
+		const expected = [
+			'script 1 (void)',
+			'{',
+			'    if (whoisit >= 0 && whoisit <= 6666)',
+			'        SetInventory("ThisIsMyMagicBossNumber", whoisit);',
+			'}',
+		].join('\n');
+
+		assert.strictEqual(format(input), expected);
+		assert.strictEqual(format(expected), expected);
+	});
+
+	test('keeps else aligned with braceless if', () => {
+		const input = [
+			'script 1 (void)',
+			'{',
+			'if (x)',
+			'a = 1;',
+			'else',
+			'a = 2;',
+			'}',
+		].join('\n');
+
+		const out = format(input).split('\n');
+		assert.strictEqual(out[2], '    if (x)');
+		assert.strictEqual(out[3], '        a = 1;');
+		assert.strictEqual(out[4], '    else');
+		assert.strictEqual(out[5], '        a = 2;');
+	});
+
+	test('does not extra-indent after same-line if body', () => {
+		const input = [
+			'script 1 (void)',
+			'{',
+			'if (x) a = 1;',
+			'a = 2;',
+			'}',
+		].join('\n');
+
+		const out = format(input).split('\n');
+		assert.strictEqual(out[2], '    if (x) a = 1;');
+		assert.strictEqual(out[3], '    a = 2;');
+	});
+
+	test('indents nested braceless if bodies', () => {
+		const input = [
+			'script 1 (void)',
+			'{',
+			'if (a)',
+			'if (b)',
+			'x = 1;',
+			'}',
+		].join('\n');
+
+		const out = format(input).split('\n');
+		assert.strictEqual(out[2], '    if (a)');
+		assert.strictEqual(out[3], '        if (b)');
+		assert.strictEqual(out[4], '            x = 1;');
+	});
 });
 
 suite('acsFormat — control flow spacing', () => {

@@ -1136,7 +1136,7 @@ function formatCallAndOperatorSpacingLine(
             const end = readIdentAt(line, i);
             const ident = line.slice(i, end);
             const after = skipHorizontalSpace(line, end);
-            if (after < line.length && line[after] === '(') {
+            if (after < line.length && line[after] === '(' && !matchKeywordAt(line, i, 'return')) {
                 if (needsSpaceBeforeValue(prevKind)) {
                     out = ensureSpaceBefore(out);
                 }

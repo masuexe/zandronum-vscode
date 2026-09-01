@@ -784,6 +784,20 @@ suite('acsFormat — control flow spacing', () => {
 		assert.strictEqual(out[3], '    return -1;');
 	});
 
+	test('keeps a space after return before a grouped expression', () => {
+		const input = [
+			'script 1 (void)',
+			'{',
+			'return (x + 0.5) & 0xffff0000;',
+			'return(x);',
+			'}',
+		].join('\n');
+
+		const out = format(input).split('\n');
+		assert.strictEqual(out[2], '    return (x + 0.5) & 0xffff0000;');
+		assert.strictEqual(out[3], '    return (x);');
+	});
+
 	test('spaces trailing line comments Google-style', () => {
 		const input = [
 			'script 1 (void)',

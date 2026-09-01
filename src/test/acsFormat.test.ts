@@ -688,6 +688,20 @@ suite('acsFormat — control flow spacing', () => {
 		);
 	});
 
+	test('keeps shift operators as one token', () => {
+		const input = [
+			'script 1 (void)',
+			'{',
+			'int n = x >> 8;',
+			'int m = y<<4;',
+			'}',
+		].join('\n');
+
+		const out = format(input).split('\n');
+		assert.strictEqual(out[2], '    int n = x >> 8;');
+		assert.strictEqual(out[3], '    int m = y << 4;');
+	});
+
 	test('keeps space after comparison before unary minus', () => {
 		const input = [
 			'script 1 (void)',

@@ -942,6 +942,10 @@ function readNumberAt(line: string, index: number): number {
 }
 
 function readOperatorAt(line: string, index: number): string | undefined {
+    const three = line.slice(index, index + 3);
+    if (three === '<<=' || three === '>>=') {
+        return three;
+    }
     const two = line.slice(index, index + 2);
     if (
         two === '++' ||
@@ -951,7 +955,9 @@ function readOperatorAt(line: string, index: number): string | undefined {
         two === '<=' ||
         two === '>=' ||
         two === '&&' ||
-        two === '||'
+        two === '||' ||
+        two === '<<' ||
+        two === '>>'
     ) {
         return two;
     }

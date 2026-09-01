@@ -1124,7 +1124,7 @@ function formatCallAndOperatorSpacingLine(
                 op === '!' ||
                 ((op === '+' || op === '-') && (prevKind !== 'value' || pendingCaseLabelColon))
             ) {
-                if (pendingCaseLabelColon) {
+                if (pendingCaseLabelColon || needsSpaceBeforeValue(prevKind)) {
                     out = ensureSpaceBefore(out);
                 }
                 out += op;

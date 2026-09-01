@@ -627,6 +627,21 @@ suite('acsFormat — control flow spacing', () => {
 		);
 	});
 
+	test('keeps space after comparison before unary minus', () => {
+		const input = [
+			'script 1 (void)',
+			'{',
+			'if (PlayerNumber() == -1)',
+			'{',
+			'}',
+			'}',
+		].join('\n');
+
+		const out = format(input).split('\n');
+		assert.strictEqual(out[2], '    if (PlayerNumber() == -1)');
+		assert.strictEqual(format('script 1 (void)\n{\nif (PlayerNumber() ==-1)\n{\n}\n}').split('\n')[2], '    if (PlayerNumber() == -1)');
+	});
+
 	test('spaces trailing line comments Google-style', () => {
 		const input = [
 			'script 1 (void)',

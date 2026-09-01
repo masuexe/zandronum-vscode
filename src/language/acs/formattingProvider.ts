@@ -913,7 +913,7 @@ function formatControlFlowSpacingLine(
     return { text: out, inBlockComment: inBlock };
 }
 
-type ExprKind = 'start' | 'open' | 'value' | 'op' | 'prefix';
+type ExprKind = 'start' | 'open' | 'value' | 'op' | 'prefix' | 'keyword';
 
 function isControlParenKeywordAt(line: string, index: number): boolean {
     for (const kw of KEYWORDS_BEFORE_PAREN) {
@@ -1016,11 +1016,11 @@ function ensureSpaceBefore(text: string): string {
 }
 
 function needsSpaceBeforeValue(kind: ExprKind): boolean {
-    return kind === 'value' || kind === 'op';
+    return kind === 'value' || kind === 'op' || kind === 'keyword';
 }
 
 function needsSpaceBeforeCallParen(kind: ExprKind, text: string): boolean {
-    if (kind === 'op') {
+    if (kind === 'op' || kind === 'keyword') {
         return true;
     }
     if (kind !== 'value') {
@@ -1156,6 +1156,9 @@ function formatCallAndOperatorSpacingLine(
                 pendingCaseLabelColon = true;
             }
             emitValue(ident);
+            if (matchKeywordAt(line, i, 'return')) {
+                lastKind = 'keyword';
+            }
             i = end;
             continue;
         }

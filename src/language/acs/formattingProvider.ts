@@ -988,6 +988,7 @@ function formatCallAndOperatorSpacingLine(
     let inBlock = inBlockComment;
     let inString = false;
     let lastKind: ExprKind = 'start';
+    let pendingCaseLabelColon = false;
 
     const emitValue = (token: string): void => {
         if (needsSpaceBeforeValue(lastKind)) {
@@ -1089,6 +1090,12 @@ function formatCallAndOperatorSpacingLine(
                 lastKind = 'open';
                 continue;
             }
+            if (
+                prevKind === 'start' &&
+                (matchKeywordAt(line, i, 'case') || matchKeywordAt(line, i, 'default'))
+            ) {
+                pendingCaseLabelColon = true;
+            }
             emitValue(ident);
             i = end;
             continue;
@@ -1175,6 +1182,16 @@ function formatCallAndOperatorSpacingLine(
         if (ch === ':') {
             out += ':';
             i++;
+            if (pendingCaseLabelColon) {
+                pendingCaseLabelColon = false;
+                const after = skipHorizontalSpace(line, i);
+                const atEnd = after >= line.length;
+                const startsComment = after < line.length && isCommentStart(line, after);
+                if (!atEnd && !startsComment) {
+                    out += ' ';
+                }
+                i = after;
+            }
             lastKind = 'open';
             continue;
         }
@@ -1354,6 +1371,26 @@ function isHangingControlHeader(structuralTrim: string): boolean {
     return rest !== undefined && rest.length === 0;
 }
 
+function restAfterCaseLabelColon(structuralTrim: string): string | undefined {
+    if (!/^(case|default)\b/i.test(structuralTrim)) {
+        return undefined;
+    }
+    const colon = structuralTrim.indexOf(':');
+    if (colon < 0) {
+        return undefined;
+    }
+    return structuralTrim.slice(colon + 1).trim();
+}
+
+function isCaseOrDefaultLabel(structuralTrim: string): boolean {
+    return /^(case|default)\b/i.test(structuralTrim);
+}
+
+function isHangingCaseLabel(structuralTrim: string): boolean {
+    const rest = restAfterCaseLabelColon(structuralTrim);
+    return rest !== undefined && rest.length === 0;
+}
+
 export function computeAcsLeadingEdits(
     lines: readonly string[],
     options: AcsFormatOptions,
@@ -1373,6 +1410,8 @@ export function computeAcsLeadingEdits(
     let hangingExtra = 0;
     /** Extra used by the last hanging body; an immediately following `else` aligns to that `if`. */
     let maybeElseExtra = 0;
+    /** `case` / `default` body extra, keyed by brace depth of the switch interior. */
+    const caseExtraAtDepth: number[] = [];
 
     for (let line = 0; line < lines.length; line++) {
         const text = lines[line];
@@ -1388,6 +1427,7 @@ export function computeAcsLeadingEdits(
         const closesFirst = structuralTrim.startsWith('}');
         const isOpenBraceLine = structuralTrim.startsWith('{');
         const isElseLine = ELSE_LINE_RE.test(structuralTrim);
+        const isCaseLabel = isCaseOrDefaultLabel(structuralTrim);
         const hangingHeader = isHangingControlHeader(structuralTrim);
         const continuation = isContinuationLine(
             structuralTrim,
@@ -1400,10 +1440,15 @@ export function computeAcsLeadingEdits(
         }
 
         let extra = hangingExtra;
-        if (isOpenBraceLine && hangingExtra > 0) {
+        if (isCaseLabel) {
+            extra = 0;
+        } else if (isOpenBraceLine && hangingExtra > 0) {
             extra = hangingExtra - 1;
         } else if (isElseLine && !closesFirst) {
             extra = maybeElseExtra > 0 ? maybeElseExtra - 1 : 0;
+        }
+        if (!isCaseLabel && !closesFirst) {
+            extra += caseExtraAtDepth[depthBefore] ?? 0;
         }
 
         let newLeading: string | undefined;
@@ -1425,12 +1470,17 @@ export function computeAcsLeadingEdits(
         }
 
         if (!isBlank && !continuation && !isHash) {
-            if (isOpenBraceLine) {
+            if (isCaseLabel) {
+                hangingExtra = 0;
+                maybeElseExtra = 0;
+                caseExtraAtDepth[depthBefore] = isHangingCaseLabel(structuralTrim) ? 1 : 0;
+            } else if (isOpenBraceLine) {
                 hangingExtra = 0;
                 maybeElseExtra = 0;
             } else if (closesFirst) {
                 hangingExtra = hangingHeader ? 1 : 0;
                 maybeElseExtra = 0;
+                caseExtraAtDepth[depthBefore] = 0;
             } else if (hangingHeader) {
                 const elseBase = isElseLine && maybeElseExtra > 0 ? maybeElseExtra - 1 : hangingExtra;
                 hangingExtra = elseBase + 1;

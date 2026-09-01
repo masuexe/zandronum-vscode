@@ -252,8 +252,47 @@ suite('acsFormat — control flow', () => {
 		assert.strictEqual(out[2], '    switch (x)');
 		assert.strictEqual(out[3], '    {');
 		assert.strictEqual(out[4], '        case 1:');
-		assert.strictEqual(out[5], '        Print(s:"one");');
+		assert.strictEqual(out[5], '            Print(s:"one");');
+		assert.strictEqual(out[6], '            break;');
 		assert.strictEqual(out[7], '        default:');
+		assert.strictEqual(out[8], '            break;');
+	});
+
+	test('keeps trailing comment on case and indents the body', () => {
+		const input = [
+			'script 1 (void)',
+			'{',
+			'switch (x)',
+			'{',
+			'case 65:  // A=Player \'Custom\'',
+			'spawnStr = StrParam(n:0, s:" ", s:B_MessStr);',
+			'break;',
+			'}',
+			'}',
+		].join('\n');
+
+		const out = format(input).split('\n');
+		assert.strictEqual(out[4], '        case 65:  // A=Player \'Custom\'');
+		assert.strictEqual(out[5], '            spawnStr = StrParam(n:0, s:" ", s:B_MessStr);');
+		assert.strictEqual(out[6], '            break;');
+	});
+
+	test('keeps a space after same-line case colon', () => {
+		const input = [
+			'script 1 (void)',
+			'{',
+			'switch (x)',
+			'{',
+			'case 2: spawnStr = StrParam(n:0, s:"\\ck was cursed to be ", s:B_NameStr, s:"\\ck."); break;',
+			'}',
+			'}',
+		].join('\n');
+
+		const out = format(input).split('\n');
+		assert.strictEqual(
+			out[4],
+			'        case 2: spawnStr = StrParam(n:0, s:"\\ck was cursed to be ", s:B_NameStr, s:"\\ck."); break;'
+		);
 	});
 
 	test('indents braceless if body one level', () => {

@@ -274,7 +274,11 @@ function isContinuationLine(
     if (structuralTrim.length === 0) {
         return true;
     }
-    if (structuralTrim.startsWith('}') || HASH_RE.test(structuralTrim)) {
+    if (
+        structuralTrim.startsWith('}') ||
+        structuralTrim.startsWith('{') ||
+        HASH_RE.test(structuralTrim)
+    ) {
         return false;
     }
     if (ACS_FLOW_STMT_RE.test(structuralTrim)) {

@@ -140,6 +140,20 @@ suite('acsFormat — library and script', () => {
 		assert.strictEqual(out[0], '#include "zcommon.acs"');
 		assert.strictEqual(out[1], '#define FOO 1');
 	});
+
+	test('keeps world and global index colons tight', () => {
+		const input = [
+			'world int 1: wadbadguycount;',
+			'global int 3: IsTeamGame;',
+		].join('\n');
+
+		const expected = [
+			'world int 1:wadbadguycount;',
+			'global int 3:IsTeamGame;',
+		].join('\n');
+
+		assert.strictEqual(format(input), expected);
+	});
 });
 
 suite('acsFormat — control flow', () => {
@@ -693,6 +707,34 @@ suite('acsFormat — calls and continuations', () => {
 		const out = format(input).split('\n');
 		assert.strictEqual(out[0], 'function void Foo(str text, str fontName,');
 		assert.strictEqual(out[1], '                            int boxId)');
+	});
+
+	test('indents every row of a brace array initializer', () => {
+		const input = [
+			'str lmsListArray[2][2]={',
+			'{"a","b"},',
+			'{"c","d"}',
+			'};',
+		].join('\n');
+
+		const expected = [
+			'str lmsListArray[2][2] =',
+			'{',
+			'    {"a", "b"},',
+			'    {"c", "d"}',
+			'};',
+		].join('\n');
+
+		assert.strictEqual(format(input), expected);
+		assert.strictEqual(
+			format(input, { braceStyle: 'sameLine' }),
+			[
+				'str lmsListArray[2][2] = {',
+				'    {"a", "b"},',
+				'    {"c", "d"}',
+				'};',
+			].join('\n')
+		);
 	});
 
 	test('does not treat next line after same-line string list as continuation indent skip', () => {

@@ -32,8 +32,9 @@ export const ACTOR_CLASS_ARG_FUNCTIONS = new Set([
     'spawnspotfacing', 'spawnspotfacingforced',
 ]);
 
-function extractIncludePath(lineText: string, cursorCol: number): string | null {
-    const match = lineText.match(/^\s*#\s*include\s+"([^"]*)"/i);
+/** Quoted path on `#include` / `#import` when the cursor is inside the quotes. */
+export function extractIncludePath(lineText: string, cursorCol: number): string | null {
+    const match = lineText.match(/^\s*#\s*(?:include|import)\s+"([^"]*)"/i);
     if (!match) {
         return null;
     }

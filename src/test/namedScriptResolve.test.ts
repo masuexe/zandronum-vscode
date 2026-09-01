@@ -4,10 +4,39 @@ import {
 	enrichNamedExecuteParams,
 	scriptParamsBeyondArity,
 } from '../language/acs/namedScriptResolve';
-import { extractScriptArgAtCursor } from '../language/acs/definitionProvider';
+import {
+	extractIncludePath,
+	extractScriptArgAtCursor,
+} from '../language/acs/definitionProvider';
 import { extractScriptParams, parseTypedParamList } from '../base/acsProvider';
 import { AcsScriptSymbol, SymbolKind } from '../base/types';
 import { ParamData } from '../shared/dataLoader';
+
+suite('extractIncludePath — ACS preprocessor paths', () => {
+	test('jumps from #include quoted path', () => {
+		const line = '#include "common/lib.acs"';
+		const col = line.indexOf('lib') + 1;
+		assert.strictEqual(extractIncludePath(line, col), 'common/lib.acs');
+	});
+
+	test('jumps from #import quoted path', () => {
+		const line = '#import "common/lib.acs"';
+		const col = line.indexOf('lib') + 1;
+		assert.strictEqual(extractIncludePath(line, col), 'common/lib.acs');
+	});
+
+	test('is case-insensitive and allows space after #', () => {
+		const line = '# IMPORT "BARLIB.acs"';
+		const col = line.indexOf('BAR') + 1;
+		assert.strictEqual(extractIncludePath(line, col), 'BARLIB.acs');
+	});
+
+	test('ignores cursor outside the quotes', () => {
+		const line = '#import "common/lib.acs"';
+		assert.strictEqual(extractIncludePath(line, line.indexOf('import') + 1), null);
+		assert.strictEqual(extractIncludePath(line, line.length), null);
+	});
+});
 
 suite('extractScriptArgAtCursor — script-name hover', () => {
 	test('hits string first arg and returns callee', () => {

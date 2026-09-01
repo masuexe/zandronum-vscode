@@ -2,6 +2,7 @@ import * as assert from 'assert';
 import * as fs from 'fs';
 import * as os from 'os';
 import * as path from 'path';
+import { deflateRawSync } from 'zlib';
 import { unzipSync } from 'fflate';
 import {
 	isBuildManifestCurrent,
@@ -36,6 +37,61 @@ function listZipCentralDirectoryNames(data: Buffer): string[] {
 	return names;
 }
 
+interface ZipHeaderInfo {
+	name: string;
+	method: number;
+	flags: number;
+	crc: number;
+	compressedSize: number;
+	uncompressedSize: number;
+	localFlags: number;
+	localCrc: number;
+	localCompressedSize: number;
+	localUncompressedSize: number;
+	localExtraLength: number;
+	compressedData: Buffer;
+}
+
+function readZipHeaders(data: Buffer): ZipHeaderInfo[] {
+	let eocd = -1;
+	for (let i = Math.max(0, data.length - 22 - 65535); i <= data.length - 22; i++) {
+		if (data.readUInt32LE(i) === 0x06054b50) { eocd = i; }
+	}
+	assert.ok(eocd >= 0, 'ZIP end-of-central-directory not found');
+	const entryCount = data.readUInt16LE(eocd + 10);
+	let offset = data.readUInt32LE(eocd + 16);
+	const entries: ZipHeaderInfo[] = [];
+	for (let n = 0; n < entryCount; n++) {
+		assert.strictEqual(data.readUInt32LE(offset), 0x02014b50);
+		const nameLen = data.readUInt16LE(offset + 28);
+		const extraLen = data.readUInt16LE(offset + 30);
+		const commentLen = data.readUInt16LE(offset + 32);
+		const name = data.subarray(offset + 46, offset + 46 + nameLen).toString('utf8');
+		const localOffset = data.readUInt32LE(offset + 42);
+		assert.strictEqual(data.readUInt32LE(localOffset), 0x04034b50);
+		const localNameLength = data.readUInt16LE(localOffset + 26);
+		const localExtraLength = data.readUInt16LE(localOffset + 28);
+		const compressedSize = data.readUInt32LE(offset + 20);
+		const compressedDataOffset = localOffset + 30 + localNameLength + localExtraLength;
+		entries.push({
+			name,
+			method: data.readUInt16LE(offset + 10),
+			flags: data.readUInt16LE(offset + 8),
+			crc: data.readUInt32LE(offset + 16),
+			compressedSize,
+			uncompressedSize: data.readUInt32LE(offset + 24),
+			localFlags: data.readUInt16LE(localOffset + 6),
+			localCrc: data.readUInt32LE(localOffset + 14),
+			localCompressedSize: data.readUInt32LE(localOffset + 18),
+			localUncompressedSize: data.readUInt32LE(localOffset + 22),
+			localExtraLength,
+			compressedData: data.subarray(compressedDataOffset, compressedDataOffset + compressedSize),
+		});
+		offset += 46 + nameLen + extraLen + commentLen;
+	}
+	return entries;
+}
+
 suite('PK3 packaging', () => {
 	test('build manifest detects input and output changes', async () => {
 		const tmpRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'zandro-pk3-manifest-'));
@@ -47,12 +103,14 @@ suite('PK3 packaging', () => {
 				{ path: 'DECORATE.txt', size: 12, mtimeMs: 1000 },
 			];
 			const manifest: Pk3BuildManifest = {
-				version: 1,
+				version: 3,
 				inputs,
 				output: { size: output.size, mtimeMs: output.mtimeMs },
 			};
 
 			assert.strictEqual(await isBuildManifestCurrent(manifest, inputs, outPk3), true);
+			assert.strictEqual(await isBuildManifestCurrent({ ...manifest, version: 2 }, inputs, outPk3), false);
+			assert.strictEqual(await isBuildManifestCurrent({ ...manifest, version: 1 }, inputs, outPk3), false);
 			assert.strictEqual(await isBuildManifestCurrent(manifest, [], outPk3), false);
 			assert.strictEqual(await isBuildManifestCurrent(
 				manifest,
@@ -64,6 +122,54 @@ suite('PK3 packaging', () => {
 			assert.strictEqual(await isBuildManifestCurrent(manifest, inputs, outPk3), false);
 			fs.unlinkSync(outPk3);
 			assert.strictEqual(await isBuildManifestCurrent(manifest, inputs, outPk3), false);
+		} finally {
+			fs.rmSync(tmpRoot, { recursive: true, force: true });
+		}
+	});
+
+	test('writes standard local headers without data descriptors', async () => {
+		const tmpRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'zandro-pk3-headers-'));
+		try {
+			const src = path.join(tmpRoot, 'src');
+			fs.mkdirSync(src);
+			const compressible = Buffer.alloc(512, 0x41);
+			const stored = Buffer.from([0, 1, 2, 3]);
+			fs.writeFileSync(path.join(src, 'compressible.bin'), compressible);
+			fs.writeFileSync(path.join(src, 'stored.bin'), stored);
+
+			const outPk3 = path.join(tmpRoot, 'build.pk3');
+			await packDirectoryToPk3(src, outPk3);
+			const archive = fs.readFileSync(outPk3);
+			const headers = readZipHeaders(archive);
+			assert.deepStrictEqual(headers.map(entry => entry.name), [
+				'compressible.bin',
+				'stored.bin',
+			]);
+
+			const deflated = headers[0];
+			assert.strictEqual(deflated.method, 8);
+			assert.strictEqual(deflated.flags & 0x0008, 0);
+			assert.ok(deflated.compressedSize < deflated.uncompressedSize);
+			assert.deepStrictEqual(
+				deflated.compressedData,
+				deflateRawSync(compressible, { level: 9 })
+			);
+
+			const uncompressed = headers[1];
+			assert.strictEqual(uncompressed.method, 0);
+			assert.strictEqual(uncompressed.flags & 0x0008, 0);
+
+			for (const entry of headers) {
+				assert.strictEqual(entry.localFlags, entry.flags);
+				assert.strictEqual(entry.localCrc, entry.crc);
+				assert.strictEqual(entry.localCompressedSize, entry.compressedSize);
+				assert.strictEqual(entry.localUncompressedSize, entry.uncompressedSize);
+				assert.strictEqual(entry.localExtraLength, 0);
+			}
+
+			const unzipped = unzipSync(new Uint8Array(archive));
+			assert.deepStrictEqual(Buffer.from(unzipped['compressible.bin']), compressible);
+			assert.deepStrictEqual(Buffer.from(unzipped['stored.bin']), stored);
 		} finally {
 			fs.rmSync(tmpRoot, { recursive: true, force: true });
 		}

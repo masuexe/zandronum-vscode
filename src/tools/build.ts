@@ -1,15 +1,16 @@
 import * as vscode from 'vscode';
 import * as fs from 'fs';
 import * as path from 'path';
+import { deflateRawSync } from 'zlib';
 import ignore, { type Ignore } from 'ignore';
-import { Zip, ZipPassThrough } from 'fflate';
 import { getPk3Root } from '../shared/pk3Root';
+import { crc32 } from './png/crc32';
 
 let currentGen = 0;
 let isBuilding = false;
 
 const PK3_IGNORE_FILENAME = '.pk3ignore';
-const BUILD_MANIFEST_VERSION = 1;
+const BUILD_MANIFEST_VERSION = 3;
 
 export interface Pk3InputState {
     path: string;
@@ -172,7 +173,16 @@ export interface PackPk3Options {
     fileEntries?: readonly FileEntry[];
 }
 
-const MAX_CONCURRENT_READS = 64;
+const MAX_CONCURRENT_PREPARES = 8;
+const MAX_ZIP16 = 0xFFFF;
+const MAX_ZIP32 = 0xFFFFFFFF;
+const ZIP_LOCAL_FILE_HEADER = 0x04034B50;
+const ZIP_CENTRAL_FILE_HEADER = 0x02014B50;
+const ZIP_END_OF_CENTRAL_DIRECTORY = 0x06054B50;
+const ZIP_METHOD_STORE = 0;
+const ZIP_METHOD_DEFLATE = 8;
+const ZIP_FLAG_DEFLATE_MAXIMUM = 0x0002;
+const ZIP_FLAG_UTF8 = 0x0800;
 
 /** Normalize ZIP entry path: forward slashes only, no trailing slash (not a directory). */
 export function normalizeZipEntryName(name: string): string | null {
@@ -318,16 +328,10 @@ async function writeBuildManifest(
     await fs.promises.rename(tmpPath, manifestPath);
 }
 
-async function readBatch(files: FileEntry[]): Promise<Array<{ archiveName: string; data: Buffer }>> {
-    const buffers = await Promise.all(
-        files.map(f => fs.promises.readFile(f.diskPath))
-    );
-    return files.map((f, i) => ({ archiveName: f.archiveName, data: buffers[i] }));
-}
-
 /**
- * Pack every file under srcPath into a store (uncompressed) ZIP/PK3 at outPath.
+ * Pack every file under srcPath into a Zandronum-compatible ZIP/PK3 at outPath.
  * Writes only file entries with `/` separators — never empty directory entries.
+ * Uses DEFLATE level 9 when it makes an entry smaller, otherwise STORE.
  * Uses a temp file then rename for atomic replace.
  */
 export async function packDirectoryToPk3(
@@ -356,7 +360,7 @@ export async function packDirectoryToPk3(
             await fs.promises.unlink(tmpPath);
         }
 
-        await writeStoreZip(fileEntries, tmpPath, onProgress);
+        await writeCompatibleZip(fileEntries, tmpPath, onProgress);
 
         // Atomic replace of the destination PK3
         await fs.promises.rename(tmpPath, outPath);
@@ -368,59 +372,183 @@ export async function packDirectoryToPk3(
     return fileEntries.length;
 }
 
-async function writeStoreZip(
-    fileEntries: FileEntry[],
+interface PreparedZipEntry {
+    archiveName: string;
+    nameBytes: Buffer;
+    data: Uint8Array;
+    crc: number;
+    compressedSize: number;
+    uncompressedSize: number;
+    method: number;
+    flags: number;
+    dosTime: number;
+    dosDate: number;
+}
+
+type CentralZipEntry = Omit<PreparedZipEntry, 'data'> & {
+    localHeaderOffset: number;
+};
+
+function dosDateTime(mtime: Date): { dosTime: number; dosDate: number } {
+    const year = Math.min(2107, Math.max(1980, mtime.getFullYear()));
+    return {
+        dosTime: (mtime.getHours() << 11) | (mtime.getMinutes() << 5) | (mtime.getSeconds() >> 1),
+        dosDate: ((year - 1980) << 9) | ((mtime.getMonth() + 1) << 5) | mtime.getDate(),
+    };
+}
+
+async function prepareZipEntry(entry: FileEntry): Promise<PreparedZipEntry> {
+    const [source, stat] = await Promise.all([
+        fs.promises.readFile(entry.diskPath),
+        fs.promises.stat(entry.diskPath),
+    ]);
+    if (source.length > MAX_ZIP32) {
+        throw new Error(`ZIP entry exceeds 4 GiB: ${entry.archiveName}`);
+    }
+
+    // Files are read in small bounded batches. Raw zlib DEFLATE produces a
+    // conventional ZIP stream while keeping compression work bounded.
+    const compressed = deflateRawSync(source, { level: 9 });
+    const useDeflate = compressed.length < source.length;
+    const data = useDeflate ? compressed : source;
+    const nameBytes = Buffer.from(entry.archiveName, 'utf8');
+    if (nameBytes.length > MAX_ZIP16) {
+        throw new Error(`ZIP entry name exceeds 65535 bytes: ${entry.archiveName}`);
+    }
+
+    const utf8Flag = /^[\x00-\x7F]*$/.test(entry.archiveName) ? 0 : ZIP_FLAG_UTF8;
+    const { dosTime, dosDate } = dosDateTime(stat.mtime);
+    return {
+        archiveName: entry.archiveName,
+        nameBytes,
+        data,
+        crc: crc32(source),
+        compressedSize: data.length,
+        uncompressedSize: source.length,
+        method: useDeflate ? ZIP_METHOD_DEFLATE : ZIP_METHOD_STORE,
+        flags: utf8Flag | (useDeflate ? ZIP_FLAG_DEFLATE_MAXIMUM : 0),
+        dosTime,
+        dosDate,
+    };
+}
+
+function localFileHeader(entry: PreparedZipEntry): Buffer {
+    const header = Buffer.alloc(30 + entry.nameBytes.length);
+    header.writeUInt32LE(ZIP_LOCAL_FILE_HEADER, 0);
+    header.writeUInt16LE(20, 4);
+    header.writeUInt16LE(entry.flags, 6);
+    header.writeUInt16LE(entry.method, 8);
+    header.writeUInt16LE(entry.dosTime, 10);
+    header.writeUInt16LE(entry.dosDate, 12);
+    header.writeUInt32LE(entry.crc, 14);
+    header.writeUInt32LE(entry.compressedSize, 18);
+    header.writeUInt32LE(entry.uncompressedSize, 22);
+    header.writeUInt16LE(entry.nameBytes.length, 26);
+    header.writeUInt16LE(0, 28);
+    entry.nameBytes.copy(header, 30);
+    return header;
+}
+
+function centralFileHeader(entry: CentralZipEntry): Buffer {
+    const header = Buffer.alloc(46 + entry.nameBytes.length);
+    header.writeUInt32LE(ZIP_CENTRAL_FILE_HEADER, 0);
+    header.writeUInt16LE(20, 4);
+    header.writeUInt16LE(20, 6);
+    header.writeUInt16LE(entry.flags, 8);
+    header.writeUInt16LE(entry.method, 10);
+    header.writeUInt16LE(entry.dosTime, 12);
+    header.writeUInt16LE(entry.dosDate, 14);
+    header.writeUInt32LE(entry.crc, 16);
+    header.writeUInt32LE(entry.compressedSize, 20);
+    header.writeUInt32LE(entry.uncompressedSize, 24);
+    header.writeUInt16LE(entry.nameBytes.length, 28);
+    header.writeUInt16LE(0, 30);
+    header.writeUInt16LE(0, 32);
+    header.writeUInt16LE(0, 34);
+    header.writeUInt16LE(0, 36);
+    header.writeUInt32LE(0, 38);
+    header.writeUInt32LE(entry.localHeaderOffset, 42);
+    entry.nameBytes.copy(header, 46);
+    return header;
+}
+
+function endOfCentralDirectory(entryCount: number, directorySize: number, directoryOffset: number): Buffer {
+    const footer = Buffer.alloc(22);
+    footer.writeUInt32LE(ZIP_END_OF_CENTRAL_DIRECTORY, 0);
+    footer.writeUInt16LE(0, 4);
+    footer.writeUInt16LE(0, 6);
+    footer.writeUInt16LE(entryCount, 8);
+    footer.writeUInt16LE(entryCount, 10);
+    footer.writeUInt32LE(directorySize, 12);
+    footer.writeUInt32LE(directoryOffset, 16);
+    footer.writeUInt16LE(0, 20);
+    return footer;
+}
+
+async function writeAt(
+    output: fs.promises.FileHandle,
+    data: Uint8Array,
+    position: number
+): Promise<number> {
+    let written = 0;
+    while (written < data.length) {
+        const result = await output.write(data, written, data.length - written, position + written);
+        if (result.bytesWritten === 0) {
+            throw new Error('Failed to make progress while writing PK3');
+        }
+        written += result.bytesWritten;
+    }
+    return position + written;
+}
+
+async function writeCompatibleZip(
+    fileEntries: readonly FileEntry[],
     outPath: string,
     onProgress?: (message: string) => void
 ): Promise<void> {
-    await new Promise<void>((resolve, reject) => {
-        const output = fs.createWriteStream(outPath);
-        let settled = false;
+    if (fileEntries.length > MAX_ZIP16) {
+        throw new Error(`PK3 has ${fileEntries.length} files; Zandronum supports at most 65535`);
+    }
 
-        const fail = (err: Error) => {
-            if (settled) { return; }
-            settled = true;
-            output.destroy();
-            reject(err);
-        };
+    const sortedEntries = [...fileEntries].sort((a, b) =>
+        a.archiveName < b.archiveName ? -1 : a.archiveName > b.archiveName ? 1 : 0
+    );
+    const centralEntries: CentralZipEntry[] = [];
+    const output = await fs.promises.open(outPath, 'w');
+    let position = 0;
 
-        output.on('error', fail);
-
-        const zip = new Zip((err, data, final) => {
-            if (err) {
-                fail(err instanceof Error ? err : new Error(String(err)));
-                return;
-            }
-            if (!output.write(data) && !final) {
-                // backpressure ignored for simplicity; store ZIP chunks are small headers + data
-            }
-            if (final) {
-                output.end(() => {
-                    if (!settled) {
-                        settled = true;
-                        resolve();
-                    }
-                });
-            }
-        });
-
-        (async () => {
-            let fileCount = 0;
-            for (let i = 0; i < fileEntries.length; i += MAX_CONCURRENT_READS) {
-                const batch = fileEntries.slice(i, i + MAX_CONCURRENT_READS);
-                const files = await readBatch(batch);
-                for (const f of files) {
-                    const name = normalizeZipEntryName(f.archiveName);
-                    if (!name) { continue; }
-                    const entry = new ZipPassThrough(name);
-                    zip.add(entry);
-                    // Copy into a standalone Uint8Array — ZipPassThrough may retain the view.
-                    entry.push(Uint8Array.from(f.data), true);
-                    fileCount++;
+    try {
+        for (let i = 0; i < sortedEntries.length; i += MAX_CONCURRENT_PREPARES) {
+            const batch = sortedEntries.slice(i, i + MAX_CONCURRENT_PREPARES);
+            const prepared = await Promise.all(batch.map(prepareZipEntry));
+            for (const entry of prepared) {
+                const header = localFileHeader(entry);
+                const nextPosition = position + header.length + entry.data.length;
+                if (nextPosition > MAX_ZIP32) {
+                    throw new Error('PK3 exceeds the 4 GiB limit supported by Zandronum');
                 }
-                onProgress?.(`${fileCount}/${fileEntries.length} files`);
+                const { data: _data, ...metadata } = entry;
+                centralEntries.push({ ...metadata, localHeaderOffset: position });
+                position = await writeAt(output, header, position);
+                position = await writeAt(output, entry.data, position);
             }
-            zip.end();
-        })().catch(fail);
-    });
+            onProgress?.(`${Math.min(i + batch.length, sortedEntries.length)}/${sortedEntries.length} files`);
+        }
+
+        const directoryOffset = position;
+        for (const entry of centralEntries) {
+            position = await writeAt(output, centralFileHeader(entry), position);
+        }
+        const directorySize = position - directoryOffset;
+        if (position + 22 > MAX_ZIP32) {
+            throw new Error('PK3 central directory exceeds the 4 GiB limit supported by Zandronum');
+        }
+        await writeAt(
+            output,
+            endOfCentralDirectory(centralEntries.length, directorySize, directoryOffset),
+            position
+        );
+    } finally {
+        await output.close();
+    }
 }

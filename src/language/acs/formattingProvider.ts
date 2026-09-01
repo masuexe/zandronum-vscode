@@ -29,6 +29,11 @@ export interface LeadingEdit {
 
 const HASH_RE = /^#/;
 
+/** ACC string literals use `"` or `'`; close only on the matching quote. */
+function isAcsStringQuote(ch: string): boolean {
+    return ch === '"' || ch === "'";
+}
+
 /**
  * Strip comments (and optionally strings) for structural scanning.
  * Carries block-comment state across lines; strings do not span lines (ACS).
@@ -44,7 +49,7 @@ export function structuralLine(
     let code = '';
     let i = 0;
     let inBlock = inBlockComment;
-    let inString = false;
+    let stringQuote: string | undefined;
 
     while (i < line.length) {
         const ch = line[i];
@@ -60,15 +65,15 @@ export function structuralLine(
             continue;
         }
 
-        if (inString) {
+        if (stringQuote !== undefined) {
             code += ch;
             if (ch === '\\' && next !== undefined) {
                 code += next;
                 i += 2;
                 continue;
             }
-            if (ch === '"') {
-                inString = false;
+            if (ch === stringQuote) {
+                stringQuote = undefined;
             }
             i++;
             continue;
@@ -82,8 +87,8 @@ export function structuralLine(
             i += 2;
             continue;
         }
-        if (ch === '"') {
-            inString = true;
+        if (isAcsStringQuote(ch)) {
+            stringQuote = ch;
             code += ch;
             i++;
             continue;
@@ -140,7 +145,7 @@ function formatLineCommentSpacingLine(
     let out = '';
     let i = 0;
     let inBlock = inBlockComment;
-    let inString = false;
+    let stringQuote: string | undefined;
 
     while (i < line.length) {
         const ch = line[i];
@@ -158,15 +163,15 @@ function formatLineCommentSpacingLine(
             continue;
         }
 
-        if (inString) {
+        if (stringQuote !== undefined) {
             out += ch;
             if (ch === '\\' && next !== undefined) {
                 out += next;
                 i += 2;
                 continue;
             }
-            if (ch === '"') {
-                inString = false;
+            if (ch === stringQuote) {
+                stringQuote = undefined;
             }
             i++;
             continue;
@@ -181,8 +186,8 @@ function formatLineCommentSpacingLine(
             i += 2;
             continue;
         }
-        if (ch === '"') {
-            inString = true;
+        if (isAcsStringQuote(ch)) {
+            stringQuote = ch;
             out += ch;
             i++;
             continue;
@@ -312,7 +317,7 @@ function inRange(line: number, startLine: number, endLine: number): boolean {
 function hasLineComment(line: string, inBlockComment: boolean): boolean {
     let i = 0;
     let inBlock = inBlockComment;
-    let inString = false;
+    let stringQuote: string | undefined;
     while (i < line.length) {
         const ch = line[i];
         const next = line[i + 1];
@@ -325,13 +330,13 @@ function hasLineComment(line: string, inBlockComment: boolean): boolean {
             i++;
             continue;
         }
-        if (inString) {
+        if (stringQuote !== undefined) {
             if (ch === '\\' && next !== undefined) {
                 i += 2;
                 continue;
             }
-            if (ch === '"') {
-                inString = false;
+            if (ch === stringQuote) {
+                stringQuote = undefined;
             }
             i++;
             continue;
@@ -342,8 +347,8 @@ function hasLineComment(line: string, inBlockComment: boolean): boolean {
         if (ch === '/' && next === '*') {
             return true;
         }
-        if (ch === '"') {
-            inString = true;
+        if (isAcsStringQuote(ch)) {
+            stringQuote = ch;
         }
         i++;
     }
@@ -379,17 +384,17 @@ function findFirstStructuralOpenBrace(line: string, inBlockComment: boolean): nu
         return -1;
     }
     let i = 0;
-    let inString = false;
+    let stringQuote: string | undefined;
     while (i < line.length) {
         const ch = line[i];
         const next = line[i + 1];
-        if (inString) {
+        if (stringQuote !== undefined) {
             if (ch === '\\' && next !== undefined) {
                 i += 2;
                 continue;
             }
-            if (ch === '"') {
-                inString = false;
+            if (ch === stringQuote) {
+                stringQuote = undefined;
             }
             i++;
             continue;
@@ -400,8 +405,8 @@ function findFirstStructuralOpenBrace(line: string, inBlockComment: boolean): nu
         if (ch === '/' && next === '*') {
             return -1;
         }
-        if (ch === '"') {
-            inString = true;
+        if (isAcsStringQuote(ch)) {
+            stringQuote = ch;
             i++;
             continue;
         }
@@ -610,7 +615,7 @@ function formatSpaceAfterCommaLine(
     let out = '';
     let i = 0;
     let inBlock = inBlockComment;
-    let inString = false;
+    let stringQuote: string | undefined;
 
     while (i < line.length) {
         const ch = line[i];
@@ -628,15 +633,15 @@ function formatSpaceAfterCommaLine(
             continue;
         }
 
-        if (inString) {
+        if (stringQuote !== undefined) {
             out += ch;
             if (ch === '\\' && next !== undefined) {
                 out += next;
                 i += 2;
                 continue;
             }
-            if (ch === '"') {
-                inString = false;
+            if (ch === stringQuote) {
+                stringQuote = undefined;
             }
             i++;
             continue;
@@ -652,8 +657,8 @@ function formatSpaceAfterCommaLine(
             i += 2;
             continue;
         }
-        if (ch === '"') {
-            inString = true;
+        if (isAcsStringQuote(ch)) {
+            stringQuote = ch;
             out += ch;
             i++;
             continue;
@@ -760,7 +765,7 @@ function formatControlFlowSpacingLine(
     let out = '';
     let i = 0;
     let inBlock = inBlockComment;
-    let inString = false;
+    let stringQuote: string | undefined;
 
     while (i < line.length) {
         const ch = line[i];
@@ -778,15 +783,15 @@ function formatControlFlowSpacingLine(
             continue;
         }
 
-        if (inString) {
+        if (stringQuote !== undefined) {
             out += ch;
             if (ch === '\\' && next !== undefined) {
                 out += next;
                 i += 2;
                 continue;
             }
-            if (ch === '"') {
-                inString = false;
+            if (ch === stringQuote) {
+                stringQuote = undefined;
             }
             i++;
             continue;
@@ -802,8 +807,8 @@ function formatControlFlowSpacingLine(
             i += 2;
             continue;
         }
-        if (ch === '"') {
-            inString = true;
+        if (isAcsStringQuote(ch)) {
+            stringQuote = ch;
             out += ch;
             i++;
             continue;
@@ -997,7 +1002,7 @@ function needsSpaceBeforeCallParen(kind: ExprKind, text: string): boolean {
     }
     const last = text[text.length - 1];
     // script 1 (void) / script "name" (void) — not a function call
-    return last === '"' || (last !== undefined && last >= '0' && last <= '9');
+    return last === '"' || last === "'" || (last !== undefined && last >= '0' && last <= '9');
 }
 
 /**
@@ -1014,7 +1019,7 @@ function formatCallAndOperatorSpacingLine(
     let out = line.slice(0, leadLen);
     let i = leadLen;
     let inBlock = inBlockComment;
-    let inString = false;
+    let stringQuote: string | undefined;
     let lastKind: ExprKind = 'start';
     let pendingCaseLabelColon = false;
 
@@ -1049,15 +1054,15 @@ function formatCallAndOperatorSpacingLine(
             continue;
         }
 
-        if (inString) {
+        if (stringQuote !== undefined) {
             out += ch;
             if (ch === '\\' && next !== undefined) {
                 out += next;
                 i += 2;
                 continue;
             }
-            if (ch === '"') {
-                inString = false;
+            if (ch === stringQuote) {
+                stringQuote = undefined;
             }
             i++;
             lastKind = 'value';
@@ -1080,11 +1085,11 @@ function formatCallAndOperatorSpacingLine(
             i += 2;
             continue;
         }
-        if (ch === '"') {
+        if (isAcsStringQuote(ch)) {
             if (needsSpaceBeforeValue(prevKind)) {
                 out = ensureSpaceBefore(out);
             }
-            inString = true;
+            stringQuote = ch;
             out += ch;
             i++;
             lastKind = 'value';

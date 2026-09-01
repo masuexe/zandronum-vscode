@@ -659,6 +659,20 @@ suite('acsFormat — control flow spacing', () => {
 		assert.strictEqual(out[3], '    if (tid == 0XFF)');
 	});
 
+	test('does not rewrite single-quoted string literals', () => {
+		const input = [
+			'script 1 (void)',
+			'{',
+			"if (GetChar(wep, len - 3) == '_')",
+			'{',
+			'}',
+			'}',
+		].join('\n');
+
+		const out = format(input).split('\n');
+		assert.strictEqual(out[2], "    if (GetChar(wep, len - 3) == '_')");
+	});
+
 	test('inserts space before comparison after a call', () => {
 		const input = [
 			'script 1 (void)',

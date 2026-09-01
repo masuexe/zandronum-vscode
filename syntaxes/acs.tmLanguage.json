@@ -83,6 +83,18 @@
 							"match": "\\\\."
 						}
 					]
+				},
+				{
+					"name": "string.quoted.single.acs",
+					"begin": "'",
+					"end": "'",
+					"comment": "ACC character constant (token.c): 'A', '\\n', '\\x41' → TK_NUMBER (ASCII), not a string",
+					"patterns": [
+						{
+							"name": "constant.character.escape.acs",
+							"match": "\\\\(?:[0-7]{1,4}|[xX][0-9a-fA-F]+|[abtvnfr'\\\\])"
+						}
+					]
 				}
 			]
 		},

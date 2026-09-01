@@ -11,22 +11,29 @@ const legend = new vscode.SemanticTokensLegend(
 
 function getStringRanges(text: string): Array<{ start: number; end: number }> {
     const ranges: Array<{ start: number; end: number }> = [];
-    let inString = false;
+    let quote: '"' | "'" | undefined;
     let stringStart = -1;
 
     for (let i = 0; i < text.length; i++) {
-        if (text[i] === '"') {
-            if (!inString) {
-                stringStart = i + 1;
-                inString = true;
-            } else {
-                ranges.push({ start: stringStart, end: i });
-                inString = false;
+        const ch = text[i];
+        if (quote !== undefined) {
+            if (ch === '\\' && i + 1 < text.length) {
+                i++;
+                continue;
             }
+            if (ch === quote) {
+                ranges.push({ start: stringStart, end: i });
+                quote = undefined;
+            }
+            continue;
+        }
+        if (ch === '"' || ch === "'") {
+            quote = ch;
+            stringStart = i + 1;
         }
     }
 
-    if (inString) {
+    if (quote !== undefined) {
         ranges.push({ start: stringStart, end: text.length });
     }
 

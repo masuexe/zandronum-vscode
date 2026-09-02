@@ -467,7 +467,8 @@
     },
     "configurationDefaults": {
       "[textures]": {
-        "editor.colorDecoratorsLimit": 10000
+        "editor.colorDecoratorsLimit": 10000,
+        "editor.defaultFormatter": "zandronum.zandronum-vscode"
       },
       "[decorate]": {
         "editor.colorDecoratorsLimit": 10000,

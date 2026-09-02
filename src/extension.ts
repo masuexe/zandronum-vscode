@@ -33,6 +33,7 @@ import { registerTexturesSymbolProvider } from './language/textures/symbolProvid
 import { registerTexturesHoverProvider } from './language/textures/hoverProvider';
 import { registerTexturesFoldingProvider } from './language/textures/foldingProvider';
 import { registerTexturesColorProvider } from './language/textures/colorProvider';
+import { registerTexturesFormattingProvider } from './language/textures/formattingProvider';
 import { getPk3Root } from './shared/pk3Root';
 import { ResourceIndex } from './language/textures/resourceIndex';
 import { TextureEditorRegistry } from './language/textures/textureDocumentController';
@@ -287,6 +288,7 @@ export function activate(context: vscode.ExtensionContext) {
     registerTexturesHoverProvider(context, texturesData);
     registerTexturesFoldingProvider(context, texturesParser);
     registerTexturesColorProvider(context);
+    registerTexturesFormattingProvider(context);
 
     const textureEditorRegistry = new TextureEditorRegistry();
     context.subscriptions.push({ dispose: () => textureEditorRegistry.dispose() });

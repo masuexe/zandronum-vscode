@@ -1,5 +1,6 @@
 import * as vscode from 'vscode';
 import { hasExistingCallParen } from '../../../shared/snippetBuilder';
+import { hashDirectiveNameMatch } from './acsDirectives';
 
 export interface CompletionContext {
     inFunctionCall: boolean;
@@ -9,6 +10,11 @@ export interface CompletionContext {
     insideString: boolean;
     insideComment: boolean;
     insideInclude: boolean;
+    /** Completing the token after `#` at file scope (`#inc|`). */
+    insideHashDirective: boolean;
+    directiveHashCharacter?: number;
+    line?: number;
+    character?: number;
     wordPrefix: string;
     braceDepth: number;
     filePath: string;
@@ -30,11 +36,12 @@ export function buildCompletionContext(
     let insideComment = false;
     let insideInclude = false;
 
-    // Check if inside include path
-    const includeMatch = /^\s*#\s*include\s+"([^"]*)$/i.exec(textBeforeCursor);
+    const includeMatch = /^\s*#\s*(?:include|import)\s+"([^"]*)$/i.exec(textBeforeCursor);
     if (includeMatch) {
         insideInclude = true;
     }
+
+    const hashDirective = hashDirectiveNameMatch(textBeforeCursor);
 
     // Check if inside string
     let inStr = false;
@@ -156,6 +163,10 @@ export function buildCompletionContext(
         insideString,
         insideComment,
         insideInclude,
+        insideHashDirective: hashDirective !== null,
+        directiveHashCharacter: hashDirective?.hashCol,
+        line: position.line,
+        character: position.character,
         wordPrefix: prefix,
         braceDepth: depthBefore,
         filePath: document.uri.fsPath,

@@ -10,7 +10,7 @@ export class BaseAcsSymbolSource implements CompletionSource {
     constructor(private readonly symbolDb: SymbolDatabase) {}
 
     canProvide(context: CompletionContext): boolean {
-        if (context.insideComment || context.insideString) { return false; }
+        if (context.insideComment || context.insideString || context.insideHashDirective) { return false; }
         return context.wordPrefix.length > 0;
     }
 

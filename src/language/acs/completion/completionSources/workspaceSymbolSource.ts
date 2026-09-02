@@ -4,7 +4,7 @@ import { makeVariableItem, makeConstantItem } from '../completionItemFactory';
 
 export class WorkspaceSymbolSource implements CompletionSource {
     canProvide(context: CompletionContext): boolean {
-        if (context.insideComment || context.insideString) return false;
+        if (context.insideComment || context.insideString || context.insideHashDirective) return false;
         return context.wordPrefix.length > 0;
     }
 

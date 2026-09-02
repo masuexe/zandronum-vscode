@@ -51,7 +51,7 @@
 			"patterns": [
 				{
 					"name": "keyword.control.preprocessor.acs",
-					"match": "(?i)^\\s*#\\s*(?:include|undef|import|library|ifdef|ifndef|else|endif|pragma|wadauthor)\\b"
+					"match": "(?i)^\\s*#\\s*(?:include|import|library|nocompact|wadauthor|nowadauthor|encryptstrings)\\b"
 				},
 				{
 					"match": "(?i)(#\\s*(?:libdefine|define))\\s+([A-Za-z_][A-Za-z0-9_]*)",

@@ -5,7 +5,7 @@ import { formatCompletionDetail } from '../../../../shared/signatureBuilder';
 
 export class BuiltinApiSource implements CompletionSource {
     canProvide(context: CompletionContext): boolean {
-        if (context.insideComment || context.insideString) return false;
+        if (context.insideComment || context.insideString || context.insideHashDirective) return false;
         return context.inFunctionCall || context.wordPrefix.length > 0;
     }
 

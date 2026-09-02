@@ -12,7 +12,7 @@ const KEYWORDS = [
 
 export class LanguageKeywordSource implements CompletionSource {
     canProvide(context: CompletionContext): boolean {
-        return context.scope === 'global' && context.wordPrefix.length > 0;
+        return !context.insideHashDirective && context.scope === 'global' && context.wordPrefix.length > 0;
     }
 
     provide(context: CompletionContext, _deps: SourceDependencies): vscode.CompletionItem[] {

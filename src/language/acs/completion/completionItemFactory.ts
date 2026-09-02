@@ -1,5 +1,6 @@
 import * as vscode from 'vscode';
 import { CompletionPriority, makeSortText } from './completionPriority';
+import { AcsDirective } from './acsDirectives';
 
 export function makeFunctionItem(
     name: string,
@@ -40,6 +41,23 @@ export function makeKeywordItem(keyword: string): vscode.CompletionItem {
     const item = new vscode.CompletionItem(keyword, vscode.CompletionItemKind.Keyword);
     item.detail = 'ACS Keyword';
     item.sortText = makeSortText(CompletionPriority.Keyword, keyword);
+    return item;
+}
+
+export function makeDirectiveItem(
+    directive: AcsDirective,
+    replaceRange: vscode.Range
+): vscode.CompletionItem {
+    const item = new vscode.CompletionItem(
+        `#${directive.name}`,
+        directive.snippet ? vscode.CompletionItemKind.Snippet : vscode.CompletionItemKind.Keyword
+    );
+    item.detail = 'ACS Directive';
+    item.documentation = directive.detail;
+    item.sortText = makeSortText(CompletionPriority.Keyword, directive.name);
+    item.filterText = `#${directive.name}`;
+    item.range = replaceRange;
+    item.insertText = new vscode.SnippetString(`#${directive.snippet ?? directive.name}`);
     return item;
 }
 

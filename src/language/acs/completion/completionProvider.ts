@@ -7,6 +7,7 @@ import { LanguageKeywordSource } from './completionSources/languageKeywordSource
 import { BuiltinApiSource } from './completionSources/builtinApiSource';
 import { WorkspaceSymbolSource } from './completionSources/workspaceSymbolSource';
 import { BaseAcsSymbolSource } from './completionSources/baseAcsSymbolSource';
+import { PreprocessorDirectiveSource } from './completionSources/preprocessorDirectiveSource';
 import { createFunctionRepository } from './repositories/functionRepository';
 import { createConstantRepository } from './repositories/constantRepository';
 import { SymbolDatabase } from '../../../base/symbolDatabase';
@@ -19,6 +20,7 @@ export function registerAcsCompletionProvider(
     symbolDb?: SymbolDatabase,
 ) {
     const sources: CompletionSource[] = [
+        new PreprocessorDirectiveSource(),
         new LanguageKeywordSource(),
         new BuiltinApiSource(),
         new WorkspaceSymbolSource(),
@@ -60,7 +62,7 @@ export function registerAcsCompletionProvider(
                     return items;
                 }
             },
-            '(', ',', '|'
+            '#', '(', ',', '|'
         )
     );
 }

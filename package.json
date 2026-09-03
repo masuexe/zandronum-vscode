@@ -404,6 +404,15 @@
           "type": "boolean",
           "default": true,
           "description": "When true, ACS formatter removes blank lines immediately above a closing `}`."
+        },
+        "zandronum-vscode.sbarinfo.format.braceStyle": {
+          "type": "string",
+          "enum": [
+            "nextLine",
+            "sameLine"
+          ],
+          "default": "nextLine",
+          "description": "Where `{` goes for SBARINFO blocks (`StatusBar`, `InInventory`, `else`, …). \"nextLine\" is Allman style (default, same as ACS/DECORATE); \"sameLine\" uses `InInventory Foo, 1 {` / `else {`."
         }
       }
     },

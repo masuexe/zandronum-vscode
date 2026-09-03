@@ -1,8 +1,18 @@
 import * as assert from 'assert';
-import { formatSbarinfoLines } from '../language/sbarinfo/formattingProvider';
+import {
+	SbarinfoFormatOptions,
+	formatSbarinfoLines,
+} from '../language/sbarinfo/formattingProvider';
 
-function format(src: string): string {
-	return formatSbarinfoLines(src.split('\n')).join('\n');
+const defaultOpts: SbarinfoFormatOptions = {
+	tabSize: 2,
+	insertSpaces: true,
+	braceStyle: 'nextLine',
+};
+
+function format(src: string, opts: Partial<SbarinfoFormatOptions> = {}): string {
+	const options: SbarinfoFormatOptions = { ...defaultOpts, ...opts };
+	return formatSbarinfoLines(src.split('\n'), options).join('\n');
 }
 
 suite('sbarinfoFormat — space after comma', () => {
@@ -22,16 +32,64 @@ suite('sbarinfoFormat — space after comma', () => {
 	});
 });
 
-suite('sbarinfoFormat — space before open brace', () => {
-	test('inserts a space before same-line {', () => {
-		const out = format('StatusBar Fullscreen{').split('\n');
-		assert.strictEqual(out[0], 'StatusBar Fullscreen {');
+suite('sbarinfoFormat — brace style and indent', () => {
+	test('keeps Allman braces and indents the body', () => {
+		const input = [
+			'InInventory GammaPlayerPowerHP, 1',
+			'{',
+			'DrawImage "GAMA2FHX", 18, -1;',
+			'DrawBar "GAMA2PH0", "NOBAR", GammaPlayerHealth, vertical, 24, 8;',
+			'}',
+			'else',
+			'{',
+			'DrawBar "BARHEALT", "GAMA2ECX", GammaPlayerHealth, vertical, 24, 8;',
+			'}',
+		].join('\n');
+
+		const expected = [
+			'InInventory GammaPlayerPowerHP, 1',
+			'{',
+			'  DrawImage "GAMA2FHX", 18, -1;',
+			'  DrawBar "GAMA2PH0", "NOBAR", GammaPlayerHealth, vertical, 24, 8;',
+			'}',
+			'else',
+			'{',
+			'  DrawBar "BARHEALT", "GAMA2ECX", GammaPlayerHealth, vertical, 24, 8;',
+			'}',
+		].join('\n');
+
+		assert.strictEqual(format(input), expected);
+		assert.strictEqual(format(expected), expected);
 	});
 
-	test('leaves a standalone open brace unchanged', () => {
-		const input = ['StatusBar Fullscreen', '{', '}'].join('\n');
-		const out = format(input).split('\n');
+	test('splits same-line braces to nextLine by default', () => {
+		const out = format('StatusBar Fullscreen{').split('\n');
+		assert.strictEqual(out[0], 'StatusBar Fullscreen');
 		assert.strictEqual(out[1], '{');
+	});
+
+	test('sameLine merges Allman braces onto the header', () => {
+		const input = [
+			'InInventory GammaPlayerPowerHP, 1',
+			'{',
+			'DrawImage "GAMA2FHX", 18, -1;',
+			'}',
+			'else',
+			'{',
+			'DrawBar "BARHEALT", "GAMA2ECX", GammaPlayerHealth, vertical, 24, 8;',
+			'}',
+		].join('\n');
+
+		const expected = [
+			'InInventory GammaPlayerPowerHP, 1 {',
+			'  DrawImage "GAMA2FHX", 18, -1;',
+			'}',
+			'else {',
+			'  DrawBar "BARHEALT", "GAMA2ECX", GammaPlayerHealth, vertical, 24, 8;',
+			'}',
+		].join('\n');
+
+		assert.strictEqual(format(input, { braceStyle: 'sameLine' }), expected);
 	});
 
 	test('does not change { inside strings', () => {

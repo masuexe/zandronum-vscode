@@ -35,6 +35,7 @@ import { registerTexturesFoldingProvider } from './language/textures/foldingProv
 import { registerTexturesColorProvider } from './language/textures/colorProvider';
 import { registerTexturesFormattingProvider } from './language/textures/formattingProvider';
 import { registerSbarinfoFormattingProvider } from './language/sbarinfo/formattingProvider';
+import { registerSbarinfoDefinitionProvider } from './language/sbarinfo/definitionProvider';
 import { getPk3Root } from './shared/pk3Root';
 import { ResourceIndex } from './language/textures/resourceIndex';
 import { TextureEditorRegistry } from './language/textures/textureDocumentController';
@@ -291,6 +292,7 @@ export function activate(context: vscode.ExtensionContext) {
     registerTexturesColorProvider(context);
     registerTexturesFormattingProvider(context);
     registerSbarinfoFormattingProvider(context);
+    registerSbarinfoDefinitionProvider(context, symbolDatabase);
 
     const textureEditorRegistry = new TextureEditorRegistry();
     context.subscriptions.push({ dispose: () => textureEditorRegistry.dispose() });

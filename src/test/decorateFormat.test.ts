@@ -767,6 +767,35 @@ suite('decorateFormat — Damage paren spacing', () => {
 	});
 });
 
+suite('decorateFormat — compact same-line actor', () => {
+	test('spaces before { and after label colon without expanding the line', () => {
+		const input =
+			'actor RedWarriorShot21 : RedWarriorShot1{Obituary "$OB_44M21" Damage (100-5+5) radius 9 height 9 speed 55 scale 2.5 States{Spawn:goto S_1B}}';
+		const expected =
+			'actor RedWarriorShot21 : RedWarriorShot1 {Obituary "$OB_44M21" Damage (100-5+5) radius 9 height 9 speed 55 scale 2.5 States {Spawn: goto S_1B}}';
+
+		assert.strictEqual(format(input), expected);
+		assert.strictEqual(format(expected), expected);
+	});
+
+	test('does not insert a space after { before code', () => {
+		const input = 'Actor Foo{Health 1}';
+		assert.strictEqual(format(input), 'Actor Foo {Health 1}');
+	});
+
+	test('does not change braces inside strings', () => {
+		const input = [
+			'Actor Foo',
+			'{',
+			'Obituary "a{b}"',
+			'}',
+		].join('\n');
+
+		const out = format(input).split('\n');
+		assert.strictEqual(out[2], '  Obituary "a{b}"');
+	});
+});
+
 suite('decorateFormat — spaceAfterColon', () => {
 	test('inserts one space after colons between same-line labels', () => {
 		const input = [

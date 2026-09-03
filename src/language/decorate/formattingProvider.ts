@@ -861,6 +861,102 @@ function applyDamageParenSpacing(
 }
 
 /**
+ * Compact DECORATE: `Parent{` / `States{` → `Parent {` / `States {`.
+ * Does not insert a space after `{` (`{Obituary` stays tight).
+ */
+function formatSpaceBeforeBraceLine(
+    line: string,
+    inBlockComment: boolean
+): { text: string; inBlockComment: boolean } {
+    let out = '';
+    let i = 0;
+    let inBlock = inBlockComment;
+    let inString = false;
+
+    while (i < line.length) {
+        const ch = line[i];
+        const next = line[i + 1];
+
+        if (inBlock) {
+            out += ch;
+            if (ch === '*' && next === '/') {
+                out += next;
+                inBlock = false;
+                i += 2;
+                continue;
+            }
+            i++;
+            continue;
+        }
+
+        if (inString) {
+            out += ch;
+            if (ch === '\\' && next !== undefined) {
+                out += next;
+                i += 2;
+                continue;
+            }
+            if (ch === '"') {
+                inString = false;
+            }
+            i++;
+            continue;
+        }
+
+        if (ch === '/' && next === '/') {
+            out += line.slice(i);
+            break;
+        }
+        if (ch === '/' && next === '*') {
+            out += '/*';
+            inBlock = true;
+            i += 2;
+            continue;
+        }
+        if (ch === '"') {
+            inString = true;
+            out += ch;
+            i++;
+            continue;
+        }
+
+        if (ch === '{') {
+            if (out.length > 0) {
+                const prev = out[out.length - 1];
+                if (prev !== ' ' && prev !== '\t') {
+                    out += ' ';
+                }
+            }
+            out += '{';
+            i++;
+            continue;
+        }
+
+        out += ch;
+        i++;
+    }
+
+    return { text: out, inBlockComment: inBlock };
+}
+
+function applySpaceBeforeBrace(
+    lines: readonly string[],
+    startLine: number,
+    endLine: number
+): string[] {
+    const out = lines.slice();
+    let inBlockComment = false;
+    for (let i = 0; i < out.length; i++) {
+        const formatted = formatSpaceBeforeBraceLine(out[i], inBlockComment);
+        inBlockComment = formatted.inBlockComment;
+        if (inRange(i, startLine, endLine)) {
+            out[i] = formatted.text;
+        }
+    }
+    return out;
+}
+
+/**
  * Drop blank / whitespace-only lines immediately above a closing `}`.
  * Only removes blanks when both those lines and the `}` fall inside [startLine, endLine].
  */
@@ -1074,8 +1170,13 @@ export function formatDecorateLines(
         stripped.startLine,
         stripped.endLine
     );
-    const commented = applyLineCommentSpacing(
+    const braceSpaced = applySpaceBeforeBrace(
         damageSpaced,
+        stripped.startLine,
+        stripped.endLine
+    );
+    const commented = applyLineCommentSpacing(
+        braceSpaced,
         stripped.startLine,
         stripped.endLine
     );

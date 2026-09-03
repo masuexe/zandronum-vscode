@@ -741,6 +741,125 @@ function applyCommaSpacing(
     return out;
 }
 
+function isIdentChar(ch: string): boolean {
+    return (ch >= 'A' && ch <= 'Z') || (ch >= 'a' && ch <= 'z') || (ch >= '0' && ch <= '9') || ch === '_';
+}
+
+function matchWordAt(line: string, index: number, word: string): boolean {
+    if (index > 0 && isIdentChar(line[index - 1])) {
+        return false;
+    }
+    if (index + word.length > line.length) {
+        return false;
+    }
+    for (let k = 0; k < word.length; k++) {
+        if (line[index + k].toLowerCase() !== word[k].toLowerCase()) {
+            return false;
+        }
+    }
+    const after = index + word.length;
+    return after >= line.length || !isIdentChar(line[after]);
+}
+
+/**
+ * Wiki-style `Damage (expr)` — space between the property and `(`.
+ * Does not touch DamageType / DamageFactor or state actions like A_Jump(.
+ */
+function formatDamageParenSpacingLine(
+    line: string,
+    inBlockComment: boolean
+): { text: string; inBlockComment: boolean } {
+    let out = '';
+    let i = 0;
+    let inBlock = inBlockComment;
+    let inString = false;
+
+    while (i < line.length) {
+        const ch = line[i];
+        const next = line[i + 1];
+
+        if (inBlock) {
+            out += ch;
+            if (ch === '*' && next === '/') {
+                out += next;
+                inBlock = false;
+                i += 2;
+                continue;
+            }
+            i++;
+            continue;
+        }
+
+        if (inString) {
+            out += ch;
+            if (ch === '\\' && next !== undefined) {
+                out += next;
+                i += 2;
+                continue;
+            }
+            if (ch === '"') {
+                inString = false;
+            }
+            i++;
+            continue;
+        }
+
+        if (ch === '/' && next === '/') {
+            out += line.slice(i);
+            break;
+        }
+        if (ch === '/' && next === '*') {
+            out += '/*';
+            inBlock = true;
+            i += 2;
+            continue;
+        }
+        if (ch === '"') {
+            inString = true;
+            out += ch;
+            i++;
+            continue;
+        }
+
+        if (matchWordAt(line, i, 'Damage')) {
+            const word = line.slice(i, i + 6);
+            out += word;
+            i += 6;
+            let j = i;
+            while (j < line.length && (line[j] === ' ' || line[j] === '\t')) {
+                j++;
+            }
+            if (j < line.length && line[j] === '(') {
+                out += ' ';
+                i = j;
+            }
+            continue;
+        }
+
+        out += ch;
+        i++;
+    }
+
+    return { text: out, inBlockComment: inBlock };
+}
+
+function applyDamageParenSpacing(
+    lines: readonly string[],
+    startLine: number,
+    endLine: number
+): string[] {
+    const out = lines.slice();
+    let inBlockComment = false;
+    for (let i = 0; i < out.length; i++) {
+        const formatted = formatDamageParenSpacingLine(out[i], inBlockComment);
+        inBlockComment = formatted.inBlockComment;
+        if (inRange(i, startLine, endLine)) {
+            out[i] = formatted.text;
+        }
+    }
+    return out;
+}
+
 /**
  * Drop blank / whitespace-only lines immediately above a closing `}`.
  * Only removes blanks when both those lines and the `}` fall inside [startLine, endLine].
@@ -950,8 +1069,13 @@ export function formatDecorateLines(
         stripped.startLine,
         stripped.endLine
     );
-    const commented = applyLineCommentSpacing(
+    const damageSpaced = applyDamageParenSpacing(
         commaed,
+        stripped.startLine,
+        stripped.endLine
+    );
+    const commented = applyLineCommentSpacing(
+        damageSpaced,
         stripped.startLine,
         stripped.endLine
     );

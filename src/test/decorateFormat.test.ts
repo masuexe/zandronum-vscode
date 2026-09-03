@@ -737,6 +737,36 @@ suite('decorateFormat — spaceAfterComma', () => {
 	});
 });
 
+suite('decorateFormat — Damage paren spacing', () => {
+	test('inserts a space between Damage and (', () => {
+		const input = [
+			'Actor Foo',
+			'{',
+			'Damage(200)',
+			'Damage(random(1, 8))',
+			'}',
+		].join('\n');
+
+		const out = format(input).split('\n');
+		assert.strictEqual(out[2], '  Damage (200)');
+		assert.strictEqual(out[3], '  Damage (random(1, 8))');
+	});
+
+	test('does not touch DamageType or action calls', () => {
+		const input = [
+			'Actor Foo',
+			'{',
+			'DamageType "Fire"',
+			'TNT1 A 0 A_Jump(256, "See")',
+			'}',
+		].join('\n');
+
+		const out = format(input).split('\n');
+		assert.strictEqual(out[2], '  DamageType "Fire"');
+		assert.strictEqual(out[3], '  TNT1 A 0 A_Jump(256, "See")');
+	});
+});
+
 suite('decorateFormat — spaceAfterColon', () => {
 	test('inserts one space after colons between same-line labels', () => {
 		const input = [

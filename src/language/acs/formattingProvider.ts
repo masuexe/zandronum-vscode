@@ -269,6 +269,56 @@ function lineOpensContinuation(commentStrippedTrim: string): boolean {
 const ACS_FLOW_STMT_RE =
     /^(?:suspend|terminate|restart|goto|break|continue|return|case|default|else|do|until)\b/i;
 
+const BINARY_CONTINUATION_TWO = [
+    '==',
+    '!=',
+    '<=',
+    '>=',
+    '&&',
+    '||',
+    '<<',
+    '>>',
+    '+=',
+    '-=',
+    '*=',
+    '/=',
+    '%=',
+    '&=',
+    '|=',
+    '^=',
+];
+
+/** clang BreakBeforeBinaryOperators / Prettier: `a` then newline `- b`. */
+function lineStartsWithBinaryContinuationOp(structuralTrim: string): boolean {
+    if (structuralTrim.length === 0) {
+        return false;
+    }
+    const two = structuralTrim.slice(0, 2);
+    if (BINARY_CONTINUATION_TWO.includes(two)) {
+        return true;
+    }
+    const one = structuralTrim[0];
+    return '+-*/%<>=&|^'.includes(one);
+}
+
+/**
+ * Previous line looks like an unfinished expression (`x = a`, not `return` / `x = a;`).
+ */
+function lineEndsIncompleteExpr(commentStrippedTrim: string): boolean {
+    if (commentStrippedTrim.length === 0 || HASH_RE.test(commentStrippedTrim)) {
+        return false;
+    }
+    const last = commentStrippedTrim[commentStrippedTrim.length - 1];
+    if (last === ';' || last === '{' || last === '}' || last === ',' || last === '(') {
+        return false;
+    }
+    const afterFlow = commentStrippedTrim.replace(ACS_FLOW_STMT_RE, '');
+    if (afterFlow !== commentStrippedTrim && afterFlow.trim().length === 0) {
+        return false;
+    }
+    return /[A-Za-z0-9_)"'\]]$/.test(commentStrippedTrim);
+}
+
 /**
  * True when this line continues a multi-line call / parameter list.
  * Leading whitespace is left alone so author alignment is preserved.
@@ -1039,7 +1089,8 @@ function formatCallAndOperatorSpacingLine(
     line: string,
     spaceAfterComma: boolean,
     spaceAfterControlKeyword: boolean,
-    inBlockComment: boolean
+    inBlockComment: boolean,
+    exprContinuation: boolean
 ): { text: string; inBlockComment: boolean } {
     const leadLen = leadingWhitespaceLength(line);
     let out = line.slice(0, leadLen);
@@ -1178,6 +1229,11 @@ function formatCallAndOperatorSpacingLine(
                 lastKind = prevKind === 'value' ? 'value' : 'prefix';
                 continue;
             }
+            if (exprContinuation && prevKind === 'start' && (op === '+' || op === '-')) {
+                emitBinary(op);
+                i += op.length;
+                continue;
+            }
             if (
                 op === '!' ||
                 ((op === '+' || op === '-') && (prevKind !== 'value' || pendingCaseLabelColon))
@@ -1304,16 +1360,25 @@ function applyCallAndOperatorSpacing(
 ): string[] {
     const out = lines.slice();
     let inBlockComment = false;
+    let prevIncompleteExpr = false;
     for (let i = 0; i < out.length; i++) {
+        const inBlockAtStart = inBlockComment;
         const formatted = formatCallAndOperatorSpacingLine(
             out[i],
             spaceAfterComma,
             spaceAfterControlKeyword,
-            inBlockComment
+            inBlockComment,
+            prevIncompleteExpr
         );
         inBlockComment = formatted.inBlockComment;
         if (inRange(i, startLine, endLine)) {
             out[i] = formatted.text;
+        }
+        if (out[i].trim().length > 0) {
+            const code = structuralLine(out[i], inBlockAtStart).code.trim();
+            if (code.length > 0) {
+                prevIncompleteExpr = lineEndsIncompleteExpr(code);
+            }
         }
     }
     return out;
@@ -1496,6 +1561,7 @@ export function computeAcsLeadingEdits(
     let depth = 0;
     let parenDepth = 0;
     let prevOpensContinuation = false;
+    let prevIncompleteExpr = false;
     let inBlockComment = false;
     /** Extra indent levels for a braceless `if` / `else` / `while` / `for` body. */
     let hangingExtra = 0;
@@ -1535,6 +1601,8 @@ export function computeAcsLeadingEdits(
             parenBefore,
             prevOpensContinuation
         );
+        const exprContinuation =
+            prevIncompleteExpr && lineStartsWithBinaryContinuationOp(structuralTrim);
 
         if (!isElseLine) {
             maybeElseExtra = 0;
@@ -1558,6 +1626,8 @@ export function computeAcsLeadingEdits(
         let newLeading: string | undefined;
         if (isBlank || continuation) {
             newLeading = undefined;
+        } else if (exprContinuation) {
+            newLeading = makeIndent(depthBefore + extra + 1, options);
         } else if (isHash) {
             newLeading = '';
         } else if (closesFirst) {
@@ -1621,6 +1691,10 @@ export function computeAcsLeadingEdits(
         parenDepth = parenAfter;
         if (!isBlank) {
             prevOpensContinuation = lineOpensContinuation(scanned.code.trim());
+            const code = scanned.code.trim();
+            if (code.length > 0) {
+                prevIncompleteExpr = lineEndsIncompleteExpr(code);
+            }
         }
     }
 

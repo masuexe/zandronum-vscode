@@ -899,6 +899,22 @@ suite('acsFormat — calls and continuations', () => {
 		assert.strictEqual(out[1], '                            int boxId)');
 	});
 
+	test('indents wrapped assignment operands one extra level', () => {
+		const input = [
+			'script 1 (void)',
+			'{',
+			'int id = UH_CUSTOM_BAR_STRING_ID',
+			'           - layer * UH_BAR_STRING_LAYER_STRIDE',
+			'           - position * 4;',
+			'}',
+		].join('\n');
+
+		const out = format(input).split('\n');
+		assert.strictEqual(out[2], '    int id = UH_CUSTOM_BAR_STRING_ID');
+		assert.strictEqual(out[3], '        - layer * UH_BAR_STRING_LAYER_STRIDE');
+		assert.strictEqual(out[4], '        - position * 4;');
+	});
+
 	test('indents every row of a brace array initializer', () => {
 		const input = [
 			'str lmsListArray[2][2]={',

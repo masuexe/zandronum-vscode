@@ -298,7 +298,7 @@ function lineStartsWithBinaryContinuationOp(structuralTrim: string): boolean {
         return true;
     }
     const one = structuralTrim[0];
-    return '+-*/%<>=&|^'.includes(one);
+    return '+-*/%<>=&|^?:'.includes(one);
 }
 
 /**
@@ -1043,7 +1043,8 @@ function readOperatorAt(line: string, index: number): string | undefined {
         return two;
     }
     const one = line[index];
-    if ('+-*/%<>=!&|^'.includes(one)) {
+    // `?` is the ternary operator (Google/Prettier: spaces on both sides).
+    if ('+-*/%<>=!&|^?'.includes(one)) {
         return one;
     }
     return undefined;
@@ -1099,6 +1100,8 @@ function formatCallAndOperatorSpacingLine(
     let stringQuote: string | undefined;
     let lastKind: ExprKind = 'start';
     let pendingCaseLabelColon = false;
+    /** Unmatched `?` count — colon is ternary only while this is > 0. */
+    let ternaryDepth = 0;
 
     const emitValue = (token: string): void => {
         if (needsSpaceBeforeValue(lastKind)) {
@@ -1253,6 +1256,9 @@ function formatCallAndOperatorSpacingLine(
                 continue;
             }
             emitBinary(op);
+            if (op === '?') {
+                ternaryDepth++;
+            }
             i += op.length;
             continue;
         }
@@ -1310,6 +1316,14 @@ function formatCallAndOperatorSpacingLine(
         }
 
         if (ch === ':') {
+            // Google style: spaces on both sides of ternary `:`.
+            // Printcasts (`s:"x"`), world/global slots (`1:name`), and case labels stay tight.
+            if (ternaryDepth > 0) {
+                emitBinary(':');
+                ternaryDepth--;
+                i++;
+                continue;
+            }
             out += ':';
             i++;
             if (pendingCaseLabelColon) {

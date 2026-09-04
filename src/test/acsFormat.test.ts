@@ -715,6 +715,34 @@ suite('acsFormat — control flow spacing', () => {
 		);
 	});
 
+	test('spaces both sides of ternary ? and : (Google style)', () => {
+		const input = [
+			'script 1 (void)',
+			'{',
+			'int a = 2?3:4;',
+			'int b = x?y?1:2:3;',
+			'}',
+		].join('\n');
+
+		const out = format(input).split('\n');
+		assert.strictEqual(out[2], '    int a = 2 ? 3 : 4;');
+		assert.strictEqual(out[3], '    int b = x ? y ? 1 : 2 : 3;');
+	});
+
+	test('keeps printcast and world/global colons tight beside ternaries', () => {
+		const input = [
+			'world int 1: name;',
+			'script 1 (void)',
+			'{',
+			'Print(s:a ? "y" : "n");',
+			'}',
+		].join('\n');
+
+		const out = format(input).split('\n');
+		assert.strictEqual(out[0], 'world int 1:name;');
+		assert.strictEqual(out[3], '    Print(s:a ? "y" : "n");');
+	});
+
 	test('keeps shift operators as one token', () => {
 		const input = [
 			'script 1 (void)',

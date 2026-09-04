@@ -796,6 +796,39 @@ suite('decorateFormat — compact same-line actor', () => {
 	});
 });
 
+suite('decorateFormat — ternary spacing', () => {
+	test('spaces both sides of ? and ternary : (Google style)', () => {
+		const input = [
+			'Actor Foo',
+			'{',
+			'Damage (2?3:4)',
+			'Damage (a?b?c:d:e)',
+			'}',
+		].join('\n');
+
+		const out = format(input).split('\n');
+		assert.strictEqual(out[2], '  Damage (2 ? 3 : 4)');
+		assert.strictEqual(out[3], '  Damage (a ? b ? c : d : e)');
+	});
+
+	test('keeps state label and :: colons unchanged', () => {
+		const input = [
+			'Actor Foo',
+			'{',
+			'States',
+			'{',
+			'Pain.Buster:Pain.ProtoBuster:',
+			'Goto Super::See',
+			'}',
+			'}',
+		].join('\n');
+
+		const out = format(input).split('\n');
+		assert.strictEqual(out[4], '  Pain.Buster: Pain.ProtoBuster:');
+		assert.strictEqual(out[5], '    Goto Super::See');
+	});
+});
+
 suite('decorateFormat — spaceAfterColon', () => {
 	test('inserts one space after colons between same-line labels', () => {
 		const input = [

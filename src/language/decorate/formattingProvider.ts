@@ -636,6 +636,38 @@ function formatSpaceAfterCommaLine(
     let i = 0;
     let inBlock = inBlockComment;
     let inString = false;
+    /** Unmatched `?` count — colon is ternary only while this is > 0. */
+    let ternaryDepth = 0;
+
+    const endsWithSpace = (): boolean => {
+        const ch = out[out.length - 1];
+        return ch === ' ' || ch === '\t';
+    };
+
+    const ensureSpaceBefore = (): void => {
+        if (out.length > 0 && !endsWithSpace()) {
+            out += ' ';
+        }
+    };
+
+    const emitSpaceAfterOp = (): void => {
+        let j = i;
+        while (j < line.length && (line[j] === ' ' || line[j] === '\t')) {
+            j++;
+        }
+        const atEnd = j >= line.length;
+        const startsComment =
+            j < line.length &&
+            line[j] === '/' &&
+            (line[j + 1] === '/' || line[j + 1] === '*');
+        if (atEnd || startsComment) {
+            out += line.slice(i, j);
+            i = j;
+            return;
+        }
+        out += ' ';
+        i = j;
+    };
 
     while (i < line.length) {
         const ch = line[i];
@@ -684,6 +716,16 @@ function formatSpaceAfterCommaLine(
             continue;
         }
 
+        // Google / Prettier: `cond ? then : else` — spaces on both sides.
+        if (ch === '?') {
+            ensureSpaceBefore();
+            out += '?';
+            i++;
+            ternaryDepth++;
+            emitSpaceAfterOp();
+            continue;
+        }
+
         // Class-scoped goto (`Super::See`) is one token — do not insert spaces.
         if (ch === ':' && next === ':') {
             out += '::';
@@ -691,9 +733,16 @@ function formatSpaceAfterCommaLine(
             continue;
         }
 
-        if (ch === ',' || ch === ':') {
-            const insertSpace = ch === ',' ? spaceAfter : true;
-            out += ch;
+        if (ch === ':') {
+            if (ternaryDepth > 0) {
+                ensureSpaceBefore();
+                out += ':';
+                i++;
+                ternaryDepth--;
+                emitSpaceAfterOp();
+                continue;
+            }
+            out += ':';
             i++;
             let j = i;
             while (j < line.length && (line[j] === ' ' || line[j] === '\t')) {
@@ -709,7 +758,29 @@ function formatSpaceAfterCommaLine(
                 i = j;
                 continue;
             }
-            if (insertSpace) {
+            out += ' ';
+            i = j;
+            continue;
+        }
+
+        if (ch === ',') {
+            out += ',';
+            i++;
+            let j = i;
+            while (j < line.length && (line[j] === ' ' || line[j] === '\t')) {
+                j++;
+            }
+            const atEnd = j >= line.length;
+            const startsComment =
+                j < line.length &&
+                line[j] === '/' &&
+                (line[j + 1] === '/' || line[j + 1] === '*');
+            if (atEnd || startsComment) {
+                out += line.slice(i, j);
+                i = j;
+                continue;
+            }
+            if (spaceAfter) {
                 out += ' ';
             }
             i = j;

@@ -111,7 +111,7 @@ Legacy aliases (`Build PK3`, `Run Zandronum`, and older compile/build combinatio
 | Setting | Default | Description |
 |---|---|---|
 | `zandronum-vscode.accPath` | `""` | Path to ACC executable (uses system PATH if empty) |
-| `zandronum-vscode.accIncludePaths` | `""` | Additional ACC include directories (`-i`), semicolon-separated |
+| `zandronum-vscode.accIncludePaths` | `""` | Extra ACC `-i` directories (semicolon-separated). Applied after auto-resolved include dirs; ACC honors at most 15 `-i` paths total |
 | `zandronum-vscode.accOutputDir` | `""` | Output directory for compiled `.o` files (relative to workspace). If empty, defaults to `<pk3Root>/acs` |
 | `zandronum-vscode.accConcurrency` | `0` | Max parallel ACC processes for multi-library builds. `0` = `min(4, CPU count)` |
 

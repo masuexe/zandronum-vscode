@@ -829,12 +829,21 @@ function parseAcsErrors(output): Map<string, Diagnostic[]> {
 
 ## Include Path Resolution for ACC
 
-ACC searches its **own executable directory** for standard libraries (`zcommon.acs`). Include path resolution must add the ACC directory. Also, add all **subdirectories of the source tree** so that `#include "common/file.acs"` works regardless of nesting.
+ACC searches its **own executable directory** for standard libraries (`zcommon.acs`).
+Zandronum ACC (`acc-branch-zandronum`) hard-limits include paths to `MAX_INCLUDE_PATHS` **16**,
+with slot 0 reserved for the file being parsed — so at most **15** `-i` directories are honored;
+further `-i` args are **silently dropped**.
+
+Do **not** dump every `acs_source` subdirectory into `-i` (deep trees overflow the limit;
+F12 still works via recursive `findFiles`, which is why editors can resolve includes ACC cannot).
 
 ```ts
-// Must include:
-// 1. ACC executable directory (for zcommon.acs etc.)
-// 2. Source directory + all subdirectories (for nested includes)
+// Must:
+// 1. Pass ACC executable directory (for zcommon.acs) — auto program-dir may not fit if -i is full
+// 2. Resolve #include/#import transitively; searchRoots = [workspace acs_source, ...base]
+//    (earlier root wins; exact-case basename before case-insensitive — Linux ACC is case-sensitive)
+// 3. Cap at ACC_MAX_CLI_INCLUDE_PATHS (15) and warn if truncated
+// Do not hardcode project folder names for include preference
 ```
 
 ## TypeScript Visibility for Registration Functions

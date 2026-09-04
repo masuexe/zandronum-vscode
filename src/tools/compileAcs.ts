@@ -7,6 +7,22 @@ import { buildPK3 } from './build';
 import { getPk3Root } from '../shared/pk3Root';
 import { getBaseAcsIncludeDirs, getBasePackagesForCompile } from '../base/baseAcsIncludes';
 import { collectLoadAcsEntries } from './loadAcsDiscovery';
+import {
+    ACC_MAX_CLI_INCLUDE_PATHS,
+    buildAccIncludePaths,
+    listDirectIncludeAndImportNames,
+} from './accIncludePaths';
+
+export {
+    ACC_MAX_CLI_INCLUDE_PATHS,
+    buildAccIncludePaths,
+    collectNeededIncludeDirs,
+    findAcsIncludeFile,
+} from './accIncludePaths';
+export type {
+    BuildAccIncludePathsOptions,
+    BuildAccIncludePathsResult,
+} from './accIncludePaths';
 
 function getAccPath(): string {
     const config = vscode.workspace.getConfiguration('zandronum-vscode');
@@ -74,93 +90,38 @@ function getAccDir(workspaceRoot: string): string | null {
     return null;
 }
 
-function discoverLibraryPaths(workspaceRoot: string, srcFile: string): string[] {
-    const dirs = new Set<string>();
-
-    function scanDir(dir: string) {
-        let entries: fs.Dirent[];
-        try { entries = fs.readdirSync(dir, { withFileTypes: true }); }
-        catch { return; }
-
-        for (const entry of entries) {
-            if (entry.name.startsWith('.') || entry.name === 'node_modules') continue;
-            const full = path.join(dir, entry.name);
-            if (entry.isDirectory()) {
-                scanDir(full);
-            } else if (entry.isFile() && entry.name.toLowerCase().endsWith('.acs')) {
-                const parent = path.dirname(full);
-                if (parent !== path.dirname(srcFile)) {
-                    dirs.add(parent);
-                }
-            }
-        }
-    }
-
-    scanDir(workspaceRoot);
-    return [...dirs];
-}
-
-function collectSubdirs(root: string, dirs: Set<string>) {
-    let entries: fs.Dirent[];
-    try { entries = fs.readdirSync(root, { withFileTypes: true }); }
-    catch { return; }
-
-    for (const entry of entries) {
-        if (entry.name.startsWith('.') || entry.name === 'node_modules') continue;
-        if (entry.isDirectory()) {
-            const full = path.join(root, entry.name);
-            dirs.add(full);
-            collectSubdirs(full, dirs);
-        }
-    }
-}
-
 function resolveIncludePaths(workspaceRoot: string, srcFile: string): string[] {
-    const paths: string[] = [];
+    const acsSource = getAcsSourceDir(workspaceRoot);
+    const userPaths = getUserIncludePaths().map(p =>
+        path.isAbsolute(p) ? p : path.join(workspaceRoot, p)
+    );
+    const searchRoots = [acsSource, ...getBaseAcsIncludeDirs()].filter(d =>
+        Boolean(d) && fs.existsSync(d)
+    );
+    // Workspace acs_source first: findAcsIncludeFile prefers earlier roots and
+    // exact-case basenames so local overrides beat base PK3 copies (e.g. DTADD.acs).
 
-    // 1. Include the ACC executable's directory (contains zcommon.acs etc.)
-    const accDir = getAccDir(workspaceRoot);
-    if (accDir) {
-        paths.push(accDir);
+    const { paths, truncated } = buildAccIncludePaths({
+        srcFile,
+        accDir: getAccDir(workspaceRoot),
+        searchRoots,
+        userIncludePaths: userPaths,
+    });
+
+    if (truncated.length > 0) {
+        const preview = truncated
+            .slice(0, 5)
+            .map(d => path.relative(workspaceRoot, d) || d)
+            .join(', ');
+        const more = truncated.length > 5 ? ` (+${truncated.length - 5} more)` : '';
+        void vscode.window.showWarningMessage(
+            `ACC allows at most ${ACC_MAX_CLI_INCLUDE_PATHS} include paths (-i); ` +
+            `${truncated.length} needed director${truncated.length === 1 ? 'y was' : 'ies were'} omitted: ` +
+            `${preview}${more}. Some #include files may not resolve.`
+        );
     }
 
-    // 2. Always include the source file's directory
-    paths.push(path.dirname(srcFile));
-
-    // 3. Include the ACS source directory and all its subdirectories
-    const acsSource = path.join(workspaceRoot, getPk3Root(), 'acs_source');
-    paths.push(acsSource);
-    const subdirs = new Set<string>();
-    collectSubdirs(acsSource, subdirs);
-    for (const d of subdirs) {
-        paths.push(d);
-    }
-
-    // 4. Always include the workspace root
-    paths.push(workspaceRoot);
-
-    // 5. Discover directories containing other .acs library files
-    for (const libDir of discoverLibraryPaths(workspaceRoot, srcFile)) {
-        paths.push(libDir);
-    }
-
-    // 6. User-configured include paths
-    for (const p of getUserIncludePaths()) {
-        const resolved = path.isAbsolute(p) ? p : path.join(workspaceRoot, p);
-        paths.push(resolved);
-    }
-
-    // 7. Base-resource ACS dirs (extracted PK3 + folder packages)
-    for (const d of getBaseAcsIncludeDirs()) {
-        paths.push(d);
-        const subdirs = new Set<string>();
-        collectSubdirs(d, subdirs);
-        for (const sub of subdirs) {
-            paths.push(sub);
-        }
-    }
-
-    return [...new Set(paths)];
+    return paths;
 }
 
 function getAcsSourceDir(workspaceRoot: string): string {
@@ -373,20 +334,7 @@ function resolveAcsInclude(includeName: string, searchPaths: readonly string[]):
 }
 
 function listDirectIncludes(filePath: string): string[] {
-    try {
-        const text = fs.readFileSync(filePath, 'utf8')
-            .replace(/\/\*[\s\S]*?\*\//g, '')
-            .replace(/\/\/.*$/gm, '');
-        const names: string[] = [];
-        const re = /^\s*#\s*include\s+"([^"]+)"/gim;
-        let m: RegExpExecArray | null;
-        while ((m = re.exec(text)) !== null) {
-            names.push(m[1]);
-        }
-        return names;
-    } catch {
-        return [];
-    }
+    return listDirectIncludeAndImportNames(filePath);
 }
 
 /** Newest mtime among entry ACS and transitive #includes (cycle-safe). */

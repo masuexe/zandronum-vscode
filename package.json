@@ -296,7 +296,7 @@
         "zandronum-vscode.accIncludePaths": {
           "type": "string",
           "default": "",
-          "description": "Additional include directories for ACC (-i), separated by semicolons."
+          "description": "Extra ACC -i directories (semicolon-separated), applied after auto-resolved include dirs. ACC honors at most 15 -i paths (MAX_INCLUDE_PATHS 16 minus the reserved file-directory slot)."
         },
         "zandronum-vscode.zandronumPath": {
           "type": "string",

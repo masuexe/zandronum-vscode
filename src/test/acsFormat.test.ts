@@ -861,6 +861,88 @@ suite('acsFormat — control flow spacing', () => {
 		assert.strictEqual(format(input).split('\n')[0], '//      #library "YOUR_COPYDEFS"');
 	});
 
+	test('keeps the space before a trailing block comment after ;', () => {
+		assert.strictEqual(format('int x; /* note */'), 'int x; /* note */');
+		assert.strictEqual(format('int x;/* note */'), 'int x; /* note */');
+	});
+
+	test('keeps spacing around an inline block comment in call args', () => {
+		assert.strictEqual(format('Foo(a, /* c */ b);'), 'Foo(a, /* c */ b);');
+		assert.strictEqual(format('Foo(a,/* c */b);'), 'Foo(a, /* c */ b);');
+	});
+
+	test('keeps the space between a case label and a block comment', () => {
+		assert.strictEqual(format('case 1: /* c */'), 'case 1: /* c */');
+		assert.strictEqual(format('case 1:/* c */'), 'case 1: /* c */');
+	});
+
+	test('keeps the space between a leading block comment and code', () => {
+		assert.strictEqual(format('/* note */ int x;'), '/* note */ int x;');
+	});
+
+	test('does not change block comments already spaced correctly', () => {
+		assert.strictEqual(format('int x = 1 /* c */;'), 'int x = 1 /* c */;');
+		assert.strictEqual(format('x = y /* c */ + z;'), 'x = y /* c */ + z;');
+		assert.strictEqual(format('Foo(/* c */ a);'), 'Foo(/* c */ a);');
+	});
+
+	test('keeps block comment license header aligned and idempotent', () => {
+		const input = [
+			'/*',
+			' * MIT License',
+			' *',
+			' * Copyright (c) 2016-2017',
+			' */',
+		].join('\n');
+
+		const once = format(input);
+		assert.strictEqual(once, input);
+		assert.strictEqual(format(once), input);
+	});
+
+	test('realigns a mangled block comment header', () => {
+		const input = ['/*', '* MIT License', '*', '* Copyright (c)', '*/'].join('\n');
+		const expected = ['/*', ' * MIT License', ' *', ' * Copyright (c)', ' */'].join('\n');
+		assert.strictEqual(format(input), expected);
+	});
+
+	test('aligns block comments inside a script with the opening line', () => {
+		const input = [
+			'script 1 (void)',
+			'{',
+			'/**',
+			' * Does things.',
+			' * @param x thing',
+			' */',
+			'Print(s:"hi");',
+			'}',
+		].join('\n');
+
+		const expected = [
+			'script 1 (void)',
+			'{',
+			'    /**',
+			'     * Does things.',
+			'     * @param x thing',
+			'     */',
+			'    Print(s:"hi");',
+			'}',
+		].join('\n');
+		assert.strictEqual(format(input), expected);
+	});
+
+	test('keeps plain prose lines inside block comments untouched', () => {
+		const input = ['script 1 (void)', '{', '/*', 'plain prose', 'more prose', '*/', '}'].join(
+			'\n'
+		);
+
+		const out = format(input).split('\n');
+		assert.strictEqual(out[2], '    /*');
+		assert.strictEqual(out[3], 'plain prose');
+		assert.strictEqual(out[4], 'more prose');
+		assert.strictEqual(out[5], '     */');
+	});
+
 	test('does not rewrite slashes inside strings', () => {
 		const input = [
 			'script 1 (void)',

@@ -704,10 +704,13 @@ export function computeSbarinfoLeadingEdits(
     const edits: LeadingEdit[] = [];
     let depth = 0;
     let inBlockComment = false;
+    /** Final indent of the line an open block comment started on. */
+    let blockCommentRefIndent: string | undefined;
 
     for (let line = 0; line < lines.length; line++) {
         const text = lines[line];
-        const scanned = structuralLine(text, inBlockComment);
+        const inBlockAtStart = inBlockComment;
+        const scanned = structuralLine(text, inBlockAtStart);
         inBlockComment = scanned.inBlockComment;
         const structuralTrim = scanned.text.trim();
         const depthBefore = depth;
@@ -716,7 +719,17 @@ export function computeSbarinfoLeadingEdits(
         const closesFirst = structuralTrim.startsWith('}');
 
         let newLeading: string | undefined;
-        if (isBlank) {
+        if (inBlockAtStart && structuralTrim.length === 0 && blockCommentRefIndent !== undefined) {
+            // Block comment interior: `*` under the `*` of `/*`, `*/` with `/*`,
+            // plain prose keeps the author's indent.
+            const commentTrim = text.trim();
+            if (commentTrim.startsWith('*')) {
+                // `*` (and the `*` of `*/`) aligns under the `*` of `/*`.
+                newLeading = `${blockCommentRefIndent} `;
+            } else {
+                newLeading = undefined;
+            }
+        } else if (isBlank) {
             newLeading = undefined;
         } else if (closesFirst) {
             newLeading = makeIndent(Math.max(0, depthBefore - 1), options);
@@ -729,6 +742,17 @@ export function computeSbarinfoLeadingEdits(
             if (oldLeading !== newLeading) {
                 edits.push({ line, newLeading });
             }
+        }
+
+        if (inBlockComment) {
+            if (!inBlockAtStart) {
+                blockCommentRefIndent =
+                    newLeading !== undefined
+                        ? newLeading
+                        : text.slice(0, leadingWhitespaceLength(text));
+            }
+        } else {
+            blockCommentRefIndent = undefined;
         }
 
         depth = applyBraceDelta(depthBefore, scanned.text);

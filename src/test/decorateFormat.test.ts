@@ -227,6 +227,65 @@ suite('decorateFormat — comments and strings', () => {
 		assert.strictEqual(out[6], '}');
 	});
 
+	test('keeps block comment header aligned and idempotent', () => {
+		const input = [
+			'/*',
+			' * MIT License',
+			' *',
+			' * Copyright (c) 2016-2017',
+			' */',
+		].join('\n');
+
+		const once = format(input);
+		assert.strictEqual(once, input);
+		assert.strictEqual(format(once), input);
+	});
+
+	test('aligns block comments inside an actor with the opening line', () => {
+		const input = [
+			'Actor Foo',
+			'{',
+			'/*',
+			'* note',
+			'*/',
+			'Health 1',
+			'}',
+		].join('\n');
+
+		const expected = [
+			'Actor Foo',
+			'{',
+			'  /*',
+			'   * note',
+			'   */',
+			'  Health 1',
+			'}',
+		].join('\n');
+		assert.strictEqual(format(input), expected);
+	});
+
+	test('block comments inside States align with the opening line', () => {
+		const input = [
+			'Actor Foo',
+			'{',
+			'States',
+			'{',
+			'Spawn:',
+			'/*',
+			'* frame note',
+			'*/',
+			'TNT1 A 0',
+			'Stop',
+			'}',
+			'}',
+		].join('\n');
+
+		const out = format(input).split('\n');
+		assert.strictEqual(out[5], '    /*');
+		assert.strictEqual(out[6], '     * frame note');
+		assert.strictEqual(out[7], '     */');
+	});
+
 	test('preserves multiple spaces after //', () => {
 		const input = [
 			'Actor Foo',

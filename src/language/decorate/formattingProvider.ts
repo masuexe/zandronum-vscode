@@ -1105,6 +1105,8 @@ export function computeDecorateLeadingEdits(
     let parenDepth = 0;
     let prevOpensContinuation = false;
     let inBlockComment = false;
+    /** Final indent of the line an open block comment started on. */
+    let blockCommentRefIndent: string | undefined;
     /** Brace depth of the interior of a `States { ... }` block, or -1. */
     let statesBodyDepth = -1;
     /** Depth when `States` was seen without `{` on the same line, or -1. */
@@ -1112,7 +1114,8 @@ export function computeDecorateLeadingEdits(
 
     for (let line = 0; line < lines.length; line++) {
         const text = lines[line];
-        const scanned = structuralLine(text, inBlockComment);
+        const inBlockAtStart = inBlockComment;
+        const scanned = structuralLine(text, inBlockAtStart);
         inBlockComment = scanned.inBlockComment;
         const structural = scanned.text;
         const structuralTrim = structural.trim();
@@ -1141,7 +1144,17 @@ export function computeDecorateLeadingEdits(
                 : Math.max(0, options.stateFrameIndent | 0);
 
         let newLeading: string | undefined;
-        if (isBlank || continuation) {
+        if (inBlockAtStart && structuralTrim.length === 0 && blockCommentRefIndent !== undefined) {
+            // Block comment interior: `*` under the `*` of `/*`, `*/` with `/*`,
+            // plain prose keeps the author's indent.
+            const commentTrim = text.trim();
+            if (commentTrim.startsWith('*')) {
+                // `*` (and the `*` of `*/`) aligns under the `*` of `/*`.
+                newLeading = `${blockCommentRefIndent} `;
+            } else {
+                newLeading = undefined;
+            }
+        } else if (isBlank || continuation) {
             // Blank lines and multi-line arg / Translation continuations keep author indent.
             newLeading = undefined;
         } else if (isHash) {
@@ -1161,6 +1174,17 @@ export function computeDecorateLeadingEdits(
             if (oldLeading !== newLeading) {
                 edits.push({ line, newLeading });
             }
+        }
+
+        if (inBlockComment) {
+            if (!inBlockAtStart) {
+                blockCommentRefIndent =
+                    newLeading !== undefined
+                        ? newLeading
+                        : text.slice(0, leadingWhitespaceLength(text));
+            }
+        } else {
+            blockCommentRefIndent = undefined;
         }
 
         if (isStates && !hasOpenBrace(structural)) {

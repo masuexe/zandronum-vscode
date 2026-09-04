@@ -1050,10 +1050,6 @@ function readOperatorAt(line: string, index: number): string | undefined {
     return undefined;
 }
 
-function isCommentStart(line: string, index: number): boolean {
-    return line[index] === '/' && (line[index + 1] === '/' || line[index + 1] === '*');
-}
-
 function endsWithSpace(text: string): boolean {
     const ch = text[text.length - 1];
     return ch === ' ' || ch === '\t';
@@ -1127,6 +1123,8 @@ function formatCallAndOperatorSpacingLine(
             if (ch === '*' && next === '/') {
                 out += next;
                 inBlock = false;
+                // A closed block comment needs normal spacing before the next token.
+                lastKind = 'value';
                 i += 2;
                 continue;
             }
@@ -1292,8 +1290,7 @@ function formatCallAndOperatorSpacingLine(
             i++;
             const after = skipHorizontalSpace(line, i);
             const atEnd = after >= line.length;
-            const startsComment = after < line.length && isCommentStart(line, after);
-            if (spaceAfterComma && !atEnd && !startsComment && line[after] !== ')' && line[after] !== ']') {
+            if (spaceAfterComma && !atEnd && line[after] !== ')' && line[after] !== ']') {
                 out += ' ';
             }
             i = after;
@@ -1306,8 +1303,7 @@ function formatCallAndOperatorSpacingLine(
             i++;
             const after = skipHorizontalSpace(line, i);
             const atEnd = after >= line.length;
-            const startsComment = after < line.length && isCommentStart(line, after);
-            if (!atEnd && !startsComment && line[after] !== ')' && line[after] !== ']' && line[after] !== '}') {
+            if (!atEnd && line[after] !== ')' && line[after] !== ']' && line[after] !== '}') {
                 out += ' ';
             }
             i = after;
@@ -1330,8 +1326,7 @@ function formatCallAndOperatorSpacingLine(
                 pendingCaseLabelColon = false;
                 const after = skipHorizontalSpace(line, i);
                 const atEnd = after >= line.length;
-                const startsComment = after < line.length && isCommentStart(line, after);
-                if (!atEnd && !startsComment) {
+                if (!atEnd) {
                     out += ' ';
                 }
                 i = after;
@@ -1577,6 +1572,8 @@ export function computeAcsLeadingEdits(
     let prevOpensContinuation = false;
     let prevIncompleteExpr = false;
     let inBlockComment = false;
+    /** Final indent of the line an open block comment started on. */
+    let blockCommentRefIndent: string | undefined;
     /** Extra indent levels for a braceless `if` / `else` / `while` / `for` body. */
     let hangingExtra = 0;
     /** Extra used by the last hanging body; an immediately following `else` aligns to that `if`. */
@@ -1596,7 +1593,8 @@ export function computeAcsLeadingEdits(
 
     for (let line = 0; line < lines.length; line++) {
         const text = lines[line];
-        const scanned = structuralLine(text, inBlockComment);
+        const inBlockAtStart = inBlockComment;
+        const scanned = structuralLine(text, inBlockAtStart);
         inBlockComment = scanned.inBlockComment;
         const structural = scanned.text;
         const structuralTrim = structural.trim();
@@ -1638,7 +1636,17 @@ export function computeAcsLeadingEdits(
         }
 
         let newLeading: string | undefined;
-        if (isBlank || continuation) {
+        if (inBlockAtStart && structuralTrim.length === 0 && blockCommentRefIndent !== undefined) {
+            // Block comment interior: `*` under the `*` of `/*`, `*/` with `/*`,
+            // plain prose keeps the author's indent.
+            const commentTrim = text.trim();
+            if (commentTrim.startsWith('*')) {
+                // `*` (and the `*` of `*/`) aligns under the `*` of `/*`.
+                newLeading = `${blockCommentRefIndent} `;
+            } else {
+                newLeading = undefined;
+            }
+        } else if (isBlank || continuation) {
             newLeading = undefined;
         } else if (exprContinuation) {
             newLeading = makeIndent(depthBefore + extra + 1, options);
@@ -1658,6 +1666,17 @@ export function computeAcsLeadingEdits(
             if (oldLeading !== newLeading) {
                 edits.push({ line, newLeading });
             }
+        }
+
+        if (inBlockComment) {
+            if (!inBlockAtStart) {
+                blockCommentRefIndent =
+                    newLeading !== undefined
+                        ? newLeading
+                        : text.slice(0, leadingWhitespaceLength(text));
+            }
+        } else {
+            blockCommentRefIndent = undefined;
         }
 
         const depthAfter = applyBraceDelta(depthBefore, structural);

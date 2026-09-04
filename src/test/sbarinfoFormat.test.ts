@@ -114,6 +114,37 @@ suite('sbarinfoFormat — comments', () => {
 		assert.strictEqual(out[0], 'height 32  // hud');
 	});
 
+	test('keeps block comment header aligned and idempotent', () => {
+		const input = ['/*', ' * MIT License', ' *', ' * Copyright (c)', ' */'].join('\n');
+
+		const once = format(input);
+		assert.strictEqual(once, input);
+		assert.strictEqual(format(once), input);
+	});
+
+	test('aligns block comments inside a block with the opening line', () => {
+		const input = [
+			'InInventory GammaPlayerPowerHP, 1',
+			'{',
+			'/*',
+			'* note',
+			'*/',
+			'DrawImage "GAMA2FHX", 18, -1;',
+			'}',
+		].join('\n');
+
+		const expected = [
+			'InInventory GammaPlayerPowerHP, 1',
+			'{',
+			'  /*',
+			'   * note',
+			'   */',
+			'  DrawImage "GAMA2FHX", 18, -1;',
+			'}',
+		].join('\n');
+		assert.strictEqual(format(input), expected);
+	});
+
 	test('does not rewrite slashes inside strings', () => {
 		const out = format('drawimage "//not a comment", 0, 0').split('\n');
 		assert.strictEqual(out[0], 'drawimage "//not a comment", 0, 0');

@@ -886,6 +886,21 @@ suite('decorateFormat — ternary spacing', () => {
 		assert.strictEqual(out[4], '  Pain.Buster: Pain.ProtoBuster:');
 		assert.strictEqual(out[5], '    Goto Super::See');
 	});
+
+	test('spaces a wrapped ternary colon', () => {
+		const input = [
+			'Actor Foo',
+			'{',
+			'Damage (2 ? 3',
+			':4)',
+			'}',
+		].join('\n');
+
+		const out = format(input).split('\n');
+		assert.strictEqual(out[2], '  Damage (2 ? 3');
+		assert.ok(out[3].includes(': 4)'));
+		assert.ok(!out[3].includes(':4)'));
+	});
 });
 
 suite('decorateFormat — spaceAfterColon', () => {

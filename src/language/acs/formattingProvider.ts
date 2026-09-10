@@ -1087,8 +1087,9 @@ function formatCallAndOperatorSpacingLine(
     spaceAfterComma: boolean,
     spaceAfterControlKeyword: boolean,
     inBlockComment: boolean,
-    exprContinuation: boolean
-): { text: string; inBlockComment: boolean } {
+    exprContinuation: boolean,
+    ternaryDepthStart: number
+): { text: string; inBlockComment: boolean; ternaryDepth: number } {
     const leadLen = leadingWhitespaceLength(line);
     let out = line.slice(0, leadLen);
     let i = leadLen;
@@ -1097,7 +1098,7 @@ function formatCallAndOperatorSpacingLine(
     let lastKind: ExprKind = 'start';
     let pendingCaseLabelColon = false;
     /** Unmatched `?` count — colon is ternary only while this is > 0. */
-    let ternaryDepth = 0;
+    let ternaryDepth = ternaryDepthStart;
 
     const emitValue = (token: string): void => {
         if (needsSpaceBeforeValue(lastKind)) {
@@ -1314,9 +1315,14 @@ function formatCallAndOperatorSpacingLine(
         if (ch === ':') {
             // Google style: spaces on both sides of ternary `:`.
             // Printcasts (`s:"x"`), world/global slots (`1:name`), and case labels stay tight.
-            if (ternaryDepth > 0) {
+            // Wrapped `a ? b` / `: c` carries `?` depth; a leading `:` after an
+            // incomplete expression is also the ternary colon (`:lvl` → `: lvl`).
+            const wrappedTernaryColon = exprContinuation && prevKind === 'start';
+            if (ternaryDepth > 0 || wrappedTernaryColon) {
                 emitBinary(':');
-                ternaryDepth--;
+                if (ternaryDepth > 0) {
+                    ternaryDepth--;
+                }
                 i++;
                 continue;
             }
@@ -1357,7 +1363,7 @@ function formatCallAndOperatorSpacingLine(
         lastKind = 'value';
     }
 
-    return { text: out, inBlockComment: inBlock };
+    return { text: out, inBlockComment: inBlock, ternaryDepth };
 }
 
 function applyCallAndOperatorSpacing(
@@ -1370,6 +1376,7 @@ function applyCallAndOperatorSpacing(
     const out = lines.slice();
     let inBlockComment = false;
     let prevIncompleteExpr = false;
+    let ternaryDepth = 0;
     for (let i = 0; i < out.length; i++) {
         const inBlockAtStart = inBlockComment;
         const formatted = formatCallAndOperatorSpacingLine(
@@ -1377,7 +1384,8 @@ function applyCallAndOperatorSpacing(
             spaceAfterComma,
             spaceAfterControlKeyword,
             inBlockComment,
-            prevIncompleteExpr
+            prevIncompleteExpr,
+            ternaryDepth
         );
         inBlockComment = formatted.inBlockComment;
         if (inRange(i, startLine, endLine)) {
@@ -1387,6 +1395,7 @@ function applyCallAndOperatorSpacing(
             const code = structuralLine(out[i], inBlockAtStart).code.trim();
             if (code.length > 0) {
                 prevIncompleteExpr = lineEndsIncompleteExpr(code);
+                ternaryDepth = prevIncompleteExpr ? formatted.ternaryDepth : 0;
             }
         }
     }

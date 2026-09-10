@@ -743,6 +743,39 @@ suite('acsFormat — control flow spacing', () => {
 		assert.strictEqual(out[3], '    Print(s:a ? "y" : "n");');
 	});
 
+	test('spaces wrapped nested ternary colons and indents continuation ops', () => {
+		const input = [
+			'script 1 (void)',
+			'{',
+			'wep = lvl == 2 ? uh_shinynegaslotwep[slot][1]',
+			':lvl == 3 ? uh_shinynegaslotwep[slot][2]',
+			':uh_shinynegaslotwep[slot][0];',
+			'}',
+		].join('\n');
+
+		const out = format(input).split('\n');
+		assert.strictEqual(out[2], '    wep = lvl == 2 ? uh_shinynegaslotwep[slot][1]');
+		assert.strictEqual(out[3], '        : lvl == 3 ? uh_shinynegaslotwep[slot][2]');
+		assert.strictEqual(out[4], '        : uh_shinynegaslotwep[slot][0];');
+		assert.strictEqual(format(out.join('\n')), out.join('\n'));
+	});
+
+	test('spaces a wrapped ? continuation like other binary operators', () => {
+		const input = [
+			'script 1 (void)',
+			'{',
+			'wep = lvl == 2',
+			'?uh_shinynegaslotwep[slot][1]',
+			':uh_shinynegaslotwep[slot][0];',
+			'}',
+		].join('\n');
+
+		const out = format(input).split('\n');
+		assert.strictEqual(out[2], '    wep = lvl == 2');
+		assert.strictEqual(out[3], '        ? uh_shinynegaslotwep[slot][1]');
+		assert.strictEqual(out[4], '        : uh_shinynegaslotwep[slot][0];');
+	});
+
 	test('keeps shift operators as one token', () => {
 		const input = [
 			'script 1 (void)',

@@ -630,14 +630,15 @@ function applySameLineBraces(
 function formatSpaceAfterCommaLine(
     line: string,
     spaceAfter: boolean,
-    inBlockComment: boolean
-): { text: string; inBlockComment: boolean } {
+    inBlockComment: boolean,
+    ternaryDepthStart: number
+): { text: string; inBlockComment: boolean; ternaryDepth: number } {
     let out = '';
     let i = 0;
     let inBlock = inBlockComment;
     let inString = false;
     /** Unmatched `?` count — colon is ternary only while this is > 0. */
-    let ternaryDepth = 0;
+    let ternaryDepth = ternaryDepthStart;
 
     const endsWithSpace = (): boolean => {
         const ch = out[out.length - 1];
@@ -734,11 +735,14 @@ function formatSpaceAfterCommaLine(
         }
 
         if (ch === ':') {
-            if (ternaryDepth > 0) {
+            const wrappedTernaryColon = out.trim().length === 0;
+            if (ternaryDepth > 0 || wrappedTernaryColon) {
                 ensureSpaceBefore();
                 out += ':';
                 i++;
-                ternaryDepth--;
+                if (ternaryDepth > 0) {
+                    ternaryDepth--;
+                }
                 emitSpaceAfterOp();
                 continue;
             }
@@ -791,7 +795,7 @@ function formatSpaceAfterCommaLine(
         i++;
     }
 
-    return { text: out, inBlockComment: inBlock };
+    return { text: out, inBlockComment: inBlock, ternaryDepth };
 }
 
 function applyCommaSpacing(
@@ -802,9 +806,16 @@ function applyCommaSpacing(
 ): string[] {
     const out = lines.slice();
     let inBlockComment = false;
+    let ternaryDepth = 0;
     for (let i = 0; i < out.length; i++) {
-        const formatted = formatSpaceAfterCommaLine(out[i], spaceAfter, inBlockComment);
+        const formatted = formatSpaceAfterCommaLine(
+            out[i],
+            spaceAfter,
+            inBlockComment,
+            ternaryDepth
+        );
         inBlockComment = formatted.inBlockComment;
+        ternaryDepth = formatted.ternaryDepth;
         if (inRange(i, startLine, endLine)) {
             out[i] = formatted.text;
         }

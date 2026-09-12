@@ -7,7 +7,7 @@ A Visual Studio Code extension for Zandronum modding — syntax highlighting, in
 ## Requirements
 
 - Visual Studio Code `^1.116.0`
-- [ACC](https://wiki.zandronum.com/ACC) — ACS compiler (`acc` on PATH, or set `zandronum-vscode.accPath`)
+- [ACC](https://wiki.zandronum.com/ACC) — ACS compiler (`acc` on PATH, or set `zandronum-vscode.accPath`). Use the **Zandronum** build ([source](https://foss.heptapod.net/zandronum/acc)) with matching `zdefs.acs` headers: a generic/older ZDoom ACC bundle rejects Zandronum constants such as `GAMEEVENT_ACTOR_DAMAGED` and `MAX_PLAYERS` even though the extension offers them in completion.
 - [Zandronum](https://zandronum.com/) — for Run Project (`zandronum` on PATH, or set `zandronum-vscode.zandronumPath`)
 
 ## Installation
@@ -64,7 +64,7 @@ Cross-file symbol resolution (DECORATE actors, ACS constants) works within the w
 ### Build and Run
 
 - **Compile Current ACS** — Compile the active `.acs` file with ACC
-- **Build Project** — Merges workspace and base-resource LOADACS; compiles matching `#library` sources under `<pk3Root>/acs_source/` (skips `.o` only when newer than the entry ACS **and** its transitive `#include`s; runs ACC in parallel), then packages into `out/build.pk3`. Reports ACS vs PK3 timings. Base resources supply extra library names and include paths only — they are not compiled directly. Stops without packaging on compile failure.
+- **Build Project** — Merges workspace and base-resource LOADACS; compiles the `#library` sources under `<pk3Root>/acs_source/` reachable from those entries — each entry **plus the libraries it `#import`s, transitively** (skips `.o` only when newer than the entry ACS **and** its transitive `#include`s; runs ACC in parallel), then packages into `out/build.pk3`. Reports ACS vs PK3 timings. Base resources supply extra library names and include paths only — they are not compiled directly. Stops without packaging on compile failure.
 - **Run Project** — Resolves the run configuration (first time or after a rename, pick one before building), saves files, runs Build Project, then launches Zandronum immediately on success using the remembered configuration
 - **Select Run Configuration** — Choose or change the run configuration used by **Run Project** without building or launching
 
@@ -75,7 +75,7 @@ Cross-file symbol resolution (DECORATE actors, ACS constants) works within the w
 | Command | What it does |
 |---|---|
 | **Zandronum: Compile Current ACS** | Compiles the active `.acs` file |
-| **Zandronum: Build Project** | Merges workspace + base LOADACS, incrementally compiles matching ACS libraries (parallel ACC), then builds `out/build.pk3` |
+| **Zandronum: Build Project** | Merges workspace + base LOADACS, incrementally compiles those libraries plus their transitive `#import`s (parallel ACC), then builds `out/build.pk3` |
 | **Zandronum: Run Project** | Remembers the last run configuration; builds the project, then launches Zandronum on success without an extra prompt |
 | **Zandronum: Select Run Configuration** | Pick the run configuration for **Run Project** (stored per workspace; no build or launch) |
 

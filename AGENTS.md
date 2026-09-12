@@ -642,6 +642,19 @@ Unless explicitly requested:
 
 Lessons learned from bugs encountered during development. Apply these checks before committing.
 
+## Compile `#import` Libraries, Not Only LOADACS Entries
+
+A library reachable only through `#import` (never listed in LOADACS) is still
+resolved by the engine at runtime, by lump name in `ns_acslibrary`. If its `.o`
+is not compiled and packed, the engine prints `Could not find ACS library <name>.`
+and leaves the imported function addresses unresolved — calling one jumps to
+address 0 and crashes (signal 11 at a low address, e.g. `0x4a5`).
+
+Compile selection must therefore cover the transitive `#import` closure of the
+LOADACS entries, not just the entries themselves. `#library` detection must also
+read the whole file: a long license header (ACSUtils puts `#library` past 1 KB)
+defeats a fixed-size header window. See `src/shared/acsLibrarySelection.ts`.
+
 ## Special Lump Extensions (Do Not Hardcode Bare Filenames)
 
 **Most naming bugs in this project come from treating on-disk filenames as lump names.**

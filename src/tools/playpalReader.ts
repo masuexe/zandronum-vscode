@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
 import * as fs from 'fs';
+import { expandUserPath } from '../shared/variables';
 
 export interface RgbColor {
     r: number;
@@ -23,9 +24,10 @@ export async function loadPlaypal(): Promise<RgbColor[] | null> {
 
     if (playpalPath) {
         const root = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath || '';
-        const resolved = path.isAbsolute(playpalPath)
-            ? playpalPath
-            : path.resolve(root, playpalPath);
+        const expanded = expandUserPath(playpalPath);
+        const resolved = path.isAbsolute(expanded)
+            ? expanded
+            : path.resolve(root, expanded);
 
         if (fs.existsSync(resolved)) {
             const stat = fs.statSync(resolved);

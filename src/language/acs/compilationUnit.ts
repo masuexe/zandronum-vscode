@@ -4,6 +4,7 @@ import * as path from 'path';
 import { scanLineDeclarations } from './scanner';
 import { getPk3Root } from '../../shared/pk3Root';
 import { getBaseAcsIncludeDirs } from '../../base/baseAcsIncludes';
+import { hasLibraryDirective } from '../../shared/acsLibrarySelection';
 
 export type SymbolKind = 'variable' | 'constant' | 'function' | 'script';
 
@@ -271,7 +272,7 @@ export class LibraryIndex {
         this.roots = [];
 
         for (const uri of files) {
-            if (await hasLibraryDirective(uri.fsPath)) {
+            if (hasLibraryDirective(uri.fsPath)) {
                 this.roots.push(uri.fsPath);
             }
         }
@@ -311,23 +312,6 @@ export class LibraryIndex {
         const roots = this.fileToRoots.get(resolved);
         this.fileToRoots.delete(resolved);
         return roots;
-    }
-}
-
-async function hasLibraryDirective(filePath: string): Promise<boolean> {
-    try {
-        const fd = fs.openSync(filePath, 'r');
-        const buf = Buffer.alloc(1024);
-        const bytesRead = fs.readSync(fd, buf, 0, buf.length, 0);
-        fs.closeSync(fd);
-
-        const header = buf.toString('utf-8', 0, bytesRead);
-        const clean = header
-            .replace(/\/\*[\s\S]*?\*\//g, '')
-            .replace(/\/\/.*$/gm, '');
-        return /#library\b/im.test(clean);
-    } catch {
-        return false;
     }
 }
 

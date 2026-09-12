@@ -9,10 +9,12 @@ import {
     ZipPackage
 } from './packages';
 import { isSupportedArchive, unsupportedArchiveMessage } from './archiveFormats';
+import { expandUserPath } from '../shared/variables';
 
 function resolvePath(reference: string, workspaceRoot: string): string {
-    if (path.isAbsolute(reference)) { return reference; }
-    return path.resolve(workspaceRoot, reference);
+    const expanded = expandUserPath(reference);
+    if (path.isAbsolute(expanded)) { return expanded; }
+    return path.resolve(workspaceRoot, expanded);
 }
 
 export class PackageManager {

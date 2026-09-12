@@ -6,6 +6,7 @@ import * as os from 'os';
 import { buildPK3 } from './build';
 import { getPk3Root } from '../shared/pk3Root';
 import { expandUserPath } from '../shared/variables';
+import { selectLibraryAcsFiles } from '../shared/acsLibrarySelection';
 import { getBaseAcsIncludeDirs, getBasePackagesForCompile } from '../base/baseAcsIncludes';
 import { collectLoadAcsEntries } from './loadAcsDiscovery';
 import {
@@ -60,7 +61,10 @@ function getOutputDir(workspaceRoot: string): string {
     const config = vscode.workspace.getConfiguration('zandronum-vscode');
     const customDir = config.get<string>('accOutputDir');
     if (customDir) {
-        return path.join(workspaceRoot, customDir);
+        const expanded = expandUserPath(customDir);
+        return path.isAbsolute(expanded)
+            ? expanded
+            : path.join(workspaceRoot, expanded);
     }
     return path.join(workspaceRoot, getPk3Root(), 'acs');
 }
@@ -87,9 +91,10 @@ function getAccDir(workspaceRoot: string): string | null {
 
 function resolveIncludePaths(workspaceRoot: string, srcFile: string): string[] {
     const acsSource = getAcsSourceDir(workspaceRoot);
-    const userPaths = getUserIncludePaths().map(p =>
-        path.isAbsolute(p) ? p : path.join(workspaceRoot, p)
-    );
+    const userPaths = getUserIncludePaths().map(p => {
+        const expanded = expandUserPath(p);
+        return path.isAbsolute(expanded) ? expanded : path.join(workspaceRoot, expanded);
+    });
     const searchRoots = [acsSource, ...getBaseAcsIncludeDirs()].filter(d =>
         Boolean(d) && fs.existsSync(d)
     );
@@ -409,56 +414,13 @@ async function mapPool<T, R>(
     return results;
 }
 
-function hasLibraryDirective(filePath: string): boolean {
-    try {
-        const fd = fs.openSync(filePath, 'r');
-        const buf = Buffer.alloc(1024);
-        const bytesRead = fs.readSync(fd, buf, 0, buf.length, 0);
-        fs.closeSync(fd);
-
-        const header = buf.toString('utf-8', 0, bytesRead);
-
-        // Strip block comments and line comments for reliable detection
-        const clean = header
-            .replace(/\/\*[\s\S]*?\*\//g, '')  // block comments
-            .replace(/\/\/.*$/gm, '');           // line comments
-
-        return /#library\b/im.test(clean);
-    } catch {
-        return false;
-    }
-}
-
 function findLibraryAcsFiles(workspaceRoot: string, loadAcsEntries: string[]): string[] {
     const sourceDir = getAcsSourceDir(workspaceRoot);
     if (!fs.existsSync(sourceDir) || loadAcsEntries.length === 0) {
         return [];
     }
 
-    const loadAcsSet = new Set(loadAcsEntries.map(e => e.toLowerCase()));
-    const files: string[] = [];
-
-    function scan(dir: string) {
-        let entries: fs.Dirent[];
-        try { entries = fs.readdirSync(dir, { withFileTypes: true }); }
-        catch { return; }
-
-        for (const entry of entries) {
-            if (entry.name.startsWith('.') || entry.name === 'node_modules') continue;
-            const full = path.join(dir, entry.name);
-            if (entry.isDirectory()) {
-                scan(full);
-            } else if (entry.isFile() && entry.name.toLowerCase().endsWith('.acs')) {
-                const baseName = path.basename(entry.name, '.acs').toLowerCase();
-                if (loadAcsSet.has(baseName) && hasLibraryDirective(full)) {
-                    files.push(full);
-                }
-            }
-        }
-    }
-
-    scan(sourceDir);
-    return files;
+    return selectLibraryAcsFiles(sourceDir, loadAcsEntries);
 }
 
 /**

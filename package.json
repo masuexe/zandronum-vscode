@@ -319,7 +319,7 @@
             "type": "string"
           },
           "default": [],
-          "description": "Read-only base resource paths loaded before the workspace for symbol resolution. Supports .pk3/.zip archives and directories. Later entries override earlier ones; workspace always wins. .wad and .pk7 are not supported yet."
+          "description": "Read-only base resource paths loaded before the workspace for symbol resolution. Supports .pk3/.zip archives and directories (a leading '~' is expanded). Later entries override earlier ones; workspace always wins. .wad and .pk7 are not supported yet."
         },
         "zandronum-vscode.accOutputDir": {
           "type": "string",
@@ -335,7 +335,7 @@
         "zandronum-vscode.playpalPath": {
           "type": "string",
           "default": "",
-          "description": "Path to an external PLAYPAL lump file or directory containing one. Supports relative paths (to workspace root) and absolute paths. Used for palette color preview in Translation properties."
+          "description": "Path to an external PLAYPAL lump file or directory containing one. Supports relative paths (to workspace root), absolute paths, and a leading '~'. Used for palette color preview in Translation properties."
         },
         "zandronum-vscode.decorate.format.stateLabelIndent": {
           "type": "number",

@@ -2,7 +2,7 @@ import * as vscode from 'vscode';
 import * as cp from 'child_process';
 import * as os from 'os';
 import * as path from 'path';
-import { resolveVariables, parseArgs } from '../shared/variables';
+import { resolveVariables, parseArgs, expandUserPath } from '../shared/variables';
 import { getBuildOutputPath } from '../shared/buildOutput';
 import { buildPK3, buildProject } from '../tools/build';
 import { compileAllAndBuild } from '../tools/compileAcs';
@@ -163,15 +163,41 @@ function getProgram(config: RunConfig): string {
     return settings.get<string>('zandronumPath') || 'zandronum';
 }
 
+/**
+ * Resolve `${...}` variables and expand a leading `~` in one configured value.
+ * VS Code does not expand `~` in settings, so a value such as
+ * `~/appfiles/zandronum/zandronum` must be expanded here or the terminal
+ * launch fails with "Path to shell executable ... does not exist".
+ */
+export function resolveLaunchValue(
+    value: string,
+    workspaceFolder: string,
+    buildOutput: string
+): string {
+    return expandUserPath(resolveVariables(value, { workspaceFolder, buildOutput }));
+}
+
+/**
+ * Resolve a configuration's `preArgs` / `postArgs`, expanding `${...}`
+ * variables and a leading `~`. Arguments are passed straight to the executable
+ * without a shell, so `~/wads/doom2.wad` would otherwise stay literal.
+ */
+export function resolveRunArguments(
+    raw: string | string[] | undefined,
+    workspaceFolder: string,
+    buildOutput: string
+): string[] {
+    return parseArgs(raw ?? []).map(a => resolveLaunchValue(a, workspaceFolder, buildOutput));
+}
+
 function runConfigToTerminal(config: RunConfig, terminalName: string): boolean {
     const workspaceFolder = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath ?? '';
     const buildOutput = getBuildOutputPath();
-    const ctx = { workspaceFolder, buildOutput };
     const platformConfig = resolvePlatformRunConfig(config, process.platform);
 
-    const program = resolveVariables(getProgram(platformConfig), ctx);
-    const preArgs = parseArgs(platformConfig.preArgs ?? []).map(a => resolveVariables(a, ctx));
-    const postArgs = parseArgs(platformConfig.postArgs ?? []).map(a => resolveVariables(a, ctx));
+    const program = resolveLaunchValue(getProgram(platformConfig), workspaceFolder, buildOutput);
+    const preArgs = resolveRunArguments(platformConfig.preArgs, workspaceFolder, buildOutput);
+    const postArgs = resolveRunArguments(platformConfig.postArgs, workspaceFolder, buildOutput);
     let args = buildRunArguments(preArgs, postArgs, buildOutput);
 
     if (process.platform === 'linux' && isWindowsAbsolutePath(program)) {

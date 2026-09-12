@@ -1,4 +1,6 @@
 import * as assert from 'assert';
+import * as os from 'os';
+import * as path from 'path';
 import {
 	buildLaunchPicks,
 	buildRunArguments,
@@ -7,8 +9,10 @@ import {
 	isWslWindowsExecutable,
 	pickToRemembered,
 	resolveCompound,
+	resolveLaunchValue,
 	resolvePlatformRunConfig,
 	resolveRememberedPick,
+	resolveRunArguments,
 	type LaunchPick,
 	type RunConfig,
 	type RunCompound,
@@ -223,5 +227,69 @@ suite('platform launch configuration', () => {
 			'-file', 'win:/home/user/My Mod/out/build.pk3',
 			'+map', 'MAP01', '-connect', '127.0.0.1:10666',
 		]);
+	});
+});
+
+suite('resolveLaunchValue', () => {
+	const workspaceFolder = path.join(path.sep, 'workspace', 'mod');
+	const buildOutput = path.join(workspaceFolder, 'out', 'build.pk3');
+
+	test('expands a home-relative executable path', () => {
+		assert.strictEqual(
+			resolveLaunchValue('~/appfiles/zandronum-3.3-alpha/zandronum', workspaceFolder, buildOutput),
+			path.join(os.homedir(), 'appfiles', 'zandronum-3.3-alpha', 'zandronum')
+		);
+	});
+
+	test('expands a bare home reference', () => {
+		assert.strictEqual(resolveLaunchValue('~', workspaceFolder, buildOutput), os.homedir());
+	});
+
+	test('keeps a PATH command and absolute paths unchanged', () => {
+		assert.strictEqual(resolveLaunchValue('zandronum', workspaceFolder, buildOutput), 'zandronum');
+		const absolute = path.join(path.sep, 'opt', 'zandronum', 'zandronum');
+		assert.strictEqual(resolveLaunchValue(absolute, workspaceFolder, buildOutput), absolute);
+	});
+
+	test('resolves workspace variables before expanding', () => {
+		assert.strictEqual(
+			resolveLaunchValue('${workspaceFolder}/tools/zandronum', workspaceFolder, buildOutput),
+			path.join(workspaceFolder, 'tools', 'zandronum')
+		);
+	});
+});
+
+suite('resolveRunArguments', () => {
+	const workspaceFolder = path.join(path.sep, 'workspace', 'mod');
+	const buildOutput = path.join(workspaceFolder, 'out', 'build.pk3');
+
+	test('expands a home-relative path argument', () => {
+		assert.deepStrictEqual(
+			resolveRunArguments(['-iwad', '~/wads/doom2.wad'], workspaceFolder, buildOutput),
+			['-iwad', path.join(os.homedir(), 'wads', 'doom2.wad')]
+		);
+	});
+
+	test('parses a preArgs string and expands workspace variables', () => {
+		assert.deepStrictEqual(
+			resolveRunArguments('-iwad "${workspaceFolder}/wads/doom2.wad" -config ~/cfg.ini',
+				workspaceFolder, buildOutput),
+			[
+				'-iwad', path.join(workspaceFolder, 'wads', 'doom2.wad'),
+				'-config', path.join(os.homedir(), 'cfg.ini'),
+			]
+		);
+	});
+
+	test('leaves flag, cvar, and non-tilde values untouched', () => {
+		assert.deepStrictEqual(
+			resolveRunArguments(['+map', 'MAP01', '-connect', '127.0.0.1:10666', '+set', 'skin', '~weird'],
+				workspaceFolder, buildOutput),
+			['+map', 'MAP01', '-connect', '127.0.0.1:10666', '+set', 'skin', '~weird']
+		);
+	});
+
+	test('treats undefined args as empty', () => {
+		assert.deepStrictEqual(resolveRunArguments(undefined, workspaceFolder, buildOutput), []);
 	});
 });

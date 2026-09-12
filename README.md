@@ -102,7 +102,7 @@ Legacy aliases (`Build PK3`, `Run Zandronum`, and older compile/build combinatio
 
 | Setting | Default | Description |
 |---|---|---|
-| `zandronum-vscode.zandronumPath` | `""` | Path to the Zandronum executable (uses system PATH if empty) |
+| `zandronum-vscode.zandronumPath` | `""` | Path to the Zandronum executable (a leading `~` is expanded; uses system PATH if empty) |
 | `zandronum-vscode.pk3Root` | `"src"` | Content root packed into the PK3; resources inside get higher lookup priority |
 | `zandronum-vscode.pk3LeanPack` | `false` | When true, apply `<pk3Root>/.pk3ignore` (gitignore syntax) while packaging. Default packs everything under `pk3Root` |
 
@@ -169,6 +169,8 @@ Optional per-workspace launch configs for IWAD and extra args. Variables: `${wor
 ```
 
 The extension always inserts `-file <workspace>/out/build.pk3` between `preArgs` and `postArgs`. If `.vscode/zandronum.json` is missing or empty, **Run Project** / legacy Run use the executable from settings/PATH with no extra IWAD args.
+
+A leading `~` (home directory) and `${workspaceFolder}` / `${buildOutput}` / `${env:...}` variables are expanded in `program`, `preArgs`, and `postArgs`. Arguments are handed to the executable without a shell, so a value such as `-iwad ~/wads/doom2.wad` must be expanded by the extension to resolve.
 
 **Run configuration memory:** The first **Run Project** (or **Select Run Configuration**) in a workspace with multiple entries prompts for a configuration and remembers it. Later **Run Project** runs build then launch with that choice. Use **Select Run Configuration** to switch (for example between offline play and a Host+Client compound) without building.
 

@@ -291,7 +291,7 @@
         "zandronum-vscode.accPath": {
           "type": "string",
           "default": "",
-          "description": "Path to the ACC compiler executable. Leave empty to use 'acc' from system PATH."
+          "description": "Path to the ACC compiler executable (a leading '~' is expanded). Leave empty to use 'acc' from system PATH."
         },
         "zandronum-vscode.accIncludePaths": {
           "type": "string",
@@ -301,7 +301,7 @@
         "zandronum-vscode.zandronumPath": {
           "type": "string",
           "default": "",
-          "description": "Path to the Zandronum executable. Leave empty to use 'zandronum' from system PATH."
+          "description": "Path to the Zandronum executable (a leading '~' is expanded). Leave empty to use 'zandronum' from system PATH."
         },
         "zandronum-vscode.pk3Root": {
           "type": "string",

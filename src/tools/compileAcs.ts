@@ -5,6 +5,7 @@ import * as fs from 'fs';
 import * as os from 'os';
 import { buildPK3 } from './build';
 import { getPk3Root } from '../shared/pk3Root';
+import { expandUserPath } from '../shared/variables';
 import { getBaseAcsIncludeDirs, getBasePackagesForCompile } from '../base/baseAcsIncludes';
 import { collectLoadAcsEntries } from './loadAcsDiscovery';
 import {
@@ -32,13 +33,7 @@ function getAccPath(): string {
 export function resolveAccExecutablePath(accPath: string, workspaceRoot: string): string {
     if (accPath === 'acc') { return accPath; }
 
-    let expanded = accPath;
-    if (accPath === '~') {
-        expanded = os.homedir();
-    } else if (accPath.startsWith('~/') || accPath.startsWith('~\\')) {
-        expanded = path.join(os.homedir(), accPath.slice(2));
-    }
-
+    const expanded = expandUserPath(accPath);
     return path.isAbsolute(expanded)
         ? expanded
         : path.resolve(workspaceRoot, expanded);

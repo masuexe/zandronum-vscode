@@ -41,6 +41,7 @@ import { ResourceIndex } from './language/textures/resourceIndex';
 import { TextureEditorRegistry } from './language/textures/textureDocumentController';
 import { registerOffsetPreview } from './language/decorate/offsetPreviewController';
 import { PackageManager } from './base/packageManager';
+import { setPlaypalPackageProvider } from './tools/playpalReader';
 import { SymbolDatabase } from './base/symbolDatabase';
 import { ActorSymbolProvider } from './base/actorProvider';
 import { AcsSymbolProvider } from './base/acsProvider';
@@ -83,6 +84,10 @@ export function activate(context: vscode.ExtensionContext) {
     );
 
     const packageManager = new PackageManager(context.extensionPath);
+    // Palette lookup follows the effective package stack (workspace <pk3Root> +
+    // baseResources) so a PLAYPAL inside a configured base PK3 is found without
+    // an explicit playpalPath. The cache key includes the package set/order.
+    setPlaypalPackageProvider(() => packageManager.getPackages());
     const symbolDatabase = new SymbolDatabase();
     symbolDatabase.registerProvider(new ActorSymbolProvider());
     symbolDatabase.registerProvider(new AcsSymbolProvider());

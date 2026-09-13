@@ -841,7 +841,7 @@
             return now - last >= RESOLVE_LOADING_TIMEOUT_MS && retries < RESOLVE_RETRY_MAX;
         }
         // Definition-sized placeholder (empty nested composite) — children may appear later
-        if (isEmptyCompositePlaceholder(val) && !val._pendingSubPatches) {
+        if (isEmptyCompositePlaceholder(val)) {
             return retries < RESOLVE_RETRY_MAX && now - last >= RESOLVE_RETRY_INTERVAL_MS;
         }
         return false;
@@ -1664,31 +1664,11 @@
         }
     });
 
-    function subPatchesHaveTranslation(subPatches) {
-        if (!subPatches) { return false; }
-        for (const sp of subPatches) {
-            if (sp.translation) { return true; }
-            if (sp.children && subPatchesHaveTranslation(sp.children)) { return true; }
-        }
-        return false;
-    }
-
     async function handleResourceResolved(msg) {
         if (msg.resourceType === 'composite' && msg.subPatches && msg.subPatches.length > 0) {
-            // If translations need PLAYPAL and it isn't ready yet, keep a placeholder
-            // and re-resolve when palette arrives.
-            if (subPatchesHaveTranslation(msg.subPatches) && !playpal) {
-                resourceCache.set(msg.resourceId, {
-                    state: 'definition',
-                    width: msg.width || 32,
-                    height: msg.height || 32,
-                    _wasComposite: true,
-                    _pendingSubPatches: msg.subPatches
-                });
-                renderBase();
-                renderOverlay();
-                return;
-            }
+            // Rasterize unconditionally: drawSubPatch applies Translation only when a
+            // palette is available, so a missing PLAYPAL degrades to original colors
+            // instead of suppressing the whole preview.
             try {
                 const composed = await compositePatches(msg.width, msg.height, msg.subPatches);
                 resourceCache.set(msg.resourceId, {

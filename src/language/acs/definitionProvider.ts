@@ -7,6 +7,7 @@ import { SymbolKind } from '../../base/types';
 import { locationFromSymbol } from '../../base/symbolLocation';
 import { getBaseAcsIncludeDirs } from '../../base/baseAcsIncludes';
 import { resolveActorDefinition } from '../decorate/actorResolve';
+import { extractSoundArgAtCursor, resolveSoundDefinition } from '../sndinfo/soundResolve';
 
 /** Named/numbered script callables used by goto-definition and hover/signature enrichment. */
 export const SCRIPT_EXEC_FUNCTIONS = new Set([
@@ -477,6 +478,11 @@ export function registerAcsDefinitionProvider(
                         token,
                         symbolDb
                     );
+                }
+
+                const soundArg = extractSoundArgAtCursor(lineText, position.character);
+                if (soundArg !== null) {
+                    return resolveSoundDefinition(soundArg.sound, token, symbolDb);
                 }
 
                 if (symbolDb) {

@@ -44,6 +44,7 @@ import { PackageManager } from './base/packageManager';
 import { SymbolDatabase } from './base/symbolDatabase';
 import { ActorSymbolProvider } from './base/actorProvider';
 import { AcsSymbolProvider } from './base/acsProvider';
+import { SndinfoSymbolProvider } from './base/sndinfoProvider';
 import { extractBaseAcsSources } from './base/extractBaseAcs';
 import { setBaseAcsIncludeDirs, setBasePackagesForCompile } from './base/baseAcsIncludes';
 import {
@@ -85,6 +86,7 @@ export function activate(context: vscode.ExtensionContext) {
     const symbolDatabase = new SymbolDatabase();
     symbolDatabase.registerProvider(new ActorSymbolProvider());
     symbolDatabase.registerProvider(new AcsSymbolProvider());
+    symbolDatabase.registerProvider(new SndinfoSymbolProvider());
 
     const resourceIndex = new ResourceIndex(getPk3Root());
     resourceIndex.build();
@@ -113,6 +115,11 @@ export function activate(context: vscode.ExtensionContext) {
                 lang = 'decorate';
             } else if (name.endsWith('.acs') || name === 'scripts') {
                 lang = 'acs';
+            } else {
+                const lump = name.includes('.') ? name.slice(0, name.lastIndexOf('.')) : name;
+                if (lump.slice(0, 8) === 'sndinfo') {
+                    lang = 'sndinfo';
+                }
             }
             if (lang && doc.languageId !== lang) {
                 await vscode.languages.setTextDocumentLanguage(doc, lang);
@@ -241,7 +248,7 @@ export function activate(context: vscode.ExtensionContext) {
     registerSignatureHelp(context, actionsData, stateKeywordsData, expressionsData, symbolDatabase);
     registerHoverProvider(context, actionsData, stateKeywordsData, symbolDatabase, inheritanceData, expressionsData);
     registerDecorateSemanticTokens(context, symbolDatabase);
-    registerDefinitionProvider(context, symbolDatabase, actionsData, expressionsData, inheritanceData);
+    registerDefinitionProvider(context, symbolDatabase, actionsData, expressionsData, inheritanceData, propertiesData);
     registerColorProvider(context, actionsData, x11ColorsData.colors);
     registerDecorateSymbolProvider(context);
     registerDecorateRenameAndReferences(context);
@@ -269,7 +276,7 @@ export function activate(context: vscode.ExtensionContext) {
             if (doc.languageId === 'acs') {
                 workspaceIndex.invalidate(doc.uri.fsPath);
             }
-            if (doc.languageId === 'decorate' || doc.languageId === 'acs') {
+            if (doc.languageId === 'decorate' || doc.languageId === 'acs' || doc.languageId === 'sndinfo') {
                 if (saveRebuildTimer) { clearTimeout(saveRebuildTimer); }
                 saveRebuildTimer = setTimeout(() => {
                     void rebuildSymbols({ notifyWarnings: false });

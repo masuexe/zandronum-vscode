@@ -7,8 +7,14 @@ import {
     ActionData,
     ExpressionData,
     InheritanceData,
+    PropertyData,
     getExpressionCallables,
 } from '../../shared/dataLoader';
+import {
+    extractSoundArgAtCursor,
+    extractSoundPropertyAtCursor,
+    resolveSoundDefinition,
+} from '../sndinfo/soundResolve';
 import {
     actorIsWeaponDescendant,
     defaultGunFlashLabel,
@@ -26,7 +32,8 @@ export function registerDefinitionProvider(
     symbolDb?: SymbolDatabase,
     actionsData?: Record<string, ActionData>,
     expressionsData?: Record<string, ExpressionData>,
-    inheritanceData?: Record<string, InheritanceData>
+    inheritanceData?: Record<string, InheritanceData>,
+    propertiesData?: Record<string, PropertyData>
 ) {
     const expressionCallables = expressionsData && actionsData
         ? getExpressionCallables(actionsData, expressionsData)
@@ -43,7 +50,8 @@ export function registerDefinitionProvider(
                     symbolDb,
                     actionsData,
                     expressionCallables,
-                    inheritanceData
+                    inheritanceData,
+                    propertiesData
                 );
             }
         }
@@ -58,7 +66,8 @@ async function provideDefinition(
     symbolDb?: SymbolDatabase,
     actionsData?: Record<string, ActionData>,
     expressionCallables: Record<string, ActionData> = {},
-    inheritanceData?: Record<string, InheritanceData>
+    inheritanceData?: Record<string, InheritanceData>,
+    propertiesData?: Record<string, PropertyData>
 ): Promise<vscode.Definition | undefined> {
     const lineText = document.lineAt(position.line).text;
 
@@ -161,6 +170,20 @@ async function provideDefinition(
                 token
             );
         }
+    }
+
+    const soundArg = extractSoundArgAtCursor(lineText, position.character, actionsData);
+    if (soundArg !== null) {
+        return resolveSoundDefinition(soundArg.sound, token, symbolDb);
+    }
+
+    const soundProp = extractSoundPropertyAtCursor(
+        lineText,
+        position.character,
+        propertiesData
+    );
+    if (soundProp !== null) {
+        return resolveSoundDefinition(soundProp.sound, token, symbolDb);
     }
 
     const wordRange = document.getWordRangeAtPosition(position);

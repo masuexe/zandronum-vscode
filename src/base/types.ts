@@ -3,6 +3,7 @@ export enum SymbolKind {
     AcsConstant = 'acsConstant',
     AcsFunction = 'acsFunction',
     AcsScript = 'acsScript',
+    Sound = 'sound',
 }
 
 export interface SymbolLocation {
@@ -49,6 +50,10 @@ export interface AcsScriptSymbol extends SymbolEntry {
     /** Script name or number as string (lookup key; stored case-preserved). */
     scriptKey: string;
     params: AcsScriptParam[];
+}
+
+export interface SoundSymbol extends SymbolEntry {
+    kind: SymbolKind.Sound;
 }
 
 export interface PackageEntry {

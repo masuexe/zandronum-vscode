@@ -845,24 +845,28 @@ export class TextureDocumentModel {
         const endLine = node.range.end.line;
         const startText = this.document.lineAt(startLine).text;
 
-        // Find "Patch|Graphic name, x, y" on the start line
+        // Scan from this patch's column. Compact `graphic NAME, w, h { ... Patch ... }`
+        // lines also match Graphic as a definition type; searching from column 0 would
+        // treat the definition `{` as this patch's property block and rewrite the body
+        // to `{FlipX}`.
+        const searchFrom = node.range.start.character;
         const headerRe = /\b(Patch|Graphic)\s+(?:"[^"]*"|[^\s,]+)\s*,\s*-?\d+\s*,\s*-?\d+/i;
-        const headerMatch = headerRe.exec(startText);
+        const headerMatch = headerRe.exec(startText.substring(searchFrom));
         if (!headerMatch) { return null; }
-        const headerEndCol = headerMatch.index + headerMatch[0].length;
+        const headerEndCol = searchFrom + headerMatch.index + headerMatch[0].length;
 
-        // Prefer a `{` that belongs to this patch (after the header on the same line,
-        // or on the following lines before the next sibling / parent close).
-        const afterHeader = startText.substring(headerEndCol);
-        const inlineBrace = afterHeader.indexOf('{');
-        if (inlineBrace >= 0) {
-            const openCol = headerEndCol + inlineBrace;
-            const close = this.findMatchingBrace(startLine, openCol);
+        // Only an immediately following `{` is this patch's property block — not a
+        // later `{` belonging to a sibling or (if the header match was wrong) the
+        // parent definition.
+        let scan = headerEndCol;
+        while (scan < startText.length && /\s/.test(startText[scan])) { scan++; }
+        if (scan < startText.length && startText[scan] === '{') {
+            const close = this.findMatchingBrace(startLine, scan);
             if (!close) { return null; }
             const inline = close.line === startLine;
             return {
                 hasBlock: true,
-                blockRange: new vscode.Range(startLine, openCol, close.line, close.col + 1),
+                blockRange: new vscode.Range(startLine, scan, close.line, close.col + 1),
                 insertPos: new vscode.Position(startLine, headerEndCol),
                 inline
             };

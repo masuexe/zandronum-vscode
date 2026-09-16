@@ -208,3 +208,51 @@ suite('textures parser — compact one-line FlightUnit definitions', () => {
         assert.strictEqual(node!.texProps.OffsetY, -64);
     });
 });
+
+suite('texture model — compact graphic patch FlipX', () => {
+    const GRAPHIC_SRC =
+        'graphic C_I_49AW, 71, 61 {Offset 25, 22 Patch 6N49A0, 0, 0 Patch 6N49B0, 26, 25}';
+
+    test('parser starts the second patch at Patch, not the Graphic definition', () => {
+        const parser = new TexturesParser();
+        parser.update(fakeDocument(GRAPHIC_SRC));
+        const patches = patchChildren(parser.getSymbols()[0]);
+        assert.strictEqual(patches.length, 2);
+        assert.ok(patches[1].range.start.character > 0);
+        assert.ok(
+            GRAPHIC_SRC.substring(patches[1].range.start.character).startsWith('Patch 6N49B0')
+        );
+    });
+
+    test('FlipX rewrites only the patch, not the whole graphic body', async function () {
+        this.timeout(10000);
+        const doc = await vscode.workspace.openTextDocument({
+            content: GRAPHIC_SRC,
+            language: 'textures'
+        });
+        const parser = new TexturesParser();
+        const model = new TextureDocumentModel(doc, parser, new ResourceIndex('src'));
+        model.update();
+        const patches = patchChildren(parser.getSymbols()[0]);
+        assert.strictEqual(patches.length, 2);
+        const ok = await model.applyPatchProps(patches[1].id, { FlipX: true }, doc.version);
+        assert.ok(ok, 'applyPatchProps should succeed');
+        const text = doc.getText();
+        assert.ok(
+            /Offset\s+25\s*,\s*22/i.test(text),
+            `Offset must remain, got: ${text}`
+        );
+        assert.ok(
+            /Patch\s+6N49A0\s*,\s*0\s*,\s*0/i.test(text),
+            `first patch must remain, got: ${text}`
+        );
+        assert.ok(
+            /Patch\s+6N49B0\s*,\s*26\s*,\s*25\s*\{FlipX\}/i.test(text),
+            `FlipX must attach to 6N49B0, got: ${text}`
+        );
+        assert.ok(
+            !/graphic\s+C_I_49AW,\s*71,\s*61\s*\{FlipX\}\s*$/i.test(text.trim()),
+            `must not collapse the graphic to {FlipX}, got: ${text}`
+        );
+    });
+});

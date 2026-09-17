@@ -13,6 +13,12 @@ export interface RgbColor {
 
 let paletteCache: RgbColor[] | null | undefined;
 let cacheKey: string | undefined;
+let playpalGeneration = 0;
+
+/** Bumps when the PLAYPAL cache key changes (path, pk3 root, or package set). */
+export function getPlaypalGeneration(): number {
+    return playpalGeneration;
+}
 
 /** Live PackageManager package list; supplied during extension activation. */
 let packageProvider: (() => readonly PackageSource[]) | undefined;
@@ -126,6 +132,7 @@ export async function loadPlaypal(): Promise<RgbColor[] | null> {
         return paletteCache;
     }
     cacheKey = key;
+    playpalGeneration++;
 
     const palette = await resolvePlaypal({
         playpalPath: playpalPath || undefined,

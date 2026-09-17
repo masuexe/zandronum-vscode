@@ -1,7 +1,21 @@
 import * as vscode from 'vscode';
 import { RgbColor } from '../../tools/playpalReader';
 
-const COLOR_VALUE_RE = /(%)?\[(\d+(?:\.\d+)?)\s*,\s*(\d+(?:\.\d+)?)\s*,\s*(\d+(?:\.\d+)?)\s*\]|\b(\d{1,3})\b/g;
+const COLOR_VALUE_RE_SOURCE =
+    '(%)?\\[(\\d+(?:\\.\\d+)?)\\s*,\\s*(\\d+(?:\\.\\d+)?)\\s*,\\s*(\\d+(?:\\.\\d+)?)\\s*\\]|\\b(\\d{1,3})\\b';
+
+export interface TranslationPropertySpan {
+    startLine: number;
+    endLine: number;
+    /** Column of the Translation keyword on `startLine`. */
+    keywordColumn: number;
+}
+
+export interface TranslationColorVisit {
+    startColumn: number;
+    endColumn: number;
+    color: vscode.Color;
+}
 
 export function isFloatContext(lineText: string, matchIndex: number): boolean {
     let quotePos = -1;
@@ -107,6 +121,91 @@ function shouldContinueTranslationProperty(
         || isTranslationKeywordOnlyLine(prevLine, keywordRe);
 }
 
+export function forEachKeywordPropertyTranslationSpan(
+    document: vscode.TextDocument,
+    keywordRe: RegExp,
+    onSpan: (span: TranslationPropertySpan) => boolean | void,
+    token?: vscode.CancellationToken
+): void {
+    let i = 0;
+    while (i < document.lineCount) {
+        if (token?.isCancellationRequested) {
+            break;
+        }
+        const lineText = document.lineAt(i).text;
+        const kwIndex = stripLineComment(lineText).search(keywordRe);
+        if (kwIndex < 0) {
+            i++;
+            continue;
+        }
+
+        let j = i;
+        while (j < document.lineCount) {
+            if (token?.isCancellationRequested) {
+                break;
+            }
+            const text = document.lineAt(j).text;
+            if (j + 1 >= document.lineCount) {
+                break;
+            }
+            if (!shouldContinueTranslationProperty(text, document.lineAt(j + 1).text, keywordRe)) {
+                break;
+            }
+            j++;
+        }
+        if (onSpan({ startLine: i, endLine: j, keywordColumn: kwIndex }) === false) {
+            return;
+        }
+        i = j + 1;
+    }
+}
+
+export function collectKeywordPropertyTranslationSpans(
+    document: vscode.TextDocument,
+    keywordRe: RegExp,
+    token?: vscode.CancellationToken
+): TranslationPropertySpan[] {
+    const spans: TranslationPropertySpan[] = [];
+    forEachKeywordPropertyTranslationSpan(document, keywordRe, span => {
+        spans.push(span);
+    }, token);
+    return spans;
+}
+
+/** First span whose `endLine >= fromLine`, assuming spans are sorted by startLine. */
+export function firstSpanIndexOverlapping(
+    spans: readonly TranslationPropertySpan[],
+    fromLine: number
+): number {
+    let lo = 0;
+    let hi = spans.length;
+    while (lo < hi) {
+        const mid = (lo + hi) >> 1;
+        if (spans[mid].endLine < fromLine) {
+            lo = mid + 1;
+        } else {
+            hi = mid;
+        }
+    }
+    return lo;
+}
+
+export function spansOverlappingLines(
+    spans: readonly TranslationPropertySpan[],
+    fromLine: number,
+    toLine: number
+): TranslationPropertySpan[] {
+    const out: TranslationPropertySpan[] = [];
+    for (let i = firstSpanIndexOverlapping(spans, fromLine); i < spans.length; i++) {
+        const span = spans[i];
+        if (span.startLine > toLine) {
+            break;
+        }
+        out.push(span);
+    }
+    return out;
+}
+
 /**
  * DECORATE/TEXTURES-style property: after a line matching `keywordRe`, keep scanning
  * following value lines (trailing comma, unclosed quote, or keyword-only then quoted remaps).
@@ -119,35 +218,35 @@ export function collectKeywordPropertyTranslationColors(
     token?: vscode.CancellationToken
 ): vscode.ColorInformation[] {
     const colors: vscode.ColorInformation[] = [];
-    let i = 0;
-    while (i < document.lineCount) {
+    forEachKeywordPropertyTranslationSpan(document, keywordRe, span => {
+        colors.push(...collectTranslationColorsForSpan(document, span, palette, span.startLine, span.endLine, undefined, token));
+    }, token);
+    return colors;
+}
+
+export function collectTranslationColorsForSpan(
+    document: vscode.TextDocument,
+    span: TranslationPropertySpan,
+    palette: RgbColor[] | null,
+    fromLine: number,
+    toLine: number,
+    maxColors?: number,
+    token?: vscode.CancellationToken
+): vscode.ColorInformation[] {
+    const colors: vscode.ColorInformation[] = [];
+    const start = Math.max(span.startLine, fromLine);
+    const end = Math.min(span.endLine, toLine);
+    for (let line = start; line <= end; line++) {
         if (token?.isCancellationRequested) {
             break;
         }
-        const lineText = document.lineAt(i).text;
-        const kwIndex = lineText.search(keywordRe);
-        if (kwIndex < 0) {
-            i++;
-            continue;
+        if (maxColors !== undefined && colors.length >= maxColors) {
+            break;
         }
-
-        let j = i;
-        while (j < document.lineCount) {
-            if (token?.isCancellationRequested) {
-                break;
-            }
-            const text = document.lineAt(j).text;
-            const fromCol = j === i ? kwIndex : 0;
-            colors.push(...collectTranslationColorsOnLine(text, j, palette, fromCol));
-            if (j + 1 >= document.lineCount) {
-                break;
-            }
-            if (!shouldContinueTranslationProperty(text, document.lineAt(j + 1).text, keywordRe)) {
-                break;
-            }
-            j++;
-        }
-        i = j + 1;
+        const fromCol = line === span.startLine ? span.keywordColumn : 0;
+        const remaining = maxColors === undefined ? undefined : maxColors - colors.length;
+        const chunk = collectTranslationColorsOnLine(document.lineAt(line).text, line, palette, fromCol, remaining);
+        colors.push(...chunk);
     }
     return colors;
 }
@@ -213,19 +312,21 @@ export function collectCreateTranslationColors(
     return colors;
 }
 
-/** Collect ColorInformation for palette indices and [r,g,b] / %[…] values on one line. */
-export function collectTranslationColorsOnLine(
+/**
+ * Walk palette indices and [r,g,b] / %[…] values on one line.
+ * `onMatch` may return false to stop.
+ */
+export function visitTranslationColorMatches(
     lineText: string,
-    lineNumber: number,
+    fromColumn: number,
     palette: RgbColor[] | null,
-    fromColumn = 0
-): vscode.ColorInformation[] {
-    const colors: vscode.ColorInformation[] = [];
+    onMatch: (visit: TranslationColorVisit) => boolean | void
+): void {
     const segment = fromColumn > 0 ? lineText.slice(fromColumn) : lineText;
     const colBase = fromColumn > 0 ? fromColumn : 0;
+    const re = new RegExp(COLOR_VALUE_RE_SOURCE, 'g');
     let match: RegExpExecArray | null;
-    COLOR_VALUE_RE.lastIndex = 0;
-    while ((match = COLOR_VALUE_RE.exec(segment)) !== null) {
+    while ((match = re.exec(segment)) !== null) {
         if (isPaletteMatch(match)) {
             if (!palette) {
                 continue;
@@ -236,9 +337,11 @@ export function collectTranslationColorsOnLine(
             }
             const pal = palette[idx];
             const color = new vscode.Color(pal.r / 255, pal.g / 255, pal.b / 255, 1);
-            const startPos = new vscode.Position(lineNumber, colBase + match.index);
-            const endPos = new vscode.Position(lineNumber, colBase + match.index + match[0].length);
-            colors.push(new vscode.ColorInformation(new vscode.Range(startPos, endPos), color));
+            const startColumn = colBase + match.index;
+            const endColumn = colBase + match.index + match[0].length;
+            if (onMatch({ startColumn, endColumn, color }) === false) {
+                return;
+            }
             continue;
         }
 
@@ -261,15 +364,35 @@ export function collectTranslationColorsOnLine(
         }
 
         const hasPercent = match[1] === '%';
-        const colorStart = colBase + match.index + (hasPercent ? 1 : 0);
-        const startPos = new vscode.Position(lineNumber, colorStart);
-        const endPos = new vscode.Position(lineNumber, colBase + match.index + match[0].length);
+        const startColumn = colBase + match.index + (hasPercent ? 1 : 0);
+        const endColumn = colBase + match.index + match[0].length;
         const color = floatMode
             ? new vscode.Color(Math.min(r / 2, 1), Math.min(g / 2, 1), Math.min(b / 2, 1), 1)
             : new vscode.Color(r / 255, g / 255, b / 255, 1);
-
-        colors.push(new vscode.ColorInformation(new vscode.Range(startPos, endPos), color));
+        if (onMatch({ startColumn, endColumn, color }) === false) {
+            return;
+        }
     }
+}
+
+/** Collect ColorInformation for palette indices and [r,g,b] / %[…] values on one line. */
+export function collectTranslationColorsOnLine(
+    lineText: string,
+    lineNumber: number,
+    palette: RgbColor[] | null,
+    fromColumn = 0,
+    maxColors?: number
+): vscode.ColorInformation[] {
+    const colors: vscode.ColorInformation[] = [];
+    visitTranslationColorMatches(lineText, fromColumn, palette, visit => {
+        if (maxColors !== undefined && colors.length >= maxColors) {
+            return false;
+        }
+        const startPos = new vscode.Position(lineNumber, visit.startColumn);
+        const endPos = new vscode.Position(lineNumber, visit.endColumn);
+        colors.push(new vscode.ColorInformation(new vscode.Range(startPos, endPos), visit.color));
+        return maxColors === undefined || colors.length < maxColors;
+    });
     return colors;
 }
 

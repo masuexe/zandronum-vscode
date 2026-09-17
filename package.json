@@ -273,6 +273,10 @@
         "title": "Open Texture Editor"
       },
       {
+        "command": "textures.editTranslationColor",
+        "title": "Edit Translation Color"
+      },
+      {
         "command": "decorate.previewOffset",
         "title": "Preview Weapon Offset"
       },
@@ -331,6 +335,18 @@
           "default": 0,
           "minimum": 0,
           "description": "Max parallel ACC processes when compiling multiple ACS libraries. 0 means min(4, CPU count)."
+        },
+        "zandronum-vscode.textures.translationPreviewMode": {
+          "type": "string",
+          "enum": ["native", "viewport"],
+          "enumItemLabels": ["Native color preview", "Visible region color preview"],
+          "markdownEnumDescriptions": [
+            "Scan the whole document. Uses native color swatches and supports the native color picker; subject to `editor.colorDecoratorsLimit`.",
+            "Draw custom swatches in the visible region with bounded caching and preloading. Hover a color value and choose **Edit color** to open the custom picker; clicking the swatch does not open the native picker."
+          ],
+          "default": "native",
+          "scope": "resource",
+          "markdownDescription": "Translation color preview in TEXTURES text editors only. Both modes respect `editor.colorDecorators`. Choose viewport for large documents; its editing interaction differs from native preview."
         },
         "zandronum-vscode.playpalPath": {
           "type": "string",
@@ -452,6 +468,10 @@
         },
         {
           "command": "acs.compileAllBuildAndRun",
+          "when": "false"
+        },
+        {
+          "command": "textures.editTranslationColor",
           "when": "false"
         }
       ],

@@ -260,8 +260,16 @@ function applyParenDelta(depth: number, structural: string): number {
 /**
  * Previous line still open for args / call lists (`foo(` or `...,`).
  * Use comment-stripped text that still includes strings.
+ *
+ * Only counts while parentheses are open. A trailing comma inside a brace
+ * initializer (`str tips[2] = {` / `"a",` / `"b"` / `};`) separates rows, not
+ * wrapped arguments, so it must not mark the next line as a continuation —
+ * otherwise that row keeps the author's indentation instead of the block's.
  */
-function lineOpensContinuation(commentStrippedTrim: string): boolean {
+function lineOpensContinuation(commentStrippedTrim: string, parenDepthAfter: number): boolean {
+    if (parenDepthAfter <= 0) {
+        return false;
+    }
     return commentStrippedTrim.endsWith(',') || commentStrippedTrim.endsWith('(');
 }
 
@@ -1732,7 +1740,7 @@ export function computeAcsLeadingEdits(
         depth = depthAfter;
         parenDepth = parenAfter;
         if (!isBlank) {
-            prevOpensContinuation = lineOpensContinuation(scanned.code.trim());
+            prevOpensContinuation = lineOpensContinuation(scanned.code.trim(), parenAfter);
             const code = scanned.code.trim();
             if (code.length > 0) {
                 prevIncompleteExpr = lineEndsIncompleteExpr(code);

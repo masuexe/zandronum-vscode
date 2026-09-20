@@ -1098,6 +1098,78 @@ suite('acsFormat — calls and continuations', () => {
 		const out = format(input).split('\n');
 		assert.strictEqual(out[3], '    int x = 1;');
 	});
+
+	test('indents every row of a global string array initializer', () => {
+		const input = [
+			'str TheYoungerTips[TALLY_THEYOUNGER] = {',
+			'  "The game uses \\cdUse item\\c- and \\cdReload\\c- key.",',
+			'"Please input \\cdcl_autoready 1\\c- in the console.",',
+			'"Feeling walking too slow?",',
+			'"Some classes have different taunts."',
+			'};',
+		].join('\n');
+
+		const expected = [
+			'str TheYoungerTips[TALLY_THEYOUNGER] =',
+			'{',
+			'    "The game uses \\cdUse item\\c- and \\cdReload\\c- key.",',
+			'    "Please input \\cdcl_autoready 1\\c- in the console.",',
+			'    "Feeling walking too slow?",',
+			'    "Some classes have different taunts."',
+			'};',
+		].join('\n');
+
+		assert.strictEqual(format(input), expected);
+		assert.strictEqual(format(expected), expected);
+		assert.strictEqual(
+			format(input, { braceStyle: 'sameLine' }),
+			[
+				'str TheYoungerTips[TALLY_THEYOUNGER] = {',
+				'    "The game uses \\cdUse item\\c- and \\cdReload\\c- key.",',
+				'    "Please input \\cdcl_autoready 1\\c- in the console.",',
+				'    "Feeling walking too slow?",',
+				'    "Some classes have different taunts."',
+				'};',
+			].join('\n')
+		);
+	});
+
+	test('indents array rows inside a script body', () => {
+		const input = [
+			'script 1 (void)',
+			'{',
+			'str tips[2] = {',
+			'"a",',
+			'"b"',
+			'};',
+			'Print(s:tips[0]);',
+			'}',
+		].join('\n');
+
+		const out = format(input).split('\n');
+		assert.strictEqual(out[2], '    str tips[2] =');
+		assert.strictEqual(out[3], '    {');
+		assert.strictEqual(out[4], '        "a",');
+		assert.strictEqual(out[5], '        "b"');
+		assert.strictEqual(out[6], '    };');
+		assert.strictEqual(out[7], '    Print(s:tips[0]);');
+		assert.strictEqual(format(out.join('\n')), out.join('\n'));
+	});
+
+	test('keeps wrapped call argument alignment inside a script', () => {
+		const input = [
+			'script 1 (void)',
+			'{',
+			'SetActorState(tid, "Spawn",',
+			'               "Melee");',
+			'}',
+		].join('\n');
+
+		const out = format(input).split('\n');
+		assert.strictEqual(out[2], '    SetActorState(tid, "Spawn",');
+		assert.strictEqual(out[3], '               "Melee");');
+		assert.strictEqual(format(out.join('\n')), out.join('\n'));
+	});
 });
 
 suite('acsFormat — ifdef and blanks', () => {

@@ -1,6 +1,13 @@
 import * as vscode from 'vscode';
 
-export type BraceStyle = 'nextLine' | 'sameLine';
+import {
+    BraceStyle,
+    getFormatConfiguration,
+    readBraceStyle,
+    readSpaceAfterComma,
+} from '../formatConfiguration';
+
+export type { BraceStyle };
 
 export interface DecorateFormatOptions {
     tabSize: number;
@@ -1314,67 +1321,41 @@ export function buildFormattedDocumentText(lines: readonly string[], eol: string
 }
 
 function readIntSetting(
-    document: vscode.TextDocument,
+    config: vscode.WorkspaceConfiguration,
     key: string,
     fallback: number
 ): number {
-    const raw = vscode.workspace
-        .getConfiguration('zandronum-vscode', document.uri)
-        .get<number>(key, fallback);
+    const raw = config.get<number>(key, fallback);
     return typeof raw === 'number' && Number.isFinite(raw) ? Math.trunc(raw) : fallback;
 }
 
 function readOptionalIntSetting(
-    document: vscode.TextDocument,
+    config: vscode.WorkspaceConfiguration,
     key: string
 ): number | null {
-    const raw = vscode.workspace
-        .getConfiguration('zandronum-vscode', document.uri)
-        .get<number | null>(key, null);
+    const raw = config.get<number | null>(key, null);
     if (raw === null || raw === undefined) {
         return null;
     }
     return typeof raw === 'number' && Number.isFinite(raw) ? Math.trunc(raw) : null;
 }
 
-function readBraceStyle(document: vscode.TextDocument): BraceStyle {
-    const raw = vscode.workspace
-        .getConfiguration('zandronum-vscode', document.uri)
-        .get<string>('decorate.format.braceStyle', 'nextLine');
-    return raw === 'sameLine' ? 'sameLine' : 'nextLine';
-}
-
-function readSpaceAfterComma(document: vscode.TextDocument): boolean {
-    return vscode.workspace
-        .getConfiguration('zandronum-vscode', document.uri)
-        .get<boolean>('decorate.format.spaceAfterComma', true);
-}
-
-function readSpaceInEmptyBraces(document: vscode.TextDocument): boolean {
-    return vscode.workspace
-        .getConfiguration('zandronum-vscode', document.uri)
-        .get<boolean>('decorate.format.spaceInEmptyBraces', false);
-}
-
-function readRemoveBlankLinesBeforeCloseBrace(document: vscode.TextDocument): boolean {
-    return vscode.workspace
-        .getConfiguration('zandronum-vscode', document.uri)
-        .get<boolean>('decorate.format.removeBlankLinesBeforeCloseBrace', true);
-}
-
 function toFormatOptions(
     document: vscode.TextDocument,
     options: vscode.FormattingOptions
 ): DecorateFormatOptions {
+    const config = getFormatConfiguration(document);
     return {
         tabSize: options.tabSize,
         insertSpaces: options.insertSpaces,
-        stateLabelIndent: readIntSetting(document, 'decorate.format.stateLabelIndent', 0),
-        stateFrameIndent: readOptionalIntSetting(document, 'decorate.format.stateFrameIndent'),
-        braceStyle: readBraceStyle(document),
-        spaceInEmptyBraces: readSpaceInEmptyBraces(document),
-        spaceAfterComma: readSpaceAfterComma(document),
-        removeBlankLinesBeforeCloseBrace: readRemoveBlankLinesBeforeCloseBrace(document),
+        stateLabelIndent: readIntSetting(config, 'decorate.format.stateLabelIndent', 0),
+        stateFrameIndent: readOptionalIntSetting(config, 'decorate.format.stateFrameIndent'),
+        braceStyle: readBraceStyle(config),
+        // Fixed formatter spec (was zandronum-vscode.decorate.format.spaceInEmptyBraces, default false).
+        spaceInEmptyBraces: false,
+        spaceAfterComma: readSpaceAfterComma(config),
+        // Fixed formatter spec (was zandronum-vscode.decorate.format.removeBlankLinesBeforeCloseBrace, default true).
+        removeBlankLinesBeforeCloseBrace: true,
     };
 }
 

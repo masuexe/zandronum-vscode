@@ -1,6 +1,13 @@
 import * as vscode from 'vscode';
 
-export type BraceStyle = 'nextLine' | 'sameLine';
+import {
+    BraceStyle,
+    getFormatConfiguration,
+    readBraceStyle,
+    readSpaceAfterComma,
+} from '../formatConfiguration';
+
+export type { BraceStyle };
 
 export interface AcsFormatOptions {
     tabSize: number;
@@ -1836,49 +1843,22 @@ export function buildFormattedDocumentText(lines: readonly string[], eol: string
     return trimmed.join(eol) + eol;
 }
 
-function readBraceStyle(document: vscode.TextDocument): BraceStyle {
-    const raw = vscode.workspace
-        .getConfiguration('zandronum-vscode', document.uri)
-        .get<string>('acs.format.braceStyle', 'nextLine');
-    return raw === 'sameLine' ? 'sameLine' : 'nextLine';
-}
-
-function readSpaceAfterComma(document: vscode.TextDocument): boolean {
-    return vscode.workspace
-        .getConfiguration('zandronum-vscode', document.uri)
-        .get<boolean>('acs.format.spaceAfterComma', true);
-}
-
-function readSpaceInEmptyBraces(document: vscode.TextDocument): boolean {
-    return vscode.workspace
-        .getConfiguration('zandronum-vscode', document.uri)
-        .get<boolean>('acs.format.spaceInEmptyBraces', false);
-}
-
-function readSpaceAfterControlKeyword(document: vscode.TextDocument): boolean {
-    return vscode.workspace
-        .getConfiguration('zandronum-vscode', document.uri)
-        .get<boolean>('acs.format.spaceAfterControlKeyword', true);
-}
-
-function readRemoveBlankLinesBeforeCloseBrace(document: vscode.TextDocument): boolean {
-    return vscode.workspace
-        .getConfiguration('zandronum-vscode', document.uri)
-        .get<boolean>('acs.format.removeBlankLinesBeforeCloseBrace', true);
-}
-
 function toFormatOptions(
     document: vscode.TextDocument,
     options: vscode.FormattingOptions
 ): AcsFormatOptions {
+    const config = getFormatConfiguration(document);
     return {
         tabSize: options.tabSize,
         insertSpaces: options.insertSpaces,
-        braceStyle: readBraceStyle(document),
-        spaceInEmptyBraces: readSpaceInEmptyBraces(document),
-        spaceAfterComma: readSpaceAfterComma(document),
-        spaceAfterControlKeyword: readSpaceAfterControlKeyword(document),
-        removeBlankLinesBeforeCloseBrace: readRemoveBlankLinesBeforeCloseBrace(document),
+        braceStyle: readBraceStyle(config),
+        // Fixed formatter spec (was zandronum-vscode.acs.format.spaceInEmptyBraces, default false).
+        spaceInEmptyBraces: false,
+        spaceAfterComma: readSpaceAfterComma(config),
+        // Fixed formatter spec (was zandronum-vscode.acs.format.spaceAfterControlKeyword, default true).
+        spaceAfterControlKeyword: true,
+        // Fixed formatter spec (was zandronum-vscode.acs.format.removeBlankLinesBeforeCloseBrace, default true).
+        removeBlankLinesBeforeCloseBrace: true,
     };
 }
 

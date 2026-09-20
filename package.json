@@ -289,149 +289,123 @@
         "title": "Refresh Base Resources"
       }
     ],
-    "configuration": {
-      "title": "Zandronum",
-      "properties": {
-        "zandronum-vscode.accPath": {
-          "type": "string",
-          "default": "",
-          "description": "Path to the ACC compiler executable (a leading '~' is expanded). Leave empty to use 'acc' from system PATH."
-        },
-        "zandronum-vscode.accIncludePaths": {
-          "type": "string",
-          "default": "",
-          "description": "Extra ACC -i directories (semicolon-separated), applied after auto-resolved include dirs. ACC honors at most 15 -i paths (MAX_INCLUDE_PATHS 16 minus the reserved file-directory slot)."
-        },
-        "zandronum-vscode.zandronumPath": {
-          "type": "string",
-          "default": "",
-          "description": "Path to the Zandronum executable (a leading '~' is expanded). Leave empty to use 'zandronum' from system PATH."
-        },
-        "zandronum-vscode.pk3Root": {
-          "type": "string",
-          "default": "src",
-          "description": "PK3 content root directory relative to workspace root. Resources and ACS files inside this directory get higher lookup priority."
-        },
-        "zandronum-vscode.pk3LeanPack": {
-          "type": "boolean",
-          "default": false,
-          "description": "When true, apply <pk3Root>/.pk3ignore (gitignore syntax) while packaging the PK3. When false, pack all files under pk3Root. .pk3ignore itself is never packed."
-        },
-        "zandronum-vscode.baseResources": {
-          "type": "array",
-          "items": {
-            "type": "string"
+    "configuration": [
+      {
+        "title": "Zandronum",
+        "order": 0,
+        "properties": {
+          "zandronum-vscode.accPath": {
+            "type": "string",
+            "default": "",
+            "order": 0,
+            "description": "Path to the ACC compiler executable (a leading '~' is expanded). Leave empty to use 'acc' from system PATH."
           },
-          "default": [],
-          "description": "Read-only base resource paths loaded before the workspace for symbol resolution. Supports .pk3/.zip archives and directories (a leading '~' is expanded). Later entries override earlier ones; workspace always wins. .wad and .pk7 are not supported yet."
-        },
-        "zandronum-vscode.accOutputDir": {
-          "type": "string",
-          "default": "",
-          "description": "Output directory for compiled .o files, relative to the workspace root. If empty, defaults to <pk3Root>/acs."
-        },
-        "zandronum-vscode.accConcurrency": {
-          "type": "number",
-          "default": 0,
-          "minimum": 0,
-          "description": "Max parallel ACC processes when compiling multiple ACS libraries. 0 means min(4, CPU count)."
-        },
-        "zandronum-vscode.textures.translationPreviewMode": {
-          "type": "string",
-          "enum": ["native", "viewport"],
-          "enumItemLabels": ["Native color preview", "Visible region color preview"],
-          "markdownEnumDescriptions": [
-            "Scan the whole document. Uses native color swatches and supports the native color picker; subject to `editor.colorDecoratorsLimit`.",
-            "Draw custom swatches in the visible region with bounded caching and preloading. Hover a color value and choose **Edit color** to open the custom picker; clicking the swatch does not open the native picker."
-          ],
-          "default": "native",
-          "scope": "resource",
-          "markdownDescription": "Translation color preview in TEXTURES text editors only. Both modes respect `editor.colorDecorators`. Choose viewport for large documents; its editing interaction differs from native preview."
-        },
-        "zandronum-vscode.playpalPath": {
-          "type": "string",
-          "default": "",
-          "description": "Path to an external PLAYPAL lump file or directory containing one. Supports relative paths (to workspace root), absolute paths, and a leading '~'. Used for palette color preview in Translation properties."
-        },
-        "zandronum-vscode.decorate.format.stateLabelIndent": {
-          "type": "number",
-          "default": 0,
-          "minimum": 0,
-          "description": "Extra spaces for DECORATE state labels, added after the indent of States { . 0 aligns Spawn: with the opening brace (ZDoom wiki). Set 1 for one extra space (  States { /   Spawn:)."
-        },
-        "zandronum-vscode.decorate.format.stateFrameIndent": {
-          "type": [
-            "number",
-            "null"
-          ],
-          "default": null,
-          "minimum": 0,
-          "description": "Extra spaces for sprite frames and Goto/Loop/Stop, added after the indent of States { . null uses the editor tab size (wiki). Set 2 for two extra spaces (    MEGM A 0 under   Spawn:)."
-        },
-        "zandronum-vscode.decorate.format.braceStyle": {
-          "type": "string",
-          "enum": [
-            "nextLine",
-            "sameLine"
-          ],
-          "default": "nextLine",
-          "description": "Where `{` goes for Actor, States, and other DECORATE blocks. \"nextLine\" is ZDoom wiki / Allman style; \"sameLine\" uses `States {` / `Actor Foo {`."
-        },
-        "zandronum-vscode.decorate.format.spaceInEmptyBraces": {
-          "type": "boolean",
-          "default": false,
-          "description": "When true, rewrite empty same-line blocks like `Actor Foo {}` to `Actor Foo { }` (and nextLine may split them). When false, leave empty `{}` blocks unchanged."
-        },
-        "zandronum-vscode.decorate.format.spaceAfterComma": {
-          "type": "boolean",
-          "default": true,
-          "description": "When true, DECORATE formatter puts one space after commas outside strings and comments (`A_Jump(256, \"See\")`). When false, commas are compact (`A_Jump(256,\"See\")`)."
-        },
-        "zandronum-vscode.decorate.format.removeBlankLinesBeforeCloseBrace": {
-          "type": "boolean",
-          "default": true,
-          "description": "When true, DECORATE formatter removes blank lines immediately above a closing `}`. Blank lines between state labels are kept."
-        },
-        "zandronum-vscode.acs.format.braceStyle": {
-          "type": "string",
-          "enum": [
-            "nextLine",
-            "sameLine"
-          ],
-          "default": "nextLine",
-          "description": "Where `{` goes for script, function, if/while/switch, and other ACS blocks. \"nextLine\" is Allman style; \"sameLine\" uses `script 1 (void) {` / `if (x) {`."
-        },
-        "zandronum-vscode.acs.format.spaceInEmptyBraces": {
-          "type": "boolean",
-          "default": false,
-          "description": "When true, rewrite empty same-line blocks like `script 1 (void) {}` to `script 1 (void) { }` (and nextLine may split them). When false, leave empty `{}` blocks unchanged."
-        },
-        "zandronum-vscode.acs.format.spaceAfterComma": {
-          "type": "boolean",
-          "default": true,
-          "description": "When true, ACS formatter puts one space after commas outside strings and comments (`Print(s:\"Hi\", n:0)`). When false, commas are compact."
-        },
-        "zandronum-vscode.acs.format.spaceAfterControlKeyword": {
-          "type": "boolean",
-          "default": true,
-          "description": "When true, ACS formatter puts one space after control keywords before `(` (`if (x)`), and one space before `{` after `)` or `else`/`do` (`if (x) {`, `} else {`)."
-        },
-        "zandronum-vscode.acs.format.removeBlankLinesBeforeCloseBrace": {
-          "type": "boolean",
-          "default": true,
-          "description": "When true, ACS formatter removes blank lines immediately above a closing `}`."
-        },
-        "zandronum-vscode.sbarinfo.format.braceStyle": {
-          "type": "string",
-          "enum": [
-            "nextLine",
-            "sameLine"
-          ],
-          "default": "nextLine",
-          "description": "Where `{` goes for SBARINFO blocks (`StatusBar`, `InInventory`, `else`, …). \"nextLine\" is Allman style (default, same as ACS/DECORATE); \"sameLine\" uses `InInventory Foo, 1 {` / `else {`."
+          "zandronum-vscode.accIncludePaths": {
+            "type": "string",
+            "default": "",
+            "order": 1,
+            "description": "Extra ACC -i directories (semicolon-separated), applied after auto-resolved include dirs. ACC honors at most 15 -i paths (MAX_INCLUDE_PATHS 16 minus the reserved file-directory slot)."
+          },
+          "zandronum-vscode.zandronumPath": {
+            "type": "string",
+            "default": "",
+            "order": 2,
+            "description": "Path to the Zandronum executable (a leading '~' is expanded). Leave empty to use 'zandronum' from system PATH."
+          },
+          "zandronum-vscode.pk3Root": {
+            "type": "string",
+            "default": "src",
+            "order": 3,
+            "description": "PK3 content root directory relative to workspace root. Resources and ACS files inside this directory get higher lookup priority."
+          },
+          "zandronum-vscode.pk3LeanPack": {
+            "type": "boolean",
+            "default": false,
+            "order": 4,
+            "description": "When true, apply <pk3Root>/.pk3ignore (gitignore syntax) while packaging the PK3. When false, pack all files under pk3Root. .pk3ignore itself is never packed."
+          },
+          "zandronum-vscode.baseResources": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "default": [],
+            "order": 5,
+            "description": "Read-only base resource paths loaded before the workspace for symbol resolution. Supports .pk3/.zip archives and directories (a leading '~' is expanded). Later entries override earlier ones; workspace always wins. .wad and .pk7 are not supported yet."
+          },
+          "zandronum-vscode.accOutputDir": {
+            "type": "string",
+            "default": "",
+            "order": 6,
+            "description": "Output directory for compiled .o files, relative to the workspace root. If empty, defaults to <pk3Root>/acs."
+          },
+          "zandronum-vscode.accConcurrency": {
+            "type": "number",
+            "default": 0,
+            "minimum": 0,
+            "order": 7,
+            "description": "Max parallel ACC processes when compiling multiple ACS libraries. 0 means min(4, CPU count)."
+          },
+          "zandronum-vscode.textures.translationPreviewMode": {
+            "type": "string",
+            "enum": ["native", "viewport"],
+            "enumItemLabels": ["Native color preview", "Visible region color preview"],
+            "markdownEnumDescriptions": [
+              "Scan the whole document. Uses native color swatches and supports the native color picker; subject to `editor.colorDecoratorsLimit`.",
+              "Draw custom swatches in the visible region with bounded caching and preloading. Hover a color value and choose **Edit color** to open the custom picker; clicking the swatch does not open the native picker."
+            ],
+            "default": "native",
+            "scope": "resource",
+            "order": 8,
+            "markdownDescription": "Translation color preview in TEXTURES text editors only. Both modes respect `editor.colorDecorators`. Choose viewport for large documents; its editing interaction differs from native preview."
+          },
+          "zandronum-vscode.playpalPath": {
+            "type": "string",
+            "default": "",
+            "order": 9,
+            "description": "Path to an external PLAYPAL lump file or directory containing one. Supports relative paths (to workspace root), absolute paths, and a leading '~'. Used for palette color preview in Translation properties."
+          }
+        }
+      },
+      {
+        "title": "Zandronum › Formatting",
+        "order": 1,
+        "properties": {
+          "zandronum-vscode.format.braceStyle": {
+            "type": "string",
+            "enum": ["nextLine", "sameLine"],
+            "enumItemLabels": ["Next line (Allman)", "Same line"],
+            "default": "nextLine",
+            "scope": "language-overridable",
+            "order": 0,
+            "markdownDescription": "Controls brace placement for DECORATE, ACS, and SBARINFO."
+          },
+          "zandronum-vscode.format.spaceAfterComma": {
+            "type": "boolean",
+            "default": true,
+            "scope": "language-overridable",
+            "order": 1,
+            "description": "Insert one space after commas in DECORATE and ACS."
+          },
+          "zandronum-vscode.decorate.format.stateLabelIndent": {
+            "type": "integer",
+            "default": 0,
+            "minimum": 0,
+            "scope": "language-overridable",
+            "order": 2,
+            "description": "Extra indentation for DECORATE state labels."
+          },
+          "zandronum-vscode.decorate.format.stateFrameIndent": {
+            "type": ["integer", "null"],
+            "default": null,
+            "minimum": 0,
+            "scope": "language-overridable",
+            "order": 3,
+            "description": "Extra indentation for DECORATE state frames. null uses the editor tab size."
+          }
         }
       }
-    },
+    ],
     "customEditors": [
       {
         "viewType": "zandronum.spriteOffsetEditor",

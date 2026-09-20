@@ -1,6 +1,8 @@
 import * as vscode from 'vscode';
 
-export type BraceStyle = 'nextLine' | 'sameLine';
+import { BraceStyle, getFormatConfiguration, readBraceStyle } from '../formatConfiguration';
+
+export type { BraceStyle };
 
 export interface SbarinfoFormatOptions {
     tabSize: number;
@@ -844,21 +846,15 @@ function documentEol(document: vscode.TextDocument): string {
     return document.eol === vscode.EndOfLine.CRLF ? '\r\n' : '\n';
 }
 
-function readBraceStyle(document: vscode.TextDocument): BraceStyle {
-    const raw = vscode.workspace
-        .getConfiguration('zandronum-vscode', document.uri)
-        .get<string>('sbarinfo.format.braceStyle', 'nextLine');
-    return raw === 'sameLine' ? 'sameLine' : 'nextLine';
-}
-
 function toFormatOptions(
     document: vscode.TextDocument,
     options: vscode.FormattingOptions
 ): SbarinfoFormatOptions {
+    const config = getFormatConfiguration(document);
     return {
         tabSize: options.tabSize,
         insertSpaces: options.insertSpaces,
-        braceStyle: readBraceStyle(document),
+        braceStyle: readBraceStyle(config),
     };
 }
 

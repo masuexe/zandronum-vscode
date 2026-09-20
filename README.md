@@ -129,6 +129,49 @@ Load engine or mod PK3s here so DECORATE actor names and ACS `#define` constants
 |---|---|---|
 | `zandronum-vscode.playpalPath` | `""` | Path to an external PLAYPAL lump file or a directory containing one. Supports relative (workspace root) and absolute paths. Used for palette color preview in Translation properties. |
 
+### Formatting
+
+| Setting | Default | Description |
+|---|---|---|
+| `zandronum-vscode.format.braceStyle` | `"nextLine"` | Brace placement for DECORATE, ACS, and SBARINFO. `nextLine` is Allman style; `sameLine` uses `States {` / `script 1 (void) {` / `InInventory Foo, 1 {` |
+| `zandronum-vscode.format.spaceAfterComma` | `true` | Insert one space after commas in DECORATE and ACS |
+| `zandronum-vscode.decorate.format.stateLabelIndent` | `0` | Extra indentation for DECORATE state labels |
+| `zandronum-vscode.decorate.format.stateFrameIndent` | `null` | Extra indentation for DECORATE state frames. `null` uses the editor tab size |
+
+All four settings support per-language overrides via `[decorate]`, `[acs]`, and `[sbarinfo]` blocks:
+
+```jsonc
+{
+  "zandronum-vscode.format.braceStyle": "nextLine",
+  "[acs]": {
+    "zandronum-vscode.format.braceStyle": "sameLine"
+  },
+  "[decorate]": {
+    "zandronum-vscode.format.spaceAfterComma": false,
+    "zandronum-vscode.decorate.format.stateLabelIndent": 1
+  }
+}
+```
+
+Empty-block spacing (`{}`), ACS control-keyword spacing (`if (x)`), and blank-line removal above closing `}` are fixed formatter behavior and no longer configurable.
+
+**Migrating from older versions** — formatter settings were consolidated; update any old keys manually:
+
+| Old key | New key |
+|---|---|
+| `zandronum-vscode.decorate.format.braceStyle` | `zandronum-vscode.format.braceStyle` |
+| `zandronum-vscode.acs.format.braceStyle` | `zandronum-vscode.format.braceStyle` |
+| `zandronum-vscode.sbarinfo.format.braceStyle` | `zandronum-vscode.format.braceStyle` |
+| `zandronum-vscode.decorate.format.spaceAfterComma` | `zandronum-vscode.format.spaceAfterComma` |
+| `zandronum-vscode.acs.format.spaceAfterComma` | `zandronum-vscode.format.spaceAfterComma` |
+| `zandronum-vscode.decorate.format.stateLabelIndent` | unchanged |
+| `zandronum-vscode.decorate.format.stateFrameIndent` | unchanged |
+| `zandronum-vscode.decorate.format.spaceInEmptyBraces` | removed (fixed to `false`: empty blocks stay `{}`) |
+| `zandronum-vscode.decorate.format.removeBlankLinesBeforeCloseBrace` | removed (fixed to `true`) |
+| `zandronum-vscode.acs.format.spaceInEmptyBraces` | removed (fixed to `false`) |
+| `zandronum-vscode.acs.format.spaceAfterControlKeyword` | removed (fixed to `true`: `if (x) {`) |
+| `zandronum-vscode.acs.format.removeBlankLinesBeforeCloseBrace` | removed (fixed to `true`) |
+
 ## Launch configuration (`.vscode/zandronum.json`)
 
 Optional per-workspace launch configs for IWAD and extra args. Variables: `${workspaceFolder}`, `${buildOutput}`, `${env:VAR}`.

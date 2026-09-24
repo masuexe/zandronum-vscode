@@ -130,6 +130,12 @@ function getContextType(
     position: vscode.Position,
     lineText: string
 ): ContextType {
+    // Count only source before the cursor; comments and strings cannot open blocks.
+    const sourceBeforeCursor = document.getText(new vscode.Range(0, 0, position.line, position.character))
+        .replace(/\/\/[^\r\n]*|\/\*[\s\S]*?(?:\*\/|$)|"(?:\\.|[^"\\])*"/g,
+            match => match.replace(/[^\r\n]/g, ' '));
+    const sourceLines = sourceBeforeCursor.split(/\r?\n/);
+
     const isInFunctionCall = (): boolean => {
         let openParens = 0;
         const textBeforeCursor = lineText.substring(0, position.character);
@@ -144,9 +150,8 @@ function getContextType(
         let inStates = false;
         let statesBraceCount = 0;
 
-        for (let i = 0; i < position.line; i++) {
-            const currentLine = document.lineAt(i).text;
-            if (/\bStates\b/.test(currentLine)) {
+        for (const currentLine of sourceLines) {
+            if (/\bStates\b/i.test(currentLine)) {
                 inStates = true;
                 statesBraceCount = 0;
             }
@@ -174,8 +179,7 @@ function getContextType(
             return false;
         }
         let braceCount = 0;
-        for (let i = 0; i < position.line; i++) {
-            const currentLine = document.lineAt(i).text;
+        for (const currentLine of sourceLines) {
             for (const char of currentLine) {
                 if (char === '{') braceCount++;
                 else if (char === '}') braceCount--;
@@ -201,7 +205,7 @@ function getContextType(
 
     const isInheritTrigger = (): boolean => {
         const beforeCursor = lineText.substring(0, position.character);
-        const actorMatch = /\bactor\b\s+(\w+)\s*:\s*(.*)$/i.exec(beforeCursor);
+        const actorMatch = /\bactor\b\s+(\w+)\s*:\s*([^{}]*)$/i.exec(beforeCursor);
         if (!actorMatch) {
             return false;
         }
@@ -424,7 +428,8 @@ function findActorContext(
     const ctxAtDepth: (ActorContext | null)[] = [];
 
     for (let i = 0; i <= position.line; i++) {
-        const lineText = document.lineAt(i).text;
+        const fullLine = document.lineAt(i).text;
+        const lineText = i === position.line ? fullLine.substring(0, position.character) : fullLine;
 
         const match = /\bactor\b\s+(\w+)(?:\s*:\s*(\w+))?/i.exec(lineText);
         if (match) {

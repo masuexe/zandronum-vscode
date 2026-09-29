@@ -26,6 +26,16 @@ suite('sbarinfoFormat — space after comma', () => {
 		assert.strictEqual(out[0], 'drawstring 0, "a,b", 0, 0');
 	});
 
+	test('tightens commas inside Translation RGB lists', () => {
+		const out = format(
+			'Translation "192:192=[sec1, sec2, sec3]:[sec1, sec2, sec3]"'
+		).split('\n');
+		assert.strictEqual(
+			out[0],
+			'Translation "192:192=[sec1,sec2,sec3]:[sec1,sec2,sec3]"'
+		);
+	});
+
 	test('leaves trailing commas alone', () => {
 		const out = format('drawnumber 3, HEALTH,').split('\n');
 		assert.strictEqual(out[0], 'drawnumber 3, HEALTH,');

@@ -6,6 +6,7 @@ import {
     readBraceStyle,
     readSpaceAfterComma,
 } from '../formatConfiguration';
+import { alignTrailingLineComments } from '../shared/trailingCommentAlign';
 
 export type { BraceStyle };
 
@@ -120,14 +121,6 @@ function leadingWhitespaceLength(line: string): number {
     return m ? m[0].length : 0;
 }
 
-function rtrimHorizontal(text: string): string {
-    return text.replace(/[ \t]+$/, '');
-}
-
-function lineHasCode(text: string): boolean {
-    return text.slice(leadingWhitespaceLength(text)).length > 0;
-}
-
 function formatSlashSlashComment(comment: string): string {
     let markerLen = 2;
     if (comment[2] === '/' || comment[2] === '!') {
@@ -140,15 +133,15 @@ function formatSlashSlashComment(comment: string): string {
         return comment;
     }
     const body = rest.slice(leadWs.length);
-    return body.length === 0 ? marker : `${marker} ${body}`;
+    if (body.length === 0 || body[0] === '/') {
+        return comment;
+    }
+    return `${marker} ${body}`;
 }
 
+/** Spaces the text after `//`. The gap before a trailing marker is left for alignment. */
 function emitSlashSlashComment(out: string, comment: string): string {
-    const formatted = formatSlashSlashComment(comment);
-    if (lineHasCode(rtrimHorizontal(out))) {
-        return `${rtrimHorizontal(out)}  ${formatted}`;
-    }
-    return `${out}${formatted}`;
+    return `${out}${formatSlashSlashComment(comment)}`;
 }
 
 function formatLineCommentSpacingLine(
@@ -646,6 +639,8 @@ function formatSpaceAfterCommaLine(
     let inString = false;
     /** Unmatched `?` count — colon is ternary only while this is > 0. */
     let ternaryDepth = ternaryDepthStart;
+    /** Translation RGB lists stay tight, including inside `"…"` remaps. */
+    let squareDepth = 0;
 
     const endsWithSpace = (): boolean => {
         const ch = out[out.length - 1];
@@ -694,15 +689,41 @@ function formatSpaceAfterCommaLine(
         }
 
         if (inString) {
-            out += ch;
             if (ch === '\\' && next !== undefined) {
+                out += ch;
                 out += next;
                 i += 2;
                 continue;
             }
             if (ch === '"') {
                 inString = false;
+                out += ch;
+                i++;
+                continue;
             }
+            if (ch === '[') {
+                squareDepth++;
+                out += ch;
+                i++;
+                continue;
+            }
+            if (ch === ']') {
+                if (squareDepth > 0) {
+                    squareDepth--;
+                }
+                out += ch;
+                i++;
+                continue;
+            }
+            if (ch === ',' && squareDepth > 0) {
+                out += ',';
+                i++;
+                while (i < line.length && (line[i] === ' ' || line[i] === '\t')) {
+                    i++;
+                }
+                continue;
+            }
+            out += ch;
             i++;
             continue;
         }
@@ -774,6 +795,21 @@ function formatSpaceAfterCommaLine(
             continue;
         }
 
+        if (ch === '[') {
+            squareDepth++;
+            out += ch;
+            i++;
+            continue;
+        }
+        if (ch === ']') {
+            if (squareDepth > 0) {
+                squareDepth--;
+            }
+            out += ch;
+            i++;
+            continue;
+        }
+
         if (ch === ',') {
             out += ',';
             i++;
@@ -791,7 +827,7 @@ function formatSpaceAfterCommaLine(
                 i = j;
                 continue;
             }
-            if (spaceAfter) {
+            if (spaceAfter && squareDepth === 0) {
                 out += ' ';
             }
             i = j;
@@ -848,6 +884,544 @@ function matchWordAt(line: string, index: number, word: string): boolean {
     }
     const after = index + word.length;
     return after >= line.length || !isIdentChar(line[after]);
+}
+
+type DecorateExprKind = 'start' | 'open' | 'value' | 'op' | 'prefix';
+
+function decorateIdentChar(ch: string | undefined): boolean {
+    return ch !== undefined && (isIdentChar(ch) || ch === "'");
+}
+
+function skipHorizontalSpace(line: string, index: number): number {
+    return skipSpaces(line, index);
+}
+
+function endsWithSpace(text: string): boolean {
+    const ch = text[text.length - 1];
+    return ch === ' ' || ch === '\t';
+}
+
+function ensureSpaceBefore(text: string): string {
+    if (text.length === 0 || endsWithSpace(text)) {
+        return text;
+    }
+    return `${text} `;
+}
+
+function consumeDecorateFixedSuffix(line: string, index: number): number {
+    const ch = line[index];
+    if (ch !== 'f' && ch !== 'F') {
+        return index;
+    }
+    const next = line[index + 1];
+    if (next !== undefined && decorateIdentChar(next)) {
+        return index;
+    }
+    return index + 1;
+}
+
+function readDecorateAtom(line: string, index: number): number {
+    const ch = line[index];
+    if (ch >= '0' && ch <= '9') {
+        let i = index;
+        while (i < line.length && line[i] >= '0' && line[i] <= '9') {
+            i++;
+        }
+        if (decorateIdentChar(line[i]) && line[i] !== undefined && (line[i] < '0' || line[i] > '9')) {
+            while (i < line.length && decorateIdentChar(line[i])) {
+                i++;
+            }
+            return i;
+        }
+        if (line[i] === '.' && i + 1 < line.length && line[i + 1] >= '0' && line[i + 1] <= '9') {
+            i++;
+            while (i < line.length && line[i] >= '0' && line[i] <= '9') {
+                i++;
+            }
+        }
+        return consumeDecorateFixedSuffix(line, i);
+    }
+    if (decorateIdentChar(ch)) {
+        let i = index;
+        while (i < line.length && decorateIdentChar(line[i])) {
+            i++;
+        }
+        return i;
+    }
+    return index;
+}
+
+function readDecorateOperatorAt(line: string, index: number): string | undefined {
+    const two = line.slice(index, index + 2);
+    if (
+        two === '==' ||
+        two === '!=' ||
+        two === '<=' ||
+        two === '>=' ||
+        two === '&&' ||
+        two === '||' ||
+        two === '<<' ||
+        two === '>>'
+    ) {
+        return two;
+    }
+    const one = line[index];
+    if ('+-*/%<>=!&|^?'.includes(one)) {
+        return one;
+    }
+    return undefined;
+}
+
+/** `192:192=cyan:cyan` / `16:47=[255,0,0]` — not a property assignment. */
+function isPaletteRemapEquals(emitted: string, line: string, afterEq: number): boolean {
+    if (!/:\d+$/.test(emitted)) {
+        return false;
+    }
+    const j = skipHorizontalSpace(line, afterEq);
+    if (j >= line.length) {
+        return false;
+    }
+    const ch = line[j];
+    return (
+        (ch >= '0' && ch <= '9') ||
+        ch === '[' ||
+        ch === '%' ||
+        (ch >= 'A' && ch <= 'Z') ||
+        (ch >= 'a' && ch <= 'z') ||
+        ch === '_'
+    );
+}
+
+function decorateNeedsSpaceBefore(kind: DecorateExprKind): boolean {
+    return kind === 'value' || kind === 'op';
+}
+
+function decorateNeedsSpaceBeforeBareParen(kind: DecorateExprKind): boolean {
+    return kind === 'op';
+}
+
+/** `[64]` / `[user_riding]` — not a lone state-frame `[`. */
+function decorateBracketOpensIndex(line: string, bracketAt: number): boolean {
+    let depth = 0;
+    let sawInner = false;
+    for (let j = bracketAt; j < line.length; j++) {
+        const ch = line[j];
+        const next = line[j + 1];
+        if (ch === '/' && (next === '/' || next === '*')) {
+            break;
+        }
+        if (ch === '[') {
+            depth++;
+            continue;
+        }
+        if (ch === ']') {
+            depth--;
+            if (depth === 0) {
+                return sawInner;
+            }
+            continue;
+        }
+        if (depth === 1 && ch !== ' ' && ch !== '\t') {
+            sawInner = true;
+        }
+    }
+    return false;
+}
+
+function isActorHeaderLine(line: string): boolean {
+    return /^\s*actor\b/i.test(line);
+}
+
+function isCommentStart(line: string, index: number): boolean {
+    return line[index] === '/' && (line[index + 1] === '/' || line[index + 1] === '*');
+}
+
+/**
+ * Spaces around binary operators inside expressions (`momz == 0`, `100 - 5`).
+ * Keeps `+SOLID`, `See+1`, tight calls (`A_JumpIf(`), and wiki `Damage (`.
+ */
+function formatDecorateOperatorSpacingLine(
+    line: string,
+    spaceAfterComma: boolean,
+    inBlockComment: boolean,
+    parenDepthStart: number
+): { text: string; inBlockComment: boolean; parenDepth: number } {
+    const leadLen = leadingWhitespaceLength(line);
+    let out = line.slice(0, leadLen);
+    let i = leadLen;
+    let inBlock = inBlockComment;
+    let inString = false;
+    let lastKind: DecorateExprKind = 'start';
+    let parenDepth = parenDepthStart;
+    let squareDepth = 0;
+    let ternaryDepth = 0;
+    const actorHeader = isActorHeaderLine(line);
+    let inActorHeader = actorHeader;
+    let sawGoto = false;
+
+    const emitValue = (token: string): void => {
+        if (decorateNeedsSpaceBefore(lastKind)) {
+            out = ensureSpaceBefore(out);
+        }
+        out += token;
+        lastKind = 'value';
+    };
+
+    const emitBinary = (op: string): void => {
+        out = ensureSpaceBefore(out);
+        out += op;
+        lastKind = 'op';
+    };
+
+    while (i < line.length) {
+        const prevKind: DecorateExprKind = lastKind;
+        const ch = line[i];
+        const next = line[i + 1];
+
+        if (inBlock) {
+            out += ch;
+            if (ch === '*' && next === '/') {
+                out += next;
+                inBlock = false;
+                lastKind = 'value';
+                i += 2;
+                continue;
+            }
+            i++;
+            continue;
+        }
+
+        if (inString) {
+            out += ch;
+            if (ch === '\\' && next !== undefined) {
+                out += next;
+                i += 2;
+                continue;
+            }
+            if (ch === '"') {
+                inString = false;
+            }
+            i++;
+            lastKind = 'value';
+            continue;
+        }
+
+        if (ch === '/' && next === '/') {
+            let gapAt = i;
+            while (gapAt > leadLen && (line[gapAt - 1] === ' ' || line[gapAt - 1] === '\t')) {
+                gapAt--;
+            }
+            out += line.slice(gapAt);
+            break;
+        }
+        if (ch === '/' && next === '*') {
+            if (decorateNeedsSpaceBefore(lastKind)) {
+                out = ensureSpaceBefore(out);
+            }
+            out += '/*';
+            inBlock = true;
+            i += 2;
+            continue;
+        }
+        if (ch === '"') {
+            if (decorateNeedsSpaceBefore(lastKind)) {
+                out = ensureSpaceBefore(out);
+            }
+            inString = true;
+            out += ch;
+            i++;
+            lastKind = 'value';
+            continue;
+        }
+
+        if (ch === ' ' || ch === '\t') {
+            const afterWs = skipHorizontalSpace(line, i);
+            if (afterWs >= line.length) {
+                out += line.slice(i);
+                break;
+            }
+            i++;
+            continue;
+        }
+
+        if (ch === '#' && prevKind === 'start') {
+            out += line.slice(i);
+            break;
+        }
+
+        const atomEnd = readDecorateAtom(line, i);
+        if (atomEnd > i) {
+            const atom = line.slice(i, atomEnd);
+            const after = skipHorizontalSpace(line, atomEnd);
+            if (after < line.length && line[after] === '(') {
+                if (decorateNeedsSpaceBefore(lastKind)) {
+                    out = ensureSpaceBefore(out);
+                }
+                if (matchWordAt(line, i, 'Damage')) {
+                    out += `${atom} (`;
+                } else {
+                    out += `${atom}(`;
+                }
+                parenDepth++;
+                i = after + 1;
+                lastKind = 'open';
+                continue;
+            }
+            emitValue(atom);
+            if (matchWordAt(line, i, 'goto')) {
+                sawGoto = true;
+            }
+            i = atomEnd;
+            continue;
+        }
+
+        const op = readDecorateOperatorAt(line, i);
+        if (op !== undefined) {
+            const afterOp = skipHorizontalSpace(line, i + op.length);
+            const nextCh = line[afterOp];
+            if (op === '++' || op === '--') {
+                out += op;
+                i += op.length;
+                lastKind = prevKind === 'value' ? 'value' : 'prefix';
+                continue;
+            }
+            if (op === '!') {
+                if (decorateNeedsSpaceBefore(prevKind)) {
+                    out = ensureSpaceBefore(out);
+                }
+                out += '!';
+                i += 1;
+                lastKind = 'prefix';
+                continue;
+            }
+            if (op === '+' || op === '-') {
+                if (parenDepth === 0 && decorateIdentChar(nextCh) && (nextCh < '0' || nextCh > '9')) {
+                    if (decorateNeedsSpaceBefore(prevKind)) {
+                        out = ensureSpaceBefore(out);
+                    }
+                    out += op;
+                    i += op.length;
+                    lastKind = 'prefix';
+                    continue;
+                }
+                if (parenDepth === 0 && prevKind === 'value' && nextCh >= '0' && nextCh <= '9') {
+                    if (!sawGoto) {
+                        out = ensureSpaceBefore(out);
+                    }
+                    out += op;
+                    i += op.length;
+                    lastKind = 'prefix';
+                    continue;
+                }
+                if (prevKind !== 'value') {
+                    if (decorateNeedsSpaceBefore(prevKind)) {
+                        out = ensureSpaceBefore(out);
+                    }
+                    out += op;
+                    i += op.length;
+                    lastKind = 'prefix';
+                    continue;
+                }
+            }
+            if (op === '=' && isPaletteRemapEquals(out, line, i + 1)) {
+                out += '=';
+                i += 1;
+                lastKind = 'open';
+                continue;
+            }
+            if (op === '%') {
+                const afterPct = skipHorizontalSpace(line, i + 1);
+                if (afterPct < line.length && line[afterPct] === '[') {
+                    out += '%';
+                    i += 1;
+                    lastKind = 'open';
+                    continue;
+                }
+            }
+            emitBinary(op);
+            if (op === '?') {
+                ternaryDepth++;
+            }
+            i += op.length;
+            continue;
+        }
+
+        if (ch === '(') {
+            if (decorateNeedsSpaceBeforeBareParen(prevKind)) {
+                out = ensureSpaceBefore(out);
+            }
+            out += ch;
+            i++;
+            parenDepth++;
+            lastKind = 'open';
+            continue;
+        }
+
+        if (ch === ']' && squareDepth > 0) {
+            out += ch;
+            i++;
+            squareDepth--;
+            lastKind = 'value';
+            continue;
+        }
+
+        // `name[64]` is an index. A bare `[` in a state (`7H50 [ 6`) is a frame letter.
+        if (ch === '[' && (squareDepth > 0 || decorateBracketOpensIndex(line, i))) {
+            out += ch;
+            i++;
+            squareDepth++;
+            lastKind = 'open';
+            continue;
+        }
+
+        if (
+            parenDepth === 0 &&
+            squareDepth === 0 &&
+            lastKind === 'value' &&
+            (ch === '[' || ch === ']' || ch === '\\')
+        ) {
+            emitValue(ch);
+            i++;
+            continue;
+        }
+
+        if (ch === '[') {
+            out += ch;
+            i++;
+            squareDepth++;
+            lastKind = 'open';
+            continue;
+        }
+
+        if (ch === ')' || ch === ']') {
+            out += ch;
+            i++;
+            if (ch === ')' && parenDepth > 0) {
+                parenDepth--;
+            }
+            lastKind = 'value';
+            continue;
+        }
+
+        if (ch === ',') {
+            out += ',';
+            i++;
+            const spaceStart = i;
+            const after = skipHorizontalSpace(line, i);
+            const atEnd = after >= line.length;
+            if (atEnd) {
+                out += line.slice(spaceStart);
+                i = after;
+                lastKind = 'open';
+                continue;
+            }
+            if (spaceAfterComma && !isCommentStart(line, after) && line[after] !== ')' && line[after] !== ']') {
+                out += ' ';
+            }
+            i = after;
+            lastKind = 'open';
+            continue;
+        }
+
+        if (ch === ':') {
+            if (next === ':') {
+                out += '::';
+                i += 2;
+                lastKind = 'open';
+                continue;
+            }
+            if (ternaryDepth > 0) {
+                emitBinary(':');
+                ternaryDepth--;
+                i++;
+                continue;
+            }
+            if (actorHeader && inActorHeader && prevKind === 'value') {
+                emitBinary(':');
+                i++;
+                continue;
+            }
+            out += ':';
+            i++;
+            const after = skipHorizontalSpace(line, i);
+            const atEnd = after >= line.length;
+            if (!atEnd && !isCommentStart(line, after)) {
+                out += ' ';
+            }
+            i = after;
+            lastKind = 'open';
+            continue;
+        }
+
+        if (ch === '.') {
+            out += '.';
+            i++;
+            lastKind = 'open';
+            continue;
+        }
+
+        if (ch === '{') {
+            inActorHeader = false;
+            if (decorateNeedsSpaceBefore(prevKind)) {
+                out = ensureSpaceBefore(out);
+            }
+            out += ch;
+            i++;
+            lastKind = 'start';
+            const afterBrace = skipHorizontalSpace(line, i);
+            if (afterBrace >= line.length) {
+                out += line.slice(i);
+                i = afterBrace;
+            } else if (afterBrace > i && line[afterBrace] === '}') {
+                out += ' ';
+                i = afterBrace;
+            } else if (afterBrace > i && isCommentStart(line, afterBrace)) {
+                out += ' ';
+                i = afterBrace;
+            } else {
+                i = afterBrace;
+            }
+            continue;
+        }
+
+        if (ch === '}') {
+            out += ch;
+            i++;
+            lastKind = 'value';
+            continue;
+        }
+
+        out += ch;
+        i++;
+        lastKind = 'value';
+    }
+
+    return { text: out, inBlockComment: inBlock, parenDepth };
+}
+
+function applyDecorateOperatorSpacing(
+    lines: readonly string[],
+    spaceAfterComma: boolean,
+    startLine: number,
+    endLine: number
+): string[] {
+    const out = lines.slice();
+    let inBlockComment = false;
+    let parenDepth = 0;
+    for (let i = 0; i < out.length; i++) {
+        const formatted = formatDecorateOperatorSpacingLine(
+            out[i],
+            spaceAfterComma,
+            inBlockComment,
+            parenDepth
+        );
+        inBlockComment = formatted.inBlockComment;
+        parenDepth = formatted.parenDepth;
+        if (inRange(i, startLine, endLine)) {
+            out[i] = formatted.text;
+        }
+    }
+    return out;
 }
 
 /**
@@ -1037,6 +1611,111 @@ function applySpaceBeforeBrace(
     let inBlockComment = false;
     for (let i = 0; i < out.length; i++) {
         const formatted = formatSpaceBeforeBraceLine(out[i], inBlockComment);
+        inBlockComment = formatted.inBlockComment;
+        if (inRange(i, startLine, endLine)) {
+            out[i] = formatted.text;
+        }
+    }
+    return out;
+}
+
+function isIdentStartChar(ch: string | undefined): boolean {
+    if (ch === undefined) {
+        return false;
+    }
+    return (ch >= 'A' && ch <= 'Z') || (ch >= 'a' && ch <= 'z') || ch === '_';
+}
+
+/**
+ * State frames: `Offset(0, 34)A_WeaponReady` → `Offset(0, 34) A_WeaponReady`.
+ * Does not insert a space after `)` before `,` / `;` / another `)`.
+ */
+function formatSpaceAfterCloseParenBeforeIdentLine(
+    line: string,
+    inBlockComment: boolean
+): { text: string; inBlockComment: boolean } {
+    let out = '';
+    let i = 0;
+    let inBlock = inBlockComment;
+    let inString = false;
+
+    while (i < line.length) {
+        const ch = line[i];
+        const next = line[i + 1];
+
+        if (inBlock) {
+            out += ch;
+            if (ch === '*' && next === '/') {
+                out += next;
+                inBlock = false;
+                i += 2;
+                continue;
+            }
+            i++;
+            continue;
+        }
+
+        if (inString) {
+            out += ch;
+            if (ch === '\\' && next !== undefined) {
+                out += next;
+                i += 2;
+                continue;
+            }
+            if (ch === '"') {
+                inString = false;
+            }
+            i++;
+            continue;
+        }
+
+        if (ch === '/' && next === '/') {
+            out += line.slice(i);
+            break;
+        }
+        if (ch === '/' && next === '*') {
+            out += '/*';
+            inBlock = true;
+            i += 2;
+            continue;
+        }
+        if (ch === '"') {
+            inString = true;
+            out += ch;
+            i++;
+            continue;
+        }
+
+        if (ch === ')') {
+            out += ')';
+            i++;
+            let j = i;
+            while (j < line.length && (line[j] === ' ' || line[j] === '\t')) {
+                j++;
+            }
+            if (isIdentStartChar(line[j])) {
+                out += ' ';
+                i = j;
+            }
+            continue;
+        }
+
+        out += ch;
+        i++;
+    }
+
+    return { text: out, inBlockComment: inBlock };
+}
+
+function applySpaceAfterCloseParenBeforeIdent(
+    lines: readonly string[],
+    startLine: number,
+    endLine: number
+): string[] {
+    const out = lines.slice();
+    let inBlockComment = false;
+    for (let i = 0; i < out.length; i++) {
+        const formatted = formatSpaceAfterCloseParenBeforeIdentLine(out[i], inBlockComment);
         inBlockComment = formatted.inBlockComment;
         if (inRange(i, startLine, endLine)) {
             out[i] = formatted.text;
@@ -1283,22 +1962,40 @@ export function formatDecorateLines(
         stripped.startLine,
         stripped.endLine
     );
-    const braceSpaced = applySpaceBeforeBrace(
+    const exprSpaced = applyDecorateOperatorSpacing(
         damageSpaced,
+        options.spaceAfterComma,
         stripped.startLine,
         stripped.endLine
     );
-    const commented = applyLineCommentSpacing(
+    const braceSpaced = applySpaceBeforeBrace(
+        exprSpaced,
+        stripped.startLine,
+        stripped.endLine
+    );
+    const callSpaced = applySpaceAfterCloseParenBeforeIdent(
         braceSpaced,
         stripped.startLine,
         stripped.endLine
     );
-    return applyLeadingEdits(
+    const commented = applyLineCommentSpacing(
+        callSpaced,
+        stripped.startLine,
+        stripped.endLine
+    );
+    const indented = applyLeadingEdits(
         commented,
         computeDecorateLeadingEdits(commented, options, {
             startLine: stripped.startLine,
             endLine: stripped.endLine,
         })
+    );
+    return alignTrailingLineComments(
+        indented,
+        stripped.startLine,
+        stripped.endLine,
+        options.tabSize,
+        (ch) => ch === '"'
     );
 }
 

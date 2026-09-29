@@ -16,6 +16,26 @@ suite('texturesFormat — space after comma', () => {
 		assert.strictEqual(out[0], 'Translation "192:192=248:248", "198:198=102:102"');
 	});
 
+	test('tightens commas inside Translation RGB lists', () => {
+		const out = format(
+			'Translation "192:192=[sec1, sec2, sec3]:[sec1, sec2, sec3]"'
+		).split('\n');
+		assert.strictEqual(
+			out[0],
+			'Translation "192:192=[sec1,sec2,sec3]:[sec1,sec2,sec3]"'
+		);
+	});
+
+	test('keeps commas spaced after a sprite name that contains [', () => {
+		const out = format(
+			'sprite "8H14[0", 32, 32 {XScale 2.0 YScale 2.0 Offset 16, 32 Patch UFACE14, 0, 0}'
+		).split('\n');
+		assert.strictEqual(
+			out[0],
+			'sprite "8H14[0", 32, 32 {XScale 2.0 YScale 2.0 Offset 16, 32 Patch UFACE14, 0, 0}'
+		);
+	});
+
 	test('leaves trailing commas alone', () => {
 		const out = format('Texture "FOO", 64,').split('\n');
 		assert.strictEqual(out[0], 'Texture "FOO", 64,');

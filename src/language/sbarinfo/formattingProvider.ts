@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 
 import { BraceStyle, getFormatConfiguration, readBraceStyle } from '../formatConfiguration';
+import { alignTrailingLineComments } from '../shared/trailingCommentAlign';
 
 export type { BraceStyle };
 
@@ -93,14 +94,6 @@ export function structuralLine(
 function leadingWhitespaceLength(line: string): number {
     const m = /^[ \t]*/.exec(line);
     return m ? m[0].length : 0;
-}
-
-function rtrimHorizontal(text: string): string {
-    return text.replace(/[ \t]+$/, '');
-}
-
-function lineHasCode(text: string): boolean {
-    return text.slice(leadingWhitespaceLength(text)).length > 0;
 }
 
 function endsWithSpace(text: string): boolean {
@@ -446,6 +439,8 @@ function formatSpaceAfterCommaLine(
     let i = 0;
     let inBlock = inBlockComment;
     let inString = false;
+    let squareDepth = 0;
+    let stringSquareDepth = 0;
 
     while (i < line.length) {
         const ch = line[i];
@@ -464,15 +459,42 @@ function formatSpaceAfterCommaLine(
         }
 
         if (inString) {
-            out += ch;
             if (ch === '\\' && next !== undefined) {
+                out += ch;
                 out += next;
                 i += 2;
                 continue;
             }
             if (ch === '"') {
                 inString = false;
+                stringSquareDepth = 0;
+                out += ch;
+                i++;
+                continue;
             }
+            if (ch === '[') {
+                stringSquareDepth++;
+                out += ch;
+                i++;
+                continue;
+            }
+            if (ch === ']') {
+                if (stringSquareDepth > 0) {
+                    stringSquareDepth--;
+                }
+                out += ch;
+                i++;
+                continue;
+            }
+            if (ch === ',' && stringSquareDepth > 0) {
+                out += ',';
+                i++;
+                while (i < line.length && (line[i] === ' ' || line[i] === '\t')) {
+                    i++;
+                }
+                continue;
+            }
+            out += ch;
             i++;
             continue;
         }
@@ -494,6 +516,21 @@ function formatSpaceAfterCommaLine(
             continue;
         }
 
+        if (ch === '[') {
+            squareDepth++;
+            out += ch;
+            i++;
+            continue;
+        }
+        if (ch === ']') {
+            if (squareDepth > 0) {
+                squareDepth--;
+            }
+            out += ch;
+            i++;
+            continue;
+        }
+
         if (ch === ',') {
             out += ',';
             i++;
@@ -508,7 +545,9 @@ function formatSpaceAfterCommaLine(
                 i = j;
                 continue;
             }
-            out += ' ';
+            if (squareDepth === 0) {
+                out += ' ';
+            }
             i = j;
             continue;
         }
@@ -602,15 +641,15 @@ function formatSlashSlashComment(comment: string): string {
         return comment;
     }
     const body = rest.slice(leadWs.length);
-    return body.length === 0 ? marker : `${marker} ${body}`;
+    if (body.length === 0 || body[0] === '/') {
+        return comment;
+    }
+    return `${marker} ${body}`;
 }
 
+/** Spaces the text after `//`. The gap before a trailing marker is left for alignment. */
 function emitSlashSlashComment(out: string, comment: string): string {
-    const formatted = formatSlashSlashComment(comment);
-    if (lineHasCode(rtrimHorizontal(out))) {
-        return `${rtrimHorizontal(out)}  ${formatted}`;
-    }
-    return `${out}${formatted}`;
+    return `${out}${formatSlashSlashComment(comment)}`;
 }
 
 function formatLineCommentSpacingLine(
@@ -817,12 +856,19 @@ export function formatSbarinfoLines(
         braced.endLine,
         formatLineCommentSpacingLine
     );
-    return applyLeadingEdits(
+    const indented = applyLeadingEdits(
         commented,
         computeSbarinfoLeadingEdits(commented, options, {
             startLine: braced.startLine,
             endLine: braced.endLine,
         })
+    );
+    return alignTrailingLineComments(
+        indented,
+        braced.startLine,
+        braced.endLine,
+        options.tabSize,
+        (ch) => ch === '"'
     );
 }
 

@@ -6,6 +6,7 @@ import {
     readBraceStyle,
     readSpaceAfterComma,
 } from '../formatConfiguration';
+import { alignTrailingLineComments } from '../shared/trailingCommentAlign';
 
 export type { BraceStyle };
 
@@ -114,14 +115,6 @@ function leadingWhitespaceLength(line: string): number {
     return m ? m[0].length : 0;
 }
 
-function rtrimHorizontal(text: string): string {
-    return text.replace(/[ \t]+$/, '');
-}
-
-function lineHasCode(text: string): boolean {
-    return text.slice(leadingWhitespaceLength(text)).length > 0;
-}
-
 /** `//foo` → `// foo`; two or more spaces after the marker are left alone. */
 function formatSlashSlashComment(comment: string): string {
     let markerLen = 2;
@@ -135,19 +128,15 @@ function formatSlashSlashComment(comment: string): string {
         return comment;
     }
     const body = rest.slice(leadWs.length);
-    return body.length === 0 ? marker : `${marker} ${body}`;
+    if (body.length === 0 || body[0] === '/') {
+        return comment;
+    }
+    return `${marker} ${body}`;
 }
 
-/**
- * Trailing `//`: two spaces before the marker when the line has code;
- * full-line comments keep indent and only space the text after `//`.
- */
+/** Spaces the text after `//`. The gap before a trailing marker is left for alignment. */
 function emitSlashSlashComment(out: string, comment: string): string {
-    const formatted = formatSlashSlashComment(comment);
-    if (lineHasCode(rtrimHorizontal(out))) {
-        return `${rtrimHorizontal(out)}  ${formatted}`;
-    }
-    return `${out}${formatted}`;
+    return `${out}${formatSlashSlashComment(comment)}`;
 }
 
 function formatLineCommentSpacingLine(
@@ -817,7 +806,7 @@ function skipHorizontalSpace(line: string, index: number): number {
     return i;
 }
 
-/** `192:192=248:248` / `16:47=[255,0,0]` / `112:127=%[0,0,0]` — not `n = 1`. */
+/** `192:192=248:248` / `16:47=[255,0,0]` / `112:127=%[0,0,0]` / `192:192=cyan:cyan` — not `n = 1`. */
 function isPaletteRemapEquals(emitted: string, line: string, afterEq: number): boolean {
     if (!/:\d+$/.test(emitted)) {
         return false;
@@ -827,7 +816,14 @@ function isPaletteRemapEquals(emitted: string, line: string, afterEq: number): b
         return false;
     }
     const ch = line[j];
-    return (ch >= '0' && ch <= '9') || ch === '[' || ch === '%';
+    return (
+        (ch >= '0' && ch <= '9') ||
+        ch === '[' ||
+        ch === '%' ||
+        (ch >= 'A' && ch <= 'Z') ||
+        (ch >= 'a' && ch <= 'z') ||
+        ch === '_'
+    );
 }
 
 function isBinaryOpStart(ch: string): boolean {
@@ -1114,6 +1110,9 @@ function formatCallAndOperatorSpacingLine(
     let pendingCaseLabelColon = false;
     /** Unmatched `?` count — colon is ternary only while this is > 0. */
     let ternaryDepth = ternaryDepthStart;
+    /** Translation RGB lists (`[255,0,0]`) stay tight; `arr[random(0, n)]` still spaces. */
+    let squareDepth = 0;
+    let parensInsideSquare = 0;
 
     const emitValue = (token: string): void => {
         if (needsSpaceBeforeValue(lastKind)) {
@@ -1164,10 +1163,11 @@ function formatCallAndOperatorSpacingLine(
         }
 
         if (ch === '/' && next === '/') {
-            if (needsSpaceBeforeValue(prevKind)) {
-                out = ensureSpaceBefore(out);
+            let gapAt = i;
+            while (gapAt > leadLen && (line[gapAt - 1] === ' ' || line[gapAt - 1] === '\t')) {
+                gapAt--;
             }
-            out += line.slice(i);
+            out += line.slice(gapAt);
             break;
         }
         if (ch === '/' && next === '*') {
@@ -1212,6 +1212,9 @@ function formatCallAndOperatorSpacingLine(
                     out += spaceAfterControlKeyword ? `${ident} (` : `${ident}(`;
                 } else {
                     out += `${ident}(`;
+                }
+                if (squareDepth > 0) {
+                    parensInsideSquare++;
                 }
                 i = after + 1;
                 lastKind = 'open';
@@ -1269,6 +1272,15 @@ function formatCallAndOperatorSpacingLine(
                 lastKind = 'open';
                 continue;
             }
+            if (op === '%') {
+                const afterPct = skipHorizontalSpace(line, i + 1);
+                if (afterPct < line.length && line[afterPct] === '[') {
+                    out += '%';
+                    i += 1;
+                    lastKind = 'open';
+                    continue;
+                }
+            }
             emitBinary(op);
             if (op === '?') {
                 ternaryDepth++;
@@ -1283,6 +1295,9 @@ function formatCallAndOperatorSpacingLine(
             }
             out += ch;
             i++;
+            if (squareDepth > 0) {
+                parensInsideSquare++;
+            }
             lastKind = 'open';
             continue;
         }
@@ -1290,6 +1305,7 @@ function formatCallAndOperatorSpacingLine(
         if (ch === '[') {
             out += ch;
             i++;
+            squareDepth++;
             lastKind = 'open';
             continue;
         }
@@ -1297,6 +1313,16 @@ function formatCallAndOperatorSpacingLine(
         if (ch === ')' || ch === ']') {
             out += ch;
             i++;
+            if (ch === ')') {
+                if (parensInsideSquare > 0) {
+                    parensInsideSquare--;
+                }
+            } else if (squareDepth > 0) {
+                squareDepth--;
+                if (squareDepth === 0) {
+                    parensInsideSquare = 0;
+                }
+            }
             lastKind = 'value';
             continue;
         }
@@ -1306,7 +1332,18 @@ function formatCallAndOperatorSpacingLine(
             i++;
             const after = skipHorizontalSpace(line, i);
             const atEnd = after >= line.length;
-            if (spaceAfterComma && !atEnd && line[after] !== ')' && line[after] !== ']') {
+            const inTranslationRgb = squareDepth > 0 && parensInsideSquare === 0;
+            if (!atEnd && isLineCommentAt(line, after)) {
+                lastKind = 'open';
+                continue;
+            }
+            if (
+                spaceAfterComma &&
+                !inTranslationRgb &&
+                !atEnd &&
+                line[after] !== ')' &&
+                line[after] !== ']'
+            ) {
                 out += ' ';
             }
             i = after;
@@ -1319,6 +1356,10 @@ function formatCallAndOperatorSpacingLine(
             i++;
             const after = skipHorizontalSpace(line, i);
             const atEnd = after >= line.length;
+            if (!atEnd && isLineCommentAt(line, after)) {
+                lastKind = 'open';
+                continue;
+            }
             if (!atEnd && line[after] !== ')' && line[after] !== ']' && line[after] !== '}') {
                 out += ' ';
             }
@@ -1347,6 +1388,10 @@ function formatCallAndOperatorSpacingLine(
                 pendingCaseLabelColon = false;
                 const after = skipHorizontalSpace(line, i);
                 const atEnd = after >= line.length;
+                if (!atEnd && isLineCommentAt(line, after)) {
+                    lastKind = 'open';
+                    continue;
+                }
                 if (!atEnd) {
                     out += ' ';
                 }
@@ -1818,12 +1863,19 @@ export function formatAcsLines(
         stripped.startLine,
         stripped.endLine
     );
-    return applyLeadingEdits(
+    const indented = applyLeadingEdits(
         commented,
         computeAcsLeadingEdits(commented, options, {
             startLine: stripped.startLine,
             endLine: stripped.endLine,
         })
+    );
+    return alignTrailingLineComments(
+        indented,
+        stripped.startLine,
+        stripped.endLine,
+        options.tabSize,
+        isAcsStringQuote
     );
 }
 

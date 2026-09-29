@@ -877,6 +877,28 @@ suite('acsFormat — control flow spacing', () => {
 		assert.strictEqual(format(out.join('\n')), out.join('\n'));
 	});
 
+	test('keeps a wide trailing-comment gap and only pads a short one', () => {
+		const input = [
+			'#define USP_TOGGLEON 1           // Desolidifier',
+			'#define USP_TOGGLEOFF_DAMAGE 0   // Resolidifier, take damage on fail.',
+			'#define USP_TOGGLEOFF_KILL 2     // Resolidifier, kill on fail.',
+			'#define USP_TOGGLEOFF_TELEPORT 3 // Resolidifier, teleport you on fail.',
+			'#define USP_TOGGLEOFF_NONE 4     // Resolidifier, do nothing on fail',
+		].join('\n');
+
+		const expected = [
+			'#define USP_TOGGLEON 1           // Desolidifier',
+			'#define USP_TOGGLEOFF_DAMAGE 0   // Resolidifier, take damage on fail.',
+			'#define USP_TOGGLEOFF_KILL 2     // Resolidifier, kill on fail.',
+			'#define USP_TOGGLEOFF_TELEPORT 3  // Resolidifier, teleport you on fail.',
+			'#define USP_TOGGLEOFF_NONE 4     // Resolidifier, do nothing on fail',
+		].join('\n');
+
+		const once = format(input);
+		assert.strictEqual(once, expected);
+		assert.strictEqual(format(once), expected);
+	});
+
 	test('spaces full-line comments after // only', () => {
 		const input = [
 			'script 1 (void)',
@@ -892,6 +914,12 @@ suite('acsFormat — control flow spacing', () => {
 	test('preserves multiple spaces after //', () => {
 		const input = '//      #library "YOUR_COPYDEFS"';
 		assert.strictEqual(format(input).split('\n')[0], '//      #library "YOUR_COPYDEFS"');
+	});
+
+	test('keeps a slash-rule comment as slashes', () => {
+		const banner = '/////////////////////////////';
+		assert.strictEqual(format(banner).split('\n')[0], banner);
+		assert.strictEqual(format('///note').split('\n')[0], '/// note');
 	});
 
 	test('keeps the space before a trailing block comment after ;', () => {
@@ -1014,6 +1042,67 @@ suite('acsFormat — calls and continuations', () => {
 		const out = format(input).split('\n');
 		assert.strictEqual(out[2], '    CreateTranslation(1, 192:192=248:248);');
 		assert.strictEqual(out[3], '    n = 1;');
+	});
+
+	test('keeps named-color translation remaps tight', () => {
+		const input = [
+			'script 1 (void)',
+			'{',
+			'CreateTranslation(1, 192:192 = cyan:cyan, 198:198=blue:blue);',
+			'}',
+		].join('\n');
+
+		const out = format(input).split('\n');
+		assert.strictEqual(
+			out[2],
+			'    CreateTranslation(1, 192:192=cyan:cyan, 198:198=blue:blue);'
+		);
+	});
+
+	test('keeps translation RGB lists tight inside brackets', () => {
+		const input = [
+			'script 1 (void)',
+			'{',
+			'CreateTranslation(1, 192:192=[sec1, sec2, sec3]:[sec1, sec2, sec3]);',
+			'CreateTranslation(2, 16:47=[255, 0, 0]:[0, 0, 255]);',
+			'CreateTranslation(3, 112:127=%[0, 0, 0]:[2, 2, 2]);',
+			'}',
+		].join('\n');
+
+		const out = format(input).split('\n');
+		assert.strictEqual(
+			out[2],
+			'    CreateTranslation(1, 192:192=[sec1,sec2,sec3]:[sec1,sec2,sec3]);'
+		);
+		assert.strictEqual(out[3], '    CreateTranslation(2, 16:47=[255,0,0]:[0,0,255]);');
+		assert.strictEqual(out[4], '    CreateTranslation(3, 112:127=%[0,0,0]:[2,2,2]);');
+	});
+
+	test('keeps array declarator brackets tight', () => {
+		const input = [
+			'script 1 (void)',
+			'{',
+			'var int user_playerRiding[64];',
+			'}',
+		].join('\n');
+
+		const out = format(input).split('\n');
+		assert.strictEqual(out[2], '    var int user_playerRiding[64];');
+	});
+
+	test('keeps comma spaces in calls used as array indices', () => {
+		const input = [
+			'script 1 (void)',
+			'{',
+			'ACS_NamedExecute("ub_PlayVariantMusic", 0, bossdataarr[random(0, multibosscheck - 1)][BOSSDATA_NUM]);',
+			'}',
+		].join('\n');
+
+		const out = format(input).split('\n');
+		assert.strictEqual(
+			out[2],
+			'    ACS_NamedExecute("ub_PlayVariantMusic", 0, bossdataarr[random(0, multibosscheck - 1)][BOSSDATA_NUM]);'
+		);
 	});
 
 	test('preserves HudMessage semicolon', () => {

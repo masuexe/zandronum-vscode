@@ -340,6 +340,21 @@ suite('decorateFormat — comments and strings', () => {
 		assert.strictEqual(out[4], '              "0:0=[37,0,3]:[37,0,3]"');
 	});
 
+	test('tightens commas inside Translation RGB lists', () => {
+		const input = [
+			'Actor Foo',
+			'{',
+			'Translation "192:192=[sec1, sec2, sec3]:[sec1, sec2, sec3]"',
+			'}',
+		].join('\n');
+
+		const out = format(input).split('\n');
+		assert.strictEqual(
+			out[2],
+			'  Translation "192:192=[sec1,sec2,sec3]:[sec1,sec2,sec3]"'
+		);
+	});
+
 	test('indents the property after a same-line Translation string list', () => {
 		const input = [
 			'actor KyorownBulletDmg : KyorownBulletU {',
@@ -693,6 +708,11 @@ suite('decorateFormat — braceStyle', () => {
 		assert.strictEqual(out[2], '  Health 1');
 	});
 
+	test('keeps a slash-rule comment as slashes', () => {
+		const banner = '/////////////////////////////';
+		assert.strictEqual(format(banner).split('\n')[0], banner);
+	});
+
 	test('does not split when code follows {', () => {
 		const input = [
 			'Actor Foo',
@@ -705,7 +725,7 @@ suite('decorateFormat — braceStyle', () => {
 		].join('\n');
 
 		const out = format(input).split('\n');
-		assert.strictEqual(out[2], '  States { Spawn:');
+		assert.strictEqual(out[2], '  States {Spawn:');
 	});
 
 	test('does not restyle braces outside the selection', () => {
@@ -752,6 +772,163 @@ suite('decorateFormat — spaceAfterComma', () => {
 
 		const out = format(input).split('\n');
 		assert.ok(out.some((l) => l.includes('A_Jump(256, "See", "Pain")')));
+	});
+
+	test('inserts a space between consecutive state actions', () => {
+		const input = [
+			'Actor Foo',
+			'{',
+			'States',
+			'{',
+			'Ready:',
+			'8H01 A 1 Offset(0, 34)A_WeaponReady(15)',
+			'Loop',
+			'}',
+			'}',
+		].join('\n');
+
+		const out = format(input).split('\n');
+		assert.ok(out.some((l) => l.includes('Offset(0, 34) A_WeaponReady(15)')));
+		assert.ok(!out.some((l) => l.includes(')A_WeaponReady')));
+	});
+
+	test('spaces comparison operators inside action args', () => {
+		const input = [
+			'Actor Foo',
+			'{',
+			'States',
+			'{',
+			'Ready:',
+			'TNT1 A 0 A_JumpIf(momz==0, "LongJump")',
+			'Stop',
+			'}',
+			'}',
+		].join('\n');
+
+		const out = format(input).split('\n');
+		assert.ok(out.some((l) => l.includes('A_JumpIf(momz == 0, "LongJump")')));
+	});
+
+	test('keeps spaces around a [ frame letter', () => {
+		const input = [
+			'Actor Foo',
+			'{',
+			'States',
+			'{',
+			'Spawn:',
+			'7H50 [ 6',
+			'Loop',
+			'}',
+			'}',
+		].join('\n');
+
+		const out = format(input).split('\n');
+		assert.ok(out.some((l) => /^\s*7H50 \[ 6\s*$/.test(l)));
+		assert.ok(!out.some((l) => l.includes('7H50[')));
+	});
+
+	test('keeps index brackets tight', () => {
+		const input = [
+			'Actor Foo',
+			'{',
+			'var int user_playerRiding[64];',
+			'}',
+		].join('\n');
+
+		const out = format(input).split('\n');
+		assert.ok(out.some((l) => l.includes('var int user_playerRiding[64];')));
+		assert.ok(!out.some((l) => l.includes('[ 64 ]')));
+	});
+
+	test('keeps a space before negative frame duration', () => {
+		const input = [
+			'Actor Foo',
+			'{',
+			'States',
+			'{',
+			'SpawnLoop:',
+			'THWO A -1',
+			'Loop',
+			'}',
+			'}',
+		].join('\n');
+
+		const out = format(input).split('\n');
+		assert.ok(out.some((l) => /^\s*THWO A -1\s*$/.test(l)));
+		assert.ok(!out.some((l) => l.includes('A-1')));
+	});
+
+	test('spaces binary plus on a wrapped action argument', () => {
+		const input = [
+			'Actor Foo',
+			'{',
+			'States',
+			'{',
+			'Spawn:',
+			'TNT1 A 0 A_SpawnItemEx("GravityHoldParticleU", mass, 0, 512,',
+			'0, 0, -15 - (ceilingz - floorz) / 32,',
+			'user_angle, 37 + 16384)',
+			'Stop',
+			'}',
+			'}',
+		].join('\n');
+
+		const out = format(input).split('\n');
+		assert.ok(out.some((l) => l.includes('37 + 16384)')));
+		assert.ok(!out.some((l) => l.includes('+16384')));
+	});
+
+	test('keeps goto offset tight', () => {
+		const input = [
+			'Actor Foo',
+			'{',
+			'States',
+			'{',
+			'See:',
+			'Goto See+1',
+			'Stop',
+			'}',
+			'}',
+		].join('\n');
+
+		const out = format(input).split('\n');
+		assert.ok(out.some((l) => l.includes('Goto See+1')));
+	});
+
+	test('keeps unary minus tight before a grouped expression', () => {
+		const input = [
+			'Actor Foo',
+			'{',
+			'States',
+			'{',
+			'Spawn:',
+			'THWO B 0 A_SpawnItemEx("ThunderWoolRadiusU", 0, 0, -(z - floorz))',
+			'Stop',
+			'}',
+			'}',
+		].join('\n');
+
+		const out = format(input).split('\n');
+		assert.ok(out.some((l) => l.includes('-(z - floorz)')));
+		assert.ok(!out.some((l) => l.includes('- (')));
+	});
+
+	test('keeps fixed suffix tight on decimal literals', () => {
+		const input = [
+			'Actor Foo',
+			'{',
+			'States',
+			'{',
+			'Air:',
+			'TNT1 A 0 A_ChangeVelocity(1.5f, 0, 0, CVF_RELATIVE)',
+			'Stop',
+			'}',
+			'}',
+		].join('\n');
+
+		const out = format(input).split('\n');
+		assert.ok(out.some((l) => l.includes('A_ChangeVelocity(1.5f, 0, 0, CVF_RELATIVE)')));
+		assert.ok(!out.some((l) => l.includes('1.5 f')));
 	});
 
 	test('removes spaces after commas when disabled', () => {
@@ -831,7 +1008,7 @@ suite('decorateFormat — compact same-line actor', () => {
 		const input =
 			'actor RedWarriorShot21 : RedWarriorShot1{Obituary "$OB_44M21" Damage (100-5+5) radius 9 height 9 speed 55 scale 2.5 States{Spawn:goto S_1B}}';
 		const expected =
-			'actor RedWarriorShot21 : RedWarriorShot1 {Obituary "$OB_44M21" Damage (100-5+5) radius 9 height 9 speed 55 scale 2.5 States {Spawn: goto S_1B}}';
+			'actor RedWarriorShot21 : RedWarriorShot1 {Obituary "$OB_44M21" Damage (100 - 5 + 5) radius 9 height 9 speed 55 scale 2.5 States {Spawn: goto S_1B}}';
 
 		assert.strictEqual(format(input), expected);
 		assert.strictEqual(format(expected), expected);
@@ -840,6 +1017,14 @@ suite('decorateFormat — compact same-line actor', () => {
 	test('does not insert a space after { before code', () => {
 		const input = 'Actor Foo{Health 1}';
 		assert.strictEqual(format(input), 'Actor Foo {Health 1}');
+	});
+
+	test('strips spaces after { and before } in compact blocks', () => {
+		const input = 'actor ThunderWoolWepU_MegaManUBar : MegaManUBar { Args 248, 95 }';
+		assert.strictEqual(
+			format(input),
+			'actor ThunderWoolWepU_MegaManUBar : MegaManUBar {Args 248, 95}'
+		);
 	});
 
 	test('does not change braces inside strings', () => {
@@ -852,6 +1037,38 @@ suite('decorateFormat — compact same-line actor', () => {
 
 		const out = format(input).split('\n');
 		assert.strictEqual(out[2], '  Obituary "a{b}"');
+	});
+});
+
+suite('decorateFormat — trailing comment alignment', () => {
+	test('does not stretch short properties to a much longer neighbor', () => {
+		const input = [
+			'Actor Foo',
+			'{',
+			'damage (random(285, 315)-user_POWER)  // 100',
+			'radius 12  // 16',
+			'height 12  // 16',
+			'}',
+		].join('\n');
+
+		const out = format(input).split('\n');
+		assert.strictEqual(out[2], '  damage (random(285, 315) - user_POWER)  // 100');
+		assert.strictEqual(out[3], '  radius 12  // 16');
+		assert.strictEqual(out[4], '  height 12  // 16');
+	});
+
+	test('keeps a wide gap before // and pads only a shorter one', () => {
+		const input = [
+			'Actor Foo',
+			'{',
+			'radius 12                    // 16',
+			'height 12// 16',
+			'}',
+		].join('\n');
+
+		const out = format(input).split('\n');
+		assert.strictEqual(out[2], '  radius 12                    // 16');
+		assert.strictEqual(out[3], '  height 12  // 16');
 	});
 });
 

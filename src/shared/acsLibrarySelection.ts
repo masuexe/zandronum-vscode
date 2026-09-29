@@ -3,9 +3,24 @@ import * as path from 'path';
 
 /** Strip ACS block and line comments. */
 export function stripAcsComments(text: string): string {
-    return text
-        .replace(/\/\*[\s\S]*?\*\//g, '')
-        .replace(/\/\/.*$/gm, '');
+    return text.replace(/"(?:\\.|[^"\\])*"|\/\*[\s\S]*?\*\/|\/\/[^\r\n]*/g,
+        token => token.startsWith('"') ? token : token.replace(/[^\r\n]/g, ' '));
+}
+
+/** Declared runtime library name, preserving its spelling. */
+export function getAcsLibraryName(filePath: string): string | null {
+    try {
+        const text = stripAcsComments(fs.readFileSync(filePath, 'utf-8'));
+        return /^\s*#\s*library\s+"([^"\r\n]+)"/im.exec(text)?.[1] ?? null;
+    } catch {
+        return null;
+    }
+}
+
+/** Library objects must be named for #library so runtime imports find them. */
+export function getAcsObjectFileName(filePath: string): string {
+    const name = getAcsLibraryName(filePath) ?? path.basename(filePath, path.extname(filePath));
+    return `${name}.o`;
 }
 
 /**
@@ -17,7 +32,7 @@ export function stripAcsComments(text: string): string {
  */
 export function hasLibraryDirective(filePath: string): boolean {
     try {
-        return /#library\b/im.test(stripAcsComments(fs.readFileSync(filePath, 'utf-8')));
+        return /^\s*#\s*library\b/im.test(stripAcsComments(fs.readFileSync(filePath, 'utf-8')));
     } catch {
         return false;
     }
@@ -65,16 +80,21 @@ export function selectLibraryAcsFiles(
             const full = path.join(dir, entry.name);
             if (entry.isDirectory()) {
                 collect(full);
-            } else if (entry.isFile() && entry.name.toLowerCase().endsWith('.acs')) {
-                const base = path.basename(entry.name, '.acs').toLowerCase();
-                const list = candidates.get(base);
-                if (list) { list.push(full); } else { candidates.set(base, [full]); }
+            } else if (entry.isFile()) {
+                const libraryName = getAcsLibraryName(full);
+                if (!libraryName && !hasLibraryDirective(full)) { continue; }
+                const base = path.basename(entry.name, path.extname(entry.name)).toLowerCase();
+                for (const key of new Set([base, libraryName?.toLowerCase() ?? base])) {
+                    const list = candidates.get(key);
+                    if (list) { list.push(full); } else { candidates.set(key, [full]); }
+                }
             }
         }
     };
     collect(sourceDir);
 
     const selected: string[] = [];
+    const selectedFiles = new Set<string>();
     const queued = new Set<string>();
     const queue: string[] = [];
 
@@ -89,7 +109,8 @@ export function selectLibraryAcsFiles(
     while (queue.length > 0) {
         const name = queue.shift() as string;
         for (const file of candidates.get(name) ?? []) {
-            if (!hasLibraryDirective(file)) { continue; }
+            if (selectedFiles.has(file)) { continue; }
+            selectedFiles.add(file);
             selected.push(file);
             for (const imported of listImportedAcsLibraries(file)) { enqueue(imported); }
         }

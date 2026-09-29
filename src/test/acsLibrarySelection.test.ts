@@ -3,6 +3,8 @@ import * as fs from 'fs';
 import * as os from 'os';
 import * as path from 'path';
 import {
+	getAcsLibraryName,
+	getAcsObjectFileName,
 	hasLibraryDirective,
 	listImportedAcsLibraries,
 	selectLibraryAcsFiles,
@@ -31,6 +33,9 @@ suite('ACS library selection', () => {
 		write('d.acs', '#library "d"\n');
 		write('empty.acs', '// #library "fake"\n');
 		write('e.acs', '#library "e"\n// #import "d.acs"\n');
+		write('pit.acs', '#library "pit"\n#import "8BDT.acs"\n');
+		write('overrides/8BDT.acs', '#library "CORE8BDT"\n#import "helper.txt"\n');
+		write('overrides/helper.txt', '#LIBRARY "HELPER"\n#import "8BDT.acs"\n');
 	});
 
 	suiteTeardown(() => {
@@ -44,6 +49,37 @@ suite('ACS library selection', () => {
 
 	test('ignores a commented-out #library', () => {
 		assert.strictEqual(hasLibraryDirective(path.join(sourceDir, 'empty.acs')), false);
+	});
+
+	test('names objects after the declared library rather than the source', () => {
+		const file = path.join(sourceDir, 'overrides', '8BDT.acs');
+		assert.strictEqual(getAcsLibraryName(file), 'CORE8BDT');
+		assert.strictEqual(getAcsObjectFileName(file), 'CORE8BDT.o');
+	});
+
+	test('reads mixed-case directives after long headers and inline comments', () => {
+		const file = write('directive.txt', '/* license\n' + ' * line\n'.repeat(220) +
+			' */\n# LiBrArY /* name */ "MiXeD" // trailing comment\n');
+		assert.strictEqual(getAcsObjectFileName(file), 'MiXeD.o');
+	});
+
+	test('ignores fake directives in comments and strings', () => {
+		const file = write('comments.acs', [
+			'/* #library "WRONG" */',
+			'// #library "WRONG"',
+			'str text = "//"; /* #library "WRONG" */',
+			'str other = "#library \\"WRONG\\"";',
+			'#library "REAL"',
+		].join('\n'));
+		assert.strictEqual(getAcsLibraryName(file), 'REAL');
+	});
+
+	test('keeps basename output for sources without a named library', () => {
+		assert.strictEqual(getAcsObjectFileName(path.join(sourceDir, 'empty.acs')), 'empty.o');
+		assert.strictEqual(getAcsObjectFileName(write('map.script', 'script 1 OPEN {}')), 'map.o');
+		assert.strictEqual(getAcsObjectFileName(write('unnamed.acs', '#library\n')), 'unnamed.o');
+		assert.deepStrictEqual(selectLibraryAcsFiles(sourceDir, ['unnamed']),
+			[path.join(sourceDir, 'unnamed.acs')]);
 	});
 
 	test('lists only real #import targets', () => {
@@ -62,6 +98,18 @@ suite('ACS library selection', () => {
 		const selected = selectLibraryAcsFiles(sourceDir, ['d'])
 			.map(f => path.basename(f, '.acs'));
 		assert.deepStrictEqual(selected, ['d']);
+	});
+
+	test('selects a LOADACS library by declaration and follows filename imports', () => {
+		const selected = selectLibraryAcsFiles(sourceDir, ['core8bdt'])
+			.map(f => path.basename(f)).sort();
+		assert.deepStrictEqual(selected, ['8BDT.acs', 'helper.txt']);
+	});
+
+	test('selects differently named imports and deduplicates library and file aliases', () => {
+		const selected = selectLibraryAcsFiles(sourceDir, ['pit', 'CORE8BDT', '8bdt'])
+			.map(f => path.basename(f)).sort();
+		assert.deepStrictEqual(selected, ['8BDT.acs', 'helper.txt', 'pit.acs']);
 	});
 
 	test('returns nothing when no entries are configured', () => {

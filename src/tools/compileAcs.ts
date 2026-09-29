@@ -6,7 +6,7 @@ import * as os from 'os';
 import { buildPK3 } from './build';
 import { getPk3Root } from '../shared/pk3Root';
 import { expandUserPath } from '../shared/variables';
-import { selectLibraryAcsFiles } from '../shared/acsLibrarySelection';
+import { getAcsObjectFileName, selectLibraryAcsFiles } from '../shared/acsLibrarySelection';
 import { getBaseAcsIncludeDirs, getBasePackagesForCompile } from '../base/baseAcsIncludes';
 import { collectLoadAcsEntries } from './loadAcsDiscovery';
 import {
@@ -222,7 +222,7 @@ export async function compileAcs() {
 
     const result = await compileSingleFile(srcFile, workspaceRoot, { force: true });
     if (result === 'compiled') {
-        vscode.window.showInformationMessage(`Compiled to ${path.basename(srcFile, path.extname(srcFile))}.o`);
+        vscode.window.showInformationMessage(`Compiled to ${getAcsObjectFileName(srcFile)}`);
     } else {
         vscode.window.showErrorMessage('Compilation failed. Check the Problems panel.');
     }
@@ -241,8 +241,7 @@ async function compileSingleFile(
         fs.mkdirSync(outputDir, { recursive: true });
     }
 
-    const srcName = path.basename(srcFile, path.extname(srcFile));
-    const outFile = path.join(outputDir, `${srcName}.o`);
+    const outFile = path.join(outputDir, getAcsObjectFileName(srcFile));
 
     // Incremental: skip when .o is not older than entry + transitive #includes
     if (!options.force && isObjectUpToDate(srcFile, outFile, includePaths)) {
@@ -555,7 +554,7 @@ export async function compileCurrentAndBuild() {
     const result = await compileSingleFile(srcFile, workspaceRoot, { force: true });
     if (result === 'compiled') {
         vscode.window.showInformationMessage(
-            `Compiled ${path.basename(srcFile, path.extname(srcFile))}.o. Building PK3...`
+            `Compiled ${getAcsObjectFileName(srcFile)}. Building PK3...`
         );
         await buildPK3();
     } else {

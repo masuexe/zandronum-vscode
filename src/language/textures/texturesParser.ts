@@ -201,9 +201,10 @@ export class TexturesParser {
                         currentDef = node;
                         rootNodes.push(node);
                         this.lineContexts[i] = TexturesContext.Texture;
-                        this.processInlineTexture(clean, lineText, i, currentDef, patchIndexInDef);
+                        currentPatch = this.processInlineTexture(clean, lineText, i, currentDef, patchIndexInDef);
+                        if (currentPatch) { context = TexturesContext.Patch; }
                         patchIndexInDef += currentDef.children.length;
-                        if (clean.lastIndexOf('}') > clean.indexOf('{')) {
+                        if (this.findMatchingBraceInString(clean, clean.indexOf('{')) >= 0) {
                             currentDef.range = new vscode.Range(i, 0, i, lineText.length);
                             currentDef = undefined;
                             currentPatch = undefined;
@@ -219,9 +220,10 @@ export class TexturesParser {
                     pendingDef = undefined;
                     context = TexturesContext.Texture;
                     this.lineContexts[i] = TexturesContext.Texture;
-                    this.processInlineTexture(clean, lineText, i, currentDef, patchIndexInDef);
+                    currentPatch = this.processInlineTexture(clean, lineText, i, currentDef, patchIndexInDef);
+                    if (currentPatch) { context = TexturesContext.Patch; }
                     patchIndexInDef += currentDef.children.length;
-                    if (clean.lastIndexOf('}') > clean.indexOf('{')) {
+                    if (this.findMatchingBraceInString(clean, clean.indexOf('{')) >= 0) {
                         currentDef.range = new vscode.Range(i, 0, i, lineText.length);
                         currentDef = undefined;
                         currentPatch = undefined;
@@ -275,12 +277,13 @@ export class TexturesParser {
                         currentPatch = node;
                         currentDef.children.push(node);
                         this.lineContexts[i] = TexturesContext.Patch;
-                        if (clean.lastIndexOf('}') > clean.indexOf('{')) {
-                            const pBraceStart = clean.indexOf('{');
-                            const pBraceEnd = clean.lastIndexOf('}');
-                            this.parseInlineProperties(
-                                clean.substring(pBraceStart + 1, pBraceEnd), node
-                            );
+                        const pBraceStart = clean.indexOf('{');
+                        const pBraceEnd = this.findMatchingBraceInString(clean, pBraceStart);
+                        node.patchPropRanges.propBlock = new vscode.Range(i, lineText.indexOf('{'), i, lineText.length);
+                        this.parseInlineProperties(
+                            clean.substring(pBraceStart + 1, pBraceEnd >= 0 ? pBraceEnd : clean.length), node
+                        );
+                        if (pBraceEnd >= 0) {
                             currentPatch.range = new vscode.Range(i, 0, i, lineText.length);
                             currentPatch.patchPropRanges.propBlock = currentPatch.range;
                             currentPatch = undefined;
@@ -302,6 +305,8 @@ export class TexturesParser {
                     pendingPatch = undefined;
                     context = TexturesContext.Patch;
                     this.lineContexts[i] = TexturesContext.Patch;
+                    currentPatch.patchPropRanges.propBlock = new vscode.Range(i, lineText.indexOf('{'), i, lineText.length);
+                    this.parseInlineProperties(clean.substring(clean.indexOf('{') + 1), currentPatch);
                 } else if (clean.includes('}')) {
                     if (pendingPatch && currentDef) {
                         currentDef.children.push(pendingPatch);
@@ -317,20 +322,34 @@ export class TexturesParser {
                     this.parseTextureProperty(clean, lineText, i, currentDef);
                 }
             } else if (context === TexturesContext.Patch) {
-                if (clean.includes('}')) {
+                // Ignore braces inside quoted Translation values.
+                const structural = clean.replace(/"(?:\\.|[^"\\])*"/g, value => ' '.repeat(value.length));
+                const close = structural.indexOf('}');
+                if (close >= 0) {
                     if (currentPatch) {
-                        currentPatch.range = new vscode.Range(currentPatch.range.start.line, 0, i, lineText.length);
-                        if (currentPatch.patchPropRanges.propBlock === undefined) {
-                            currentPatch.patchPropRanges.propBlock = new vscode.Range(
-                                currentPatch.range.start.line,
-                                0,
-                                i,
-                                lineText.length
-                            );
-                        }
+                        this.parseInlineProperties(clean.substring(0, close), currentPatch);
+                        currentPatch.range = new vscode.Range(currentPatch.range.start, new vscode.Position(i, lineText.length));
+                        const blockStart = currentPatch.patchPropRanges.propBlock?.start ?? currentPatch.range.start;
+                        currentPatch.patchPropRanges.propBlock = new vscode.Range(blockStart, new vscode.Position(i, lineText.length));
+                        // Re-read the full block so comma-separated Translation strings
+                        // spanning lines (including the closing line) reach the preview.
+                        let inComment = false;
+                        const content = document.getText(currentPatch.patchPropRanges.propBlock).split(/\r?\n/).map(line => {
+                            const stripped = this.stripComments(line, inComment);
+                            inComment = stripped.inBlockComment;
+                            return stripped.text;
+                        }).join('\n');
+                        const open = content.indexOf('{');
+                        const end = this.findMatchingBraceInString(content, open);
+                        this.parseTranslationProperty(content.substring(open + 1, end >= 0 ? end : content.length), currentPatch);
                     }
                     currentPatch = undefined;
                     context = TexturesContext.Texture;
+                    if (structural.substring(close + 1).includes('}') && currentDef) {
+                        currentDef.range = new vscode.Range(currentDef.range.start.line, 0, i, lineText.length);
+                        currentDef = undefined;
+                        context = TexturesContext.Top;
+                    }
                 } else if (currentPatch) {
                     this.parsePatchProperty(clean, lineText, i, currentPatch);
                 }
@@ -426,7 +445,7 @@ export class TexturesParser {
     }
 
     /**
-     * Parse all patches (and texture-level props) inside a compact one-liner body.
+     * Parse inline patches and texture properties; return a patch whose block continues.
      * Example:
      *   sprite 6H36A0,568,192{Offset 124,-16 Patch 6G36A0,326,87 Patch 6G36A0,94,87{FlipX}}
      */
@@ -436,7 +455,7 @@ export class TexturesParser {
         lineNum: number,
         def: TexturesNode,
         startPatchIndex: number
-    ): void {
+    ): TexturesNode | undefined {
         const braceIdx = clean.indexOf('{');
         if (braceIdx < 0) { return; }
 
@@ -517,6 +536,16 @@ export class TexturesParser {
                 patchProps: {},
                 ...emptyNodeExtras()
             };
+            const openBlock = scan < bodyEnd && clean[scan] === '{';
+            if (openBlock && !propsContent && nodeEndInClean === headerEndInClean) {
+                // This patch's property block continues on subsequent lines.
+                this.parseInlineProperties(clean.substring(scan + 1, bodyEnd), node);
+                node.patchPropRanges.propBlock = new vscode.Range(
+                    lineNum, cleanToLine(scan), lineNum, lineText.length
+                );
+                def.children.push(node);
+                return node;
+            }
             if (propsContent) {
                 this.parseInlineProperties(propsContent, node);
                 node.patchPropRanges.propBlock = new vscode.Range(

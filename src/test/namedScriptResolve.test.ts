@@ -1,4 +1,5 @@
 import * as assert from 'assert';
+import * as vscode from 'vscode';
 import {
 	parseFirstScriptArg,
 	enrichNamedExecuteParams,
@@ -7,10 +8,95 @@ import {
 import {
 	extractIncludePath,
 	extractScriptArgAtCursor,
+	findScriptDefinition,
 } from '../language/acs/definitionProvider';
-import { extractScriptParams, parseTypedParamList } from '../base/acsProvider';
-import { AcsScriptSymbol, SymbolKind } from '../base/types';
+import { AcsSymbolProvider, extractScriptParams, parseTypedParamList } from '../base/acsProvider';
+import { SymbolDatabase } from '../base/symbolDatabase';
+import { locationFromSymbol, symbolSourceDetail } from '../base/symbolLocation';
+import { AcsScriptSymbol, PackageSource, SymbolKind } from '../base/types';
 import { ParamData } from '../shared/dataLoader';
+
+suite('findScriptDefinition — indexed navigation', () => {
+	function scriptPackage(id: string, entryPath: string, source: string): PackageSource {
+		const content = Buffer.from(source);
+		return {
+			id, label: id, priority: 1,
+			async getEntries() { return [{ path: entryPath, size: content.length }]; },
+			async openEntry() { return content; },
+		};
+	}
+
+	async function database(packages: PackageSource[]): Promise<SymbolDatabase> {
+		const db = new SymbolDatabase();
+		db.registerProvider(new AcsSymbolProvider());
+		await db.build(packages);
+		return db;
+	}
+
+	const caller = vscode.Uri.file('/unavailable/script-navigation-caller.dec');
+	let active: vscode.CancellationTokenSource;
+	setup(() => { active = new vscode.CancellationTokenSource(); });
+	teardown(() => { active.dispose(); });
+
+	test('workspace hover source resolves directly to the indexed position', async () => {
+		const db = await database([
+			scriptPackage('workspace', 'pk3/acs/lib.acs', '// header\nscript "GiveAmmo"(int amount) {}'),
+		]);
+		const sym = db.query(SymbolKind.AcsScript, 'GiveAmmo')!;
+		assert.strictEqual(symbolSourceDetail(sym), 'Workspace: pk3/acs/lib.acs');
+		const hit = await findScriptDefinition('giveammo', caller, active.token, db);
+		assert.ok(hit);
+		assert.strictEqual(hit.uri.toString(), locationFromSymbol(sym).uri.toString());
+		assert.strictEqual(hit.range.start.line, 1);
+		assert.strictEqual(hit.range.start.character, 8);
+	});
+
+	test('base-resource scripts resolve without extracted files or a workspace', async () => {
+		const db = await database([
+			scriptPackage('base.pk3', 'acs/lib.acs', 'script "BaseScript"(void) {}'),
+		]);
+		const hit = await findScriptDefinition('BaseScript', caller, active.token, db);
+		assert.ok(hit);
+		assert.strictEqual(hit.uri.scheme, 'zandronum-base');
+		assert.strictEqual(hit.range.start.character, 8);
+	});
+
+	test('numbered scripts use the index too', async () => {
+		const db = await database([
+			scriptPackage('base.pk3', 'acs/lib.acs', '\nscript 42 (void) {}'),
+		]);
+		const hit = await findScriptDefinition('42', caller, active.token, db);
+		assert.ok(hit);
+		assert.strictEqual(hit.range.start.line, 1);
+		assert.strictEqual(hit.range.start.character, 7);
+	});
+
+	test('navigation follows the same package override as hover', async () => {
+		const db = await database([
+			scriptPackage('base.pk3', 'acs/base.acs', 'script "Shared"(void) {}'),
+			scriptPackage('workspace', 'pk3/acs/mod.acs', '\n\nscript "Shared"(void) {}'),
+		]);
+		const sym = db.query(SymbolKind.AcsScript, 'Shared')!;
+		const hit = await findScriptDefinition('Shared', caller, active.token, db);
+		assert.ok(hit);
+		assert.strictEqual(sym.packageId, 'workspace');
+		assert.strictEqual(hit.uri.toString(), locationFromSymbol(sym).uri.toString());
+		assert.strictEqual(hit.range.start.line, 2);
+	});
+
+	test('cancelled navigation returns no definition even for indexed scripts', async () => {
+		const db = await database([
+			scriptPackage('base.pk3', 'acs/lib.acs', 'script "GiveAmmo"(void) {}'),
+		]);
+		const cancellation = new vscode.CancellationTokenSource();
+		try {
+			cancellation.cancel();
+			assert.strictEqual(await findScriptDefinition('GiveAmmo', caller, cancellation.token, db), undefined);
+		} finally {
+			cancellation.dispose();
+		}
+	});
+});
 
 suite('extractIncludePath — ACS preprocessor paths', () => {
 	test('jumps from #include quoted path', () => {

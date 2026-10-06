@@ -364,8 +364,19 @@ export function extractActorClassArgAtCursor(
 export async function findScriptDefinition(
     scriptRef: string,
     excludeUri: vscode.Uri,
-    token: vscode.CancellationToken
+    token: vscode.CancellationToken,
+    symbolDb?: SymbolDatabase
 ): Promise<vscode.Location | undefined> {
+    if (token.isCancellationRequested) {
+        return undefined;
+    }
+
+    // Hover already uses this index; navigation should reuse its source and position.
+    const script = symbolDb?.query(SymbolKind.AcsScript, scriptRef);
+    if (script && script.packageId !== 'builtin') {
+        return locationFromSymbol(script);
+    }
+
     const workspaceRoot = vscode.workspace.workspaceFolders?.[0]?.uri;
     if (!workspaceRoot) {
         return undefined;
@@ -467,7 +478,7 @@ export function registerAcsDefinitionProvider(
 
                 const scriptRef = extractScriptRef(lineText, position.character);
                 if (scriptRef !== null) {
-                    return findScriptDefinition(scriptRef, document.uri, token);
+                    return findScriptDefinition(scriptRef, document.uri, token, symbolDb);
                 }
 
                 const actorArg = extractActorClassArgAtCursor(lineText, position.character);

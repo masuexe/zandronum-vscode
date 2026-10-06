@@ -78,7 +78,7 @@ async function provideDefinition(
 
     const scriptRef = extractScriptRef(lineText, position.character);
     if (scriptRef !== null) {
-        return findScriptDefinition(scriptRef, document.uri, token);
+        return findScriptDefinition(scriptRef, document.uri, token, symbolDb);
     }
 
     if (actionsData) {

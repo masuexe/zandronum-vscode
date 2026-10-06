@@ -183,8 +183,8 @@ export class TextureEditorPanel {
         this.panel.webview.postMessage({ type: 'palette', rgb });
     }
 
-    sendUpdateTexture(data: TextureViewData): void {
-        this.panel.webview.postMessage({ type: 'updateTexture', texture: data });
+    sendUpdateTexture(data: TextureViewData, textures: string[]): void {
+        this.panel.webview.postMessage({ type: 'updateTexture', texture: data, textures });
     }
 
     sendUpdateList(textures: string[], selectedName: string): void {

@@ -37,6 +37,20 @@ function buildTextureViewData(node: TexturesNode, modelVersion: number): Texture
     };
 }
 
+/** Map an old-document offset through edits whose ranges share the same old version. */
+function mapOffset(offset: number, changes: readonly vscode.TextDocumentContentChangeEvent[], end: boolean): number {
+    let delta = 0;
+    for (const change of changes) {
+        if (change.rangeOffset > offset) { break; }
+        const oldEnd = change.rangeOffset + change.rangeLength;
+        if (offset < oldEnd || (change.rangeLength === 0 && offset === change.rangeOffset)) {
+            return change.rangeOffset + delta + (end ? change.text.length : 0);
+        }
+        delta += change.text.length - change.rangeLength;
+    }
+    return offset + delta;
+}
+
 export class TextureDocumentController {
     private readonly model: TextureDocumentModel;
     private readonly resourceIndex: ResourceIndex;
@@ -48,6 +62,8 @@ export class TextureDocumentController {
     private webviewReady = false;
     private readyWatchTimer: ReturnType<typeof setTimeout> | undefined;
     private suppressingDisposeHandler = false;
+    /** Offsets cached before edits; independent of the shared parser's update order. */
+    private selectedNameOffsets: { start: number; end: number } | undefined;
 
     constructor(
         document: vscode.TextDocument,
@@ -64,7 +80,7 @@ export class TextureDocumentController {
         this.disposables.push(
             vscode.workspace.onDidChangeTextDocument(e => {
                 if (e.document === this.model.document) {
-                    this.onDocumentChanged();
+                    this.onDocumentChanged(e);
                 }
             })
         );
@@ -80,6 +96,8 @@ export class TextureDocumentController {
 
     openEditor(textureName: string): void {
         this.selection.selectedTextureName = textureName;
+        const node = this.model.getTextureByName(textureName);
+        this.selectedNameOffsets = node ? this.nameOffsets(node) : undefined;
 
         if (this.panel && this.webviewReady) {
             this.panel.reveal();
@@ -166,17 +184,44 @@ export class TextureDocumentController {
         for (const d of this.disposables) { d.dispose(); }
     }
 
-    private onDocumentChanged(): void {
+    private nameOffsets(node: TexturesNode): { start: number; end: number } {
+        return {
+            start: this.model.document.offsetAt(node.nameRange.start),
+            end: this.model.document.offsetAt(node.nameRange.end)
+        };
+    }
+
+    private onDocumentChanged(event: vscode.TextDocumentChangeEvent): void {
+        if (event.contentChanges.length === 0) { return; }
+        if (this.selectedNameOffsets) {
+            const changes = [...event.contentChanges].sort((a, b) => a.rangeOffset - b.rangeOffset);
+            this.selectedNameOffsets = {
+                start: mapOffset(this.selectedNameOffsets.start, changes, false),
+                end: mapOffset(this.selectedNameOffsets.end, changes, true)
+            };
+        }
         this.model.update();
         if (!this.panel) { return; }
 
         const textures = this.model.getTextures().map(n => n.name);
-        const selected = this.selection.selectedTextureName;
+        const tracked = this.selectedNameOffsets;
+        // A temporarily empty/invalid name keeps its anchor for the next keystroke.
+        // Require a unique overlapping name so deleting a definition cannot select its neighbour.
+        const matches = tracked ? this.model.getTextures().filter(node => {
+            const range = this.nameOffsets(node);
+            return tracked.start === tracked.end
+                ? range.start <= tracked.start && tracked.start < range.end
+                : range.start < tracked.end && tracked.start < range.end;
+        }) : [];
+        const node = tracked
+            ? (matches.length === 1 ? matches[0] : undefined)
+            : (this.selection.selectedTextureName ? this.model.getTextureByName(this.selection.selectedTextureName) : undefined);
 
-        if (selected && this.model.getTextureByName(selected)) {
+        if (node) {
+            this.selection.selectedTextureName = node.name;
             this.sendCurrentTexture();
         } else {
-            this.panel.sendUpdateList(textures, selected ?? '');
+            this.panel.sendUpdateList(textures, this.selection.selectedTextureName ?? '');
         }
     }
 
@@ -371,6 +416,7 @@ export class TextureDocumentController {
         const name = this.selection.selectedTextureName;
         const node = name ? this.model.getTextureByName(name) : undefined;
         if (node) {
+            this.selectedNameOffsets = this.nameOffsets(node);
             this.panel.sendInit(textures, buildTextureViewData(node, this.model.version));
         }
     }
@@ -381,8 +427,9 @@ export class TextureDocumentController {
         if (!name) { return; }
         const node = this.model.getTextureByName(name);
         if (!node) { return; }
-        this.panel.setTitle(`Texture: ${name}`);
-        this.panel.sendUpdateTexture(buildTextureViewData(node, this.model.version));
+        this.selectedNameOffsets = this.nameOffsets(node);
+        this.panel.setTitle(`Texture: ${node.name}`);
+        this.panel.sendUpdateTexture(buildTextureViewData(node, this.model.version), this.model.getTextures().map(n => n.name));
     }
 
     private async handleResolveResource(resourceId: string): Promise<void> {

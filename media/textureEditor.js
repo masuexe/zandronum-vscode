@@ -1624,6 +1624,8 @@
                 break;
             case 'updateTexture': {
                 const prevSelected = selectedPatchId;
+                // Older extension hosts send texture-only updates. Keep the loaded list.
+                if (Array.isArray(msg.textures)) { textures = msg.textures; }
                 currentTexture = msg.texture;
                 if (prevSelected && !currentTexture.patches.some(p => p.id === prevSelected)) {
                     selectedPatchId = null;

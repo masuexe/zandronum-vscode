@@ -38,6 +38,7 @@ import { registerSbarinfoFormattingProvider } from './language/sbarinfo/formatti
 import { registerSbarinfoDefinitionProvider } from './language/sbarinfo/definitionProvider';
 import { getPk3Root } from './shared/pk3Root';
 import { ResourceIndex } from './language/textures/resourceIndex';
+import { registerInventoryIconNavigation } from './language/decorate/iconResolve';
 import { TextureEditorRegistry } from './language/textures/textureDocumentController';
 import { registerOffsetPreview } from './language/decorate/offsetPreviewController';
 import { PackageManager } from './base/packageManager';
@@ -253,7 +254,8 @@ export function activate(context: vscode.ExtensionContext) {
     registerSignatureHelp(context, actionsData, stateKeywordsData, expressionsData, symbolDatabase);
     registerHoverProvider(context, actionsData, stateKeywordsData, symbolDatabase, inheritanceData, expressionsData);
     registerDecorateSemanticTokens(context, symbolDatabase);
-    registerDefinitionProvider(context, symbolDatabase, actionsData, expressionsData, inheritanceData, propertiesData);
+    registerDefinitionProvider(context, symbolDatabase, actionsData, expressionsData, inheritanceData, propertiesData, resourceIndex);
+    registerInventoryIconNavigation(context, resourceIndex);
     registerColorProvider(context, actionsData, x11ColorsData.colors);
     registerDecorateSymbolProvider(context);
     registerDecorateRenameAndReferences(context);

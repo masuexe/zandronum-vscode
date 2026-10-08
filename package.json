@@ -219,6 +219,13 @@
         "path": "./snippets/acs.snippets.json"
       }
     ],
+    "keybindings": [
+      {
+        "command": "zandronum.goToInventoryIcon",
+        "key": "f12",
+        "when": "editorTextFocus && editorLangId == decorate && zandronum.inventoryIconAtCursor"
+      }
+    ],
     "commands": [
       {
         "command": "acs.compile",

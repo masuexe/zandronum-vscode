@@ -128,6 +128,12 @@ const TEX_SCALE_RE = /^\s*(XScale|YScale)\s+(-?[0-9]+\.?[0-9]*)/i;
 const TEX_OFFSET_RE = /^\s*Offset\s+(-?\d+)\s*,\s*(-?\d+)/i;
 const TEX_BOOL_RE = /^\s*(WorldPanning|NoDecals|NullTexture)\s*$/i;
 
+interface TexturesSource {
+    readonly lineCount: number;
+    lineAt(line: number): { text: string };
+    getText(range?: vscode.Range): string;
+}
+
 function emptyNodeExtras(): Pick<TexturesNode, 'texProps' | 'texPropRanges' | 'patchPropRanges'> {
     return { texProps: {}, texPropRanges: {}, patchPropRanges: {} };
 }
@@ -137,6 +143,22 @@ export class TexturesParser {
     private cachedVersion: number = -1;
     private cachedUri: string = '';
     private lineContexts: TexturesContext[] = [];
+
+    /** Parse package text without opening an editor document. */
+    parseText(text: string): ParseResult {
+        const lines = text.split(/\r?\n/);
+        return this.parse({
+            lineCount: lines.length,
+            lineAt: (line: number) => ({ text: lines[line] }),
+            getText: (range?: vscode.Range) => {
+                if (!range) { return text; }
+                const selected = lines.slice(range.start.line, range.end.line + 1);
+                selected[selected.length - 1] = selected[selected.length - 1].slice(0, range.end.character);
+                selected[0] = selected[0].slice(range.start.character);
+                return selected.join('\n');
+            }
+        });
+    }
 
     update(document: vscode.TextDocument): void {
         const uri = document.uri.toString();
@@ -148,7 +170,7 @@ export class TexturesParser {
         this.cachedResult = this.parse(document);
     }
 
-    parse(document: vscode.TextDocument): ParseResult {
+    parse(document: TexturesSource): ParseResult {
         const rootNodes: TexturesNode[] = [];
         const diagnostics: TexturesParseDiagnostic[] = [];
         this.lineContexts = [];

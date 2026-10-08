@@ -32,7 +32,7 @@ function shouldExtractZipEntry(entryPath: string): boolean {
     const base = name.includes('.') ? name.slice(0, name.lastIndexOf('.')) : name;
     // PLAYPAL is tiny; keep for future palette fallback. Do NOT include PNG here —
     // large PK3s (tens of thousands of sprites) would decompress into RAM on any openEntry.
-    if (/^(DECORATE|SCRIPTS|SNDINFO|TEXTURES|LANGUAGE|LOADACS|PLAYPAL)$/i.test(base)) { return true; }
+    if (/^(DECORATE|SCRIPTS|SNDINFO|TEXTURES|LANGUAGE|LOADACS|PLAYPAL)$/i.test(base.slice(0, 8))) { return true; }
     // Actor/text lumps often live as .txt / .dec / etc.
     return /\.(dec|decorate|acs|lm|txt)$/i.test(name);
 }

@@ -5,6 +5,7 @@ import { FolderPackage, ZipPackage, normalizeEntryPath } from '../../base/packag
 import { makeBaseResourceUri } from '../../base/baseResourceUri';
 import { readPngSize } from '../../tools/png/pngChunkReader';
 import { readGrabOffset } from '../../tools/png/pngGrabChunk';
+import { TexturesParser } from './texturesParser';
 
 export enum ResourceType {
     Png,
@@ -24,6 +25,8 @@ export interface ResourceMetadata {
     grabOffset?: { x: number; y: number } | null;
     /** Indexed from baseResources — cleared/replaced on ingestPackages. */
     fromPackage?: boolean;
+    /** Name of a TEXTURES definition, for navigation. */
+    definitionRange?: vscode.Range;
 }
 
 function typeFromExtension(ext: string): ResourceType {
@@ -54,7 +57,13 @@ function computePackageImagePriority(pkgPriority: number): number {
     return 1 + Math.min(Math.max(pkgPriority, 0), 8);
 }
 
-const TEXTURES_DEF_RE = /^\s*(Texture|WallTexture|Flat|Sprite|Graphic)\s+(?:optional\s+)?(?:"([^"]*)"|([^\s,]+))\s*,\s*(\d+)\s*,\s*(\d+)/gim;
+const TEXTURES_GLOB = '**/[tT][eE][xX][tT][uU][rR][eE][sS]*';
+
+export function isTexturesFile(uri: vscode.Uri): boolean {
+    const name = path.posix.basename(uri.path);
+    const dot = name.lastIndexOf('.');
+    return (dot < 0 ? name : name.slice(0, dot)).slice(0, 8).toUpperCase() === 'TEXTURES';
+}
 
 const REFRESH_THROTTLE_MS = 2000;
 
@@ -75,6 +84,7 @@ export class ResourceIndex {
     private lastRefreshAt = 0;
     private lastPackages: readonly PackageSource[] = [];
     private ingestPromise: Promise<void> | undefined;
+    private documentListener: vscode.Disposable | undefined;
 
     constructor(pk3Root: string = 'src') {
         this.pk3Root = pk3Root;
@@ -85,12 +95,13 @@ export class ResourceIndex {
     }
 
     /**
-     * Wait for workspace image / TEXTURES index only.
+     * Wait for workspace image / TEXTURES index; optionally include package ingest.
      * Package ingest is separate and may take a long time for large PK3s;
      * callers refresh via OffsetPreviewRegistry.refreshAll after ingest.
      */
-    async whenReady(): Promise<void> {
+    async whenReady(includePackages = false): Promise<void> {
         if (this.buildPromise) { await this.buildPromise; }
+        if (includePackages && this.ingestPromise) { await this.ingestPromise; }
     }
 
     /**
@@ -122,7 +133,7 @@ export class ResourceIndex {
     }
 
     /**
-     * Index PNG/JPEG from baseResources packages (ZipPackage / FolderPackage).
+     * Index PNG/JPEG and TEXTURES from baseResources packages (ZipPackage / FolderPackage).
      * Skips builtin and workspace (workspace already covered by findFiles).
      */
     async ingestPackages(packages: readonly PackageSource[]): Promise<void> {
@@ -158,6 +169,17 @@ export class ResourceIndex {
             }
 
             const priority = computePackageImagePriority(pkg.priority);
+            const textEntries = isZip ? await pkg.getEntries() : entries;
+            for (const entry of textEntries) {
+                const uri = isFolder
+                    ? vscode.Uri.file(path.join(pkg.getRootPath(), normalizeEntryPath(entry.path)))
+                    : makeBaseResourceUri(pkg.id, entry.path);
+                if (!isTexturesFile(uri)) { continue; }
+                const content = await pkg.openEntry(entry.path);
+                for (const def of this.definitionsFromText(Buffer.from(content).toString('utf8'), uri, priority, true)) {
+                    this.addDefinitionEntry(def.name, def.entry);
+                }
+            }
             for (const entry of entries) {
                 const baseName = entry.path.split('/').pop() ?? '';
                 if (!IMAGE_EXT_RE.test(baseName)) { continue; }
@@ -242,6 +264,7 @@ export class ResourceIndex {
     dispose(): void {
         this.imageWatcher?.dispose();
         this.texturesWatcher?.dispose();
+        this.documentListener?.dispose();
         this.index.clear();
     }
 
@@ -251,8 +274,9 @@ export class ResourceIndex {
         for (const uri of imageFiles) {
             this.addFile(uri);
         }
-        const texturesFiles = await vscode.workspace.findFiles('**/TEXTURES*', '**/node_modules/**');
+        const texturesFiles = await vscode.workspace.findFiles(TEXTURES_GLOB, '**/node_modules/**');
         for (const uri of texturesFiles) {
+            if (!isTexturesFile(uri)) { continue; }
             await this.scanTexturesFile(uri);
         }
         this.imageWatcher?.dispose();
@@ -260,11 +284,21 @@ export class ResourceIndex {
         this.imageWatcher = vscode.workspace.createFileSystemWatcher('**/*.{png,jpg,jpeg}');
         this.imageWatcher.onDidCreate(uri => this.addFile(uri));
         this.imageWatcher.onDidDelete(uri => this.removeFile(uri));
-        this.texturesWatcher = vscode.workspace.createFileSystemWatcher('**/TEXTURES*');
-        this.texturesWatcher.onDidCreate(uri => { void this.scanTexturesFile(uri); });
+        this.texturesWatcher = vscode.workspace.createFileSystemWatcher(TEXTURES_GLOB);
+        this.texturesWatcher.onDidCreate(uri => { if (isTexturesFile(uri)) { void this.scanTexturesFile(uri); } });
         // Atomic replace: scan first, then swap defs — avoids a gap where names vanish.
-        this.texturesWatcher.onDidChange(uri => { void this.replaceDefinitionsFrom(uri); });
+        this.texturesWatcher.onDidChange(uri => { if (isTexturesFile(uri)) { void this.replaceDefinitionsFrom(uri); } });
         this.texturesWatcher.onDidDelete(uri => this.removeDefinitionsFrom(uri));
+        this.documentListener?.dispose();
+        this.documentListener = vscode.workspace.onDidChangeTextDocument(event => {
+            if (event.contentChanges.length === 0 || event.document.uri.scheme !== 'file'
+                || !vscode.workspace.getWorkspaceFolder(event.document.uri) || !isTexturesFile(event.document.uri)) { return; }
+            this.removeDefinitionsFrom(event.document.uri);
+            for (const def of this.definitionsFromText(event.document.getText(), event.document.uri,
+                computeDefinitionPriority(event.document.uri, this.pk3Root))) {
+                this.addDefinitionEntry(def.name, def.entry);
+            }
+        });
     }
 
     private removeDefinitionsFrom(uri: vscode.Uri): void {
@@ -282,29 +316,23 @@ export class ResourceIndex {
     }
 
     private async collectDefinitionsFrom(uri: vscode.Uri): Promise<NamedDefinition[]> {
-        const result: NamedDefinition[] = [];
         try {
-            const data = await vscode.workspace.fs.readFile(uri);
-            const text = Buffer.from(data).toString('utf-8');
-            TEXTURES_DEF_RE.lastIndex = 0;
-            let m: RegExpExecArray | null;
-            while ((m = TEXTURES_DEF_RE.exec(text)) !== null) {
-                const name = (m[2] ?? m[3]).toLowerCase();
-                const width = parseInt(m[4]);
-                const height = parseInt(m[5]);
-                result.push({
-                    name,
-                    entry: {
-                        uri,
-                        type: ResourceType.TextureDefinition,
-                        priority: computeDefinitionPriority(uri, this.pk3Root),
-                        width,
-                        height
-                    }
-                });
-            }
+            const open = vscode.workspace.textDocuments.find(doc => doc.uri.toString() === uri.toString());
+            const text = open?.getText() ?? Buffer.from(await vscode.workspace.fs.readFile(uri)).toString('utf8');
+            return this.definitionsFromText(text, uri, computeDefinitionPriority(uri, this.pk3Root));
         } catch { /* ignore unreadable files */ }
-        return result;
+        return [];
+    }
+
+    private definitionsFromText(text: string, uri: vscode.Uri, priority: number, fromPackage = false): NamedDefinition[] {
+        return new TexturesParser().parseText(text).rootNodes.filter(node => node.defData).map(node => ({
+            name: node.name.toLowerCase(),
+            entry: {
+                uri, type: ResourceType.TextureDefinition, priority, fromPackage,
+                width: node.defData!.width, height: node.defData!.height,
+                definitionRange: node.nameRange
+            }
+        }));
     }
 
     private addDefinitionEntry(name: string, entry: ResourceMetadata): void {

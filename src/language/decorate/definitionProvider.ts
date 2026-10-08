@@ -26,6 +26,8 @@ import {
 import { findActorSpanInLines } from './renameProvider';
 import { parseActorHeader } from './actorUserVars';
 import { resolveActorDefinition } from './actorResolve';
+import { ResourceIndex } from '../textures/resourceIndex';
+import { inventoryIconAtPosition, resolveInventoryIcon, iconDefinitionLocation } from './iconResolve';
 
 export function registerDefinitionProvider(
     context: vscode.ExtensionContext,
@@ -33,7 +35,8 @@ export function registerDefinitionProvider(
     actionsData?: Record<string, ActionData>,
     expressionsData?: Record<string, ExpressionData>,
     inheritanceData?: Record<string, InheritanceData>,
-    propertiesData?: Record<string, PropertyData>
+    propertiesData?: Record<string, PropertyData>,
+    resourceIndex?: ResourceIndex
 ) {
     const expressionCallables = expressionsData && actionsData
         ? getExpressionCallables(actionsData, expressionsData)
@@ -51,7 +54,8 @@ export function registerDefinitionProvider(
                     actionsData,
                     expressionCallables,
                     inheritanceData,
-                    propertiesData
+                    propertiesData,
+                    resourceIndex
                 );
             }
         }
@@ -67,9 +71,18 @@ async function provideDefinition(
     actionsData?: Record<string, ActionData>,
     expressionCallables: Record<string, ActionData> = {},
     inheritanceData?: Record<string, InheritanceData>,
-    propertiesData?: Record<string, PropertyData>
+    propertiesData?: Record<string, PropertyData>,
+    resourceIndex?: ResourceIndex
 ): Promise<vscode.Definition | undefined> {
     const lineText = document.lineAt(position.line).text;
+
+    if (resourceIndex) {
+        const icon = inventoryIconAtPosition(document, position);
+        if (icon !== undefined) {
+            const resource = await resolveInventoryIcon(icon, resourceIndex, token);
+            return resource ? iconDefinitionLocation(resource) : undefined;
+        }
+    }
 
     const includePath = extractIncludePath(lineText, position.character);
     if (includePath !== null) {

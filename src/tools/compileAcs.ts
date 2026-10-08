@@ -69,6 +69,22 @@ function getOutputDir(workspaceRoot: string): string {
     return path.join(workspaceRoot, getPk3Root(), 'acs');
 }
 
+/** ACC writes flat output files; never remove the directory or other resources. */
+export async function cleanAcsObjectFiles(outputDir: string): Promise<void> {
+    let entries: fs.Dirent[];
+    try {
+        entries = await fs.promises.readdir(outputDir, { withFileTypes: true });
+    } catch (error) {
+        if ((error as NodeJS.ErrnoException).code === 'ENOENT') { return; }
+        throw error;
+    }
+    for (const entry of entries) {
+        if (entry.isFile() && path.extname(entry.name).toLowerCase() === '.o') {
+            await fs.promises.unlink(path.join(outputDir, entry.name));
+        }
+    }
+}
+
 function getAccDir(workspaceRoot: string): string | null {
     const accPath = resolveAccExecutablePath(getAccPath(), workspaceRoot);
 
@@ -474,6 +490,17 @@ export async function compileLoadAcsLibraries(
         workspaceRoot,
         getBasePackagesForCompile()
     );
+    const cleanBeforeBuild = vscode.workspace.getConfiguration('zandronum-vscode')
+        .get<boolean>('cleanBeforeBuild', true);
+    // Binary-only projects have no compiler-owned output directory to clean.
+    if (cleanBeforeBuild && fs.existsSync(getAcsSourceDir(workspaceRoot))) {
+        try {
+            await cleanAcsObjectFiles(getOutputDir(workspaceRoot));
+        } catch (error) {
+            vscode.window.showErrorMessage(`Failed to clean ACS output: ${String(error)}`);
+            return empty('failure');
+        }
+    }
     if (loadAcsEntries.length === 0) {
         if (!quietNotConfigured) {
             vscode.window.showWarningMessage(
@@ -494,7 +521,7 @@ export async function compileLoadAcsLibraries(
     const outcomes = await mapPool(
         acsFiles,
         getAccConcurrency(),
-        (acsFile) => compileSingleFile(acsFile, workspaceRoot)
+        (acsFile) => compileSingleFile(acsFile, workspaceRoot, { force: cleanBeforeBuild })
     );
 
     let compiled = 0;

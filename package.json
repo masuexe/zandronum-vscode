@@ -346,6 +346,11 @@
             "order": 6,
             "description": "Output directory for compiled .o files, relative to the workspace root. If empty, defaults to <pk3Root>/acs."
           },
+          "zandronum-vscode.cleanBeforeBuild": {
+            "type": "boolean",
+            "default": true,
+            "description": "Before Build Project or Run Project, delete all top-level .o files in accOutputDir (default <pk3Root>/acs) and recompile selected libraries. Applies when <pk3Root>/acs_source exists. Disable to keep precompiled libraries in that directory or use incremental compilation."
+          },
           "zandronum-vscode.accConcurrency": {
             "type": "number",
             "default": 0,

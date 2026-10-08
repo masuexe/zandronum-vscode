@@ -7,7 +7,7 @@ import {
 	buildAccIncludePaths,
 	findAcsIncludeFile,
 } from '../tools/accIncludePaths';
-import { resolveAccExecutablePath } from '../tools/compileAcs';
+import { cleanAcsObjectFiles, resolveAccExecutablePath } from '../tools/compileAcs';
 
 suite('ACC executable path', () => {
 	const workspaceRoot = path.join(path.sep, 'workspace', 'mod');
@@ -127,5 +127,42 @@ suite('ACC include path budget', () => {
 		});
 		assert.ok(result.paths.includes(path.resolve(deepModApi)));
 		assert.ok(!result.paths.some(p => p.includes(`${path.sep}mod api`)));
+	});
+});
+
+suite('ACS object cleanup', () => {
+	let outputDir: string;
+
+	setup(() => {
+		outputDir = fs.mkdtempSync(path.join(os.tmpdir(), 'acs-clean-'));
+	});
+
+	teardown(() => {
+		fs.rmSync(outputDir, { recursive: true, force: true });
+	});
+
+	test('removes old objects while preserving sources, resources and subdirectories', async () => {
+		for (const name of ['renamed.o', 'removed.O', 'current.o', 'keep.acs', 'keep.png']) {
+			fs.writeFileSync(path.join(outputDir, name), name);
+		}
+		fs.mkdirSync(path.join(outputDir, 'nested.o'));
+		fs.writeFileSync(path.join(outputDir, 'nested.o', 'keep.o'), 'nested');
+
+		await cleanAcsObjectFiles(outputDir);
+
+		assert.deepStrictEqual(fs.readdirSync(outputDir).sort(), ['keep.acs', 'keep.png', 'nested.o']);
+		assert.strictEqual(fs.readFileSync(path.join(outputDir, 'nested.o', 'keep.o'), 'utf8'), 'nested');
+	});
+
+	test('accepts a missing output directory on the first build', async () => {
+		await cleanAcsObjectFiles(path.join(outputDir, 'missing'));
+		assert.ok(!fs.existsSync(path.join(outputDir, 'missing')));
+	});
+
+	test('propagates cleanup errors so the caller can stop packaging', async () => {
+		const file = path.join(outputDir, 'not-a-directory');
+		fs.writeFileSync(file, 'keep');
+		await assert.rejects(cleanAcsObjectFiles(file));
+		assert.strictEqual(fs.readFileSync(file, 'utf8'), 'keep');
 	});
 });

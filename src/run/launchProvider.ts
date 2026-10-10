@@ -190,6 +190,35 @@ export function resolveRunArguments(
     return parseArgs(raw ?? []).map(a => resolveLaunchValue(a, workspaceFolder, buildOutput));
 }
 
+/** Discover -file operands from the same resolved argv used to launch. */
+export function collectRunResourcePaths(
+    configs: readonly RunConfig[],
+    workspaceFolder: string,
+    buildOutput: string,
+    platform: NodeJS.Platform = process.platform
+): string[] {
+    const resources = new Set<string>();
+    for (const config of configs) {
+        const effective = resolvePlatformRunConfig(config, platform);
+        const args = buildRunArguments(
+            resolveRunArguments(effective.preArgs, workspaceFolder, buildOutput),
+            resolveRunArguments(effective.postArgs, workspaceFolder, buildOutput),
+            buildOutput
+        );
+        let inFiles = false;
+        for (const arg of args) {
+            if (arg.startsWith('-') || arg.startsWith('+')) {
+                inFiles = arg.toLowerCase() === '-file';
+                continue;
+            }
+            if (!inFiles) { continue; }
+            const resource = path.resolve(workspaceFolder, arg);
+            if (resource !== path.resolve(buildOutput)) { resources.add(resource); }
+        }
+    }
+    return [...resources];
+}
+
 function runConfigToTerminal(config: RunConfig, terminalName: string): boolean {
     const workspaceFolder = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath ?? '';
     const buildOutput = getBuildOutputPath();
@@ -411,7 +440,21 @@ export async function runProject(): Promise<void> {
         vscode.window.showErrorMessage('Run cancelled: save workspace files before building.');
         return;
     }
-    const ok = await buildProject({ skipUnchangedPk3: true });
+    let configs: RunConfig[] = [];
+    if (resolved.status === 'ready') {
+        if (resolved.pick.kind === 'config') { configs = [resolved.pick.config]; }
+        else {
+            const compound = resolveCompound(resolved.pick.compound, resolved.configurations);
+            if (!compound.ok) {
+                vscode.window.showErrorMessage(compound.error);
+                return;
+            }
+            configs = [compound.host, compound.client];
+        }
+    }
+    const workspaceFolder = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath ?? '';
+    const launchResources = collectRunResourcePaths(configs, workspaceFolder, getBuildOutputPath());
+    const ok = await buildProject({ skipUnchangedPk3: true, launchResources });
     if (!ok) { return; }
     await launchResolved(resolved);
 }

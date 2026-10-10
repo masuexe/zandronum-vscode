@@ -4,6 +4,7 @@ import * as path from 'path';
 import {
 	buildLaunchPicks,
 	buildRunArguments,
+	collectRunResourcePaths,
 	convertWslPathArguments,
 	isWindowsAbsolutePath,
 	isWslWindowsExecutable,
@@ -292,4 +293,31 @@ suite('resolveRunArguments', () => {
 	test('treats undefined args as empty', () => {
 		assert.deepStrictEqual(resolveRunArguments(undefined, workspaceFolder, buildOutput), []);
 	});
+});
+
+suite('launch resource discovery', () => {
+    const root = path.resolve('/workspace/My Mod');
+    const output = path.join(root, 'out/build.pk3');
+
+    test('discovers only -file resources with platform overrides and resolved paths', () => {
+        const resources = collectRunResourcePaths([{
+            name: 'Offline',
+            preArgs: '-file ignored.pk3',
+            linux: { preArgs: '-iwad doom.wad -file "${workspaceFolder}/addon one.pk3" ~/addon.pk3' },
+            postArgs: ['-file', 'later.pk3', '+map', 'MAP01', '-config', 'settings.ini'],
+        }], root, output, 'linux');
+        assert.deepStrictEqual(resources, [path.join(root, 'addon one.pk3'),
+            path.join(os.homedir(), 'addon.pk3'), path.join(root, 'later.pk3')]);
+    });
+
+    test('merges both compound members, deduplicates shared resources and skips the build output', () => {
+        const compound = resolveCompound({ name: 'net', configurations: ['host', 'client'] }, [
+            { name: 'host', preArgs: ['-file', 'shared.pk3', 'host.pk3'] },
+            { name: 'client', postArgs: ['-file', 'shared.pk3', 'client.pk3', '${buildOutput}'] },
+        ]);
+        assert.ok(compound.ok);
+        if (!compound.ok) { return; }
+        assert.deepStrictEqual(collectRunResourcePaths([compound.host, compound.client], root, output),
+            ['shared.pk3', 'host.pk3', 'client.pk3'].map(p => path.join(root, p)));
+    });
 });

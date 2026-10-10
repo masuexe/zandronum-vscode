@@ -6,9 +6,9 @@ import * as os from 'os';
 import { buildPK3 } from './build';
 import { getPk3Root } from '../shared/pk3Root';
 import { expandUserPath } from '../shared/variables';
-import { getAcsObjectFileName, selectLibraryAcsFiles } from '../shared/acsLibrarySelection';
+import { getAcsObjectFileName, selectLibraryAcsTargets } from '../shared/acsLibrarySelection';
 import { getBaseAcsIncludeDirs, getBasePackagesForCompile } from '../base/baseAcsIncludes';
-import { collectLoadAcsEntries } from './loadAcsDiscovery';
+import { collectLoadAcsEntries, readLaunchLoadAcsEntries } from './loadAcsDiscovery';
 import {
     ACC_MAX_CLI_INCLUDE_PATHS,
     buildAccIncludePaths,
@@ -247,7 +247,7 @@ export async function compileAcs() {
 async function compileSingleFile(
     srcFile: string,
     workspaceRoot: string,
-    options: { force?: boolean } = {}
+    options: { force?: boolean; objectFileName?: string } = {}
 ): Promise<'compiled' | 'skipped' | 'failed'> {
     const accPath = resolveAccExecutablePath(getAccPath(), workspaceRoot);
     const outputDir = getOutputDir(workspaceRoot);
@@ -257,12 +257,14 @@ async function compileSingleFile(
         fs.mkdirSync(outputDir, { recursive: true });
     }
 
-    const outFile = path.join(outputDir, getAcsObjectFileName(srcFile));
+    const outFile = path.join(outputDir, options.objectFileName ?? getAcsObjectFileName(srcFile));
 
     // Incremental: skip when .o is not older than entry + transitive #includes
     if (!options.force && isObjectUpToDate(srcFile, outFile, includePaths)) {
         return 'skipped';
     }
+
+    if (fs.existsSync(outFile)) { fs.unlinkSync(outFile); }
 
     const args: string[] = [];
     for (const inc of includePaths) {
@@ -429,20 +431,11 @@ async function mapPool<T, R>(
     return results;
 }
 
-function findLibraryAcsFiles(workspaceRoot: string, loadAcsEntries: string[]): string[] {
-    const sourceDir = getAcsSourceDir(workspaceRoot);
-    if (!fs.existsSync(sourceDir) || loadAcsEntries.length === 0) {
-        return [];
-    }
-
-    return selectLibraryAcsFiles(sourceDir, loadAcsEntries);
-}
-
 /**
- * Compile all ACS libraries listed in LOADACS (workspace + base resources).
- * - notConfigured: no LOADACS entries anywhere (caller may skip straight to packaging)
+ * Compile workspace LOADACS targets, launch-resource overrides and explicit mappings.
+ * - notConfigured: no selected workspace targets (caller may skip to packaging)
  * - success: every matching workspace library compiled or skipped as up-to-date
- * - failure: configured but incomplete or compile errors (do not package)
+ * - failure: invalid targets/resources or compile errors (do not package)
  */
 export type CompileLibrariesResult = 'notConfigured' | 'success' | 'failure';
 
@@ -456,6 +449,7 @@ export interface CompileLibrariesStats {
 
 export async function compileLoadAcsLibraries(
     options: {
+        launchResources?: readonly string[];
         clearDiagnostics?: boolean;
         quietNotConfigured?: boolean;
         quietSuccess?: boolean;
@@ -486,13 +480,31 @@ export async function compileLoadAcsLibraries(
         diagnosticCollection.clear();
     }
 
-    const loadAcsEntries = await collectLoadAcsEntries(
-        workspaceRoot,
-        getBasePackagesForCompile()
-    );
-    const cleanBeforeBuild = vscode.workspace.getConfiguration('zandronum-vscode')
-        .get<boolean>('cleanBeforeBuild', true);
-    // Binary-only projects have no compiler-owned output directory to clean.
+    const config = vscode.workspace.getConfiguration('zandronum-vscode');
+    let targets: ReturnType<typeof selectLibraryAcsTargets>;
+    let loadAcsEntries: string[];
+    const outputMappings = config.get<Record<string, string>>('acsLibraryOutputs', {});
+    try {
+        loadAcsEntries = await collectLoadAcsEntries(workspaceRoot, getBasePackagesForCompile());
+        loadAcsEntries.push(...await readLaunchLoadAcsEntries(options.launchResources ?? []));
+        loadAcsEntries = [...new Set(loadAcsEntries)];
+        targets = selectLibraryAcsTargets(getAcsSourceDir(workspaceRoot), loadAcsEntries, outputMappings);
+    } catch (error) {
+        vscode.window.showErrorMessage(`Failed to select ACS libraries: ${String(error)}`);
+        return empty('failure');
+    }
+    // Validate selection before deleting any existing compiler output.
+    if (loadAcsEntries.length === 0 && Object.keys(outputMappings).length === 0) {
+        if (!quietNotConfigured) {
+            vscode.window.showWarningMessage('No LOADACS entries or ACS output mappings configured.');
+        }
+        return empty('notConfigured');
+    }
+    if (targets.length === 0) {
+        // Binary-only resources need no workspace compilation.
+        return empty('notConfigured');
+    }
+    const cleanBeforeBuild = config.get<boolean>('cleanBeforeBuild', true);
     if (cleanBeforeBuild && fs.existsSync(getAcsSourceDir(workspaceRoot))) {
         try {
             await cleanAcsObjectFiles(getOutputDir(workspaceRoot));
@@ -501,27 +513,13 @@ export async function compileLoadAcsLibraries(
             return empty('failure');
         }
     }
-    if (loadAcsEntries.length === 0) {
-        if (!quietNotConfigured) {
-            vscode.window.showWarningMessage(
-                `No LOADACS entries found in ${getPk3Root()}/loadacs or base resources.`
-            );
-        }
-        return empty('notConfigured');
-    }
-
-    const acsFiles = findLibraryAcsFiles(workspaceRoot, loadAcsEntries);
-    if (acsFiles.length === 0) {
-        vscode.window.showWarningMessage(
-            `No matching ACS library files found in ${getPk3Root()}/acs_source/ for LOADACS entries.`
-        );
-        return empty('failure');
-    }
 
     const outcomes = await mapPool(
-        acsFiles,
+        targets,
         getAccConcurrency(),
-        (acsFile) => compileSingleFile(acsFile, workspaceRoot, { force: cleanBeforeBuild })
+        (target) => compileSingleFile(target.sourceFile, workspaceRoot, {
+            force: cleanBeforeBuild, objectFileName: target.objectFileName,
+        })
     );
 
     let compiled = 0;

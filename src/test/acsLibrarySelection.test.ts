@@ -8,6 +8,7 @@ import {
 	hasLibraryDirective,
 	listImportedAcsLibraries,
 	selectLibraryAcsFiles,
+	selectLibraryAcsTargets,
 } from '../shared/acsLibrarySelection';
 
 suite('ACS library selection', () => {
@@ -111,6 +112,39 @@ suite('ACS library selection', () => {
 			.map(f => path.basename(f)).sort();
 		assert.deepStrictEqual(selected, ['8BDT.acs', 'helper.txt', 'pit.acs']);
 	});
+
+	test('uses LOADACS lump names for overrides and library names for imports', () => {
+        const source = write('compat/PNGBUTTN.acs', '#library "PINGBUTT"\n#import "renamed.txt"\n');
+        const dependency = write('renamed.txt', '#library "UTILS"\n#import "deep.txt"\n');
+        const deep = write('deep.txt', '#library "DEEP"\n');
+        assert.deepStrictEqual(selectLibraryAcsTargets(sourceDir, ['PNGBUTTN']), [
+            { sourceFile: source, objectFileName: 'PNGBUTTN.o' },
+            { sourceFile: dependency, objectFileName: 'UTILS.o' },
+            { sourceFile: deep, objectFileName: 'DEEP.o' },
+        ]);
+    });
+
+    test('explicit output mapping selects optional compatibility libraries without LOADACS', () => {
+        const source = write('compat/optional.txt', '#library "OPTIONAL"\n#import "b.acs"\n');
+        const targets = selectLibraryAcsTargets(sourceDir, [], { 'compat/optional.txt': 'OVERRIDE' });
+        assert.strictEqual(targets[0].sourceFile, source);
+        assert.strictEqual(targets[0].objectFileName, 'OVERRIDE.o');
+        assert.ok(targets.some(t => t.objectFileName === 'b.o'));
+        assert.ok(targets.some(t => t.objectFileName === 'c.o'));
+    });
+
+    test('finds imports in included headers and handles cycles', () => {
+        write('through.acs', '#library "THROUGH"\n#include "header.txt"\n');
+        write('header.txt', '#import "nested/b.acs"\n#include "header.txt"\n');
+        assert.deepStrictEqual(selectLibraryAcsTargets(sourceDir, ['through'])
+            .map(t => t.objectFileName), ['through.o', 'b.o', 'c.o']);
+    });
+
+    test('rejects output collisions and mappings outside the workspace sources', () => {
+        assert.throws(() => selectLibraryAcsTargets(sourceDir, ['a'], { 'd.acs': 'A' }), /collision/);
+        assert.throws(() => selectLibraryAcsTargets(sourceDir, [], { '../external.acs': 'EXT' }), /under acs_source/);
+        assert.throws(() => selectLibraryAcsTargets(sourceDir, [], { 'd.acs': '../bad' }), /Invalid ACS/);
+    });
 
 	test('returns nothing when no entries are configured', () => {
 		assert.deepStrictEqual(selectLibraryAcsFiles(sourceDir, []), []);

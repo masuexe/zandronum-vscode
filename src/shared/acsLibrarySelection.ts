@@ -1,5 +1,6 @@
 import * as fs from 'fs';
 import * as path from 'path';
+import { findAcsIncludeFile } from '../tools/accIncludePaths';
 
 /** Strip ACS block and line comments. */
 export function stripAcsComments(text: string): string {
@@ -17,7 +18,7 @@ export function getAcsLibraryName(filePath: string): string | null {
     }
 }
 
-/** Library objects must be named for #library so runtime imports find them. */
+/** Default import-compatible output name; LOADACS builds carry their requested lump name. */
 export function getAcsObjectFileName(filePath: string): string {
     const name = getAcsLibraryName(filePath) ?? path.basename(filePath, path.extname(filePath));
     return `${name}.o`;
@@ -56,65 +57,98 @@ export function listImportedAcsLibraries(filePath: string): string[] {
     return names;
 }
 
-/**
- * Select the `#library` sources under `sourceDir` that the engine will need:
- * every LOADACS entry plus the libraries those entries `#import`, transitively.
- *
- * Imported libraries are resolved at runtime by lump name rather than through
- * LOADACS, so they must be compiled and packaged too. Omitting them leaves the
- * engine with unresolved imports and crashes when an imported function runs.
- */
-export function selectLibraryAcsFiles(
-    sourceDir: string,
-    loadAcsEntries: readonly string[]
-): string[] {
-    const candidates = new Map<string, string[]>();
+export interface AcsCompileTarget {
+    sourceFile: string;
+    objectFileName: string;
+}
 
+/** LOADACS uses its entry name; imports use the imported #library declaration. */
+export function selectLibraryAcsTargets(
+    sourceDir: string,
+    loadAcsEntries: readonly string[],
+    outputMappings: Readonly<Record<string, string>> = {}
+): AcsCompileTarget[] {
+    const candidates = new Map<string, string[]>();
     const collect = (dir: string): void => {
         let entries: fs.Dirent[];
         try { entries = fs.readdirSync(dir, { withFileTypes: true }); }
         catch { return; }
-
         for (const entry of entries) {
             if (entry.name.startsWith('.') || entry.name === 'node_modules') { continue; }
-            const full = path.join(dir, entry.name);
-            if (entry.isDirectory()) {
-                collect(full);
-            } else if (entry.isFile()) {
-                const libraryName = getAcsLibraryName(full);
-                if (!libraryName && !hasLibraryDirective(full)) { continue; }
-                const base = path.basename(entry.name, path.extname(entry.name)).toLowerCase();
-                for (const key of new Set([base, libraryName?.toLowerCase() ?? base])) {
-                    const list = candidates.get(key);
-                    if (list) { list.push(full); } else { candidates.set(key, [full]); }
+            const full = path.resolve(dir, entry.name);
+            if (entry.isDirectory()) { collect(full); }
+            else if (entry.isFile() && hasLibraryDirective(full)) {
+                const base = path.basename(full, path.extname(full));
+                for (const name of new Set([base, getAcsLibraryName(full) ?? base])) {
+                    const key = name.slice(0, 8).toLowerCase();
+                    const list = candidates.get(key) ?? [];
+                    list.push(full);
+                    candidates.set(key, list);
                 }
             }
         }
     };
     collect(sourceDir);
 
-    const selected: string[] = [];
-    const selectedFiles = new Set<string>();
-    const queued = new Set<string>();
-    const queue: string[] = [];
-
-    const enqueue = (name: string): void => {
-        const key = name.trim().toLowerCase();
-        if (!key || queued.has(key)) { return; }
-        queued.add(key);
-        queue.push(key);
+    const targets: AcsCompileTarget[] = [];
+    const outputs = new Map<string, string>();
+    const dependencies = new Set<string>();
+    const add = (sourceFile: string, name: string): void => {
+        // A mapping is a lump name, never a filesystem path.
+        if (!/^[A-Za-z0-9_]+$/.test(name)) {
+            throw new Error(`Invalid ACS output lump name: ${name}`);
+        }
+        const objectFileName = `${name}.o`;
+        const key = name.slice(0, 8).toLowerCase();
+        const previous = outputs.get(key);
+        if (previous && previous !== sourceFile) {
+            throw new Error(`ACS output collision for ${name}: ${previous} and ${sourceFile}`);
+        }
+        if (previous) { return; }
+        outputs.set(key, sourceFile);
+        targets.push({ sourceFile, objectFileName });
     };
-    for (const name of loadAcsEntries) { enqueue(name); }
-
-    while (queue.length > 0) {
-        const name = queue.shift() as string;
-        for (const file of candidates.get(name) ?? []) {
-            if (selectedFiles.has(file)) { continue; }
-            selectedFiles.add(file);
-            selected.push(file);
-            for (const imported of listImportedAcsLibraries(file)) { enqueue(imported); }
+    for (const name of loadAcsEntries) {
+        for (const file of candidates.get(name.slice(0, 8).toLowerCase()) ?? []) {
+            add(file, name);
         }
     }
+    for (const [relativeSource, name] of Object.entries(outputMappings)) {
+        const file = path.resolve(sourceDir, relativeSource);
+        const relative = path.relative(path.resolve(sourceDir), file);
+        if (relative.startsWith(`..${path.sep}`) || relative === '..' || path.isAbsolute(relative)
+            || !hasLibraryDirective(file)) {
+            throw new Error(`ACS output mapping must reference a #library source under acs_source: ${relativeSource}`);
+        }
+        add(file, name);
+    }
 
-    return selected;
+    // Follow includes too: an included header can introduce imports.
+    const visit = (file: string): void => {
+        if (dependencies.has(file)) { return; }
+        dependencies.add(file);
+        let text: string;
+        try { text = stripAcsComments(fs.readFileSync(file, 'utf8')); }
+        catch { return; }
+        const re = /^\s*#\s*(include|import)\s+"([^"\r\n]+)"/gim;
+        let match: RegExpExecArray | null;
+        while ((match = re.exec(text)) !== null) {
+            const dependency = findAcsIncludeFile(match[2], [path.dirname(file), sourceDir]);
+            if (!dependency) { continue; }
+            const relative = path.relative(path.resolve(sourceDir), dependency);
+            if (relative.startsWith(`..${path.sep}`) || path.isAbsolute(relative)) { continue; }
+            if (match[1].toLowerCase() === 'import' && hasLibraryDirective(dependency)) {
+                add(dependency, getAcsLibraryName(dependency)
+                    ?? path.basename(dependency, path.extname(dependency)));
+            }
+            visit(dependency);
+        }
+    };
+    for (const target of targets) { visit(target.sourceFile); }
+    return targets;
+}
+
+/** Compatibility helper for callers interested only in selected sources. */
+export function selectLibraryAcsFiles(sourceDir: string, loadAcsEntries: readonly string[]): string[] {
+    return [...new Set(selectLibraryAcsTargets(sourceDir, loadAcsEntries).map(t => t.sourceFile))];
 }

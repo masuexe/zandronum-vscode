@@ -120,13 +120,14 @@ export async function buildPK3(options: BuildPk3Options = {}): Promise<boolean> 
  * stops without packaging on compile failure.
  */
 export async function buildProject(
-    options: { skipUnchangedPk3?: boolean } = {}
+    options: { skipUnchangedPk3?: boolean; launchResources?: readonly string[] } = {}
 ): Promise<boolean> {
     // Dynamic import avoids a static cycle with compileAcs → buildPK3.
     const { compileLoadAcsLibraries } = await import('./compileAcs.js');
     const totalStarted = Date.now();
 
     const acs = await compileLoadAcsLibraries({
+        launchResources: options.launchResources,
         quietNotConfigured: true,
         quietSuccess: true,
     });

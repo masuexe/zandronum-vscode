@@ -64,8 +64,8 @@ Cross-file symbol resolution (DECORATE actors, ACS constants) works within the w
 ### Build and Run
 
 - **Compile Current ACS** — Compile the active `.acs` file with ACC
-- **Build Project** — Merges workspace and base-resource LOADACS; compiles the `#library` sources under `<pk3Root>/acs_source/` reachable from those entries — each entry **plus the libraries it `#import`s, transitively** (cleans output `.o` files and recompiles by default; runs ACC in parallel), then packages into `out/build.pk3`. Reports ACS vs PK3 timings. Base resources supply extra library names and include paths only — they are not compiled directly. Stops without packaging on compile failure.
-- **Run Project** — Resolves the run configuration (first time or after a rename, pick one before building), saves files, runs Build Project, then launches Zandronum immediately on success using the remembered configuration
+- **Build Project** — Merges workspace and base-resource LOADACS plus explicit `acsLibraryOutputs` targets; compiles the `#library` sources under `<pk3Root>/acs_source/` reachable from those entries — each entry **plus the libraries it `#import`s, transitively** (cleans output `.o` files and recompiles by default; runs ACC in parallel), then packages into `out/build.pk3`. Reports ACS vs PK3 timings. Base resources supply extra library names and include paths only — they are not compiled directly. Stops without packaging on compile failure.
+- **Run Project** — Resolves the run configuration (first time or after a rename, pick one before building), saves files, merges LOADACS from the selected configuration’s resolved `-file` resources (both members of a compound), runs Build Project, then launches Zandronum immediately on success using the remembered configuration
 - **Select Run Configuration** — Choose or change the run configuration used by **Run Project** without building or launching
 
 ## Commands
@@ -75,7 +75,7 @@ Cross-file symbol resolution (DECORATE actors, ACS constants) works within the w
 | Command | What it does |
 |---|---|
 | **Zandronum: Compile Current ACS** | Compiles the active `.acs` file |
-| **Zandronum: Build Project** | Merges workspace + base LOADACS, cleans ACS output and compiles those libraries plus their transitive `#import`s (parallel ACC), then builds `out/build.pk3` |
+| **Zandronum: Build Project** | Merges workspace + base LOADACS and explicit output targets, cleans ACS output and compiles those libraries plus their transitive `#import`s (parallel ACC), then builds `out/build.pk3` |
 | **Zandronum: Run Project** | Remembers the last run configuration; builds the project, then launches Zandronum on success without an extra prompt |
 | **Zandronum: Select Run Configuration** | Pick the run configuration for **Run Project** (stored per workspace; no build or launch) |
 
@@ -215,6 +215,20 @@ Optional per-workspace launch configs for IWAD and extra args. Variables: `${wor
 The extension always inserts `-file <workspace>/out/build.pk3` between `preArgs` and `postArgs`. If `.vscode/zandronum.json` is missing or empty, **Run Project** / legacy Run use the executable from settings/PATH with no extra IWAD args.
 
 A leading `~` (home directory) and `${workspaceFolder}` / `${buildOutput}` / `${env:...}` variables are expanded in `program`, `preArgs`, and `postArgs`. Arguments are handed to the executable without a shell, so a value such as `-iwad ~/wads/doom2.wad` must be expanded by the extension to resolve.
+
+**ACS compatibility overrides:** Build Project uses workspace/base LOADACS plus `zandronum-vscode.acsLibraryOutputs`. Run Project also reads LOADACS from the selected configuration's `-file` folders, PK3/ZIPs and WADs after variable, home-path and platform resolution. External resources are read only; only sources under `<pk3Root>/acs_source` are compiled. Missing/corrupt launch resources stop the build before cleaning. PK7 discovery is not supported and reports an error.
+
+LOADACS targets output the requested lump name: `PNGBUTTN.acs` declaring `#library "PINGBUTT"`, selected by addon LOADACS `PNGBUTTN`, produces `PNGBUTTN.o`. Imported dependencies output their declared `#library` name, even when their source filename differs. Import discovery follows includes and transitive imports. Conflicting output lump names stop the build before cleanup.
+
+For **Build Project** without a launch configuration, explicitly select an optional override in workspace settings:
+
+```json
+"zandronum-vscode.acsLibraryOutputs": {
+  "compat/mods/pingbutton/PNGBUTTN.acs": "PNGBUTTN"
+}
+```
+
+Paths are relative to `<pk3Root>/acs_source`; values are output lump names without `.o`. This selects the source and its imports without adding anything to LOADACS. Default cleaning then rebuilds all selected targets. Compile failures prevent packaging and launching. Compile Current ACS retains the declared-library output name; use project builds for LOADACS overrides. A source selected under different LOADACS/import names requires distinct object lumps, so avoid loading both aliases unless intended.
 
 **Run configuration memory:** The first **Run Project** (or **Select Run Configuration**) in a workspace with multiple entries prompts for a configuration and remembers it. Later **Run Project** runs build then launch with that choice. Use **Select Run Configuration** to switch (for example between offline play and a Host+Client compound) without building.
 

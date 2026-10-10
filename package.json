@@ -346,6 +346,13 @@
             "order": 6,
             "description": "Output directory for compiled .o files, relative to the workspace root. If empty, defaults to <pk3Root>/acs."
           },
+          "zandronum-vscode.acsLibraryOutputs": {
+            "type": "object",
+            "additionalProperties": { "type": "string", "pattern": "^[A-Za-z0-9_]+$" },
+            "default": {},
+            "scope": "resource",
+            "markdownDescription": "Extra workspace ACS build targets: map paths relative to `<pk3Root>/acs_source` to output lump names (without .o). For example: `{\"compat/mods/pingbutton/PNGBUTTN.acs\": \"PNGBUTTN\"}`. Targets and their imports are rebuilt without adding entries to LOADACS."
+          },
           "zandronum-vscode.cleanBeforeBuild": {
             "type": "boolean",
             "default": true,

@@ -383,6 +383,12 @@
             "default": "",
             "order": 9,
             "description": "Path to an external PLAYPAL lump file or directory containing one. Supports relative paths (to workspace root), absolute paths, and a leading '~'. Used for palette color preview in Translation properties."
+          },
+          "zandronum-vscode.decorate.linting.enabled": {
+            "type": "boolean",
+            "default": true,
+            "order": 10,
+            "description": "Enable live static linting and diagnostics for DECORATE files."
           }
         }
       },

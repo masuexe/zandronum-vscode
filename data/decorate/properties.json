@@ -748,5 +748,290 @@
     "type": "string",
     "desc": "Armor class(es) for Hexen armor system",
     "for": "PlayerPawn"
+  },
+  "Game": {
+    "type": "string",
+    "desc": "Game or games where this actor is available (Doom, Heretic, Hexen)",
+    "for": "Actor"
+  },
+  "SpawnID": {
+    "type": "int",
+    "desc": "Spawn ID in the range 0-255, used by cameras and scripts",
+    "for": "Actor"
+  },
+  "Powerup.Colormap": {
+    "type": "float",
+    "desc": "Colormap for the powerup: 3 or 6 float values",
+    "for": "Powerup"
+  },
+  "Inventory.RestrictedTo": {
+    "type": "string",
+    "desc": "Player classes that can pick this item up",
+    "for": "Inventory"
+  },
+  "Inventory.ForbiddenTo": {
+    "type": "string",
+    "desc": "Player classes that cannot pick this item up",
+    "for": "Inventory"
+  },
+  "Inventory.PickupAnnouncerEntry": {
+    "type": "string",
+    "desc": "Announcer entry played when this item is picked up",
+    "for": "Inventory"
+  },
+  "Player.MaxSkinSizeFactor": {
+    "type": "float",
+    "desc": "Maximum skin size factor for this player class",
+    "for": "PlayerPawn"
+  },
+  "Player.DamageScreenColor": {
+    "type": "string",
+    "desc": "Screen flash color shown when the player takes damage",
+    "for": "PlayerPawn"
+  },
+  "Armor.MaxAbsorb": {
+    "type": "int",
+    "desc": "Maximum damage the armor can absorb at once",
+    "for": "Armor"
+  },
+  "Armor.MaxFullAbsorb": {
+    "type": "int",
+    "desc": "Maximum damage absorbed while the armor is full",
+    "for": "Armor"
+  },
+  "Armor.MaxBonus": {
+    "type": "int",
+    "desc": "Maximum armor bonus this item can give",
+    "for": "BasicArmorBonus"
+  },
+  "Armor.MaxBonusMax": {
+    "type": "int",
+    "desc": "Maximum total armor bonus for this item",
+    "for": "BasicArmorBonus"
+  },
+  "ConversationID": {
+    "type": "int",
+    "desc": "Conversation ID used by Strife dialogues",
+    "for": "Actor"
+  },
+  "DynamicLight.Type": {
+    "type": "string",
+    "desc": "Dynamic light type for this actor",
+    "for": "DynamicLight"
+  },
+  "FakeInventory.Respawns": {
+    "type": "bool",
+    "desc": "Item respawns in cooperative games",
+    "for": "FakeInventory"
+  },
+  "MorphProjectile.Duration": {
+    "type": "int",
+    "desc": "Morph duration in tics",
+    "for": "MorphProjectile"
+  },
+  "MorphProjectile.MonsterClass": {
+    "type": "string",
+    "desc": "Monster class to morph into",
+    "for": "MorphProjectile"
+  },
+  "MorphProjectile.MorphFlash": {
+    "type": "string",
+    "desc": "Flash state used while morphing",
+    "for": "MorphProjectile"
+  },
+  "MorphProjectile.MorphStyle": {
+    "type": "string",
+    "desc": "Morph style for this projectile",
+    "for": "MorphProjectile"
+  },
+  "MorphProjectile.PlayerClass": {
+    "type": "string",
+    "desc": "Player class to morph into",
+    "for": "MorphProjectile"
+  },
+  "MorphProjectile.UnMorphFlash": {
+    "type": "string",
+    "desc": "Flash state used while demorphing",
+    "for": "MorphProjectile"
+  },
+  "PowerMorph.MorphFlash": {
+    "type": "string",
+    "desc": "Flash state used while morphing",
+    "for": "PowerMorph"
+  },
+  "PowerMorph.MorphStyle": {
+    "type": "string",
+    "desc": "Morph style for this powerup",
+    "for": "PowerMorph"
+  },
+  "PowerMorph.PlayerClass": {
+    "type": "string",
+    "desc": "Player class to morph into",
+    "for": "PowerMorph"
+  },
+  "PowerMorph.UnMorphFlash": {
+    "type": "string",
+    "desc": "Flash state used while demorphing",
+    "for": "PowerMorph"
+  },
+  "Powerup.Mode": {
+    "type": "string",
+    "desc": "Mode of this powerup",
+    "for": "Powerup"
+  },
+  "Player.AirCapacity": {
+    "type": "float",
+    "desc": "Air supply capacity",
+    "for": "PlayerPawn"
+  },
+  "Player.AttackZOffset": {
+    "type": "float",
+    "desc": "Vertical offset of player attacks",
+    "for": "PlayerPawn"
+  },
+  "Player.ClearColorSet": {
+    "type": "int",
+    "desc": "Color set index to clear",
+    "for": "PlayerPawn"
+  },
+  "Player.ColorSet": {
+    "type": "string",
+    "desc": "Color set definition for this player class",
+    "for": "PlayerPawn"
+  },
+  "Player.ColorSetFile": {
+    "type": "string",
+    "desc": "File that holds the color set",
+    "for": "PlayerPawn"
+  },
+  "Player.Face": {
+    "type": "string",
+    "desc": "Status bar face graphics",
+    "for": "PlayerPawn"
+  },
+  "Player.FallingScreamSpeed": {
+    "type": "float",
+    "desc": "Fall speed that plays the scream sound",
+    "for": "PlayerPawn"
+  },
+  "Player.FlechetteType": {
+    "type": "string",
+    "desc": "Flechette actor spawned by this player",
+    "for": "PlayerPawn"
+  },
+  "Player.GruntSpeed": {
+    "type": "float",
+    "desc": "Speed that plays the grunt sound",
+    "for": "PlayerPawn"
+  },
+  "Player.HealRadiusType": {
+    "type": "string",
+    "desc": "Radius damage type used by healing",
+    "for": "PlayerPawn"
+  },
+  "Player.InvulnerabilityMode": {
+    "type": "string",
+    "desc": "Rendering mode during invulnerability",
+    "for": "PlayerPawn"
+  },
+  "Player.MorphWeapon": {
+    "type": "string",
+    "desc": "Weapon given to this player class when morphed",
+    "for": "PlayerPawn"
+  },
+  "Player.MugShotMaxHealth": {
+    "type": "int",
+    "desc": "Health value at which the mug shot shows full damage",
+    "for": "PlayerPawn"
+  },
+  "Player.ReJumpDelay": {
+    "type": "int",
+    "desc": "Delay before the player can jump again",
+    "for": "PlayerPawn"
+  },
+  "Player.SpawnClass": {
+    "type": "string",
+    "desc": "Player class spawned for this player",
+    "for": "PlayerPawn"
+  },
+  "Player.UseRange": {
+    "type": "float",
+    "desc": "Maximum distance for use actions",
+    "for": "PlayerPawn"
+  },
+  "PuzzleItem.FailMessage": {
+    "type": "string",
+    "desc": "Message shown when the puzzle item fails",
+    "for": "PuzzleItem"
+  },
+  "Rune.Type": {
+    "type": "string",
+    "desc": "Rune type for this rune giver",
+    "for": "RuneGiver"
+  },
+  "Weapon.DefaultKickback": {
+    "type": "bool",
+    "desc": "Weapon uses the default kickback",
+    "for": "Weapon"
+  },
+  "Weapon.JumpSwaySpeed": {
+    "type": "float",
+    "desc": "Sway speed while jumping",
+    "for": "Weapon"
+  },
+  "Weapon.MinSelectionAmmo1": {
+    "type": "int",
+    "desc": "Minimum primary ammo needed to select this weapon",
+    "for": "Weapon"
+  },
+  "Weapon.MinSelectionAmmo2": {
+    "type": "int",
+    "desc": "Minimum secondary ammo needed to select this weapon",
+    "for": "Weapon"
+  },
+  "Weapon.MotionSwaySpeed": {
+    "type": "float",
+    "desc": "Sway speed while moving",
+    "for": "Weapon"
+  },
+  "Weapon.PreferredSkin": {
+    "type": "string",
+    "desc": "Preferred skin for this weapon",
+    "for": "Weapon"
+  },
+  "Weapon.SlotPriority": {
+    "type": "float",
+    "desc": "Priority inside the weapon slot",
+    "for": "Weapon"
+  },
+  "Weapon.StillBobRange": {
+    "type": "float",
+    "desc": "Bob range while standing still",
+    "for": "Weapon"
+  },
+  "Weapon.StillBobSpeed": {
+    "type": "float",
+    "desc": "Bob speed while standing still",
+    "for": "Weapon"
+  },
+  "Weapon.SwayStyle": {
+    "type": "string",
+    "desc": "Sway style of this weapon",
+    "for": "Weapon"
+  },
+  "Weapon.ViewPitchOffset": {
+    "type": "float",
+    "desc": "Vertical offset of the weapon view",
+    "for": "Weapon"
+  },
+  "Weapon.ViewPitchStyle": {
+    "type": "string",
+    "desc": "Pitch style of the weapon view",
+    "for": "Weapon"
+  },
+  "Weapon.ViewSwaySpeed": {
+    "type": "float",
+    "desc": "Sway speed of the weapon view",
+    "for": "Weapon"
   }
 }

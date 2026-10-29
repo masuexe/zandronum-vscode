@@ -220,6 +220,15 @@ export function getFlags(context: vscode.ExtensionContext): Record<string, FlagD
     return loadDataJson<FlagData>(context, 'flags.json');
 }
 
+export interface FlagComboData {
+    description?: string;
+}
+
+/** Flag combos (Monster, Projectile, ...) are valid +FLAG / -FLAG names too. */
+export function getFlagCombos(context: vscode.ExtensionContext): Record<string, FlagComboData> {
+    return loadDataJson<FlagComboData>(context, 'flagcombos.json');
+}
+
 export function getExpressions(context: vscode.ExtensionContext): Record<string, ExpressionData> {
     return loadDataJson<ExpressionData>(context, 'expressions.json');
 }

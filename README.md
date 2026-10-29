@@ -230,6 +230,20 @@ For **Build Project** without a launch configuration, explicitly select an optio
 
 Paths are relative to `<pk3Root>/acs_source`; values are output lump names without `.o`. This selects the source and its imports without adding anything to LOADACS. Default cleaning then rebuilds all selected targets. Compile failures prevent packaging and launching. Compile Current ACS retains the declared-library output name; use project builds for LOADACS overrides. A source selected under different LOADACS/import names requires distinct object lumps, so avoid loading both aliases unless intended.
 
+**Import-only interface sources:** ACC must read an imported source file at compile time. A workspace can therefore vendor a base library source to resolve `#import` declarations. The base package still owns the runtime object. Exclude such files so that the build never compiles or packs them:
+
+```json
+"zandronum-vscode.acsLibraryExcludes": [
+  "v6b_overrides/_imports/UICOMMON.acs"
+]
+```
+
+Entries match an acs_source-relative path, a file name, a declared `#library` name, or its first 8 characters. An excluded file still resolves ACC `#import` and `#include` lookups. The build does not compile the file and does not add it to LOADACS.
+
+If you omit the exclusion, the extension compiles the vendored source. The workspace PK3 loads after the base package and replaces the base object with a new build. This can change behavior when the workspace also modifies shared headers.
+
+A declared library name can contain dots. MM8BDM ships `#library "UICOMMON.acs"`, and ACC records the first 8 characters (`UICOMMON`). The object lump name therefore still matches.
+
 **Run configuration memory:** The first **Run Project** (or **Select Run Configuration**) in a workspace with multiple entries prompts for a configuration and remembers it. Later **Run Project** runs build then launch with that choice. Use **Select Run Configuration** to switch (for example between offline play and a Host+Client compound) without building.
 
 Each configuration may contain `windows` and `linux` overrides for `program`, `preArgs`, and `postArgs`. A platform field replaces the corresponding top-level field; omitted fields inherit the top-level value. Existing configurations without platform overrides remain valid. WSL uses the `linux` override because the extension host runs on Linux.

@@ -484,11 +484,17 @@ export async function compileLoadAcsLibraries(
     let targets: ReturnType<typeof selectLibraryAcsTargets>;
     let loadAcsEntries: string[];
     const outputMappings = config.get<Record<string, string>>('acsLibraryOutputs', {});
+    const libraryExcludes = config.get<string[]>('acsLibraryExcludes', []);
     try {
         loadAcsEntries = await collectLoadAcsEntries(workspaceRoot, getBasePackagesForCompile());
         loadAcsEntries.push(...await readLaunchLoadAcsEntries(options.launchResources ?? []));
         loadAcsEntries = [...new Set(loadAcsEntries)];
-        targets = selectLibraryAcsTargets(getAcsSourceDir(workspaceRoot), loadAcsEntries, outputMappings);
+        targets = selectLibraryAcsTargets(
+            getAcsSourceDir(workspaceRoot),
+            loadAcsEntries,
+            outputMappings,
+            libraryExcludes
+        );
     } catch (error) {
         vscode.window.showErrorMessage(`Failed to select ACS libraries: ${String(error)}`);
         return empty('failure');

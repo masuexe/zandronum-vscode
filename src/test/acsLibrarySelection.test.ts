@@ -146,6 +146,34 @@ suite('ACS library selection', () => {
         assert.throws(() => selectLibraryAcsTargets(sourceDir, [], { 'd.acs': '../bad' }), /Invalid ACS/);
     });
 
+	test('accepts declared library names that contain dots', () => {
+		const stub = write('ui/_imports/UICOMMON.acs', '#library "UICOMMON.acs"\n');
+		const importer = write('ui/UITEAMIT.acs', '#library "UITEAMIT"\n#import "UICOMMON.acs"\n');
+		assert.strictEqual(getAcsObjectFileName(stub), 'UICOMMON.acs.o');
+		const targets = selectLibraryAcsTargets(sourceDir, ['UITEAMIT']);
+		assert.deepStrictEqual(targets, [
+			{ sourceFile: importer, objectFileName: 'UITEAMIT.o' },
+			{ sourceFile: stub, objectFileName: 'UICOMMON.acs.o' },
+		]);
+	});
+
+	test('excludes interface-only sources selected by LOADACS and by import', () => {
+		write('ui2/_imports/UICOMMON.acs', '#library "UICOMMON.acs"\n');
+		const importer = write('ui2/UIT2.acs', '#library "UIT2"\n#import "UICOMMON.acs"\n');
+		assert.deepStrictEqual(
+			selectLibraryAcsTargets(sourceDir, ['UIT2', 'UICOMMON'], {}, ['UICOMMON']),
+			[{ sourceFile: importer, objectFileName: 'UIT2.o' }]
+		);
+		assert.deepStrictEqual(
+			selectLibraryAcsTargets(sourceDir, ['UIT2'], {}, ['ui2/_imports/UICOMMON.acs']),
+			[{ sourceFile: importer, objectFileName: 'UIT2.o' }]
+		);
+		assert.deepStrictEqual(
+			selectLibraryAcsTargets(sourceDir, ['UIT2'], {}, ['UICOMMON.acs']),
+			[{ sourceFile: importer, objectFileName: 'UIT2.o' }]
+		);
+	});
+
 	test('returns nothing when no entries are configured', () => {
 		assert.deepStrictEqual(selectLibraryAcsFiles(sourceDir, []), []);
 	});

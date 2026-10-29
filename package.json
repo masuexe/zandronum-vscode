@@ -348,10 +348,17 @@
           },
           "zandronum-vscode.acsLibraryOutputs": {
             "type": "object",
-            "additionalProperties": { "type": "string", "pattern": "^[A-Za-z0-9_]+$" },
+            "additionalProperties": { "type": "string", "pattern": "^[A-Za-z0-9_.]+$" },
             "default": {},
             "scope": "resource",
             "markdownDescription": "Extra workspace ACS build targets: map paths relative to `<pk3Root>/acs_source` to output lump names (without .o). For example: `{\"compat/mods/pingbutton/PNGBUTTN.acs\": \"PNGBUTTN\"}`. Targets and their imports are rebuilt without adding entries to LOADACS."
+          },
+          "zandronum-vscode.acsLibraryExcludes": {
+            "type": "array",
+            "items": { "type": "string" },
+            "default": [],
+            "scope": "resource",
+            "markdownDescription": "ACS libraries that are never compiled, even when LOADACS or `#import` reaches them. Entries match a path relative to `<pk3Root>/acs_source`, a file name, or a declared `#library` name. Use this for import-only interface sources that a base package already provides, for example `[\"v6b_overrides/_imports/UICOMMON.acs\"]`."
           },
           "zandronum-vscode.cleanBeforeBuild": {
             "type": "boolean",

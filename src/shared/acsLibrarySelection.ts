@@ -18,6 +18,20 @@ export function getAcsLibraryName(filePath: string): string | null {
     }
 }
 
+/**
+ * True when a name can be used as an ACS object lump name.
+ *
+ * Dots are allowed: the engine strips the last extension and keeps the first 8
+ * characters, so `UICOMMON.acs.o` is the `UICOMMON` lump. MM8BDM declares
+ * `#library "UICOMMON.acs"` for that reason. Path separators and characters
+ * that Windows rejects in file names are not allowed.
+ */
+export function isValidAcsLumpName(name: string): boolean {
+    return name.length > 0
+        && !name.startsWith('.')
+        && !/[\\/:*?"<>|\s]/.test(name);
+}
+
 /** Default import-compatible output name; LOADACS builds carry their requested lump name. */
 export function getAcsObjectFileName(filePath: string): string {
     const name = getAcsLibraryName(filePath) ?? path.basename(filePath, path.extname(filePath));
@@ -62,11 +76,46 @@ export interface AcsCompileTarget {
     objectFileName: string;
 }
 
-/** LOADACS uses its entry name; imports use the imported #library declaration. */
+/**
+ * Matcher for `zandronum-vscode.acsLibraryExcludes`. Entries may name an
+ * acs_source-relative path, a file name, or a declared `#library` name.
+ */
+function buildExcludeMatcher(sourceDir: string, excludes: readonly string[]): (file: string) => boolean {
+    const wanted = new Set<string>();
+    for (const entry of excludes) {
+        const key = entry.trim().replace(/\\/g, '/').toLowerCase();
+        if (key) { wanted.add(key); }
+    }
+    if (wanted.size === 0) {
+        return () => false;
+    }
+    const root = path.resolve(sourceDir);
+    return (file: string): boolean => {
+        const relative = path.relative(root, file).replace(/\\/g, '/').toLowerCase();
+        if (wanted.has(relative) || wanted.has(path.basename(file).toLowerCase())) {
+            return true;
+        }
+        const declared = getAcsLibraryName(file);
+        if (declared !== null) {
+            const lower = declared.toLowerCase();
+            if (wanted.has(lower) || wanted.has(lower.slice(0, 8))) {
+                return true;
+            }
+        }
+        return false;
+    };
+}
+
+/**
+ * LOADACS uses its entry name; imports use the imported #library declaration.
+ * `excludes` lists interface-only sources that the base package already provides,
+ * so they must not be compiled or packed.
+ */
 export function selectLibraryAcsTargets(
     sourceDir: string,
     loadAcsEntries: readonly string[],
-    outputMappings: Readonly<Record<string, string>> = {}
+    outputMappings: Readonly<Record<string, string>> = {},
+    excludes: readonly string[] = []
 ): AcsCompileTarget[] {
     const candidates = new Map<string, string[]>();
     const collect = (dir: string): void => {
@@ -93,9 +142,13 @@ export function selectLibraryAcsTargets(
     const targets: AcsCompileTarget[] = [];
     const outputs = new Map<string, string>();
     const dependencies = new Set<string>();
+    const isExcluded = buildExcludeMatcher(sourceDir, excludes);
     const add = (sourceFile: string, name: string): void => {
+        if (isExcluded(sourceFile)) {
+            return;
+        }
         // A mapping is a lump name, never a filesystem path.
-        if (!/^[A-Za-z0-9_]+$/.test(name)) {
+        if (!isValidAcsLumpName(name)) {
             throw new Error(`Invalid ACS output lump name: ${name}`);
         }
         const objectFileName = `${name}.o`;

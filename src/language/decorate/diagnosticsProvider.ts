@@ -47,6 +47,11 @@ export interface DecorateLintSourceData {
     stateKeywords: Record<string, StateKeywordData>;
 }
 
+export interface DecorateLintOptions {
+    /** Emit warnings for engine actions marked deprecated. Default true. */
+    deprecationWarnings?: boolean;
+}
+
 export interface DecorateLintMeta {
     /** Lowercased actor property names. */
     properties: Set<string>;
@@ -117,6 +122,7 @@ const VALID_LABEL_RE = /^[A-Za-z0-9_']+(?:\.[A-Za-z0-9_']+)*$/;
 const RESERVED_FLOW_TARGETS = new Set(['stop', 'wait', 'fail', 'loop', 'none', '*']);
 
 const LINT_ENABLED_SETTING = 'decorate.linting.enabled';
+const DEPRECATION_WARNINGS_SETTING = 'decorate.linting.deprecated';
 const CONFIG_SECTION = 'zandronum-vscode';
 const CHANGE_DEBOUNCE_MS = 300;
 
@@ -469,7 +475,12 @@ function findActorBlocks(lines: string[]): ParsedActor[] {
     return actors;
 }
 
-export function lintDecorateLines(lines: string[], meta: DecorateLintMeta): DecorateLintDiagnostic[] {
+export function lintDecorateLines(
+    lines: string[],
+    meta: DecorateLintMeta,
+    options: DecorateLintOptions = {}
+): DecorateLintDiagnostic[] {
+    const deprecationWarnings = options.deprecationWarnings !== false;
     const cleaned = stripDecorateComments(lines);
     const diagnostics: DecorateLintDiagnostic[] = [];
     const targetsByActor = new Map<ParsedActor, PendingTarget[]>();
@@ -483,7 +494,7 @@ export function lintDecorateLines(lines: string[], meta: DecorateLintMeta): Deco
         const labels = new Set<string>();
         targetsByActor.set(actor, targets);
         labelsByActor.set(actor, labels);
-        scanActorBody(cleaned, actor, meta, diagnostics, targets, labels);
+        scanActorBody(cleaned, actor, meta, diagnostics, targets, labels, deprecationWarnings);
     }
 
     resolveTargets(cleaned, actors, diagnostics, targetsByActor, labelsByActor);
@@ -514,7 +525,8 @@ function scanActorBody(
     meta: DecorateLintMeta,
     diagnostics: DecorateLintDiagnostic[],
     targets: PendingTarget[],
-    labels: Set<string>
+    labels: Set<string>,
+    deprecationWarnings: boolean
 ): void {
     let inStates = false;
 
@@ -542,7 +554,8 @@ function scanActorBody(
                         meta,
                         diagnostics,
                         targets,
-                        labels
+                        labels,
+                        deprecationWarnings
                     );
                 }
                 continue;
@@ -559,7 +572,7 @@ function scanActorBody(
             continue;
         }
 
-        scanStateLine(text, line, meta, diagnostics, targets, labels);
+        scanStateLine(text, line, meta, diagnostics, targets, labels, deprecationWarnings);
     }
 }
 
@@ -652,7 +665,8 @@ function scanStateLine(
     meta: DecorateLintMeta,
     diagnostics: DecorateLintDiagnostic[],
     targets: PendingTarget[],
-    labels: Set<string>
+    labels: Set<string>,
+    deprecationWarnings: boolean
 ): void {
     const trimmed = text.trim();
 
@@ -682,12 +696,12 @@ function scanStateLine(
         const tail = labelMatch[3];
         if (tail.trim()) {
             const tailStart = text.length - tail.length;
-            scanFrameLine(' '.repeat(tailStart) + tail, line, meta, diagnostics, targets);
+            scanFrameLine(' '.repeat(tailStart) + tail, line, meta, diagnostics, targets, deprecationWarnings);
         }
         return;
     }
 
-    scanFrameLine(text, line, meta, diagnostics, targets);
+    scanFrameLine(text, line, meta, diagnostics, targets, deprecationWarnings);
 }
 
 /** `stop`/`loop`/`wait`/`fail` may be followed only by closing braces. */
@@ -704,7 +718,8 @@ function scanFrameLine(
     line: number,
     meta: DecorateLintMeta,
     diagnostics: DecorateLintDiagnostic[],
-    targets: PendingTarget[]
+    targets: PendingTarget[],
+    deprecationWarnings: boolean
 ): void {
     const frameMatch = STATE_LINE_RE.exec(text);
     if (!frameMatch) {
@@ -730,7 +745,7 @@ function scanFrameLine(
     const restStart = frameMatch.index + frameMatch[0].length - rest.length;
 
     for (const call of scanTopLevelCalls(rest)) {
-        validateActionCall(call, rest, restStart, line, meta, diagnostics, targets);
+        validateActionCall(call, rest, restStart, line, meta, diagnostics, targets, deprecationWarnings);
     }
 }
 
@@ -748,7 +763,8 @@ function validateActionCall(
     line: number,
     meta: DecorateLintMeta,
     diagnostics: DecorateLintDiagnostic[],
-    targets: PendingTarget[]
+    targets: PendingTarget[],
+    deprecationWarnings: boolean
 ): void {
     const lower = call.name.toLowerCase();
     if (meta.stateKeywords.has(lower)) {
@@ -762,6 +778,16 @@ function validateActionCall(
     }
 
     const actionStart = restStart + call.nameStart;
+    if (data && data.deprecated && deprecationWarnings) {
+        const replacement = data.deprecatedBy ? ` Use '${data.deprecatedBy}' instead.` : '';
+        diagnostics.push({
+            line,
+            startCharacter: actionStart,
+            endCharacter: actionStart + call.name.length,
+            severity: 'warning',
+            message: `Action function '${call.name}' is deprecated.${replacement}`,
+        });
+    }
     if (!data) {
         diagnostics.push({
             line,
@@ -1006,6 +1032,12 @@ function isLintEnabled(): boolean {
         .get<boolean>(LINT_ENABLED_SETTING, true);
 }
 
+function isDeprecationWarningsEnabled(): boolean {
+    return vscode.workspace
+        .getConfiguration(CONFIG_SECTION)
+        .get<boolean>(DEPRECATION_WARNINGS_SETTING, true);
+}
+
 class DecorateLinter implements vscode.Disposable {
     private readonly collection: vscode.DiagnosticCollection;
     private readonly timers = new Map<string, ReturnType<typeof setTimeout>>();
@@ -1022,7 +1054,8 @@ class DecorateLinter implements vscode.Disposable {
             vscode.workspace.onDidChangeTextDocument(event => this.schedule(event.document)),
             vscode.workspace.onDidCloseTextDocument(document => this.clear(document.uri)),
             vscode.workspace.onDidChangeConfiguration(event => {
-                if (event.affectsConfiguration(`${CONFIG_SECTION}.${LINT_ENABLED_SETTING}`)) {
+                if (event.affectsConfiguration(`${CONFIG_SECTION}.${LINT_ENABLED_SETTING}`)
+                    || event.affectsConfiguration(`${CONFIG_SECTION}.${DEPRECATION_WARNINGS_SETTING}`)) {
                     this.refreshOpenDocuments();
                 }
             })
@@ -1095,7 +1128,9 @@ class DecorateLinter implements vscode.Disposable {
             lines.push(document.lineAt(index).text);
         }
 
-        const diagnostics = lintDecorateLines(lines, this.meta)
+        const diagnostics = lintDecorateLines(lines, this.meta, {
+            deprecationWarnings: isDeprecationWarningsEnabled(),
+        })
             .map(diagnostic => toVsCodeDiagnostic(document, diagnostic));
         this.collection.set(document.uri, diagnostics);
     }

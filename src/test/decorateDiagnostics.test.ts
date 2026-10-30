@@ -41,6 +41,8 @@ const sourceData: DecorateLintSourceData = {
 			],
 		},
 		ExpressionOnly: { params: [], usage: ['expression'] },
+		A_OldPlay: { params: [], deprecated: true, deprecatedBy: 'A_Look' },
+		A_OldBare: { params: [], deprecated: true },
 	},
 	properties: {
 		Health: { type: 'int' },
@@ -65,8 +67,8 @@ const sourceData: DecorateLintSourceData = {
 
 const meta = buildLintMeta(sourceData);
 
-function lint(lines: string[]) {
-	return lintDecorateLines(lines, meta);
+function lint(lines: string[], options?: { deprecationWarnings?: boolean }) {
+	return lintDecorateLines(lines, meta, options);
 }
 
 suite('decorateDiagnostics — actor body', () => {
@@ -356,6 +358,54 @@ suite('decorateDiagnostics — states', () => {
 		);
 	});
 
+	test('reports deprecated engine actions', () => {
+		const withReplacement = lint([
+			'actor DeprecatedAction',
+			'{',
+			'  States',
+			'  {',
+			'  Spawn:',
+			'    TNT1 A 0 A_OldPlay',
+			'    stop',
+			'  }',
+			'}',
+		]);
+		assert.strictEqual(withReplacement.length, 1);
+		assert.strictEqual(
+			withReplacement[0].message,
+			"Action function 'A_OldPlay' is deprecated. Use 'A_Look' instead."
+		);
+		assert.strictEqual(withReplacement[0].severity, 'warning');
+
+		const bare = lint([
+			'actor DeprecatedBare',
+			'{',
+			'  States',
+			'  {',
+			'  Spawn:',
+			'    TNT1 A 0 A_OldBare',
+			'    stop',
+			'  }',
+			'}',
+		]);
+		assert.deepStrictEqual(bare.map(d => d.message), ["Action function 'A_OldBare' is deprecated."]);
+	});
+
+	test('can disable deprecation warnings', () => {
+		const diagnostics = lint([
+			'actor DeprecatedOff',
+			'{',
+			'  States',
+			'  {',
+			'  Spawn:',
+			'    TNT1 A 0 A_OldPlay',
+			'    stop',
+			'  }',
+			'}',
+		], { deprecationWarnings: false });
+		assert.deepStrictEqual(diagnostics, []);
+	});
+
 	test('accepts state modifiers and nested expression calls', () => {
 		const diagnostics = lint([
 			'actor Modifiers',
@@ -496,6 +546,9 @@ suite('decorateDiagnostics — shipped metadata', () => {
 	const flags: Record<string, unknown> = JSON.parse(
 		fs.readFileSync(path.join(dataDir, 'flags.json'), 'utf8')
 	);
+	const actions: Record<string, { deprecated?: boolean; deprecatedBy?: string }> = JSON.parse(
+		fs.readFileSync(path.join(dataDir, 'actions.json'), 'utf8')
+	);
 
 	test('covers Zandronum morph properties', () => {
 		for (const name of [
@@ -527,5 +580,18 @@ suite('decorateDiagnostics — shipped metadata', () => {
 	test('keeps class-scoped flag spellings', () => {
 		assert.ok(flags['INVENTORY.INVBAR'], 'flags.json is missing INVENTORY.INVBAR');
 		assert.ok(flags['WEAPON.AMMO_OPTIONAL'], 'flags.json is missing WEAPON.AMMO_OPTIONAL');
+	});
+
+	test('marks engine-deprecated sound actions', () => {
+		for (const [name, replacement] of [
+			['A_PlaySoundEx', 'A_PlaySound'],
+			['A_StopSoundEx', 'A_StopSound'],
+			['A_PlayWeaponSound', 'A_PlaySound'],
+		] as const) {
+			assert.strictEqual(actions[name]?.deprecated, true, `${name} should be deprecated`);
+			assert.strictEqual(actions[name]?.deprecatedBy, replacement);
+		}
+		assert.ok(!actions.A_PlaySound?.deprecated, 'A_PlaySound should not be deprecated');
+		assert.ok(!actions.A_StopSound?.deprecated, 'A_StopSound should not be deprecated');
 	});
 });

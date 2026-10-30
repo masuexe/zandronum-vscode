@@ -42,6 +42,14 @@ function buildHoverContent(
     const signature = buildSignatureLabel(functionName, params);
     md.appendCodeblock(signature, 'decorate');
 
+    if (actionData.deprecated) {
+        const replacement = actionData.deprecatedBy ? ` Use \`${actionData.deprecatedBy}\` instead.` : '';
+        md.appendMarkdown(`\n\n**Deprecated.**${replacement}\n`);
+        if (actionData.deprecatedNote) {
+            md.appendMarkdown(`\n\n${actionData.deprecatedNote}\n`);
+        }
+    }
+
     if (options?.script) {
         md.appendMarkdown(
             `\n\n**Script:** \`${options.script.scriptKey}\` (${symbolSourceDetail(options.script)})\n\n`

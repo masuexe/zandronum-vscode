@@ -1209,7 +1209,10 @@
         "optional": false
       }
     ],
-    "desc": "Action function: A_PlayWeaponSound"
+    "desc": "Action function: A_PlayWeaponSound",
+    "deprecated": true,
+    "deprecatedBy": "A_PlaySound",
+    "deprecatedNote": "Use A_PlaySound with CHAN_WEAPON instead."
   },
   "A_FLoopActiveSound": {
     "params": [],
@@ -1304,7 +1307,9 @@
         "optional": true
       }
     ],
-    "desc": "Action function: A_PlaySoundEx"
+    "desc": "Action function: A_PlaySoundEx",
+    "deprecated": true,
+    "deprecatedBy": "A_PlaySound"
   },
   "A_StopSoundEx": {
     "params": [
@@ -1314,7 +1319,9 @@
         "optional": false
       }
     ],
-    "desc": "Action function: A_StopSoundEx"
+    "desc": "Action function: A_StopSoundEx",
+    "deprecated": true,
+    "deprecatedBy": "A_StopSound"
   },
   "A_SeekerMissile": {
     "params": [

@@ -30,6 +30,15 @@ export interface ActionData {
     /** Where this symbol may appear. Default for actions.json: ["state"]. */
     usage?: DecorateUsage[];
     /**
+     * Engine-provided callable that the engine still parses but marks as deprecated.
+     * Applies to engine functions only; user code cannot define actions.
+     */
+    deprecated?: boolean;
+    /** Replacement callable named by the engine source, when one exists. */
+    deprecatedBy?: string;
+    /** Short explanation shown in hover and completion detail. */
+    deprecatedNote?: string;
+    /**
      * Declaring actor class(es). Omit = available on any actor (Actor natives / line specials).
      * When set, state completion shows the action only if the current actor's class or
      * ancestor chain includes one of these classes.

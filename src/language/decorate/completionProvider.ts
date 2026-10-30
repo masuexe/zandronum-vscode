@@ -311,6 +311,10 @@ function provideActionItems(
         }
         const item = new vscode.CompletionItem(fn, vscode.CompletionItemKind.Function);
         item.detail = `${data.desc || 'DECORATE Action Function'}${formatActionForLabel(data)}`;
+        if (data.deprecated) {
+            item.tags = [vscode.CompletionItemTag.Deprecated];
+            item.detail = `Deprecated.${data.deprecatedBy ? ` Use ${data.deprecatedBy}.` : ''} ${item.detail}`;
+        }
         const insert = buildActionInsertText(fn, data.params, { existingCallParen });
         item.insertText = insert.insertText;
         if (insert.triggerSignatureHelp) {
@@ -368,6 +372,10 @@ function provideExpressionItems(
         }
         const item = new vscode.CompletionItem(fn, vscode.CompletionItemKind.Function);
         item.detail = data.desc || 'DECORATE Expression Function';
+        if (data.deprecated) {
+            item.tags = [vscode.CompletionItemTag.Deprecated];
+            item.detail = `Deprecated.${data.deprecatedBy ? ` Use ${data.deprecatedBy}.` : ''} ${item.detail}`;
+        }
         if (existingCallParen) {
             item.insertText = fn;
         } else {

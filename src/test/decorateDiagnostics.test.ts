@@ -582,11 +582,12 @@ suite('decorateDiagnostics — shipped metadata', () => {
 		assert.ok(flags['WEAPON.AMMO_OPTIONAL'], 'flags.json is missing WEAPON.AMMO_OPTIONAL');
 	});
 
-	test('marks engine-deprecated sound actions', () => {
+	test('marks engine-deprecated actions', () => {
 		for (const [name, replacement] of [
 			['A_PlaySoundEx', 'A_PlaySound'],
 			['A_StopSoundEx', 'A_StopSound'],
 			['A_PlayWeaponSound', 'A_PlaySound'],
+			['A_SpawnItem', 'A_SpawnItemEx'],
 		] as const) {
 			assert.strictEqual(actions[name]?.deprecated, true, `${name} should be deprecated`);
 			assert.strictEqual(actions[name]?.deprecatedBy, replacement);

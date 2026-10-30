@@ -2074,7 +2074,10 @@
         "optional": true
       }
     ],
-    "desc": "Action function: A_SpawnItem"
+    "desc": "Action function: A_SpawnItem",
+    "deprecated": true,
+    "deprecatedBy": "A_SpawnItemEx",
+    "deprecatedNote": "Superseded by A_SpawnItemEx."
   },
   "A_SpawnItemEx": {
     "params": [

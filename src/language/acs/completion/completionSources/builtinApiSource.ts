@@ -45,6 +45,10 @@ export class BuiltinApiSource implements CompletionSource {
                 formatCompletionDetail(params, data.returns),
                 { existingCallParen: context.existingCallParen }
             );
+            if (data.deprecated) {
+                item.tags = [vscode.CompletionItemTag.Deprecated];
+                item.detail = `Deprecated. ${item.detail}`;
+            }
             if (!context.existingCallParen) {
                 item.command = {
                     title: 'Trigger Parameter Hints',

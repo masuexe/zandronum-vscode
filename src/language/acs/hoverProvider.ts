@@ -43,6 +43,14 @@ function buildHoverContent(
             : (customSig ?? buildSignatureLabel(functionName, params, returns));
     md.appendCodeblock(signature, 'acs');
 
+    if (functionData.deprecated) {
+        const replacement = functionData.deprecatedBy ? ` Use \`${functionData.deprecatedBy}\` instead.` : '';
+        md.appendMarkdown(`\n\n**Deprecated.**${replacement}\n`);
+        if (functionData.deprecatedNote) {
+            md.appendMarkdown(`\n\n${functionData.deprecatedNote}\n`);
+        }
+    }
+
     if (options?.script) {
         md.appendMarkdown(
             `\n\n**Script:** \`${options.script.scriptKey}\` (${symbolSourceDetail(options.script)})\n\n`

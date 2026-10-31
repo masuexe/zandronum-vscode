@@ -61,6 +61,10 @@ export interface FlagData {
     type: string;
     desc?: string;
     for?: string;
+    /** Engine accepts this flag but marks it deprecated. */
+    deprecated?: boolean;
+    /** Short explanation shown in diagnostics, hover and completion. */
+    deprecatedNote?: string;
 }
 
 export interface ExpressionData {

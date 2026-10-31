@@ -25,6 +25,7 @@ import { registerDecorateRenameAndReferences } from './language/decorate/renameP
 import { registerDecorateFormattingProvider } from './language/decorate/formattingProvider';
 import { registerDecorateDiagnostics } from './language/decorate/diagnosticsProvider';
 import { registerAcsFormattingProvider } from './language/acs/formattingProvider';
+import { registerAcsDeprecationDiagnostics } from './language/acs/diagnosticsProvider';
 import { registerAcsRenameAndReferences } from './language/acs/renameProvider';
 import { registerSpriteOffsetEditor } from './editors/spriteOffsetEditorProvider';
 import { getTexturesKeywords } from './shared/dataLoader';
@@ -279,6 +280,7 @@ export function activate(context: vscode.ExtensionContext) {
     registerAcsSymbolProvider(context);
     registerAcsRenameAndReferences(context, acsFunctionsData, acsConstantsData);
     registerAcsFormattingProvider(context);
+    registerAcsDeprecationDiagnostics(context);
 
     context.subscriptions.push(
         vscode.workspace.onDidSaveTextDocument((doc) => {

@@ -55,7 +55,11 @@ Snippets are available for DECORATE (actor templates) and ACS (script templates)
 
 Cross-file symbol resolution (DECORATE actors, ACS constants) works within the workspace and against configured [base resources](#base-resources).
 
-DECORATE files also get live static diagnostics. The diagnostics report unknown actor properties and flags, invalid state labels, sprite and action problems, and missing jump targets. Deprecated engine actions such as `A_PlaySoundEx` also get a warning that names the replacement. Completion and hover mark a deprecated action. Set `zandronum-vscode.decorate.linting.enabled` to false to disable the diagnostics. Set `zandronum-vscode.decorate.linting.deprecated` to false to hide only the deprecation warnings.
+DECORATE files also get live static diagnostics. The diagnostics report unknown actor properties and flags, invalid state labels, sprite and action problems, and missing jump targets.
+
+Deprecated engine actions such as `A_PlaySoundEx` get a warning that names the replacement. Deprecated actor flags get the same warning. Completion and hover mark a deprecated symbol. Set `zandronum-vscode.decorate.linting.enabled` to false to disable the diagnostics. Set `zandronum-vscode.decorate.linting.deprecated` to false to hide only the deprecation warnings.
+
+ACS files get deprecation warnings for deprecated built-in functions such as `SetLineBlocking`. Set `zandronum-vscode.acs.linting.deprecated` to false to hide them.
 
 ### Editors
 

@@ -435,12 +435,16 @@
   "BlueCount": {
     "params": [],
     "desc": "ACS built-in: BlueCount.",
-    "returns": "int"
+    "returns": "int",
+    "deprecated": true,
+    "deprecatedBy": "GetTeamProperty"
   },
   "BlueScore": {
     "params": [],
     "desc": "ACS built-in: BlueScore.",
-    "returns": "int"
+    "returns": "int",
+    "deprecated": true,
+    "deprecatedBy": "GetTeamProperty"
   },
   "CancelFade": {
     "params": [],
@@ -4212,7 +4216,9 @@
       }
     ],
     "desc": "ACS function: GetTeamScore.",
-    "returns": "int"
+    "returns": "int",
+    "deprecated": true,
+    "deprecatedBy": "GetTeamProperty"
   },
   "GetThingUDMFFixed": {
     "params": [
@@ -4540,7 +4546,9 @@
       }
     ],
     "desc": "ACS function: KickFromGame.",
-    "returns": "int"
+    "returns": "int",
+    "deprecated": true,
+    "deprecatedBy": "ForceToSpectate"
   },
   "Light_ChangeToValue": {
     "params": [
@@ -6268,12 +6276,16 @@
   "RedCount": {
     "params": [],
     "desc": "ACS built-in: RedCount.",
-    "returns": "int"
+    "returns": "int",
+    "deprecated": true,
+    "deprecatedBy": "GetTeamProperty"
   },
   "RedScore": {
     "params": [],
     "desc": "ACS built-in: RedScore.",
-    "returns": "int"
+    "returns": "int",
+    "deprecated": true,
+    "deprecatedBy": "GetTeamProperty"
   },
   "RemoveBot": {
     "params": [
@@ -8178,7 +8190,9 @@
       }
     ],
     "desc": "ACS built-in: SetLineBlocking.",
-    "returns": "void"
+    "returns": "void",
+    "deprecated": true,
+    "deprecatedBy": "Line_SetBlocking"
   },
   "SetLineMonsterBlocking": {
     "params": [
@@ -8192,7 +8206,9 @@
       }
     ],
     "desc": "ACS built-in: SetLineMonsterBlocking.",
-    "returns": "void"
+    "returns": "void",
+    "deprecated": true,
+    "deprecatedBy": "Line_SetBlocking"
   },
   "SetLineSpecial": {
     "params": [
@@ -8778,7 +8794,9 @@
   "SinglePlayer": {
     "params": [],
     "desc": "ACS built-in: SinglePlayer.",
-    "returns": "int"
+    "returns": "int",
+    "deprecated": true,
+    "deprecatedBy": "GameType"
   },
   "SkipJoinQueue": {
     "params": [

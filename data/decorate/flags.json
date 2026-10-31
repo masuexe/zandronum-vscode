@@ -537,10 +537,14 @@
     "desc": "Actor flag"
   },
   "BLUETEAM": {
-    "desc": "Actor flag"
+    "desc": "Actor flag",
+    "deprecated": true,
+    "deprecatedNote": "Use the LimitedToTeam property instead."
   },
   "REDTEAM": {
-    "desc": "Actor flag"
+    "desc": "Actor flag",
+    "deprecated": true,
+    "deprecatedNote": "Use the LimitedToTeam property instead."
   },
   "BASEHEALTH": {
     "desc": "Actor flag"
@@ -558,7 +562,9 @@
     "desc": "Actor flag"
   },
   "NODE": {
-    "desc": "Actor flag"
+    "desc": "Actor flag",
+    "deprecated": true,
+    "deprecatedNote": "This flag does nothing."
   },
   "USESTBOUNCESOUND": {
     "desc": "Actor flag"
@@ -657,40 +663,64 @@
     "desc": "Actor flag"
   },
   "FIREDAMAGE": {
-    "desc": "Actor flag (deprecated)"
+    "desc": "Actor flag (deprecated)",
+    "deprecated": true,
+    "deprecatedNote": "Use a DamageType of \"Fire\" instead."
   },
   "ICEDAMAGE": {
-    "desc": "Actor flag (deprecated)"
+    "desc": "Actor flag (deprecated)",
+    "deprecated": true,
+    "deprecatedNote": "Use a DamageType of \"Ice\" instead."
   },
   "LOWGRAVITY": {
-    "desc": "Actor flag (deprecated)"
+    "desc": "Actor flag (deprecated)",
+    "deprecated": true,
+    "deprecatedNote": "Set the gravity property instead."
   },
   "SHORTMISSILERANGE": {
-    "desc": "Actor flag (deprecated)"
+    "desc": "Actor flag (deprecated)",
+    "deprecated": true,
+    "deprecatedNote": "Set the maxtargetrange property instead."
   },
   "LONGMELEERANGE": {
-    "desc": "Actor flag (deprecated)"
+    "desc": "Actor flag (deprecated)",
+    "deprecated": true,
+    "deprecatedNote": "Set the meleethreshold property instead."
   },
   "QUARTERGRAVITY": {
-    "desc": "Actor flag (deprecated)"
+    "desc": "Actor flag (deprecated)",
+    "deprecated": true,
+    "deprecatedNote": "Set the gravity property instead."
   },
   "FIRERESIST": {
-    "desc": "Actor flag (deprecated)"
+    "desc": "Actor flag (deprecated)",
+    "deprecated": true,
+    "deprecatedNote": "Use a Fire DamageFactor instead."
   },
   "HERETICBOUNCE": {
-    "desc": "Actor flag (deprecated)"
+    "desc": "Actor flag (deprecated)",
+    "deprecated": true,
+    "deprecatedNote": "Use the BounceType property instead."
   },
   "HEXENBOUNCE": {
-    "desc": "Actor flag (deprecated)"
+    "desc": "Actor flag (deprecated)",
+    "deprecated": true,
+    "deprecatedNote": "Use the BounceType property instead."
   },
   "DOOMBOUNCE": {
-    "desc": "Actor flag (deprecated)"
+    "desc": "Actor flag (deprecated)",
+    "deprecated": true,
+    "deprecatedNote": "Use the BounceType property instead."
   },
   "FASTER": {
-    "desc": "Actor flag (obsolete)"
+    "desc": "Actor flag (obsolete)",
+    "deprecated": true,
+    "deprecatedNote": "Use the Fast state flag instead."
   },
   "FASTMELEE": {
-    "desc": "Actor flag (obsolete)"
+    "desc": "Actor flag (obsolete)",
+    "deprecated": true,
+    "deprecatedNote": "Use the Fast state flag instead."
   },
   "INVENTORY.QUIET": {
     "desc": "Pickup sound, message and palette flash are not displayed",
@@ -722,11 +752,15 @@
   },
   "INVENTORY.INTERHUBSTRIP": {
     "desc": "Taken away between hubs (deprecated)",
-    "for": "Inventory"
+    "for": "Inventory",
+    "deprecated": true,
+    "deprecatedNote": "Set the InterHubAmount property instead."
   },
   "INVENTORY.PICKUPFLASH": {
     "desc": "PickupFlash actor spawned on pickup (deprecated)",
-    "for": "Inventory"
+    "for": "Inventory",
+    "deprecated": true,
+    "deprecatedNote": "Set the PickupFlash property instead."
   },
   "INVENTORY.ALWAYSPICKUP": {
     "desc": "Always picked up regardless of whether player can use it",
@@ -734,7 +768,9 @@
   },
   "INVENTORY.FANCYPICKUPSOUND": {
     "desc": "Pickup sound played in surround mode (deprecated, no effect)",
-    "for": "Inventory"
+    "for": "Inventory",
+    "deprecated": true,
+    "deprecatedNote": "This flag has no effect."
   },
   "INVENTORY.NOATTENPICKUPSOUND": {
     "desc": "Pickup sound played with no attenuation",

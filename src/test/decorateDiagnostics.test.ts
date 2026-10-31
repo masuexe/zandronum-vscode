@@ -55,6 +55,7 @@ const sourceData: DecorateLintSourceData = {
 		SOLID: { type: 'bool' },
 		NOCLIP: { type: 'bool' },
 		'INVENTORY.INVBAR': { type: 'bool' },
+		OLDFLAG: { type: 'bool', deprecated: true, deprecatedNote: 'Use NEWFLAG instead.' },
 	},
 	flagCombos: {
 		Monster: {},
@@ -536,6 +537,30 @@ suite('decorateDiagnostics — jump targets', () => {
 		]);
 		assert.deepStrictEqual(diagnostics, []);
 	});
+
+	test('reports deprecated actor flags', () => {
+		const diagnostics = lint([
+			'actor DeprecatedFlag',
+			'{',
+			'  +OLDFLAG',
+			'  Health 100',
+			'}',
+		]);
+		assert.strictEqual(diagnostics.length, 1);
+		assert.strictEqual(
+			diagnostics[0].message,
+			"Actor flag 'OLDFLAG' is deprecated. Use NEWFLAG instead."
+		);
+
+		const off = lint([
+			'actor DeprecatedFlagOff',
+			'{',
+			'  +OLDFLAG',
+			'  Health 100',
+			'}',
+		], { deprecationWarnings: false });
+		assert.deepStrictEqual(off, []);
+	});
 });
 
 suite('decorateDiagnostics — shipped metadata', () => {
@@ -580,6 +605,32 @@ suite('decorateDiagnostics — shipped metadata', () => {
 	test('keeps class-scoped flag spellings', () => {
 		assert.ok(flags['INVENTORY.INVBAR'], 'flags.json is missing INVENTORY.INVBAR');
 		assert.ok(flags['WEAPON.AMMO_OPTIONAL'], 'flags.json is missing WEAPON.AMMO_OPTIONAL');
+	});
+
+	test('marks engine-deprecated and Zandronum-deprecated flags', () => {
+		for (const name of [
+			'FIREDAMAGE',
+			'ICEDAMAGE',
+			'LOWGRAVITY',
+			'SHORTMISSILERANGE',
+			'LONGMELEERANGE',
+			'QUARTERGRAVITY',
+			'FIRERESIST',
+			'HERETICBOUNCE',
+			'HEXENBOUNCE',
+			'DOOMBOUNCE',
+			'FASTER',
+			'FASTMELEE',
+			'INVENTORY.INTERHUBSTRIP',
+			'INVENTORY.PICKUPFLASH',
+			'INVENTORY.FANCYPICKUPSOUND',
+			'BLUETEAM',
+			'REDTEAM',
+			'NODE',
+		]) {
+			const entry = flags[name] as { deprecated?: boolean } | undefined;
+			assert.strictEqual(entry?.deprecated, true, `${name} should be deprecated`);
+		}
 	});
 
 	test('marks engine-deprecated actions', () => {

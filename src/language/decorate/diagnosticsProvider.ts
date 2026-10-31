@@ -57,6 +57,8 @@ export interface DecorateLintMeta {
     properties: Set<string>;
     /** Lowercased actor flags and flag combos. */
     flags: Set<string>;
+    /** Lowercased deprecated flag names mapped to a replacement note. */
+    deprecatedFlags: Map<string, string>;
     /** Lowercased state callables (actions + line specials). */
     actions: Map<string, ActionData>;
     /** Lowercased state modifier keywords (Bright, Offset, ...). */
@@ -70,6 +72,7 @@ export function buildLintMeta(data: DecorateLintSourceData): DecorateLintMeta {
     }
 
     const flags = new Set<string>();
+    const deprecatedFlags = new Map<string, string>();
     // flags.json stores class-scoped flags as `CLASS.FLAG` (INVENTORY.INVBAR), but
     // DECORATE writes the bare name in `+FLAG`. Accept both spellings.
     const addFlag = (name: string) => {
@@ -80,8 +83,18 @@ export function buildLintMeta(data: DecorateLintSourceData): DecorateLintMeta {
             flags.add(lower.slice(dot + 1));
         }
     };
-    for (const name of Object.keys(data.flags)) {
+    for (const [name, flagData] of Object.entries(data.flags)) {
         addFlag(name);
+        if (!flagData.deprecated) {
+            continue;
+        }
+        const lower = name.toLowerCase();
+        const note = flagData.deprecatedNote ?? '';
+        deprecatedFlags.set(lower, note);
+        const dot = lower.lastIndexOf('.');
+        if (dot >= 0) {
+            deprecatedFlags.set(lower.slice(dot + 1), note);
+        }
     }
     for (const name of Object.keys(data.flagCombos)) {
         addFlag(name);
@@ -97,7 +110,7 @@ export function buildLintMeta(data: DecorateLintSourceData): DecorateLintMeta {
         stateKeywords.add(name.toLowerCase());
     }
 
-    return { properties, flags, actions, stateKeywords };
+    return { properties, flags, deprecatedFlags, actions, stateKeywords };
 }
 
 // Actor names in real mods may contain punctuation (MM8BDM uses `FlameSword2?`) and a
@@ -563,7 +576,7 @@ function scanActorBody(
             if (trimmed.startsWith('{') || trimmed.startsWith('}')) {
                 continue;
             }
-            checkActorBodyLine(text, trimmed, line, meta, diagnostics);
+            checkActorBodyLine(text, trimmed, line, meta, diagnostics, deprecationWarnings);
             continue;
         }
 
@@ -619,7 +632,8 @@ function checkActorBodyLine(
     trimmed: string,
     line: number,
     meta: DecorateLintMeta,
-    diagnostics: DecorateLintDiagnostic[]
+    diagnostics: DecorateLintDiagnostic[],
+    deprecationWarnings: boolean
 ): void {
     if (trimmed.startsWith('#') || DECLARATION_RE.test(trimmed)) {
         return;
@@ -628,8 +642,9 @@ function checkActorBodyLine(
     const flagMatch = FLAG_RE.exec(trimmed);
     if (flagMatch) {
         const flagName = flagMatch[2];
-        if (!meta.flags.has(flagName.toLowerCase())) {
-            const start = text.indexOf(flagName);
+        const flagKey = flagName.toLowerCase();
+        const start = text.indexOf(flagName);
+        if (!meta.flags.has(flagKey)) {
             diagnostics.push({
                 line,
                 startCharacter: start,
@@ -637,6 +652,18 @@ function checkActorBodyLine(
                 severity: 'warning',
                 message: `Unknown actor flag '${flagName}'.`,
             });
+        } else if (deprecationWarnings) {
+            const note = meta.deprecatedFlags.get(flagKey);
+            if (note !== undefined) {
+                const suffix = note ? ` ${note}` : '';
+                diagnostics.push({
+                    line,
+                    startCharacter: start,
+                    endCharacter: start + flagName.length,
+                    severity: 'warning',
+                    message: `Actor flag '${flagName}' is deprecated.${suffix}`,
+                });
+            }
         }
         return;
     }

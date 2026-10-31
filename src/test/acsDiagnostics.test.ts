@@ -81,7 +81,12 @@ suite('acsDiagnostics — comment and string stripping', () => {
 });
 
 suite('acsDiagnostics — shipped metadata', () => {
-	const functions: Record<string, { deprecated?: boolean; deprecatedBy?: string }> = JSON.parse(
+	const functions: Record<string, {
+		deprecated?: boolean;
+		deprecatedBy?: string;
+		returns?: string;
+		params?: Array<{ name: string; type: string }>;
+	}> = JSON.parse(
 		fs.readFileSync(path.join(__dirname, '..', '..', 'data', 'acs', 'functions.json'), 'utf8')
 	);
 
@@ -104,8 +109,24 @@ suite('acsDiagnostics — shipped metadata', () => {
 	});
 
 	test('keeps current ACS functions out of the deprecated list', () => {
-		for (const name of ['Print', 'GetTeamProperty', 'SetMusic', 'Line_SetBlocking', 'GetActorProperty']) {
+		for (const name of ['Print', 'GetTeamProperty', 'SetMusic', 'Line_SetBlocking', 'GetActorProperty', 'ForceToSpectate']) {
 			assert.ok(!functions[name]?.deprecated, `${name} should not be deprecated`);
+		}
+	});
+
+	test('adds the Zandronum-only ForceToSpectate function', () => {
+		const entry = functions.ForceToSpectate;
+		assert.ok(entry, 'functions.json is missing ForceToSpectate');
+		assert.strictEqual(entry?.returns, 'int');
+		assert.deepStrictEqual(entry?.params?.map(param => param.name), ['player', 'reason']);
+	});
+
+	test('points every deprecated ACS function at an existing replacement', () => {
+		for (const [name, data] of Object.entries(functions)) {
+			if (!data.deprecated || !data.deprecatedBy) {
+				continue;
+			}
+			assert.ok(functions[data.deprecatedBy], `${name} names missing replacement ${data.deprecatedBy}`);
 		}
 	});
 });

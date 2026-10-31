@@ -3040,6 +3040,20 @@
     "desc": "Line special / ACS callable: ForceField.",
     "returns": "int"
   },
+  "ForceToSpectate": {
+    "params": [
+      {
+        "name": "player",
+        "type": "int"
+      },
+      {
+        "name": "reason",
+        "type": "str"
+      }
+    ],
+    "desc": "ACS function: ForceToSpectate.",
+    "returns": "int"
+  },
   "FreeDBResults": {
     "params": [
       {

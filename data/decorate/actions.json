@@ -7,7 +7,9 @@
         "optional": true
       }
     ],
-    "desc": "Action function: A_Turn"
+    "desc": "Action function: A_Turn",
+    "deprecated": true,
+    "deprecatedBy": "A_SetAngle"
   },
   "A_LineEffect": {
     "params": [
@@ -22,7 +24,9 @@
         "optional": true
       }
     ],
-    "desc": "Action function: A_LineEffect"
+    "desc": "Action function: A_LineEffect",
+    "deprecated": true,
+    "deprecatedNote": "Call the action special directly instead."
   },
   "A_MonsterRail": {
     "params": [],
@@ -65,7 +69,10 @@
   },
   "A_Look": {
     "params": [],
-    "desc": "Action function: A_Look"
+    "desc": "Action function: A_Look",
+    "deprecated": true,
+    "deprecatedBy": "A_LookEx",
+    "deprecatedNote": "Superseded by A_LookEx."
   },
   "A_Chase": {
     "params": [
@@ -1014,15 +1021,21 @@
   },
   "A_MissileAttack": {
     "params": [],
-    "desc": "Action function: A_MissileAttack"
+    "desc": "Action function: A_MissileAttack",
+    "deprecated": true,
+    "deprecatedBy": "A_CustomMissile"
   },
   "A_MeleeAttack": {
     "params": [],
-    "desc": "Action function: A_MeleeAttack"
+    "desc": "Action function: A_MeleeAttack",
+    "deprecated": true,
+    "deprecatedBy": "A_CustomMeleeAttack"
   },
   "A_ComboAttack": {
     "params": [],
-    "desc": "Action function: A_ComboAttack"
+    "desc": "Action function: A_ComboAttack",
+    "deprecated": true,
+    "deprecatedBy": "A_BasicAttack"
   },
   "A_BulletAttack": {
     "params": [],
@@ -2430,7 +2443,10 @@
         "optional": true
       }
     ],
-    "desc": "Action function: A_ExtChase"
+    "desc": "Action function: A_ExtChase",
+    "deprecated": true,
+    "deprecatedBy": "A_Chase",
+    "deprecatedNote": "Use A_Chase with state label parameters instead."
   },
   "A_DropInventory": {
     "params": [
@@ -7350,7 +7366,9 @@
   "A_RailWait": {
     "params": [],
     "for": "Inventory",
-    "desc": "Action function: A_RailWait"
+    "desc": "Action function: A_RailWait",
+    "deprecated": true,
+    "deprecatedNote": "This function does nothing. Remove the call."
   },
   "A_BFGsound": {
     "params": [],

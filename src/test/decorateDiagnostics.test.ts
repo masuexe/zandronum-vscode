@@ -583,16 +583,42 @@ suite('decorateDiagnostics — shipped metadata', () => {
 	});
 
 	test('marks engine-deprecated actions', () => {
-		for (const [name, replacement] of [
+		const expected: Array<[string, string | undefined]> = [
 			['A_PlaySoundEx', 'A_PlaySound'],
 			['A_StopSoundEx', 'A_StopSound'],
 			['A_PlayWeaponSound', 'A_PlaySound'],
 			['A_SpawnItem', 'A_SpawnItemEx'],
-		] as const) {
+			['A_Look', 'A_LookEx'],
+			['A_ExtChase', 'A_Chase'],
+			['A_RailWait', undefined],
+			['A_MeleeAttack', 'A_CustomMeleeAttack'],
+			['A_MissileAttack', 'A_CustomMissile'],
+			['A_ComboAttack', 'A_BasicAttack'],
+			['A_Turn', 'A_SetAngle'],
+			['A_LineEffect', undefined],
+		];
+		for (const [name, replacement] of expected) {
 			assert.strictEqual(actions[name]?.deprecated, true, `${name} should be deprecated`);
 			assert.strictEqual(actions[name]?.deprecatedBy, replacement);
 		}
-		assert.ok(!actions.A_PlaySound?.deprecated, 'A_PlaySound should not be deprecated');
-		assert.ok(!actions.A_StopSound?.deprecated, 'A_StopSound should not be deprecated');
+	});
+
+	test('keeps current actions out of the deprecated list', () => {
+		for (const name of [
+			'A_PlaySound',
+			'A_StopSound',
+			'A_Chase',
+			'A_LookEx',
+			'A_SpawnItemEx',
+			'A_SetAngle',
+			'A_CustomMeleeAttack',
+			'A_BasicAttack',
+			'A_CustomMissile',
+			'A_FireCustomMissile',
+			'A_ChangeFlag',
+			'A_CheckFlag',
+		]) {
+			assert.ok(!actions[name]?.deprecated, `${name} should not be deprecated`);
+		}
 	});
 });
